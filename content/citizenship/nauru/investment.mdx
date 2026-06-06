@@ -1,0 +1,281 @@
+---
+title: "Donation – Nauru Citizenship by Investment"
+country: "Nauru"
+countrySlug: "nauru"
+programSlug: "investment"
+tagline: "Make a one-time donation to obtain Nauru citizenship."
+currency: "USD"
+timelineMonths: "3"
+minInvestment: 105000
+tags:
+  - "Nauru citizenship by investment"
+  - "donation route"
+  - "Nauru passport"
+  - "investment"
+
+# Media (conform to your loaders / fallbacks)
+heroImage: "/images/citizenship/nauru/donation-nauru.webp"
+heroVideo: "/images/personal/video/sample.mp4"
+heroPoster: "/images/citizenship/nauru/donation-nauru.webp"
+brochure: "/images/citizenship/nauru/nauru_citizenship_by_investment.pdf"
+
+# Program specifics / Projects / Risk & Compliance / Docs / Estimator
+routeType: "donation"
+holdingPeriodMonths: 60
+lastUpdated: "2025-03-01"
+
+prices:
+  - label: "Single applicant donation"
+    amount: 105000
+    currency: "USD"
+    notes: "Minimum donation for a single applicant."
+  - label: "Family of 2–4 donation"
+    amount: 110000
+    currency: "USD"
+    notes: "Covers spouse, children under 30, parents/grandparents over 55."
+  - label: "Family of 5 or more donation"
+    amount: 115000
+    currency: "USD"
+    notes: "Includes larger family units."
+  - label: "Additional sibling donation"
+    amount: 15000
+    currency: "USD"
+    notes: "Per extra sibling of the primary applicant or spouse."
+  - label: "Application fee — principal applicant"
+    amount: 25000
+    currency: "USD"
+  - label: "Application fee — applicant + up to 3 dependents"
+    amount: 27500
+    currency: "USD"
+  - label: "Application fee — applicant + 4+ dependents"
+    amount: 30000
+    currency: "USD"
+  - label: "Due diligence — principal applicant"
+    amount: 10000
+    currency: "USD"
+  - label: "Due diligence — each dependent (16+)"
+    amount: 7500
+    currency: "USD"
+  - label: "Due diligence — benefactor"
+    amount: 7500
+    currency: "USD"
+  - label: "Bank fee — single applicant"
+    amount: 1200
+    currency: "USD"
+  - label: "Bank fee — applicant + up to 3 dependents"
+    amount: 1700
+    currency: "USD"
+  - label: "Bank fee — applicant + 4+ dependents"
+    amount: 2200
+    currency: "USD"
+
+governmentFees:
+  - label: "Passport issuance (per person)"
+    amount: 500
+    currency: "USD"
+    notes: "Charged at issuance; non-refundable."
+
+proofOfFunds:
+  - label: "Required proof of funds"
+    notes: "Applicants must demonstrate ability to cover the donation and all associated fees for themselves and dependents."
+
+benefits:
+  - "Fast and straightforward citizenship process: 3–4 months."
+  - "Include spouse, children under 30, siblings, and parents/grandparents over 55."
+  - "No residency requirement; citizenship is lifetime and inheritable."
+  - "Dual citizenship permitted."
+  - "Visa-free travel to 86 countries, including Singapore, Hong Kong (SAR China), UAE, and the United Kingdom."
+  - "Secure, politically stable, and tax-friendly country."
+
+requirements:
+  - "Be at least 18 years old with a clean criminal record."
+  - "Pass due diligence screenings and provide proof of legal source of funds."
+  - "Be in good health."
+  - "Make the required donation according to family size."
+  - "Take the oath of allegiance to Nauru."
+
+disqualifiers:
+  - "Incomplete or falsified documentation."
+  - "Failure to pass due diligence or background checks."
+  - "Using non-approved channels for the donation."
+  - "Criminal history or adverse legal record."
+
+riskNotes:
+  - "The donation is non-refundable under normal circumstances."
+  - "Processing delays may occur due to enhanced due diligence."
+  - "Citizenship is granted only after successful government approval and completion of all requirements."
+
+complianceNotes:
+  - "Enhanced due diligence (KYC) checks are required for all adult applicants."
+  - "All principal applicants must attend a citizenship interview, which may be conducted online."
+  - "Full verification of source of funds is mandatory."
+
+projectList:
+  - name: "Harborview Suites (share units)"
+    minBuyIn: 270000
+    holdMonths: 60
+    notes: "Share-based participation in an approved hospitality development."
+    image: "/images/citizenship/grenada/coral-bay-residences.webp"
+  - name: "Coral Bay Residences (condo title)"
+    minBuyIn: 350000
+    holdMonths: 60
+    notes: "Limited inventory; rental pool optional."
+    image: "/images/citizenship/grenada/harborview-suites-share-units.webp"
+
+documentChecklist:
+  - group: "Identity & Civil"
+    documents:
+      - "Passport copies (validity ≥ 12 months)"
+      - "Birth and marriage certificates (apostilled if applicable)"
+      - "Proof of name change (if applicable)"
+      - "De facto partnership proof (if applicable)"
+  - group: "Financial & SOF"
+    documents:
+      - "Bank statements (6–12 months)"
+      - "Proof of donation payment"
+      - "Source-of-funds documents"
+  - group: "Compliance"
+    documents:
+      - "Police clearance certificates"
+      - "Medical certificate (including HIV test)"
+
+familyMatrix:
+  childrenUpTo: 30
+  parentsFromAge: 55
+  siblings: true
+  spouse: true
+  grandparents: true
+
+quickCheck:
+  title: "Donation Pre-Screen"
+  questions:
+    - id: "donation"
+      label: "Ready to make the required donation and cover all associated fees?"
+      type: "boolean"
+    - id: "clean"
+      label: "Do you have a clean background and all KYC documents ready?"
+      type: "boolean"
+    - id: "interview"
+      label: "Are you comfortable attending the citizenship interview (online or in-person)?"
+      type: "boolean"
+  ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check Eligibility"
+    secondaryHref: "/citizenship/nauru"
+    secondaryText: "View All nauru Programs"
+
+# Optional interactive estimator (drives CostCalculator)
+costEstimator:
+  baseOptions:
+    - id: "single"
+      label: "Single applicant — donation"
+      amount: 105000
+    - id: "family2to4"
+      label: "Family of 2–4 — donation"
+      amount: 110000
+    - id: "family5plus"
+      label: "Family of 5+ — donation"
+      amount: 115000
+  defaultBaseId: "single"
+  adults: 1
+  children: 0
+  addons:
+    - id: "extra-sibling"
+      label: "Additional sibling donation (each)"
+      amount: 15000
+    - id: "app-fee-principal"
+      label: "Application fee — principal"
+      amount: 25000
+    - id: "app-fee-up-to-3"
+      label: "Application fee — applicant + up to 3 dependents"
+      amount: 27500
+    - id: "app-fee-4plus"
+      label: "Application fee — applicant + 4+ dependents"
+      amount: 30000
+    - id: "dd-principal"
+      label: "Due diligence — principal applicant"
+      amount: 10000
+    - id: "dd-dependent-16plus"
+      label: "Due diligence — each dependent (16+)"
+      amount: 7500
+    - id: "dd-benefactor"
+      label: "Due diligence — benefactor"
+      amount: 7500
+    - id: "bank-fee-single"
+      label: "Bank fee — single applicant"
+      amount: 1200
+    - id: "bank-fee-up-to-3"
+      label: "Bank fee — applicant + up to 3 dependents"
+      amount: 1700
+    - id: "bank-fee-4plus"
+      label: "Bank fee — applicant + 4+ dependents"
+      amount: 2200
+    - id: "passport-per-person"
+      label: "Passport issuance — per person"
+      amount: 500
+      per: "person"
+
+seo:
+  title: "Nauru Citizenship – Donation Investment Route"
+  description: "Obtain Nauru citizenship through a one-time donation. Learn about minimum investment, fees, process, and family inclusion."
+  keywords:
+    - "Nauru citizenship by investment"
+    - "Nauru donation route"
+    - "second passport Nauru"
+    - "Nauru citizenship"
+---
+
+### Overview
+Nauru’s **Citizenship by Investment (CBI) program** provides a fast, secure path to a Nauruan passport. Citizenship is **lifetime, inheritable, and does not require residency**. Applicants gain **visa-free travel to 86 countries**, including Singapore, Hong Kong (SAR China), UAE, and the United Kingdom. The program is family-friendly, allowing inclusion of **spouse, children, siblings, and parents/grandparents**.  
+
+### Investment Overview
+The program offers a **single investment option via a one-time donation**. Minimum amounts start from **USD 105,000 for a single applicant**, with higher contributions for families. This **non-refundable donation route** is simple, government-backed, and allows full family inclusion. Typical processing time is **3–4 months**, subject to due diligence.  
+
+### Quick Eligibility Check
+- Applicant must be **18 years or older**.  
+- Must have a **clean criminal record**.  
+- Provide **verifiable proof of legal source of funds**.  
+- Eligible family members include **spouse, children under 30, siblings, and parents/grandparents over 55**.  
+
+### Featured Real Estate Projects
+> **Note:** Not applicable for Nauru’s donation route. For asset-backed options, see alternate CBI programs if available.  
+
+### How the Investment Route Works
+1. **Consult with XIPHIAS** to determine eligibility.  
+2. Prepare and **submit required documentation**.  
+3. Complete **due diligence** for all adult applicants.  
+4. **Make the donation** based on family size.  
+5. Take the **oath of allegiance** and receive the **Nauru passport**.  
+
+### Investment Risks and Compliance
+- The **donation is non-refundable**.  
+- Processing may experience delays due to **enhanced due diligence**.  
+- **KYC verification and citizenship interview** are required for all adult applicants.  
+
+### Why Nauru
+- **Safe, politically stable, and tax-friendly** Pacific nation.  
+- **No residency requirement**; dual citizenship allowed.  
+- Family-friendly: include **spouse, children, parents, and siblings**.  
+- **Quick and straightforward** citizenship processing.  
+
+### FAQ
+- **How long does the process take?** 3–4 months.  
+- **Can I include family?** Yes, spouse, children under 30, siblings, and parents/grandparents over 55.  
+- **What is the minimum investment?** USD 105,000 for a single applicant.  
+- **Are there taxes on citizenship?** No taxes are applied.  
+- **Is an interview required?** Yes, for all principal applicants.  
+- **Can I hold dual citizenship?** Yes.  
+
+### Why Choose This Route
+- **Simple and fast donation route** to Nauru citizenship.  
+- **Full family inclusion** under a single application.  
+- Transparent fees covering donation, **due diligence**, and passport issuance.  
+- No residency requirement; ideal for investors seeking a **secure Pacific island nation**.  
+
+### Indicative Budget
+- **Single applicant:** USD 105,000 + fees.  
+- **Family of 2–4:** USD 110,000 + fees.  
+- **Family of 5 or more:** USD 115,000 + fees.  
+- **Additional siblings:** USD 15,000 each.  
+- **Passport issuance:** USD 500 per person.  
+- **Due diligence and bank fees** vary depending on family size.  

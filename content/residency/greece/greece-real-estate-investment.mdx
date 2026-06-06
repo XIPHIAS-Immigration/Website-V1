@@ -1,0 +1,174 @@
+---
+program: real-estate-investment
+vertical: residency
+kind: program
+title: Greece Golden Visa – Real Estate Investment Route
+country: Greece
+countrySlug: greece
+programSlug: greece-real-estate-investment
+tagline: Secure Greek residency through qualifying real estate purchases across Greece’s regions and islands.
+minInvestment: 250000
+currency: EUR
+timelineMonths: 4
+tags:
+  ["Greece", "real estate", "residency by investment"]
+
+heroImage: "/images/residency/greece/greece-real-estate-investment.webp"
+heroVideo: ""
+heroPoster: "/images/residency/greece/greece-real-estate-investment.webp"
+brochure: "/images/residency/greece/greece_rbi.pdf"
+
+# PRICES (no separate governmentfees key — add placeholders here)
+prices:
+  - label: Single property (major cities/islands, >3,100 pop, min 120 sqm)
+    amount: 800000
+    when: Upon purchase
+    notes: Min €800,000; property ≥120 sqm.
+  - label: Single property (other areas, min 120 sqm)
+    amount: 400000
+    when: Upon purchase
+    notes: Min €400,000; property ≥120 sqm.
+  - label: Commercial property converted to residential
+    amount: 250000
+    when: Upon conversion
+    notes: Min €250,000; conversion completed pre-application.
+  - label: Listed historic / cultural property
+    amount: 250000
+    when: Upon restoration
+    notes: Min €250,000; full restoration required.
+  - label: Estimated government & admin fees
+    amount: 0
+    when: Upon payment
+    notes: Verify current fees (notary, transfer, admin).
+
+# optional
+proofOfFunds:
+  - label: Proof of purchase funds (bank statements / SWIFT transfers) — confirm requirements
+    amount: 0
+    notes: Verify bank statement period and documentary requirements with official sources.
+
+disqualifiers:
+  - "Serious criminal convictions or pending criminal investigations."
+  - "Inability to provide verifiable source of funds or legitimate financial documentation."
+  - "False declarations or forged documents."
+
+benefits:
+  - "Obtain five-year renewable residency in Greece through real estate investment."
+  - "Enjoy visa-free travel across the Schengen Area (90 days in any 180-day period)."
+  - "No formal minimum physical stay required to maintain residency."
+  - "Eligible to rent out qualifying investment properties for income."
+  - "Pathway to Greek citizenship after 7 years with 183-day annual residency and Greek language proficiency."
+
+requirements:
+  - "Applicant must be a non-EU national."
+  - "Make and retain a qualifying real estate investment as described in prices."
+  - "Transfer funds from abroad and provide proof of source of funds."
+  - "Complete required documentation and attend a scheduled biometric appointment in Greece."
+  - "Cover all government, notary, and legal fees."
+
+# quick check (schema shape)
+quickCheck:
+  questions:
+    - id: "q1"
+      label: "Are you a non-EU national?"
+      desc: "Only non-EU nationals qualify for this program."
+    - id: "q2"
+      label: "Do you have access to at least €250,000 in verifiable funds?"
+      desc: "Minimum threshold varies by option; lowest is €250k."
+    - id: "q3"
+      label: "Are you willing to complete purchase and property registration in Greece?"
+      desc: "You’ll need SPA/title transfer and local registration."
+  policy:
+    type: "all"
+  verdict:
+    successTitle: "Likely eligible"
+    successText: "You likely meet the core criteria — speak to our advisor to confirm."
+    cautionTitle: "Possibly eligible"
+    cautionText: "You may still qualify — let’s review your case."
+  ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check detailed Eligibility"
+    secondaryHref: "/residency/greece"
+    secondaryText: "View all Greece Programs"
+
+# process (title/description objects)
+processSteps:
+  - title: Property selection & reservation
+    description: "Identify qualifying property, sign reservation / SPA, and complete KYC pre-screen."
+  - title: POA & AFM
+    description: "Legalize Power of Attorney if applicable; request Greek tax number (AFM)."
+  - title: Funds transfer & closing
+    description: "Transfer purchase funds to Greece, complete notary and title registration."
+  - title: Compile application
+    description: "Prepare application pack and supporting documents; file with competent Greek authority."
+  - title: Biometrics
+    description: "Attend biometric enrollment in Greece within 6 months of submission."
+  - title: Residence permit issuance
+    description: "Receive the 5-year residency permit; renew every 5 years while retaining the qualifying asset."
+  - title: Long-term pathway
+    description: "After 5 years consider PR; after 7 years of qualifying residence and language proficiency, consider naturalization."
+
+faq:
+  - q: "What is the minimum investment for the real estate route?"
+    a: "From €250,000 (for commercial conversion or restoration projects) up to €800,000 for qualifying properties in major cities/islands. See investment thresholds above."
+  - q: "Do I need to live in Greece full-time?"
+    a: "No. There is no minimum physical stay required to maintain the Golden Visa; however, 183 days annual stay is required for tax residency/citizenship considerations."
+  - q: "Can I rent my investment property?"
+    a: "Yes — qualifying real estate can be rented, subject to local rental regulations, taxes, and management requirements."
+  - q: "Are government fees included in the investment amounts?"
+    a: "No — government, notary, transfer taxes and related fees are additional. Exact figures should be verified with Greek authorities."
+  - q: "Who can be included in the application?"
+    a: "Spouse, children up to 21, and dependent parents (subject to eligibility)."
+  - q: "How long until I receive a residency permit?"
+    a: "Typical processing time for the application phase is 2–4 months, though timelines vary depending on completeness and local processing volumes."
+
+# (optional) estimator
+costEstimator:
+  baseOptions:
+    - id: "opt_athens800"
+      label: "Athens / Major Islands – €800,000"
+      amount: 800000
+    - id: "opt_region400"
+      label: "Other Areas – €400,000"
+      amount: 400000
+    - id: "opt_convert250"
+      label: "Commercial conversion – €250,000"
+      amount: 250000
+    - id: "opt_restore250"
+      label: "Historic restoration – €250,000"
+      amount: 250000
+  defaultBaseId: "opt_region400"
+  adults: 2
+  children: 0
+  addons:
+    - id: "gov_fees"
+      label: "Estimated government & legal fees (VERIFY)"
+      amount: 0
+
+seo:
+  title: "Greece Golden Visa – Real Estate Investment"
+  description: "Secure Greek residency with real estate from €250k–€800k. See thresholds, steps, eligibility, and family inclusion. Fast processing and Schengen travel."
+  keywords: ["Greece Golden Visa", "Greece permanent residency", "residency by investment"]
+---
+
+## Overview
+The **Greece Golden Visa – Real Estate Investment** route allows non-EU investors to obtain a renewable **five-year residency permit** by purchasing qualifying property in Greece. Investors may select from regional or major-city/island options with thresholds ranging from **€250,000** to **€800,000**. The permit allows **visa-free travel within the Schengen Area**, family inclusion (spouse, children up to **21**, dependent parents), and the ability to rent the property. Retain ownership of the qualifying asset to renew the permit; eligibility for citizenship is possible after **7 years** with a **183-day** annual stay and Greek language proficiency.
+
+## Investment Overview
+* **Thresholds & options**
+  - **€800,000** — Single property (min **120 sqm**) in Athens, Thessaloniki, Mykonos, Santorini, or islands with population > 3,100.  
+  - **€400,000** — Single property (min **120 sqm**) in other areas of Greece.  
+  - **€250,000** — Purchase of a commercial property converted to residential (conversion completed before applying).  
+  - **€250,000** — Purchase and full restoration of a listed historic/culturally significant property.  
+
+## Comparison Table (Investment Options)
+
+| Investment Option        | Real Estate Investment          | Capital / Other Investment       |
+|--------------------------|--------------------------------|--------------------------------|
+| Min Investment           | **€250,000–€800,000**         | **€250,000–€800,000**         |
+| Fees (€)                 | **€2,000 + family fees**       | **€2,000 + family fees**       |
+| Holding Period           | **5 years**                    | **Varies by vehicle**          |
+| Family Inclusion         | Spouse + children up to 21, dependent parents | Spouse + children up to 21, dependent parents |
+| Citizenship Eligibility  | **7 years** (183-day stay + Greek) | **7 years** (183-day stay + Greek) |
+| Liquidity                | Low–Medium                     | Medium–High                    |
+| Typical Use Case         | Lifestyle, rental income       | Bonds, REICs, funds            |

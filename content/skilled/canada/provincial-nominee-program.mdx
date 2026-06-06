@@ -1,0 +1,201 @@
+---
+program: provincial-nominee-program
+vertical: skilled
+kind: program
+title: "Provincial Nominee Program (PNP)"
+country: Canada
+countrySlug: canada
+programSlug: provincial-nominee-program
+tagline: "Nomination by Canadian provinces and territories for skilled workers offering a pathway to permanent residence."
+currency: CAD
+timelineMonths: 12
+tags: ["PNP", "skilled workers", "province nomination"]
+
+seo:
+  title: "Canada Provincial Nominee Program – Skilled Worker Immigration"
+  description: "The Provincial Nominee Program allows Canadian provinces and territories to nominate skilled foreign workers for permanent residence based on local labour-market needs."
+  keywords: ["Canada PNP", "Provincial Nominee Program", "Canada PR nomination"]
+
+heroImage: "/images/skilled/canada/provincial-nominee-program.webp"
+heroVideo: ""
+heroPoster: "/images/skilled/canada/provincial-nominee-program.webp"
+brochure: "/images/residency/xiphias-corporate-mobility.pdf"
+
+routeType: points
+lastUpdated: "2025-10-30"
+jobOfferRequired: false
+jobOfferNote: "Some streams require a job offer; others may allow without one if criteria are met."
+
+language:
+  tests: ["IELTS", "CELPIP", "TEF Canada", "TCF Canada"]
+  minLevel: "Varies by province and stream"
+languageMin:
+  test: "IELTS (or CELPIP/TEF equivalents)"
+  overall: 6
+  bands:
+    listening: 6
+    reading: 6
+    writing: 6
+    speaking: 6
+
+points:
+  max: 1200
+pointsThreshold: 600
+
+pointsGrid:
+  - category: "Core/Human Capital Factors (age, education, experience, language)"
+    max: 500
+    notes: "Points for key personal and skill factors."
+  - category: "Spouse or common-law partner factors"
+    max: 40
+    notes: "Points from spouse’s education and language."
+  - category: "Skill Transferability factors"
+    max: 100
+    notes: "Points for combined skills and experience."
+  - category: "Additional factors (PNP, job offer, study, siblings, French)"
+    max: 600
+    notes: "Bonus points for extra eligibility factors."
+
+prices:
+  - label: "PNP nomination application fee (varies by province)"
+    amount: 500
+    notes: "Ranges from CAD 250–1,500 depending on province."
+  - label: "Federal PR application fee (main applicant)"
+    amount: 1365
+    notes: "Payable to IRCC after nomination."
+  - label: "Language test (typical)"
+    amount: 350
+    notes: "Based on IELTS/CELPIP/TEF provider."
+  - label: "Medical exam (typical)"
+    amount: 300
+    notes: "Varies by panel physician."
+
+governmentFees:
+  - label: "Federal PR application fee"
+    amount: 1365
+    currency: CAD
+  - label: "Provincial nomination application (varies)"
+    currency: CAD
+  - label: "Right of Permanent Residence Fee"
+    amount: 515
+    currency: CAD
+
+benefits:
+  - "Direct pathway to Canadian permanent residence via provincial nomination."
+  - "Tailored streams for skilled workers, graduates, and semi-skilled workers."
+  - "Lower points or job-offer requirements in some provinces."
+  - "Include spouse and dependent children in one application."
+  - "Many streams aligned with Express Entry for faster processing."
+
+requirements:
+  - "Receive a nomination from a Canadian province or territory."
+  - "Meet province-specific eligibility (job offer, experience, education, or language)."
+  - "Submit federal PR application after receiving nomination."
+  - "Demonstrate intent to live and work in the nominating province."
+
+disqualifiers:
+  - "No valid provincial nomination."
+  - "Failure to meet stream-specific criteria."
+  - "Inadmissibility under federal PR requirements (health, character, or funds)."
+
+riskNotes:
+  - "Each province sets unique eligibility rules and criteria."
+  - "Nomination does not guarantee PR — federal approval still required."
+  - "Nominees are expected to reside in the nominating province."
+
+complianceNotes:
+  - "Comply with nomination terms (residence and employment obligations)."
+  - "Submit PR application within the required timeframe after nomination."
+  - "Update authorities on any major status changes (job, residence, etc.)."
+
+documentChecklist:
+  - group: "Identity & Civil"
+    documents:
+      - "Passport and national ID"
+      - "Birth and marriage certificates"
+  - group: "Nomination & Stream Documents"
+    documents:
+      - "Nomination certificate from province or territory"
+      - "Proof of eligibility (job offer, education, or work experience)"
+  - group: "Language & Tests"
+    documents:
+      - "IELTS/CELPIP/TEF results (as required)"
+  - group: "Health & Character"
+    documents:
+      - "Medical examination report"
+      - "Police clearance certificates"
+
+familyMatrix:
+  childrenUpTo: 22
+  parentsFromAge: 0
+  siblings: true
+  spouse: true
+
+quickCheck:
+  title: "PNP — Quick Eligibility"
+  questions:
+    - id: "nomination"
+      label: "Do you have or qualify for a provincial/territorial nomination?"
+      type: boolean
+    - id: "criteria"
+      label: "Do you meet province-specific criteria (job offer, education, or experience)?"
+      type: boolean
+    - id: "intention"
+      label: "Do you intend to live and work in the nominating province?"
+      type: boolean
+  ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check detailed Eligibility"
+    secondaryHref: "/skilled/canada"
+    secondaryText: "View all Canada Programs"
+
+processSteps:
+  - title: "Select Province & Stream"
+    description: "Choose a suitable province or territory and identify your eligible stream."
+  - title: "Submit Expression of Interest (EOI) or Apply to Stream"
+    description: "Register your interest or apply directly depending on the province’s system."
+  - title: "Receive Nomination"
+    description: "If selected, obtain a provincial nomination certificate."
+  - title: "Apply for Permanent Residence"
+    description: "Submit your federal PR application through IRCC."
+  - title: "Land and Settle"
+    description: "Move to Canada and establish residence in your nominating province."
+
+faq:
+  - q: "Do I need a job offer for PNP?"
+    a: "Some provincial streams require it, while others do not."
+  - q: "Does nomination guarantee PR?"
+    a: "No — IRCC must still approve your permanent residence application."
+  - q: "Can I move to another province after nomination?"
+    a: "You are expected to live and work in your nominating province initially."
+  - q: "Can I include my family?"
+    a: "Yes, you can include your spouse and dependent children."
+
+costEstimator:
+  baseOptions:
+    - id: "primary"
+      label: "Nomination & PR Application Fee (estimate)"
+      amount: 1365
+  defaultBaseId: "primary"
+  adults: 1
+  children: 0
+  addons:
+    - id: "language-test"
+      label: "Language test (typical)"
+      amount: 350
+      per: "application"
+    - id: "medical"
+      label: "Medical exam (typical)"
+      amount: 300
+      per: "application"
+---
+### Overview
+The **Canada Provincial Nominee Program (PNP)** enables provinces and territories to nominate skilled professionals for **permanent residency**.  
+It’s designed to meet **regional labour demands** and offers a **direct or Express Entry–linked pathway** to Canadian PR, helping skilled workers settle and contribute locally.
+
+## Why Choose PNP
+- Gain up to **600 additional CRS points** with provincial nomination  
+- **Flexible options** — many streams don’t require a job offer  
+- **Faster PR processing** through Express Entry–linked streams  
+- Include your **spouse and dependents** in one application  
+- Benefit from **strong settlement and employment support** from provinces  

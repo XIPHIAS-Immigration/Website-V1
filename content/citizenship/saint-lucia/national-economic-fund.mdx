@@ -1,0 +1,266 @@
+---
+title: "St. Lucia Citizenship by Investment – National Economic Fund (NEF) Donation Route"
+country: "Saint Lucia"
+countrySlug: "saint-lucia"
+programSlug: "national-economic-fund"
+tagline: "Fast, secure, and family-friendly route to St. Lucia citizenship via a non-refundable government contribution."
+currency: "USD"
+timelineMonths: "12"
+minInvestment: 240000
+tags:
+  - "St. Lucia Citizenship by Investment"
+  - "St. Lucia passport"
+  - "fast-track citizenship"
+
+# Media (conform to your loaders / fallbacks)
+heroImage: "/images/citizenship/saint-lucia-citizenship/nef-saint-lucia.webp"
+heroVideo: "/images/personal/video/sample.mp4"
+heroPoster: "/images/citizenship/saint-lucia-citizenship/nef-saint-lucia.webp"
+brochure: "/images/citizenship/saint-lucia-citizenship/st_lucia_cbi.pdf"
+
+# Program specifics / Projects / Risk & Compliance / Docs / Estimator
+routeType: "donation"
+holdingPeriodMonths: 0
+lastUpdated: "2025-03-01"
+
+prices:
+  - label: "National Economic Fund (NEF) contribution — single applicant"
+    amount: 240000
+    notes: "One-time, non-refundable contribution. For main applicant + spouse: USD 275,000; main applicant + spouse + 2 dependents: USD 290,000."
+  - label: "Add-on: eligible dependant under 18 (each)"
+    amount: 10000
+    notes: "For each dependent under 18 not included in the main package."
+  - label: "Add-on: eligible dependant 18 or over (each)"
+    amount: 20000
+    notes: "For each dependent 18+ not included in the main package."
+  - label: "Add-on: citizen’s newborn (≤12 months)"
+    amount: 5000
+    notes: "For newborns under 12 months at the time of application."
+  - label: "Add-on: spouse"
+    amount: 35000
+    notes: "Fee for including a spouse."
+  - label: "Add-on: qualifying dependant (not spouse)"
+    amount: 25000
+    notes: "For siblings or other eligible dependents (non-spouse)."
+  - label: "Application processing — main applicant"
+    amount: 2000
+  - label: "Application processing — each qualifying dependant"
+    amount: 1000
+  - label: "Due diligence — main applicant"
+    amount: 8000
+  - label: "Due diligence — each qualifying dependant"
+    amount: 5000
+  - label: "Passport issuance — per person"
+    amount: 500
+    notes: "Charged at issuance; non-refundable."
+
+governmentFees:
+  - label: "Application processing (per adult)"
+    amount: 2000
+  - label: "Naturalization & stamp fees"
+    amount: 0
+    notes: "Included in NEF contribution."
+
+proofOfFunds:
+  - label: "Recommended liquid funds (from)"
+    amount: 240000
+    notes: "Indicative buffer to cover NEF contribution, due diligence, and passport issuance costs."
+
+benefits:
+  - "Fast processing, typically within 6–12 months, with robust due diligence."
+  - "Simple, donation-based route with family add-ons available."
+  - "No residency requirement; citizenship is lifelong and inheritable."
+  - "Visa-free or visa-on-arrival access to 145+ countries, including the UK, Schengen Area, Singapore, and Hong Kong."
+  - "Supports Saint Lucia’s national development through the NEF."
+
+requirements:
+  - "Make the NEF contribution after receiving Approval-in-Principle from the CIU."
+  - "Pass multi-layer due diligence (background, financial, health) and complete a personal interview."
+  - "Provide all required documentation (IDs, proof of funds, birth/marriage certificates, dependent proofs)."
+  - "Comply with Saint Lucia CBI regulations, nationality, and sanctions restrictions."
+
+disqualifiers:
+  - "Unclear or unverifiable source of funds."
+  - "Adverse background findings or sanctions/watchlist presence."
+  - "Failure to complete KYC/AML checks or provide required documents."
+
+riskNotes:
+  - "NEF contributions are non-refundable."
+  - "Delays can occur due to incomplete documentation or extended due diligence."
+  - "Applicants must ensure legitimacy of funds to avoid rejection."
+
+complianceNotes:
+  - "All applicants/dependents (as applicable) undergo enhanced due diligence and interviews."
+  - "Accurate, verifiable documentation is mandatory under Saint Lucia CBI rules."
+  - "Strict adherence to AML/CTF requirements."
+
+projectList:
+  - name: "Not applicable — donation route"
+    minBuyIn: 0
+    holdMonths: 0
+    notes: "NEF is contribution-based; no real estate is required."
+    image: "/images/citizenship/saint-lucia-citizenship/nef-saint-lucia.webp"
+
+documentChecklist:
+  - group: "Identity & Civil"
+    documents:
+      - "Valid passport copies (main applicant and dependents)"
+      - "Birth certificates (applicant and dependents)"
+      - "Marriage certificate (if applicable)"
+      - "Police clearance / background check for applicants aged 16+"
+  - group: "Financial & Source of Funds"
+    documents:
+      - "Proof of source of funds / bank statements"
+  - group: "Health & Compliance"
+    documents:
+      - "Medical certificate (as per CIU guidelines)"
+      - "Professional reference letters (if required)"
+      - "Signed application forms"
+      - "Recent passport-sized photographs"
+
+familyMatrix:
+  spouse: true
+  childrenUpTo: 31
+  parentsFromAge: 55
+  siblings: true
+
+quickCheck:
+  title: "Saint Lucia NEF Pre-Screen"
+  questions:
+    - id: "clean"
+      label: "Clean background & no sanctions?"
+      desc: "No serious criminal history; not on restricted lists."
+      type: "boolean"
+    - id: "funds"
+      label: "Budget for USD 240k + fees?"
+      desc: "Covers contribution, due diligence, and issuance."
+      type: "boolean"
+    - id: "docs"
+      label: "Can supply full KYC documents?"
+      desc: "IDs, source of funds, civil status, police certs."
+      type: "boolean"
+  policy:
+    type: "all"
+  verdict:
+    successTitle: "Likely eligible"
+    successText: "Profile appears aligned; let’s confirm specifics."
+    cautionTitle: "Possibly eligible"
+    cautionText: "Edge cases may require additional evidence."
+  ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check Eligibility"
+    secondaryHref: "/citizenship/saint-lucia"
+    secondaryText: "View All saint-lucia Programs"
+
+# Optional interactive estimator (drives CostCalculator)
+costEstimator:
+  baseOptions:
+    - id: "nef240"
+      label: "NEF contribution — base (from)"
+      amount: 240000
+  defaultBaseId: "nef240"
+  adults: 2
+  children: 0
+  addons:
+    - id: "add-spouse"
+      label: "Add spouse"
+      amount: 35000
+    - id: "add-minor"
+      label: "Add dependent (<18)"
+      amount: 10000
+      per: "child"
+    - id: "add-adult"
+      label: "Add dependent (18+)"
+      amount: 20000
+      per: "adult"
+    - id: "dd-main"
+      label: "Due diligence — main applicant"
+      amount: 8000
+    - id: "dd-dep"
+      label: "Due diligence — per dependent"
+      amount: 5000
+      per: "person"
+    - id: "app-main"
+      label: "Application processing — main"
+      amount: 2000
+    - id: "app-dep"
+      label: "Application processing — per dependent"
+      amount: 1000
+      per: "person"
+    - id: "passport-per-person"
+      label: "Passport issuance — per person"
+      amount: 500
+      per: "person"
+
+seo:
+  title: "St. Lucia NEF – Citizenship by Investment Donation Route"
+  description: "Obtain St. Lucia citizenship through a contribution to the National Economic Fund (NEF). Learn about minimum investment, family inclusion, fees, due diligence, and processing timelines."
+  keywords:
+    - "st lucia citizenship"
+    - "saint lucia citizenship by investment"
+    - "st lucia passport"
+---
+
+### Overview
+The National Economic Fund (NEF) route provides a **direct and secure pathway to Saint Lucia citizenship** through a one-time, non-refundable government contribution. Applicants and eligible dependents can obtain citizenship **without any residency requirement**, making it ideal for families and investors seeking global mobility.
+
+### Investment Overview
+- **Minimum NEF Contribution**: USD 240,000 for the main applicant and up to three dependents  
+- **Additional Fees**: Due diligence (USD 8,000 for main applicant; USD 5,000 per dependent) and application processing (USD 2,000 per person)  
+- **Add-ons**: Spouse, additional dependents under/over 18, and newborns (≤12 months)  
+
+### Quick Eligibility Check
+- Clean background & no sanctions for all adult applicants  
+- Budget for minimum NEF contribution and associated fees  
+- Ability to supply full KYC and supporting documents (IDs, proof of funds, civil status, police certificates)  
+
+### Featured Real Estate Projects
+*Not applicable — NEF is a donation-based program.*
+
+### How the Investment Route Works
+1. Engage an authorised agent for consultation and document preparation  
+2. Submit NEF application to the Citizenship by Investment Unit (CIU)  
+3. Complete multi-layer due diligence and personal interview  
+4. Receive Approval-in-Principle from CIU  
+5. Make the NEF contribution to secure citizenship  
+6. Obtain the certificate of citizenship and apply for passports  
+
+### Comparison: Saint Lucia NEF vs Real Estate Investment
+| Feature | Saint Lucia NEF Donation | Saint Lucia Real Estate Investment |
+|---|---|---|
+| Minimum Investment | USD 240,000 (main + up to 3 dependents) | USD 300,000–600,000 |
+| Additional Family Fees | Spouse USD 35k; dependents USD 10k–20k+ | Spouse USD 15k; Per child USD 10k (typical) |
+| Due Diligence Fees | Main USD 8,000; dependent USD 5,000 | Main USD 8,000; dependent 16+ USD 5,000 |
+| Application Processing | Main USD 2,000; dependent USD 1,000 | ~USD 2,000 per person |
+| Passport Fee | USD 500 per person | USD 350–500 per person |
+| Processing Timeline | 6–12 months | 6–12 months |
+| Residency Requirement | None | None |
+| Investment Type | Non-refundable donation | Asset-backed real estate |
+| Family Inclusion | Spouse, children, parents, siblings | Spouse, children, parents, siblings |
+| Investment Risk | None (donation) | Market-dependent; yields not guaranteed |
+| Visa-Free Travel | 145+ countries (incl. UK, Schengen, Singapore, Hong Kong) | 145+ countries (similar coverage) |
+
+### Investment Risks and Compliance
+- NEF contribution is **non-refundable**  
+- Applicants must comply with nationality, sanctions, and CIU regulations  
+- Multi-layer due diligence is mandatory for all applicants and dependents  
+
+### Why Saint Lucia
+- Visa-free or visa-on-arrival access to **145+ countries** (incl. UK, Schengen Area, Singapore, Hong Kong)  
+- No residency requirement before or after citizenship  
+- Stable economy and strong governance  
+- Family-friendly program covering spouse, children, parents, and siblings  
+
+### Why Choose This Route
+- Fast, secure, and predictable path to citizenship  
+- Single NEF contribution can include main applicant and family members  
+- End-to-end support from Xiphias Immigration — application to passport issuance  
+- Supports Saint Lucia’s national development projects  
+
+### Indicative Budget
+- **USD 240,000**: NEF package for main applicant + up to 3 dependents  
+- **USD 2,000**: Application processing fee (main applicant)  
+- **USD 1,000**: Application processing per qualifying dependent  
+- **USD 8,000**: Due diligence fee (main applicant)  
+- **USD 5,000**: Due diligence fee per dependent  
+- Additional fees apply for spouse, extra dependents, and newborns per CIU rules

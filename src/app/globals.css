@@ -1,0 +1,250 @@
+/* Tailwind base */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root vars */
+:root {
+  --bg-header: #ffffff;
+  --bg-modal: #ffffff;
+  --header-h: 72px;
+}
+
+.dark {
+  --bg-header: #f4f4f4;
+  --bg-modal: #f4f4f4;
+}
+
+/* Prevent horizontal scroll globally */
+html,
+body {
+  width: 100%;
+  min-height: 100%;            /* was height:100% → causes bounce gaps */
+  overflow-x: clip;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: none; /* stops pull-to-refresh rubber band */
+}
+
+/* Mobile carousel utility (keeps TopPrograms server-side) */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* ✅ Use @layer base so Tailwind generates custom colors */
+@layer base {
+  html {
+    @apply bg-light_bg text-dark_text;
+  }
+
+  html.dark {
+    @apply bg-dark_bg text-dark_text;
+  }
+
+  section {
+    @apply bg-white dark:bg-darkmode;
+  }
+}
+
+/* ✅ Improve focus styles for accessibility */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-white dark:ring-offset-darkmode;
+}
+
+/* ✅ Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ✅ Blog details styles */
+.blog-details p,
+.blog-details hr {
+  @apply mb-8;
+}
+
+.blog-details hr {
+  @apply border-gray-300 dark:border-dark_border;
+}
+
+.blog-details strong {
+  @apply font-bold text-black dark:text-white;
+}
+
+.blog-details ul {
+  @apply mb-8 list-inside list-disc space-y-3 text-black dark:text-white;
+}
+
+.blog-details ol {
+  @apply mb-8 list-inside list-decimal space-y-3 text-black dark:text-white;
+}
+
+.blog-details h1 {
+  @apply mb-8 text-3xl font-bold text-midnight_text dark:text-white sm:text-4xl md:text-[40px] md:leading-[1.28];
+}
+
+.blog-details h2 {
+  @apply mb-8 text-2xl font-bold text-midnight_text dark:text-white sm:text-3xl md:text-[35px] md:leading-[1.28];
+}
+
+.blog-details h3 {
+  @apply mb-6 text-2xl font-bold text-black dark:text-white sm:text-[28px] sm:leading-[40px];
+}
+
+@layer components {
+  /* PROSE TABLES — responsive + readable + left/right gutters */
+
+  .prose :where(table) {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    /* frame */
+    border: 1px solid hsl(var(--border, 215 16% 82%) / 0.6);
+    border-radius: 0.75rem;
+
+    /* NEW: inner padding so cells don’t touch the frame */
+    padding: 0.5rem;
+
+    /* NEW: vertical gap from surrounding content */
+    margin: 0.5rem 0;
+
+    background-color: hsl(var(--light-bg, 210 40% 98%) / 0.5);
+  }
+  .dark .prose :where(table) {
+    border-color: hsl(var(--dark-border, 215 16% 22%) / 0.6);
+    background-color: hsl(var(--dark-bg, 222 47% 11%) / 0.4);
+  }
+
+  /* sticky header */
+  .prose :where(thead) {
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(6px);
+    z-index: 1;
+  }
+  .prose :where(thead th) {
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.8125rem; /* 13px */
+    letter-spacing: 0.02em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid hsl(var(--border, 215 16% 82%) / 0.7);
+    color: #000;
+    background: linear-gradient(
+      180deg,
+      hsl(var(--light-bg, 210 40% 98%) / 0.9),
+      hsl(var(--light-bg, 210 40% 98%) / 0.5)
+    );
+  }
+  .dark .prose :where(thead th) {
+    border-bottom-color: hsl(var(--dark-border, 215 16% 22%) / 0.7);
+    color: rgba(255, 255, 255, 0.96);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--dark-bg, 222 47% 11%) / 0.9),
+      hsl(var(--dark-bg, 222 47% 11%) / 0.5)
+    );
+  }
+
+  /* cells */
+  .prose :where(th, td) {
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+    border-right: 1px solid hsl(var(--border, 215 16% 82%) / 0.5);
+    font-size: 0.9375rem; /* 15px for WCAG readability */
+    line-height: 1.6;
+    color: #000;
+  }
+  .dark .prose :where(th, td) {
+    border-right-color: hsl(var(--dark-border, 215 16% 22%) / 0.5);
+    color: rgba(255, 255, 255, 0.92);
+  }
+  .prose :where(tr > *:last-child) {
+    border-right: 0;
+  }
+  .prose :where(tbody tr) {
+    border-top: 1px solid hsl(var(--border, 215 16% 82%) / 0.5);
+  }
+  .dark .prose :where(tbody tr) {
+    border-top-color: hsl(var(--dark-border, 215 16% 22%) / 0.5);
+  }
+
+  /* zebra rows */
+  .prose :where(tbody tr:nth-child(even)) {
+    background-color: rgb(0 0 0 / 0.03);
+  }
+  .dark .prose :where(tbody tr:nth-child(even)) {
+    background-color: rgb(255 255 255 / 0.04);
+  }
+
+  /* HOVER SCAN */
+  .prose :where(tbody tr:hover) {
+    background-color: rgb(0 0 0 / 0.05);
+  }
+  .dark .prose :where(tbody tr:hover) {
+    background-color: rgb(255 255 255 / 0.06);
+  }
+
+  /* MOBILE IMPROVEMENTS: keep first column visible while scrolling */
+  @media (max-width: 768px) {
+    .prose :where(thead th:first-child, tbody td:first-child) {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background-color: #fff;
+      box-shadow: 2px 0 0 0 hsl(var(--border, 215 16% 82%) / 0.5);
+    }
+    .dark .prose :where(thead th:first-child, tbody td:first-child) {
+      background-color: hsl(var(--dark-bg, 222 47% 11%) / 1);
+      box-shadow: 2px 0 0 0 hsl(var(--dark-border, 215 16% 22%) / 0.5);
+    }
+
+    /* slightly tighter cells on phones */
+    .prose :where(th, td) {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .prose :where(thead th) {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+@layer utilities {
+  /* Right→Left marquee for all rows (duration via CSS var) */
+  @keyframes marquee-rtl {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .animate-marquee-rtl { animation: marquee-rtl var(--marquee-duration, 28s) linear infinite; }
+  .group:hover .animate-marquee-rtl { animation-play-state: paused; }
+  .marquee-track { will-change: transform; }
+
+  /* Keep horizontal gestures from moving the whole page on mobile */
+  .touch-pan-x { touch-action: pan-x; }
+  .overscroll-contain-x { overscroll-behavior-x: contain; overscroll-behavior-inline: contain; }
+  .momentum-x { -webkit-overflow-scrolling: touch; }
+
+  /* Optional (if you ever switch back to manual scroll): hide scrollbar */
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee-rtl { animation: none !important; transform: translateX(0) !important; }
+  }
+}
+
+#main-banner { background-color: transparent !important; }
+#main > :first-child { margin-top: 0 !important; }
+
+/* ✅ Only the collapsing TopBar is “contained” so it won’t affect dropdowns */
+.topbar-clip { contain: paint; }

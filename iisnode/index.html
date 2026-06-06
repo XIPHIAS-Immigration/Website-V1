@@ -1,0 +1,87 @@
+<html>
+<head>
+    <title>iisnode logs</title>
+    <style type="text/css">
+        body
+        {
+            font-family: "Trebuchet MS" , Arial, Helvetica, sans-serif;
+        }
+        table
+        {
+            border-collapse: collapse;
+        }
+        td, th
+        {
+            border: 1px solid lightgray;
+            padding: 3px 7px 2px 7px;
+        }
+        th
+        {
+            text-align: left;
+            padding-top: 5px;
+            padding-bottom: 4px;
+            background-color: Gray;
+            color: #ffffff;
+        }
+        td.stderr
+        {
+            color: Red;
+        }
+    </style>
+</head>
+<body>
+    <table id="logFilesTable">
+        <tr>
+            <th>
+                Computer name
+            </th>
+            <th>
+                PID
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Link
+            </th>
+        </tr>
+    </table>
+    <p id="lastUpdated"></p>
+    <script type="text/javascript">
+
+        // this is replaced with actual data at runtime by code in interceptor.js
+        var logFiles = [{"file":"InnoveIndia-10556-stderr-1763317032094.txt","computername":"InnoveIndia","pid":10556,"type":"stderr","created":1763317032094},{"file":"InnoveIndia-11188-stderr-1763313143681.txt","computername":"InnoveIndia","pid":11188,"type":"stderr","created":1763313143681},{"file":"InnoveIndia-11240-stderr-1763313140634.txt","computername":"InnoveIndia","pid":11240,"type":"stderr","created":1763313140634},{"file":"InnoveIndia-11620-stderr-1763316958698.txt","computername":"InnoveIndia","pid":11620,"type":"stderr","created":1763316958698},{"file":"InnoveIndia-11904-stderr-1763316813156.txt","computername":"InnoveIndia","pid":11904,"type":"stderr","created":1763316813156},{"file":"InnoveIndia-13264-stderr-1763316805910.txt","computername":"InnoveIndia","pid":13264,"type":"stderr","created":1763316805910},{"file":"InnoveIndia-1796-stderr-1763313165072.txt","computername":"InnoveIndia","pid":1796,"type":"stderr","created":1763313165072},{"file":"InnoveIndia-1836-stderr-1763313142650.txt","computername":"InnoveIndia","pid":1836,"type":"stderr","created":1763313142650},{"file":"InnoveIndia-2588-stderr-1763313149666.txt","computername":"InnoveIndia","pid":2588,"type":"stderr","created":1763313149666},{"file":"InnoveIndia-2756-stderr-1763316863640.txt","computername":"InnoveIndia","pid":2756,"type":"stderr","created":1763316863640},{"file":"InnoveIndia-2836-stderr-1763316811828.txt","computername":"InnoveIndia","pid":2836,"type":"stderr","created":1763316811828},{"file":"InnoveIndia-2872-stderr-1763316890671.txt","computername":"InnoveIndia","pid":2872,"type":"stderr","created":1763316890671},{"file":"InnoveIndia-3260-stderr-1763316788355.txt","computername":"InnoveIndia","pid":3260,"type":"stderr","created":1763316788355},{"file":"InnoveIndia-3768-stderr-1763316984329.txt","computername":"InnoveIndia","pid":3768,"type":"stderr","created":1763316984329},{"file":"InnoveIndia-4064-stderr-1763313146353.txt","computername":"InnoveIndia","pid":4064,"type":"stderr","created":1763313146353},{"file":"InnoveIndia-4092-stderr-1763317061973.txt","computername":"InnoveIndia","pid":4092,"type":"stderr","created":1763317061973},{"file":"InnoveIndia-4912-stderr-1763317145545.txt","computername":"InnoveIndia","pid":4912,"type":"stderr","created":1763317145545},{"file":"InnoveIndia-5264-stderr-1763313139056.txt","computername":"InnoveIndia","pid":5264,"type":"stderr","created":1763313139056},{"file":"InnoveIndia-6344-stderr-1763313156603.txt","computername":"InnoveIndia","pid":6344,"type":"stderr","created":1763313156603},{"file":"InnoveIndia-7768-stderr-1763317021141.txt","computername":"InnoveIndia","pid":7768,"type":"stderr","created":1763317021141},{"file":"InnoveIndia-8364-stderr-1763317117860.txt","computername":"InnoveIndia","pid":8364,"type":"stderr","created":1763317117860}];
+        var lastUpdated = 1763317145869;
+        var date = new Date();
+
+        date.setTime(lastUpdated);
+        document.getElementById('lastUpdated').innerHTML = 'Index was last updated ' + date;
+
+        logFiles.sort(function (a, b) {
+            return b.created - a.created;
+        });
+
+        var logFilesTable = document.getElementById("logFilesTable");
+        for (var i = 0; i < logFiles.length; i++) {
+            var logFile = logFiles[i];
+            date.setTime(logFile.created);
+            var row = logFilesTable.insertRow(-1);
+            var computerNameCell = row.insertCell(0);
+            var pidCell = row.insertCell(1);
+            var typeCell = row.insertCell(2);
+            var dateCell = row.insertCell(3);
+            var logCell = row.insertCell(4);
+            computerNameCell.innerHTML = logFile.computername;
+            pidCell.innerHTML = logFile.pid.toString();
+            typeCell.innerHTML = logFile.type;
+            typeCell.setAttribute('class', logFile.type);
+            dateCell.innerHTML = date.toString();
+            logCell.innerHTML = '<a href="' + logFile.file + '">log</a>';
+        };
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+---
+title: "Sustainable Island State Contribution (SISC) – Donation Route"
+country: St. Kitts & Nevis
+countrySlug: saintkitts
+programSlug: "sustainable-island-state-contribution"
+tagline: "Fast, straightforward route via a non-refundable contribution to qualify for St. Kitts & Nevis Citizenship by Investment (CBI)"
+currency: "USD"
+timelineMonths: 6
+minInvestment: 250000
+tags:
+  - "CBI"
+  - "donation"
+  - "Caribbean"
+  - "St. Kitts & Nevis citizenship"
+
+# Media (conform to your loaders / fallbacks)
+heroImage: "/images/citizenship/st-kitts-nevis/sustainable-island-ctate-contribution.webp"
+heroVideo: "/images/personal/video/sample.mp4"
+heroPoster: "/images/citizenship/st-kitts-nevis/sustainable-island-ctate-contribution.webp"
+brochure: "/images/citizenship/st-kitts-nevis/st_kitts_citizenship_by_investment.pdf"
+
+# Program specifics / Projects / Risk & Compliance / Docs / Estimator
+routeType: "donation"
+holdingPeriodMonths: 60
+lastUpdated: "2025-03-01"
+
+prices:
+  - label: "SISC contribution (family up to 4)"
+    amount: 250000
+    notes: "Covers up to 4 people; +USD 50,000 per additional adult (18+), +USD 25,000 per additional minor (&lt;18). Non-refundable."
+  - label: "Due diligence — principal applicant"
+    amount: 10000
+    notes: "Government background checks and source-of-funds verification."
+  - label: "Due diligence — each dependent (16+)"
+    amount: 7500
+    notes: "Background and source-of-funds verification per dependent aged 16+."
+  - label: "Application processing (per person)"
+    amount: 250
+    notes: "Government processing per applicant."
+  - label: "Passport issuance (per person)"
+    amount: 350
+    notes: "Charged at passport issuance; non-refundable."
+
+governmentFees:
+  - label: "Bank/National due diligence"
+    amount: 500
+    currency: "USD"
+    notes: "Additional KYC/compliance checks via banking channels."
+  - label: "Courier (per application)"
+    amount: 200
+    currency: "USD"
+    notes: "Secure shipping of documents and passports."
+
+proofOfFunds:
+  - label: "Recommended liquid funds"
+    amount: 300000
+    notes: "Indicative buffer to cover SISC contribution, due diligence, application, and passport fees."
+
+benefits:
+  - "Fast and efficient ~3–6 month processing with robust due diligence."
+  - "One SISC contribution covers main applicant; add spouse, children &lt;26, and qualifying parents/grandparents 55+."
+  - "No residency requirement; lifetime, inheritable citizenship."
+  - "Visa-free or visa-on-arrival access to ~154 countries (incl. UK & Schengen)."
+  - "Transparent, government-backed process."
+
+requirements:
+  - "Make the SISC contribution after Approval-in-Principle (AIP)."
+  - "Pass multi-layer due diligence, background screening, and personal interview."
+  - "Provide full documentary evidence for verification, including valid passports/IDs, police and health certificates, source-of-funds, and civil status documents."
+
+disqualifiers:
+  - "Unclear or unverifiable source of funds."
+  - "Adverse background findings, sanctions, watchlist or prior CBI rejection."
+  - "Inability to complete interview or supply required documentation."
+
+riskNotes:
+  - "Non-disclosure of material information may lead to rejection or revocation."
+  - "Report changes in personal circumstances promptly to remain compliant."
+
+complianceNotes:
+  - "Strict KYC/AML/CTF checks for all applicants."
+  - "Regulated by the St. Kitts & Nevis CIU to meet local and international standards."
+
+documentChecklist:
+  - group: "Identity & Civil"
+    documents:
+      - "Passport copies (valid ≥12 months) for main applicant and dependents"
+      - "Birth certificates for all dependents"
+      - "Marriage certificate (if spouse included)"
+      - "Divorce/name change certificate (if applicable)"
+      - "Proof of address (utility bill/bank statement)"
+  - group: "Financial & Source of Funds"
+    documents:
+      - "Bank statements (last 6–12 months)"
+      - "Evidence of income, business proceeds, or sale of assets"
+      - "Banker’s/professional reference"
+      - "Documentation proving funds for SISC"
+  - group: "Compliance"
+    documents:
+      - "Police clearance certificates (all jurisdictions of residence for &gt;6 months in last 10 years)"
+      - "Medical/health certificates"
+      - "Limited power of attorney (if applicable)"
+      - "CVs for adult applicants"
+      - "Military records/exemption (if applicable)"
+  - group: "Dependents & Relationships"
+    documents:
+      - "Birth certificates for dependent children"
+      - "Proof of relationship for qualifying parents/grandparents"
+
+familyMatrix:
+  childrenUpTo: 26
+  parentsFromAge: 55
+  siblings: false
+  spouse: true
+
+quickCheck:
+  title: "SISC route pre-screen"
+  questions:
+    - id: "clean"
+      label: "Clean background & no sanctions?"
+      type: "boolean"
+    - id: "funds"
+      label: "Budget for USD 250,000 + fees available?"
+      type: "boolean"
+    - id: "docs"
+      label: "Can supply all required KYC & supporting documents?"
+      type: "boolean"
+  policy:
+    type: "all"
+  verdict:
+    successTitle: "Likely eligible"
+    successText: "Profile appears aligned; let’s confirm specifics."
+    cautionTitle: "Possibly eligible"
+    cautionText: "Edge cases may require additional evidence."
+  ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check Eligibility"
+    secondaryHref: "/citizenship/saintkitts"
+    secondaryText: "View All saintkitts Programs"
+
+# Estimator tailored to SISC (donation), not real estate
+costEstimator:
+  baseOptions:
+    - id: "sisc-up-to-4"
+      label: "SISC — family up to 4"
+      amount: 250000
+    - id: "sisc-custom"
+      label: "SISC — custom (start at 250,000)"
+      amount: 250000
+  defaultBaseId: "sisc-up-to-4"
+  adults: 2
+  children: 0
+  addons:
+    - id: "extra-adult"
+      label: "Additional adult (18+)"
+      amount: 50000
+      per: "adult"
+    - id: "extra-minor"
+      label: "Additional minor (&lt;18)"
+      amount: 25000
+      per: "child"
+    - id: "dd-main"
+      label: "Due diligence — main applicant"
+      amount: 10000
+    - id: "dd-16plus"
+      label: "Due diligence — each dependent (16+)"
+      amount: 7500
+      per: "adult"
+    - id: "bank-dd"
+      label: "Bank/National due diligence (per application)"
+      amount: 500
+    - id: "app-per-person"
+      label: "Application processing (per person)"
+      amount: 250
+      per: "person"
+    - id: "passport-per-person"
+      label: "Passport issuance (per person)"
+      amount: 350
+      per: "person"
+    - id: "courier"
+      label: "Courier (per application)"
+      amount: 200
+
+seo:
+  title: "St. Kitts & Nevis SISC – Citizenship by Investment (CBI) Donation Route"
+  description: "Secure St. Kitts & Nevis citizenship via the Sustainable Island State Contribution (SISC). Learn investment amounts, fees, due diligence, family inclusion, and processing timelines."
+  keywords:
+    - "St. Kitts & Nevis SISC"
+    - "SISC contribution"
+    - "St. Kitts & Nevis citizenship by investment"
+    - "CBI donation route"
+    - "St. Kitts & Nevis second passport"
+    - "family-friendly CBI"
+---
+
+### Overview
+The Sustainable Island State Contribution (SISC) is the fastest and most straightforward route to obtain St. Kitts & Nevis citizenship. Established in 1984, the program allows investors to make a non-refundable donation to the government, with thorough due diligence and a typical processing timeline of 3–6 months. Citizenship is lifetime, inheritable, and includes family members.
+
+### Investment Overview
+The SISC route requires a minimum contribution of USD 250,000 for a family of up to four. Additional fees apply for extra dependents: USD 50,000 per additional adult (18+) and USD 25,000 per additional minor (&lt;18). This route does not involve property ownership or business investment, making it simple and predictable for applicants seeking a donation-based pathway.
+
+### Quick Eligibility Check
+- Clean criminal record and no sanctions or watchlist restrictions  
+- Verified source of funds for the contribution  
+- Ability to provide all KYC and supporting documents  
+- Willingness to attend personal interview and complete due diligence  
+
+### Featured Real Estate Projects
+While the SISC route does not require real estate investment, applicants interested in combining investment with lifestyle opportunities can explore government-approved real estate developments separately for future planning or diversification.
+
+### How the Investment Route Works
+1. Engage a licensed agent to assess eligibility and conduct initial due diligence.  
+2. Collect and submit all required documents, including proof of identity, source of funds, and civil status certificates.  
+3. Attend a personal interview and complete background verification.  
+4. Receive Approval in Principle (AIP) from the Citizenship by Investment Unit.  
+5. Make the SISC contribution and submit proof of payment.  
+6. Take the oath and receive your St. Kitts & Nevis passport.
+
+### Comparison of SISC, PBO, and Real Estate Routes
+The St. Kitts & Nevis CBI program offers three main investment pathways. While SISC and PBO are **donation-based**, the Real Estate option is **asset-backed**, providing a tangible investment with resale opportunities. All routes provide **fast processing (3–6 months), family inclusion, and visa-free travel to over 150 countries**.
+
+| Feature | SISC Contribution | Public Benefit Option (PBO) | Real Estate Investment |
+|---------|-----------------|----------------------------|----------------------|
+| Minimum Investment | USD 250,000 (family up to 4) | USD 250,000 (non-refundable contribution to CIU-approved project) | USD 325,000+ for government-authorized developments |
+| Family Inclusion | Spouse, children under 26, parents/grandparents 55+ | Spouse, children under 26, parents/grandparents 55+ | Spouse, children under 26, parents/grandparents 55+ |
+| Processing Time | 3–6 months | 3–6 months | 3–6 months |
+| Residency Requirement | None | None | None |
+| Investment Type | Non-refundable donation | Non-refundable donation to approved public benefit project | Asset-backed property purchase |
+| Government & Due Diligence Fees | Per CIU rules (US$10,000 main applicant, US$7,500 per dependent 16+) | Per CIU rules (same as SISC) | Per CIU rules; land registration & transfer fees apply |
+| Passport Fee | USD 350 per person | USD 350 per person | USD 350 per person |
+| Benefits | Simple, fast, predictable | Supports public projects, impact-driven | Asset-backed, potential rental income, resale options |
+| Liquidity / Exit Options | Not refundable | Not refundable | Can be resold after minimum holding period (per CIU regulations) |
+
+### Investment Risks and Compliance
+- Applications with unclear or unverifiable funds may be rejected.  
+- Non-compliance with document submission, KYC, or due diligence procedures can delay or invalidate the application.  
+- All applicants undergo AML, CTF, and CIU regulatory checks to ensure full compliance with local and international law.
+
+### Why St. Kitts & Nevis
+- Fast, reliable, and globally recognized CBI program  
+- No residency requirements during or after application  
+- Visa-free or visa-on-arrival access to ~154 countries  
+- Tax advantages on inheritance/capital gains/worldwide income  
+- Politically stable, safe, and family-friendly environment  
+
+### FAQ
+**Q:** Can I include family members?  
+**A:** Yes. The SISC contribution covers the main applicant, spouse, children under 26, and qualifying parents/grandparents (55+).  
+
+**Q:** How long does the process take?  
+**A:** Typically 3–6 months, depending on due diligence and interview schedules.  
+
+**Q:** Is there a residency requirement?  
+**A:** No, applicants are not required to reside in St. Kitts & Nevis.  
+
+**Q:** What are the fees involved?  
+**A:** Fees include the SISC contribution, due diligence, application, and passport issuance, varying by family size and ages.
+
+### Why Choose This Route
+- Simplest, fastest pathway via a donation  
+- Transparent, government-backed process with robust due diligence  
+- Family-friendly: spouse, children, and qualifying parents/grandparents  
+- Lifetime citizenship with inheritable passport and global mobility  
+
+### Indicative Budget
+- **SISC Contribution:** USD 250,000 for up to 4 family members  
+- **Additional adult dependent:** USD 50,000 each  
+- **Additional minor dependent:** USD 25,000 each  
+- **Due diligence — main applicant:** USD 10,000  
+- **Due diligence — dependent 16+:** USD 7,500  
+- **Application processing (per person):** USD 250  
+- **Passport issuance (per person):** USD 350  
+- **Recommended liquid funds (all-in):** USD 300,000+

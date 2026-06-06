@@ -1,0 +1,114 @@
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+[next-auth][warn][NO_SECRET] 
+https://next-auth.js.org/warnings#no_secret
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+[next-auth][warn][NO_SECRET] 
+https://next-auth.js.org/warnings#no_secret
+[next-auth][error][JWT_SESSION_ERROR] 
+https://next-auth.js.org/errors#jwt_session_error decryption operation failed {
+  message: 'decryption operation failed',
+  stack: 'JWEDecryptionFailed: decryption operation failed\n' +
+    '    at gcmDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4649:15)\n' +
+    '    at decrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4672:20)\n' +
+    '    at flattenedDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6169:52)\n' +
+    '    at async compactDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6223:23)\n' +
+    '    at async jwtDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:7685:23)\n' +
+    '    at async Object.decode (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:15353:25)\n' +
+    '    at async Object.session (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:16666:34)\n' +
+    '    at async AuthHandler (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:18667:37)\n' +
+    '    at async getServerSession (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:21802:21)\n' +
+    '    at async getCurrentPortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1082:21)\n' +
+    '    at async requirePortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1097:18)\n' +
+    '    at async XHubPage (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1161:18)',
+  name: 'JWEDecryptionFailed'
+}
+[next-auth][error][JWT_SESSION_ERROR] 
+https://next-auth.js.org/errors#jwt_session_error decryption operation failed {
+  message: 'decryption operation failed',
+  stack: 'JWEDecryptionFailed: decryption operation failed\n' +
+    '    at gcmDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4649:15)\n' +
+    '    at decrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4672:20)\n' +
+    '    at flattenedDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6169:52)\n' +
+    '    at async compactDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6223:23)\n' +
+    '    at async jwtDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:7685:23)\n' +
+    '    at async Object.decode (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:15353:25)\n' +
+    '    at async Object.session (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:16666:34)\n' +
+    '    at async AuthHandler (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:18667:37)\n' +
+    '    at async getServerSession (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:21802:21)\n' +
+    '    at async getCurrentPortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1082:21)\n' +
+    '    at async requirePortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1097:18)\n' +
+    '    at async XHubPage (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1161:18)',
+  name: 'JWEDecryptionFailed'
+}
+[next-auth][error][JWT_SESSION_ERROR] 
+https://next-auth.js.org/errors#jwt_session_error decryption operation failed {
+  message: 'decryption operation failed',
+  stack: 'JWEDecryptionFailed: decryption operation failed\n' +
+    '    at gcmDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4649:15)\n' +
+    '    at decrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4672:20)\n' +
+    '    at flattenedDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6169:52)\n' +
+    '    at async compactDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6223:23)\n' +
+    '    at async jwtDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:7685:23)\n' +
+    '    at async Object.decode (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:15353:25)\n' +
+    '    at async Object.session (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:16666:34)\n' +
+    '    at async AuthHandler (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:18667:37)\n' +
+    '    at async getServerSession (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:21802:21)\n' +
+    '    at async getCurrentPortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1082:21)\n' +
+    '    at async requirePortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1097:18)\n' +
+    '    at async XHubPage (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1161:18)',
+  name: 'JWEDecryptionFailed'
+}
+[next-auth][error][JWT_SESSION_ERROR] 
+https://next-auth.js.org/errors#jwt_session_error decryption operation failed {
+  message: 'decryption operation failed',
+  stack: 'JWEDecryptionFailed: decryption operation failed\n' +
+    '    at gcmDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4649:15)\n' +
+    '    at decrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:4672:20)\n' +
+    '    at flattenedDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6169:52)\n' +
+    '    at async compactDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:6223:23)\n' +
+    '    at async jwtDecrypt (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:7685:23)\n' +
+    '    at async Object.decode (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:15353:25)\n' +
+    '    at async Object.session (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:16666:34)\n' +
+    '    at async AuthHandler (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:18667:37)\n' +
+    '    at async getServerSession (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\node_modules_46a5feda._.js:21802:21)\n' +
+    '    at async getCurrentPortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1082:21)\n' +
+    '    at async requirePortalUser (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1097:18)\n' +
+    '    at async XHubPage (E:\\Xiphias_immigration_website\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__2c452d1e._.js:1161:18)',
+  name: 'JWEDecryptionFailed'
+}
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+⨯ TypeError: The "path" argument must be of type string. Received undefined
+    at loadAllContent (src\lib\content\index.ts:85:26)
+    at getAllContentCached (src\lib\content\index.ts:113:25)
+    at findContentMatches (src\lib\platform\content-match.ts:67:34)
+    at getXiaRecommendation (src\lib\platform\xia.ts:60:37)
+    at POST (src\app\api\platform\xia\route.ts:14:46)
+  83 |     }
+  84 |
+> 85 |     const program = path.basename(fileName, ".mdx");
+     |                          ^
+  86 |
+  87 |     out.push({
+  88 |       kind: "program", {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+⨯ TypeError: The "path" argument must be of type string. Received undefined
+    at loadAllContent (src\lib\content\index.ts:85:26)
+    at getAllContentCached (src\lib\content\index.ts:113:25)
+    at findContentMatches (src\lib\platform\content-match.ts:67:34)
+    at rankMobilityPrograms (src\lib\platform\passport.ts:41:37)
+    at POST (src\app\api\platform\passport\route.ts:10:38)
+  83 |     }
+  84 |
+> 85 |     const program = path.basename(fileName, ".mdx");
+     |                          ^
+  86 |
+  87 |     out.push({
+  88 |       kind: "program", {
+  code: 'ERR_INVALID_ARG_TYPE'
+}

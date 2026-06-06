@@ -1,0 +1,25 @@
+
+> xiphias_project@0.1.0 dev
+> next dev --turbopack --hostname 127.0.0.1
+
+▲ Next.js 16.1.4 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 2.4s
+○ Compiling /x-hub/sign-in ...
+ GET /x-hub/sign-in 200 in 6.5s (compile: 5.9s, render: 531ms)
+ GET /api/auth/providers 200 in 1472ms (compile: 1421ms, render: 51ms)
+ GET /api/auth/csrf 200 in 42ms (compile: 15ms, render: 27ms)
+ POST /api/auth/callback/credentials 200 in 53ms (compile: 5ms, render: 47ms)
+ GET /x-hub 200 in 723ms (compile: 420ms, render: 303ms)
+ GET /x-hub 200 in 143ms (compile: 10ms, render: 133ms)
+ GET /x-hub/admin/operations 200 in 1270ms (compile: 756ms, render: 514ms)
+ GET /x-hub/admin/risk 200 in 743ms (compile: 495ms, render: 248ms)
+ GET /x-hub/admin/content-review 200 in 436ms (compile: 163ms, render: 273ms)
+ GET /x-hub/admin/health 200 in 829ms (compile: 601ms, render: 228ms)
+ GET /x-hub/admin/risk 200 in 228ms (compile: 7ms, render: 221ms)
+ POST /api/platform/risk 200 in 238ms (compile: 216ms, render: 22ms)
+ GET /x-hub 200 in 342ms (compile: 5ms, render: 337ms)

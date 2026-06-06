@@ -1,0 +1,179 @@
+---
+program: usa-eb5-non-tea
+vertical: residency
+kind: program
+title: "USA EB-5 Residency – Non-TEA Investment"
+country: "United States"
+countrySlug: "usa"
+programSlug: "eb5-non-targeted-employment-area"
+tagline: "Secure U.S. Green Card through EB-5 Non-TEA Direct Investment"
+minInvestment: 1050000
+currency: "USD ($)"
+timelineMonths: "24"
+tags:
+  - "US"
+  - "Residency by Investment"
+  - "Non-TEA Investment"
+
+heroImage: "/images/residency/usa/eb5-targeted-employment-area.webp"
+heroVideo: "/images/personal/video/sample.mp4"
+heroPoster: "/images/residency/usa/eb5-targeted-employment-area.webp"
+brochure: "/images/residency/usa/usa_rbi.pdf"
+
+prices:
+  - label: "Minimum Investment – Non-TEA"   
+    amount: 1050000                      
+    when: "At the start of the program / before filing I-526"  
+    notes: "Direct investment in a qualifying U.S. enterprise"  
+
+governmentfees:
+  - label: "Government Processing Fees"    
+    amount:         
+    when: "Paid at USCIS filing and visa issuance"  #
+    notes: "Includes I-526 filing fee, visa issuance fee, and USCIS processing charges"  
+
+
+proofOfFunds:
+  - label: "Lawful Source of Funds"
+    amount: 1050000
+    notes: "Provide audited documents, business income, inheritance, or property sale records"
+
+benefits:
+  - "Residency in the U.S. through direct business investment"
+  - "Pathway to permanent Green Card and citizenship"
+  - "No sponsorship required – self-petition route"
+  - "Children under 21 can study with in-state tuition benefits"
+  - "Freedom to live, work, and operate a business anywhere in the U.S."
+
+requirements:
+  - "Investment of $1,050,000 in a qualifying Non-TEA project"
+  - "Creation of at least 10 full-time jobs for U.S. workers"
+  - "Proof of legal source of funds"
+  - "Maintain investment for the required holding period (VERIFY_HoldingPeriod)"
+
+disqualifiers:
+  - "Applicants with criminal background or fraud records"
+  - "Unverified or unlawful sources of funds"
+  - "Failure to meet minimum investment or job creation requirements"
+
+risknotes:
+  - "Investment capital must remain at risk – no guaranteed returns"
+  - "Non-TEA projects require higher investment thresholds"
+  - "Market and business risks apply depending on sector and project"
+
+projectList:
+  - name: "Direct Enterprise Investment (Non-TEA)"
+    minBuyIn: 1050000
+    holdMonths: VERIFY_HoldingPeriod
+    notes: "Active management or significant involvement may be required"
+    image: ""
+
+documentChecklist:
+  - group: "Identity Documents"
+    documents: ["Passport copies", "Birth certificates", "Marriage certificate if applicable"]
+    notes: "All documents must be valid and translated if not in English"
+  - group: "Financial Documents"
+    documents: ["Bank statements", "Business ownership documents", "Property sale deeds", "Inheritance papers"]
+    notes: "Must clearly prove lawful source of funds"
+  - group: "Compliance Documents"
+    documents: ["Police clearance certificate", "Medical examination reports"]
+    notes: "Background checks required for all applicants"
+
+familyMatrix:
+  childrenUpTo: 21
+  parentsFromAge: 0
+  siblings: false
+  spouse: true
+
+quickCheck:
+  title: "Quick EB-5 Non-TEA Eligibility Check"
+  questions:
+    - id: "funds"
+      label: "Do you have at least $1,050,000 in lawful investment funds?"
+      type: boolean
+    - id: "jobs"
+      label: "Are you able to create at least 10 full-time U.S. jobs?"
+      type: boolean
+  policy:
+    type: "all"
+  verdict:
+    successTitle: "Likely eligible"
+    successText: "You meet the core criteria for the Non-TEA route. Speak to our advisor to confirm your case."
+    cautionTitle: "Possibly eligible"
+    cautionText: "Some criteria may be missing. Review alternative EB-5 options or supporting documents."
+
+ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check detailed Eligibility"
+    secondaryHref: "/residency/usa"
+    secondaryText: "View all USA Programs"
+
+processSteps:
+  - title: "Consultation & Project Selection"
+    description: "Initial consultation with an immigration attorney to select Non-TEA investment"
+  - title: "Prepare Source-of-Funds Documentation"
+    description: "Gather audited documents, business records, inheritance, or property sale records"
+  - title: "Invest $1,050,000 in a qualifying enterprise"
+    description: "Complete direct investment into the chosen Non-TEA project"
+  - title: "File Form I-526 with USCIS"
+    description: "Submit application for conditional Green Card"
+  - title: "Conditional Green Card Issuance"
+    description: "Apply via Form I-485 or DS-260; receive 2-year conditional Green Card"
+  - title: "Maintain investment & create 10 jobs"
+    description: "Fulfill job creation and investment obligations over 2 years"
+  - title: "File Form I-829 to remove conditions"
+    description: "Submit after 2 years for permanent Green Card"
+  - title: "Apply for Citizenship"
+    description: "Eligible for U.S. citizenship after 5 years with permanent residency"
+
+faq:
+  - q: "What is the minimum investment for EB-5 Non-TEA?"
+    a: "The required investment is $1,050,000 in a new commercial enterprise outside a TEA."
+  - q: "How many jobs must be created?"
+    a: "At least 10 full-time jobs for qualified U.S. workers."
+  - q: "What is the main difference between TEA and Non-TEA?"
+    a: "Non-TEA requires a higher investment of $1,050,000, while TEA requires $800,000 but is limited to rural/high unemployment areas."
+  - q: "How long does the EB-5 process take?"
+    a: "Typically 20–24 months for I-526 processing, followed by additional steps for Green Card issuance."
+  - q: "Can family members be included?"
+    a: "Yes, your spouse and unmarried children under 21 are included in the application."
+
+costEstimator:
+  baseOptions:
+    - id: "nontea"
+      label: "Non-TEA Investment"
+      amount: 1050000
+  defaultBaseId: "nontea"
+  adults: 2
+  children: 2
+  addons:
+    - id: "legal"
+      label: "Legal & Attorney Fees"
+      amount: 50000
+    - id: "gov"
+      label: "Government Fees"
+      amount: VERIFY_GovFees
+
+seo:
+  title: "USA EB-5 Visa – Non-TEA Investment Route"
+  description: "Invest $1,050,000 in a U.S. Non-TEA project to secure residency, Green Card, and a pathway to citizenship under the EB-5 program."
+  keywords: ["EB-5 Visa USA", "US Green Card Investment", "Residency by Investment"]
+---
+
+## Overview
+The **USA EB-5 Non-TEA Investment route** provides a direct path to U.S. residency and Green Card through a higher investment of **$1,050,000** in a non-targeted employment area. This route allows flexibility in project choice and direct enterprise involvement.
+
+## Investment Overview
+- **Minimum Investment:** $1,050,000  
+- **Type:** Direct investment in a U.S. business (Non-TEA)  
+- **Requirement:** Create at least **10 full-time jobs**  
+- **Risk:** Investment must remain "at risk" with no guaranteed returns  
+
+## Comparison Between Investment Options
+| Feature                  | Non-TEA Investment ($1,050,000) | TEA Investment ($800,000)       |
+|---------------------------|---------------------------------|---------------------------------|
+| Minimum Investment        | **$1,050,000** (higher capital) | **$800,000** (lower entry)     |
+| Eligible Locations        | Any U.S. location               | Rural / High unemployment      |
+| Risk Level                | Higher capital exposure         | Moderate, location-limited     |
+| Job Creation Requirement  | 10 full-time jobs               | 10 full-time jobs              |
+

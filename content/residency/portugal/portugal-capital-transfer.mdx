@@ -1,0 +1,217 @@
+---
+program: capital-transfer
+vertical: residency
+kind: program
+title: "Portugal Golden Visa – Capital Transfer Route"
+country: Portugal
+countrySlug: portugal
+programSlug: portugal-capital-transfer
+tagline: "Qualifying capital transfers into approved funds, research, or cultural projects to obtain Portuguese residency."
+minInvestment: 250000
+currency: EUR
+timelineMonths: "15"
+tags:
+  - "Portugal Golden Visa"
+  - "Capital Transfer"
+  - "Investment Fund"
+
+heroImage: "/images/residency/portugal/portugal-business-investment.webp"
+heroVideo: "/images/personal/video/sample.mp4"
+heroPoster: "/images/residency/portugal/portugal-business-investment.webp"
+brochure: "/images/residency/portugal/portugal_rbi.pdf"
+
+routeType: "Capital Transfer"
+lastUpdated: "2025-09-26"
+
+prices:
+  - label: "Investment Fund / Venture Capital Fund"
+    amount: 500000
+    when: "Before application submission"
+    notes: "Minimum €500,000 into qualifying Portuguese funds; must meet regulator approval and local content rules."
+  - label: "Research Activities"
+    amount: 500000
+    when: "Before application submission"
+    notes: "Capital transfer to approved research institutions within Portugal’s national scientific system."
+  - label: "Support for Artistic Production / Cultural Heritage"
+    amount: 250000
+    when: "Before application submission"
+    notes: "Minimum €250,000; €200,000 in low-density areas."
+  - label: "Application analysis fee"
+    amount: 0
+    when: "At submission"
+  - label: "Residence permit issuance fee"
+    amount: 0
+    when: "At issuance"
+
+proofOfFunds:
+  - label: "Investment amount (proof of transfer)"
+    amount: 250000
+    when: "Before/at application"
+    notes: "Proof of transfer required (bank statements and transaction evidence)."
+  - label: "Additional working capital (if applicable)"
+    amount: 0
+    when: "If required by project"
+    notes: "Varies by project."
+
+benefits:
+  - "Low physical presence requirement (7 days/year)."
+  - "Multiple investment options: funds, research, cultural support."
+  - "Access to Schengen mobility and Portuguese resident rights."
+  - "Family inclusion: spouse, dependent children, dependent parents."
+  - "Clear pathway to permanent residence and citizenship."
+
+requirements:
+  - "Applicant must be a non-EU/EEA/Swiss national."
+  - "Valid passport and clean criminal record certificate(s)."
+  - "Evidence of legitimate source of funds and AML compliance."
+  - "Completed qualifying capital transfer into approved vehicle."
+  - "Attend biometric appointment and meet minimal presence requirements."
+
+disqualifiers:
+  - "Serious criminal convictions or ongoing criminal proceedings."
+  - "Listed under international sanctions."
+  - "Failure to demonstrate legitimate source of funds or AML issues."
+
+risknotes: "Investments carry financial risk. Capital must usually be maintained for 5 years. Returns are not guaranteed; seek independent advice."
+
+projectList:
+  - name: "Qualifying Venture Capital Fund"
+    minBuyIn: 500000
+    holdMonths: 60
+    notes: "Fund approved for Golden Visa; generally avoids real estate exposure."
+    image: ""
+  - name: "Research Program – Public University Collaboration"
+    minBuyIn: 500000
+    holdMonths: 60
+    notes: "Part of national scientific system; pre-approval may be required."
+    image: ""
+  - name: "Cultural Production Project"
+    minBuyIn: 250000
+    holdMonths: 60
+    notes: "Supports artistic production/cultural heritage; reduced thresholds in low-density areas."
+    image: ""
+
+documentChecklist:
+  - group: "Identity"
+    documents:
+      - "Valid passport (certified copy)"
+      - "Passport-sized photos"
+      - "Civil status proof (birth/marriage certificate)"
+    when: "Before application submission"
+    notes: "Translated and apostilled/notarised as required."
+  - group: "Financial"
+    documents:
+      - "Bank statements (last 6–12 months)"
+      - "Investment transfer proof (receipts)"
+      - "Source of funds documentation"
+    when: "During due diligence"
+    notes: "Amounts must be traceable and AML compliant."
+  - group: "Compliance"
+    documents:
+      - "Criminal record certificate(s)"
+      - "CV / professional background (if requested)"
+    when: "Before application approval"
+    notes: "Additional documents may be requested by authorities."
+
+familyMatrix:
+  childrenUpTo: 26
+  parentsFromAge: 0
+  siblings: false
+  spouse: true
+
+quickCheck:
+  title: "Quick pre-screen"
+  questions:
+    - id: "has_valid_passport"
+      label: "Do you hold a valid non-EU passport?"
+      type: boolean
+    - id: "can_invest_minimum"
+      label: "Can you commit at least the minimum investment for your chosen capital transfer option?"
+      type: boolean
+  ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check detailed Eligibility"
+    secondaryHref: "/residency/portugal"
+    secondaryText: "View all Portugal Programs"
+
+processSteps:
+  - title: "Select a qualifying route"
+    description: "Choose fund, research, or cultural project and confirm eligibility."
+  - title: "Get NIF & bank setup"
+    description: "Obtain Portuguese tax number and open a bank account if needed."
+  - title: "Execute capital transfer"
+    description: "Complete the transfer and collect receipts."
+  - title: "File ARI application"
+    description: "Upload documents and pay analysis fees."
+  - title: "Authority review"
+    description: "Respond to any requests for additional information."
+  - title: "Biometrics & issuance"
+    description: "Attend biometrics; pay fees and receive residence card."
+  - title: "Maintain & renew"
+    description: "Keep investment for minimum 5 years and meet presence rules."
+
+faq:
+  - q: "What is the minimum investment for the Capital Transfer route?"
+    a: "€500,000 for funds/research; €250,000 for cultural projects (€200,000 in low-density areas)."
+  - q: "How long must I hold the investment?"
+    a: "Typically 5 years; holding period varies by vehicle."
+  - q: "Do I need to live in Portugal full-time?"
+    a: "No, low presence is allowed (7 days/year)."
+  - q: "Can family members be included?"
+    a: "Yes — spouse, dependent children (≤26), dependent parents."
+  - q: "Are returns guaranteed on fund investments?"
+    a: "No — financial risk applies; Golden Visa relies on qualifying transfer."
+  - q: "Is real estate eligible for Capital Transfer?"
+    a: "Pure real-estate acquisition is currently not a qualifying Capital Transfer."
+
+costEstimator:
+  baseOptions:
+    - id: "fund500"
+      label: "Qualifying Fund Investment"
+      amount: 500000
+    - id: "research500"
+      label: "Research Capital Transfer"
+      amount: 500000
+    - id: "cultural250"
+      label: "Cultural Production / Heritage Support"
+      amount: 250000
+  defaultBaseId: "fund500"
+  adults: 1
+  children: 0
+  addons:
+    - id: "legal_fees"
+      label: "Legal & Consultancy Fees (estimate)"
+      amount: 15000
+    - id: "translation_notarisation"
+      label: "Translation & Notarisation (estimate)"
+      amount: 2000
+
+seo:
+  title: "Portugal Golden Visa – Capital Transfer Route"
+  description: "Qualify for Portuguese residency via capital transfers to funds, research, or cultural projects from €250k. Family eligible, low stay requirements. Start your eligibility check."
+  keywords:
+    - "Portugal Golden Visa"
+    - "capital transfer"
+    - "investment funds"
+
+---
+
+## Overview
+The **Capital Transfer** route allows non-EU nationals to obtain Portuguese residency by investing into qualifying **funds, research, or cultural projects**. Minimum investments vary by sub-option and funds must be transferred from abroad. Family members, including spouse, dependent children (≤26), and dependent parents, can be included. Physical presence is minimal (7 days/year).
+
+## Investment Overview
+- **Investment Fund / Venture Capital Fund:** €500,000 minimum; ~60% must go into Portuguese companies; 5-year holding expectation.  
+- **Research Activities:** €500,000 capital transfer to approved research institutions; documentation required.  
+- **Artistic Production / Cultural Heritage:** €250,000 (or €200,000 in low-density areas); project pre-approval often required.
+
+## Comparison Table: Capital Transfer vs Business Investment
+| Feature | Capital Transfer | Business Investment |
+|---------|-----------------|------------------|
+| **Min Investment** | €250k–€500k | €500k or 10 jobs |
+| **Type** | Passive fund/cultural investment | Active business/company |
+| **Ideal For** | Passive investors, philanthropists | Entrepreneurs / business owners |
+| **Residency Stay** | 7 days/year | 7 days/year |
+| **Family** | Spouse, children ≤26, dependent parents | Spouse, children ≤26, dependent parents |
+| **Path to Citizenship** | 5 years, 183-day annual stay, language | 5 years, 183-day annual stay, language |
+| **Risk** | Low | Medium |
+| **Tax** | Portuguese income tax; special regimes | Portuguese income + corporate/personal tax |

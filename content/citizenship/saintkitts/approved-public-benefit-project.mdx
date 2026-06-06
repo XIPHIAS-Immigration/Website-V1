@@ -1,0 +1,250 @@
+---
+title: "Approved Public Benefit Project (PBO) – Donation Route"
+country: St. Kitts & Nevis
+countrySlug: saintkitts
+programSlug: "approved-public-benefit-project"
+tagline: "Make a non-refundable contribution to an approved Public Benefit Project to obtain citizenship."
+currency: "USD"
+timelineMonths: 6
+minInvestment: 250000
+tags:
+  - "CBI"
+  - "donation"
+  - "Caribbean"
+  - "family-friendly"
+
+# Media (conform to your loaders / fallbacks)
+heroImage: "/images/citizenship/antigua/antigua-barbuda-business-investment.webp"
+heroVideo: "/images/personal/video/sample.mp4"
+heroPoster: "/images/citizenship/antigua/antigua-barbuda-business-investment.webp"
+brochure: "/images/citizenship/st-kitts-nevis/st_kitts_citizenship_by_investment.pdf"
+
+# Program specifics / Projects / Risk & Compliance / Docs / Estimator
+routeType: "donation"
+holdingPeriodMonths: 60
+lastUpdated: "2025-03-01"
+
+prices:
+  - label: "PBO contribution (single applicant)"
+    amount: 250000
+    notes: "Non-refundable contribution to an approved Public Benefit Project; covers a family of up to 4. USD 50,000 for each additional adult (18+) and USD 25,000 for each additional minor (&lt;18)."
+  - label: "Due diligence fee – Principal applicant"
+    amount: 10000
+    notes: "Government background check and verification of source of funds for the main applicant."
+  - label: "Due diligence fee – Each dependent (16+)"
+    amount: 7500
+    notes: "Background and source of funds verification for each dependent aged 16 and above."
+  - label: "Bank/National due diligence fee"
+    amount: 500
+    notes: "Additional KYC/compliance check conducted through banking channels."
+  - label: "Application processing fee (per person)"
+    amount: 250
+    notes: "Covers government processing of the application per applicant."
+  - label: "Passport issuance fee (per person)"
+    amount: 361
+    notes: "Charged at the stage of passport issuance; non-refundable."
+  - label: "Courier fee (per application)"
+    amount: 200
+    notes: "Covers secure shipping of documents and passports to the applicant."
+
+proofOfFunds:
+  - label: "Recommended liquid funds"
+    amount: 300000
+    notes: "Indicative amount to cover PBO contribution, due diligence, application, and passport fees for the main applicant and family."
+
+benefits:
+  - "Efficient 3–6 month processing for the St. Kitts & Nevis Citizenship by Investment program with thorough due diligence."
+  - "One PBO contribution covers the main applicant; family add-ons available for spouse, children under 26, and qualifying parents/grandparents 55+."
+  - "No residency requirement; citizenship is lifetime and inheritable, granting full St. Kitts & Nevis passport rights."
+
+requirements:
+  - "Make the PBO contribution after receiving Approval-in-Principle (AIP)."
+  - "Pass multi-layer due diligence, background checks, and complete a personal interview."
+  - "Provide full documentary evidence of identity, finances, and dependent relationships for verification under the PBO route."
+
+disqualifiers:
+  - "Unclear or unverifiable source of funds, or adverse background findings that prevent eligibility for the St. Kitts & Nevis PBO Citizenship by Investment program."
+  - "Sanctions, watchlist entries, or restricted nationality triggers that make an applicant ineligible."
+  - "Inability to complete the KYC interview or provide all required documents for the PBO contribution route."
+
+riskNotes:
+  - "Applicants failing to disclose material information may face rejection or future revocation of citizenship under the PBO route."
+  - "Changes in personal circumstances after submission must be reported promptly to avoid compliance issues."
+
+complianceNotes:
+  - "All applicants undergo strict KYC, anti-money laundering (AML), and counter-terrorism financing (CTF) checks."
+  - "The PBO route is fully regulated by the St. Kitts & Nevis Citizenship by Investment Unit (CIU) to ensure adherence to local and international legal standards."
+
+# PBO is donation-based; real-estate examples are not applicable.
+projectList:
+  - name: "Not applicable for PBO"
+    minBuyIn: 0
+    holdMonths: 0
+    notes: "Public Benefit Option is contribution-based and does not involve real-estate purchase."
+    image: "/images/citizenship/antigua/antigua-barbuda-business-investment.webp"
+
+documentChecklist:
+  - group: "Identity & Civil"
+    documents:
+      - "Valid passport and identity documents"
+      - "Marriage certificate (if spouse included)"
+      - "Birth certificates for dependent children"
+      - "Proof of relationship for qualifying parents/grandparents"
+  - group: "Financial & Source of Funds"
+    documents:
+      - "Evidence of source of funds"
+  - group: "Compliance & Health"
+    documents:
+      - "Police clearance certificate(s)"
+      - "Health certificate(s)"
+
+familyMatrix:
+  childrenUpTo: 26
+  parentsFromAge: 55
+  siblings: false
+  spouse: true
+
+quickCheck:
+  title: "PBO route pre-screen"
+  questions:
+    - id: "clean"
+      label: "Clean background & no sanctions?"
+      type: "boolean"
+      note: "No serious criminal history; not on restricted lists."
+    - id: "funds"
+      label: "Budget for USD 250k + fees?"
+      type: "boolean"
+      note: "Covers contribution, due diligence, and issuance."
+    - id: "docs"
+      label: "Can supply full KYC documents?"
+      type: "boolean"
+      note: "IDs, source of funds, civil status, police certs."
+  policy:
+    type: "all"
+  verdict:
+    successTitle: "Likely eligible"
+    successText: "PBO route appears feasible."
+    cautionTitle: "Possibly eligible"
+    cautionText: "We’ll validate family composition and funding."
+  ctas:
+    primaryHref: "/eligibility"
+    primaryText: "Check Eligibility"
+    secondaryHref: "/citizenship/saintkitts"
+    secondaryText: "View All saintkitts Programs"
+
+# Optional interactive estimator (donation bands & fees)
+costEstimator:
+  baseOptions:
+    - id: "pbo-family-up-to-4"
+      label: "PBO contribution – family up to 4"
+      amount: 250000
+    - id: "pbo-custom"
+      label: "Custom family composition (start at 250,000)"
+      amount: 250000
+  defaultBaseId: "pbo-family-up-to-4"
+  adults: 2
+  children: 0
+  addons:
+    - id: "extra-adult"
+      label: "Additional adult (18+) contribution"
+      amount: 50000
+    - id: "extra-minor"
+      label: "Additional minor (&lt;18) contribution"
+      amount: 25000
+    - id: "dd-main"
+      label: "Due diligence — main applicant"
+      amount: 10000
+    - id: "dd-16plus"
+      label: "Due diligence — each dependent (16+)"
+      amount: 7500
+      per: "adult"
+    - id: "bank-dd"
+      label: "Bank/National due diligence (per application)"
+      amount: 500
+    - id: "app-per-person"
+      label: "Application processing (per person)"
+      amount: 250
+      per: "person"
+    - id: "passport-per-person"
+      label: "Passport issuance (per person)"
+      amount: 361
+      per: "person"
+    - id: "courier"
+      label: "Courier (per application)"
+      amount: 200
+
+seo:
+  title: "St. Kitts & Nevis – Citizenship via Public Benefit Project (PBO)"
+  description: "Qualify for St. Kitts & Nevis citizenship with a USD 250,000 contribution to an approved Public Benefit Project. Learn fees, process, and family inclusion."
+  keywords:
+    - "St. Kitts & Nevis PBO"
+    - "Public Benefit Project citizenship"
+    - "St. Kitts & Nevis CBI"
+    - "PBO donation route"
+    - "St. Kitts & Nevis second passport"
+    - "family-friendly CBI"
+    - "Caribbean citizenship by investment"
+---
+
+### Overview
+Learn how St. Kitts & Nevis Citizenship by Investment can be obtained through a contribution to an approved Public Benefit Project (PBO), offering a fast, family-friendly route.
+
+### Investment Overview
+The PBO route requires a **minimum non-refundable contribution of USD 250,000** to a CIU-approved Public Benefit Project. This option supports national development while providing citizenship for the main applicant and eligible family members.
+
+### Quick Eligibility Check
+Check if you meet key criteria: clean criminal record, verifiable source of funds, eligible dependents, and no sanctions or restricted nationality issues.
+
+### Featured Real Estate Projects
+Not applicable for PBO; this route does **not involve real estate investment**. Focus is on impactful contributions to approved projects.
+
+### How the Investment Route Works
+1. Engage a licensed agent.  
+2. Complete document collection and due diligence.  
+3. Receive Approval-in-Principle (AIP).  
+4. Make the PBO contribution.  
+5. Take the oath, receive certificate, and apply for the St. Kitts & Nevis passport.
+
+### Comparison of PBO, SISC, and Real Estate Routes {#comparison-with-provincial-entrepreneur-programs}
+The St. Kitts & Nevis CBI program offers three main investment pathways. The Public Benefit Option (PBO) is a **donation-based route** focused on supporting approved projects. SISC is also donation-based, while the Real Estate option is **asset-backed**, providing a tangible investment with resale opportunities. All routes offer **fast processing (3–6 months), full family inclusion, and visa-free travel to over 150 countries**.
+
+| Feature | Public Benefit Option (PBO) | SISC Contribution | Real Estate Investment |
+|---------|----------------------------|------------------|------------------------|
+| Minimum Investment | USD 250,000 (non-refundable contribution to CIU-approved project) | USD 250,000 (family up to 4; +USD 50,000 per additional adult 18+, +USD 25,000 per additional minor &lt;18) | USD 325,000+ for government-authorized developments |
+| Family Inclusion | Spouse, children under 26, parents/grandparents 55+ | Spouse, children under 26, parents/grandparents 55+ | Spouse, children under 26, parents/grandparents 55+ |
+| Processing Time | 3–6 months | 3–6 months | 3–6 months |
+| Residency Requirement | None | None | None |
+| Investment Type | Non-refundable donation to approved public benefit project | Non-refundable donation to the Sustainable Island State Contribution | Asset-backed property purchase |
+| Government & Due Diligence Fees | US$10,000 main applicant, US$7,500 per dependent 16+; Bank/National due diligence US$500 | US$10,000 main applicant, US$7,500 per dependent 16+; Bank/National due diligence US$500 | US$10,000 main applicant, US$7,500 per dependent 16+; land registration & transfer fees apply |
+| Passport Fee | USD 361 per person | USD 350 per person | USD 350 per person |
+| Benefits | Supports public projects, impact-driven | Simple, fast, predictable | Asset-backed, potential rental income, resale options |
+| Liquidity / Exit Options | Not refundable | Not refundable | Can be resold after minimum holding period (per CIU regulations) |
+| Visa-Free Travel | 154+ countries including UK, Schengen, Hong Kong | 154+ countries including UK, Schengen, Hong Kong | 154+ countries including UK, Schengen, Hong Kong |
+
+### Investment Risks and Compliance
+- Non-disclosure of material information may result in rejection or revocation.  
+- All applicants undergo strict KYC, AML, and CTF checks.  
+- PBO route is regulated by the CIU to ensure legal and compliance standards.
+
+### Why St. Kitts & Nevis
+- No residency requirement; lifetime and inheritable citizenship.  
+- Fast 3–6 month processing.  
+- Visa-free or visa-on-arrival travel to over 150 countries.  
+- Transparent, well-regulated program with family inclusion.
+
+### FAQ
+- **Can I include my family?** Yes, spouse, children under 26, and qualifying parents/grandparents 55+.  
+- **Do I need to reside in St. Kitts & Nevis?** No, residency is not required.  
+- **What is the minimum investment?** USD 250,000 contribution to an approved Public Benefit Project.
+
+### Why Choose This Route
+Ideal for applicants seeking a **non-real estate path**, supporting social and public benefit projects while securing citizenship.
+
+### Indicative Budget
+- PBO contribution: USD 250,000 (family up to 4)  
+- Due diligence: USD 10,000 (main applicant), USD 7,500 (each dependent 16+)  
+- Application fee: USD 250 per person  
+- Passport fee: USD 361 per person  
+- Bank/National due diligence: USD 500  
+- Courier: USD 200  
+- Recommended liquid funds: USD 300,000

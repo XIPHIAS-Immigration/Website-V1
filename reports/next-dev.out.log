@@ -1,0 +1,149 @@
+
+> xiphias_project@0.1.0 dev
+> next dev --turbopack --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.1.4 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1245ms
+ POST /api/platform/xia 200 in 504ms (compile: 468ms, render: 36ms)
+○ Compiling /x-hub/sign-in ...
+ GET /booking 307 in 3.6s (compile: 3.2s, render: 458ms)
+ GET /x-hub/sign-in 200 in 3.6s (compile: 3.5s, render: 127ms)
+ HEAD /booking 307 in 90ms (compile: 4ms, render: 86ms)
+ POST /api/platform/lead 200 in 141ms (compile: 131ms, render: 10ms)
+ POST /api/platform/passport 200 in 187ms (compile: 180ms, render: 7ms)
+ HEAD /x-hub 307 in 810ms (compile: 683ms, render: 127ms)
+[insights] matched files: 407
+ GET /manifest.webmanifest 200 in 158ms (compile: 144ms, render: 13ms)
+ GET / 200 in 4.1s (compile: 493ms, render: 3.6s)
+[insights] matched files: 407
+ GET /api/highlights?limit=20 200 in 745ms (compile: 100ms, render: 644ms)
+ HEAD /booking 307 in 127ms (compile: 9ms, render: 118ms)
+ POST /api/platform/xia 200 in 31ms (compile: 23ms, render: 8ms)
+ GET /x-hub/sign-in 200 in 122ms (compile: 7ms, render: 115ms)
+ GET /manifest.webmanifest 200 in 9ms (compile: 4ms, render: 6ms)
+ GET /x-hub/sign-in 200 in 187ms (compile: 5ms, render: 182ms)
+ GET /api/auth/providers 200 in 1850ms (compile: 1824ms, render: 25ms)
+ GET /api/auth/csrf 200 in 24ms (compile: 12ms, render: 13ms)
+ POST /api/auth/callback/credentials 200 in 47ms (compile: 3ms, render: 44ms)
+ GET /x-hub 200 in 118ms (compile: 7ms, render: 111ms)
+ GET /x-hub 200 in 81ms (compile: 6ms, render: 76ms)
+ GET /manifest.webmanifest 200 in 10ms (compile: 5ms, render: 6ms)
+ GET /x-hub/sign-in 200 in 92ms (compile: 5ms, render: 87ms)
+ GET /x-hub/sign-in 200 in 52ms (compile: 12ms, render: 40ms)
+ GET /manifest.webmanifest 200 in 10ms (compile: 4ms, render: 7ms)
+ GET /api/auth/providers 200 in 38ms (compile: 11ms, render: 27ms)
+ GET /api/auth/csrf 200 in 41ms (compile: 3ms, render: 37ms)
+ POST /api/auth/callback/credentials 200 in 29ms (compile: 5ms, render: 25ms)
+ GET /x-hub 200 in 35ms (compile: 5ms, render: 30ms)
+ GET /x-hub 200 in 49ms (compile: 6ms, render: 43ms)
+ GET /manifest.webmanifest 200 in 12ms (compile: 5ms, render: 6ms)
+ GET /x-hub/sign-in 200 in 110ms (compile: 5ms, render: 105ms)
+ GET /x-hub/sign-in 200 in 68ms (compile: 14ms, render: 53ms)
+ GET /manifest.webmanifest 200 in 9ms (compile: 3ms, render: 6ms)
+ GET /x-hub/sign-in 200 in 26ms (compile: 3ms, render: 23ms)
+✓ Compiled in 19ms
+ GET /manifest.webmanifest 200 in 6ms (compile: 3ms, render: 3ms)
+ HEAD /x-hub 307 in 489ms (compile: 151ms, render: 338ms)
+ GET /api/auth/providers 200 in 169ms (compile: 141ms, render: 27ms)
+ GET /api/auth/csrf 200 in 23ms (compile: 5ms, render: 18ms)
+ POST /api/auth/callback/credentials 200 in 25ms (compile: 4ms, render: 21ms)
+ GET /x-hub 200 in 170ms (compile: 7ms, render: 163ms)
+ GET /x-hub 200 in 93ms (compile: 4ms, render: 89ms)
+ GET /manifest.webmanifest 200 in 10ms (compile: 4ms, render: 6ms)
+ GET /x-hub/imt 200 in 890ms (compile: 778ms, render: 112ms)
+ GET /manifest.webmanifest 200 in 11ms (compile: 4ms, render: 7ms)
+ GET /x-hub/xia 200 in 615ms (compile: 542ms, render: 72ms)
+ GET /manifest.webmanifest 200 in 11ms (compile: 4ms, render: 6ms)
+ POST /api/platform/xia 200 in 11ms (compile: 3ms, render: 8ms)
+[insights] matched files: 407
+ GET / 200 in 1170ms (compile: 4ms, render: 1166ms)
+[insights] matched files: 407
+ GET / 200 in 1280ms (compile: 4ms, render: 1276ms)
+[insights] matched files: 407
+ GET /manifest.webmanifest 200 in 23ms (compile: 16ms, render: 6ms)
+[insights] matched files: 407
+ GET /api/highlights?limit=20 200 in 841ms (compile: 5ms, render: 836ms)
+ GET /api/highlights?limit=20 200 in 857ms (compile: 7ms, render: 851ms)
+[insights] matched files: 407
+ GET / 200 in 1148ms (compile: 6ms, render: 1142ms)
+ GET /eligibility 200 in 1350ms (compile: 1275ms, render: 75ms)
+ GET /manifest.webmanifest 200 in 14ms (compile: 3ms, render: 10ms)
+ GET /eligibility?track=residency 200 in 65ms (compile: 8ms, render: 57ms)
+ GET /manifest.webmanifest 200 in 10ms (compile: 3ms, render: 7ms)
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+[eligibility:submit] {
+  name: 'Adyanta Dubey',
+  email: 'a***@gmail.com',
+  phone: '+918779404951',
+  track: 'residency',
+  answers: {
+    nationality: 'india',
+    target_region: 'me',
+    preferred_country: 'sa',
+    basis: 'work',
+    job_offer: true,
+    role_type: 'tech',
+    highest_education: 'master',
+    experience_years: '3-5',
+    salary_band_usd: '80-150',
+    family_included: true,
+    timeline: '4m+',
+    clean_record: true,
+    presence_days: '60-183'
+  },
+  meta: {
+    ip: '127.0.0.x',
+    ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0',
+    referer: 'http://127.0.0.1:3000/eligibility?track=residency',
+    ts: '2026-06-01T07:55:15.030Z'
+  }
+}
+ POST /api/eligibility/submit 200 in 4.6s (compile: 346ms, render: 4.2s)
+ POST /api/eligibility/report 200 in 793ms (compile: 709ms, render: 84ms)
+ GET /manifest.webmanifest 200 in 11ms (compile: 5ms, render: 6ms)
+ GET /x-hub/sign-in 200 in 188ms (compile: 6ms, render: 183ms)
+ GET /api/auth/providers 200 in 37ms (compile: 14ms, render: 22ms)
+ GET /api/auth/csrf 200 in 41ms (compile: 4ms, render: 37ms)
+ POST /api/auth/callback/credentials 200 in 37ms (compile: 6ms, render: 32ms)
+ GET /x-hub 200 in 152ms (compile: 5ms, render: 147ms)
+ GET /x-hub 200 in 90ms (compile: 5ms, render: 85ms)
+ GET /manifest.webmanifest 200 in 9ms (compile: 3ms, render: 6ms)
+ GET /x-hub/xia 200 in 78ms (compile: 6ms, render: 72ms)
+ GET /manifest.webmanifest 200 in 8ms (compile: 3ms, render: 6ms)
+ GET /x-hub/x-passport 200 in 664ms (compile: 595ms, render: 69ms)
+ GET /manifest.webmanifest 200 in 13ms (compile: 6ms, render: 7ms)
+ POST /api/platform/passport 200 in 13ms (compile: 4ms, render: 9ms)
+ POST /api/platform/passport 200 in 10ms (compile: 3ms, render: 6ms)
+ POST /api/platform/passport 200 in 11ms (compile: 3ms, render: 8ms)
+ POST /api/platform/passport 200 in 9ms (compile: 3ms, render: 6ms)
+ POST /api/platform/passport 200 in 8ms (compile: 3ms, render: 5ms)
+ POST /api/platform/passport 200 in 9ms (compile: 3ms, render: 6ms)
+ GET /x-hub/partners 200 in 532ms (compile: 461ms, render: 71ms)
+ GET /manifest.webmanifest 200 in 8ms (compile: 3ms, render: 5ms)
+ GET /x-hub/b2g 200 in 779ms (compile: 685ms, render: 93ms)
+ GET /manifest.webmanifest 200 in 11ms (compile: 6ms, render: 5ms)
+ GET /x-hub/admin/content-review 200 in 685ms (compile: 616ms, render: 69ms)
+ GET /manifest.webmanifest 200 in 10ms (compile: 4ms, render: 6ms)
+ GET /x-hub/b2g 200 in 77ms (compile: 5ms, render: 72ms)
+ GET /manifest.webmanifest 200 in 10ms (compile: 4ms, render: 6ms)
+✓ Compiled in 511ms
+ POST /api/platform/xia 500 in 533ms (compile: 216ms, render: 317ms)
+ POST /api/platform/passport 500 in 830ms (compile: 578ms, render: 252ms)
+ POST /api/platform/passport 200 in 292ms (compile: 38ms, render: 254ms)
+ POST /api/platform/xia 200 in 561ms (compile: 320ms, render: 241ms)
+ POST /api/platform/xia 200 in 42ms (compile: 2ms, render: 39ms)
+ POST /api/platform/xia 200 in 309ms (compile: 43ms, render: 265ms)
+ POST /api/platform/xia 200 in 47ms (compile: 4ms, render: 43ms)
+ GET /eligibility 200 in 263ms (compile: 35ms, render: 228ms)
+ GET /eligibility 200 in 359ms (compile: 6ms, render: 353ms)
+ GET /eligibility?track=residency 200 in 50ms (compile: 11ms, render: 39ms)
+✓ Compiled in 365ms
+✓ Compiled in 309ms
+✓ Compiled in 316ms
+✓ Compiled in 334ms
+[?25h
