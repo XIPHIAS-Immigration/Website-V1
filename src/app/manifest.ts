@@ -14,8 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en",
     shortcuts: [
       {
-        name: "Open X-Hub",
-        short_name: "X-Hub",
+        name: "Open XIPHIAS Hub",
+        short_name: "Hub",
         description: "Client and partner portal",
         url: "/x-hub",
         icons: [{ src: "/android-chrome-192x192.png", sizes: "192x192" }],

@@ -5,10 +5,15 @@ import {
   Building2,
   ClipboardCheck,
   FileCheck2,
+  FileSearch,
   Gauge,
   Globe2,
+  KeyRound,
   LayoutDashboard,
+  Orbit,
   ShieldCheck,
+  UserRound,
+  Workflow,
 } from "lucide-react";
 import type { PlatformUser, PortalRole } from "@/lib/platform/types";
 
@@ -21,6 +26,7 @@ type PortalShellProps = {
 type NavItem = {
   href: string;
   label: string;
+  description: string;
   key: string;
   icon: React.ComponentType<{ className?: string }>;
   roles: PortalRole[];
@@ -29,21 +35,56 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     href: "/x-hub",
-    label: "X-Hub",
+    label: "XIPHIAS Hub",
+    description: "Case home",
     key: "dashboard",
     icon: LayoutDashboard,
     roles: ["client", "staff", "admin", "partner", "b2g"],
   },
   {
+    href: "/x-hub/account",
+    label: "Account",
+    description: "Login settings",
+    key: "account",
+    icon: KeyRound,
+    roles: ["client", "staff", "admin", "partner", "b2g"],
+  },
+  {
+    href: "/x-hub/profile",
+    label: "Client Profile",
+    description: "Single client record",
+    key: "profile",
+    icon: UserRound,
+    roles: ["client", "staff", "admin"],
+  },
+  {
+    href: "/x-hub/mobility-os",
+    label: "Mobility OS",
+    description: "Journey intelligence",
+    key: "mobility-os",
+    icon: Orbit,
+    roles: ["client", "staff", "admin"],
+  },
+  {
+    href: "/x-hub/documents",
+    label: "Documents",
+    description: "Evidence planner",
+    key: "documents",
+    icon: FileSearch,
+    roles: ["client", "staff", "admin"],
+  },
+  {
     href: "/x-hub/imt",
-    label: "IMT",
+    label: "Case Tracker",
+    description: "IMT milestones",
     key: "imt",
     icon: Gauge,
     roles: ["client", "staff", "admin"],
   },
   {
     href: "/x-hub/xia",
-    label: "XIA",
+    label: "XIA Advisor",
+    description: "Program triage",
     key: "xia",
     icon: Bot,
     roles: ["client", "staff", "admin", "partner", "b2g"],
@@ -51,20 +92,23 @@ const navItems: NavItem[] = [
   {
     href: "/x-hub/x-passport",
     label: "X-Passport",
+    description: "Country fit score",
     key: "passport",
     icon: Globe2,
     roles: ["client", "staff", "admin", "partner", "b2g"],
   },
   {
     href: "/x-hub/partners",
-    label: "Partners",
+    label: "Partner Desk",
+    description: "Referral tracking",
     key: "partners",
     icon: BriefcaseBusiness,
     roles: ["partner", "staff", "admin"],
   },
   {
     href: "/x-hub/b2g",
-    label: "B2G",
+    label: "B2G Desk",
+    description: "Institutional intake",
     key: "b2g",
     icon: Building2,
     roles: ["b2g", "staff", "admin"],
@@ -72,20 +116,31 @@ const navItems: NavItem[] = [
   {
     href: "/x-hub/admin/operations",
     label: "Operations",
+    description: "Staff pipeline",
     key: "operations",
     icon: FileCheck2,
     roles: ["staff", "admin"],
   },
   {
+    href: "/crm",
+    label: "CRM Migration",
+    description: "Legacy map",
+    key: "crm",
+    icon: Workflow,
+    roles: ["staff", "admin"],
+  },
+  {
     href: "/x-hub/admin/risk",
     label: "Risk Review",
+    description: "Due diligence",
     key: "risk",
     icon: ShieldCheck,
     roles: ["staff", "admin"],
   },
   {
     href: "/x-hub/admin/health",
-    label: "Health",
+    label: "Health Check",
+    description: "System readiness",
     key: "health",
     icon: Gauge,
     roles: ["staff", "admin"],
@@ -93,6 +148,7 @@ const navItems: NavItem[] = [
   {
     href: "/x-hub/admin/content-review",
     label: "Content Review",
+    description: "Approval queue",
     key: "content",
     icon: ClipboardCheck,
     roles: ["staff", "admin"],
@@ -116,8 +172,8 @@ export default function PortalShell({ user, active, children }: PortalShellProps
                 <ShieldCheck className="size-5" />
               </span>
               <span>
-                <span className="block text-sm font-bold">X-Hub</span>
-                <span className="block text-xs text-slate-500 dark:text-slate-400">Portal</span>
+                <span className="block text-sm font-bold">XIPHIAS Hub</span>
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Secure portal</span>
               </span>
             </Link>
 
@@ -129,6 +185,7 @@ export default function PortalShell({ user, active, children }: PortalShellProps
                   <Link
                     key={item.href}
                     href={item.href}
+                    title={`${item.label}: ${item.description}`}
                     className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold transition ${
                       selected
                         ? "bg-primary text-white"
@@ -136,7 +193,12 @@ export default function PortalShell({ user, active, children }: PortalShellProps
                     }`}
                   >
                     <Icon className="size-4" />
-                    {item.label}
+                    <span className="min-w-0">
+                      <span className="block truncate">{item.label}</span>
+                      <span className={`block truncate text-[11px] font-medium ${selected ? "text-white/75" : "text-slate-500 dark:text-slate-400"}`}>
+                        {item.description}
+                      </span>
+                    </span>
                   </Link>
                 );
               })}
@@ -148,7 +210,7 @@ export default function PortalShell({ user, active, children }: PortalShellProps
           <header className="mb-5 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:px-5">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">XIPHIAS platform</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">XIPHIAS Hub</p>
                 <h1 className="mt-1 text-2xl font-bold tracking-normal sm:text-3xl">Client and mobility operations</h1>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -174,6 +236,7 @@ export default function PortalShell({ user, active, children }: PortalShellProps
                   <Link
                     key={item.href}
                     href={item.href}
+                    title={`${item.label}: ${item.description}`}
                     className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold ${
                       item.key === active
                         ? "bg-primary text-white"
@@ -187,6 +250,16 @@ export default function PortalShell({ user, active, children }: PortalShellProps
               })}
             </nav>
           </header>
+
+          {user.mustChangePassword ? (
+            <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 shadow-sm">
+              This account is using a temporary registration password. Open{" "}
+              <Link href="/x-hub/account" className="underline">
+                Account Settings
+              </Link>{" "}
+              to change it.
+            </div>
+          ) : null}
 
           {children}
         </div>

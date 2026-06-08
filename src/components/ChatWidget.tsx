@@ -486,7 +486,7 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
       href: "/booking",
     },
     {
-      label: "Open X-Hub",
+      label: "Open XIPHIAS Hub",
       eyebrow: "Portal",
       description: "Track documents, milestones, messages, and case status.",
       icon: "docs",
@@ -681,12 +681,12 @@ function chatId() {
 
 function buildRouteQuery(profile: RouteProfile) {
   return [
-    "Please shortlist suitable XIPHIAS immigration options.",
+    "Please shortlist suitable XIPHIAS immigration options. Keep the answer concise.",
     profile.goal ? `Goal: ${profile.goal}.` : "",
     profile.region ? `Destination preference: ${profile.region}.` : "",
     profile.budget ? `Budget: ${profile.budget}.` : "",
     profile.family ? `Applicant type: ${profile.family}.` : "",
-    "Use approved site content and show practical next steps.",
+    "Return the strongest matches only with one practical next step.",
   ]
     .filter(Boolean)
     .join(" ");
@@ -800,7 +800,7 @@ function InternalXiaPanel({
           <div>
             <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: 0.2 }}>XIPHIAS Advisor</div>
             <div style={{ marginTop: 3, fontSize: 12, color: "rgba(255,255,255,0.76)" }}>
-              Guided immigration assistance
+              Program guidance with source-backed checks
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -875,7 +875,7 @@ function InternalXiaPanel({
                 color: "#475569",
               }}
             >
-              Searching approved content...
+              Checking programs and fit...
             </div>
           ) : null}
           <div ref={endRef} />
@@ -896,15 +896,10 @@ function InternalXiaPanel({
           >
             Start over
           </button>
-          <button
-            type="button"
-            onClick={() => setCustomOpen((value) => !value)}
-            style={footerButtonStyle(customOpen)}
-          >
-            Ask a specific question
-          </button>
+          <span style={{ color: "#64748b", fontSize: 12, fontWeight: 800, padding: "8px 2px" }}>
+            You can also type naturally.
+          </span>
         </div>
-        {customOpen ? (
         <form onSubmit={submit} style={{ display: "flex", gap: 8, marginTop: 8 }}>
         <input
           value={message}
@@ -938,7 +933,6 @@ function InternalXiaPanel({
           {loading ? "..." : "Send"}
         </button>
         </form>
-        ) : null}
       </div>
     </div>
   );
@@ -1248,35 +1242,36 @@ function RecommendationView({
   expanded: boolean;
 }) {
   const isCountryOverview = recommendation.intent === "country_overview";
-  const visiblePrograms = recommendation.recommendedPrograms.slice(0, expanded || isCountryOverview ? 4 : 2);
+  const visiblePrograms = recommendation.recommendedPrograms.slice(0, expanded ? 3 : isCountryOverview ? 3 : 2);
   const primaryAction = recommendation.actions[0];
+  const moreCount = Math.max(0, recommendation.recommendedPrograms.length - visiblePrograms.length);
+  const lead = conversationLead(recommendation);
+  const conversationalIntent = ["greeting", "thanks", "assistant_help", "human_handoff"].includes(recommendation.intent);
 
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
         <span style={{ color: "#123f7a", fontSize: 11, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase" }}>
-          {recommendation.intent.replaceAll("_", " ")}
+          {formatIntentLabel(recommendation.intent)}
         </span>
-        {typeof recommendation.confidence === "number" ? (
+        {typeof recommendation.confidence === "number" && !conversationalIntent ? (
           <span style={{ borderRadius: 999, background: "#eff6ff", color: "#1d4ed8", fontSize: 11, fontWeight: 800, padding: "3px 7px" }}>
-            {recommendation.confidence}
+            Confidence {recommendation.confidence}
           </span>
         ) : null}
         {recommendation.handoffRequired ? (
           <span style={{ borderRadius: 999, background: "#fffbeb", color: "#92400e", fontSize: 11, fontWeight: 800, padding: "3px 7px" }}>
-            Review
+            Advisor review
           </span>
         ) : null}
       </div>
 
-      <p style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 900, color: "#0f172a" }}>
-        Here is what I found:
+      <p style={{ margin: "9px 0 0", fontSize: 13.5, fontWeight: 900, color: "#0f172a", lineHeight: 1.45 }}>
+        {lead.title}
       </p>
-      <ol style={{ margin: "7px 0 0", paddingLeft: 18, color: "#334155", fontSize: 12.5, lineHeight: 1.55 }}>
-        <li>{shorten(recommendation.summary, 145)}</li>
-        <li>{isCountryOverview ? "Country groups are below." : recommendation.handoffRequired ? "Advisor review is recommended." : "Best matches are below."}</li>
-        <li>{isCountryOverview ? "Click a category to open its page." : "Click a result to open the program page."}</li>
-      </ol>
+      <p style={{ margin: "5px 0 0", color: "#334155", fontSize: 12.5, lineHeight: 1.55 }}>
+        {lead.body}
+      </p>
 
       <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
         {visiblePrograms.map((program) => {
@@ -1297,26 +1292,40 @@ function RecommendationView({
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <strong style={{ fontSize: 13 }}>{program.name}</strong>
-              <span style={{ color: "#047857", fontSize: 12, fontWeight: 900 }}>{program.score}</span>
+              <strong style={{ fontSize: 13, lineHeight: 1.35 }}>{program.name}</strong>
+              {program.score >= 70 ? (
+                <span style={{ color: "#047857", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap" }}>
+                  Good fit
+                </span>
+              ) : null}
             </div>
             {program.country ? <div style={{ marginTop: 2, color: "#64748b", fontSize: 12 }}>{program.country}</div> : null}
-            <ul style={{ margin: "7px 0 0", paddingLeft: 16, color: "#475569", fontSize: 12, lineHeight: 1.45 }}>
-              <li>{shortReason(program.reason, expanded || isCountryOverview, recommendation.intent)}</li>
-              <li>{href ? "Opens full details." : "Needs staff review."}</li>
-            </ul>
+            <p style={{ margin: "7px 0 0", color: "#475569", fontSize: 12, lineHeight: 1.45 }}>
+              {shortReason(program.reason, expanded, recommendation.intent)}
+            </p>
+            {href ? (
+              <span style={{ alignItems: "center", color: "#123f7a", display: "inline-flex", fontSize: 11.5, fontWeight: 900, gap: 5, marginTop: 8 }}>
+                Open details <ArrowRight size={13} strokeWidth={2.7} />
+              </span>
+            ) : null}
           </CardTag>
         );
         })}
       </div>
 
-      {recommendation.sources?.length ? (
+      {moreCount > 0 ? (
+        <p style={{ margin: "8px 0 0", color: "#64748b", fontSize: 12, fontWeight: 700 }}>
+          {expanded ? `${moreCount} more option${moreCount === 1 ? "" : "s"} available after advisor review.` : `I kept this short. Expand to see one more option.`}
+        </p>
+      ) : null}
+
+      {expanded && recommendation.sources?.length ? (
         <div style={{ marginTop: 10 }}>
           <div style={{ color: "#64748b", fontSize: 11, fontWeight: 900, marginBottom: 6, textTransform: "uppercase" }}>
-            Sources
+            Checked against
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {recommendation.sources.slice(0, expanded ? 5 : 3).map((item) => (
+          {recommendation.sources.slice(0, 4).map((item) => (
             <a
               key={`${item.label}-${item.href}`}
               href={item.href}
@@ -1341,6 +1350,10 @@ function RecommendationView({
           </div>
         </div>
       ) : null}
+
+      <p style={{ margin: "10px 0 0", color: "#334155", fontSize: 12.5, lineHeight: 1.5 }}>
+        {nextPrompt(recommendation)}
+      </p>
 
       <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 7 }}>
         {recommendation.actions.slice(0, expanded ? 3 : 2).map((action, index) => {
@@ -1386,6 +1399,77 @@ function RecommendationView({
   );
 }
 
+function formatIntentLabel(intent: string) {
+  if (intent === "greeting" || intent === "thanks" || intent === "assistant_help") return "XIA assistant";
+  if (intent === "human_handoff") return "Advisor handoff";
+  if (intent === "country_overview") return "Country coverage";
+  if (intent === "program_advisory") return "Program shortlist";
+  if (intent === "document_readiness") return "Document planning";
+  if (intent === "risk_review") return "Risk review";
+  return intent.replaceAll("_", " ");
+}
+
+function conversationLead(recommendation: NonNullable<XiaApiResponse["recommendation"]>) {
+  if (recommendation.intent === "greeting" || recommendation.intent === "assistant_help") {
+    return {
+      title: "Hi, I am XIA. How can I help?",
+      body: recommendation.summary,
+    };
+  }
+
+  if (recommendation.intent === "thanks") {
+    return {
+      title: "Glad to help.",
+      body: recommendation.summary,
+    };
+  }
+
+  if (recommendation.intent === "human_handoff") {
+    return {
+      title: "Yes, I can help you reach an advisor.",
+      body: recommendation.summary,
+    };
+  }
+
+  if (recommendation.intent === "country_overview") {
+    return {
+      title: "Yes. XIPHIAS covers multiple immigration pathways.",
+      body: "I grouped the options by route type so you can choose the direction first instead of reading a long country dump.",
+    };
+  }
+
+  if (recommendation.handoffRequired) {
+    return {
+      title: "I found a possible direction, but it needs advisor review.",
+      body: shorten(recommendation.summary, 118),
+    };
+  }
+
+  return {
+    title: "Based on your answers, I would start with these options.",
+    body: shorten(recommendation.summary, 118),
+  };
+}
+
+function nextPrompt(recommendation: NonNullable<XiaApiResponse["recommendation"]>) {
+  if (recommendation.intent === "greeting" || recommendation.intent === "assistant_help") {
+    return "You can type something like: I want Europe residency for my family under 300k.";
+  }
+  if (recommendation.intent === "thanks") {
+    return "Tell me your destination, goal, or budget whenever you are ready.";
+  }
+  if (recommendation.intent === "human_handoff") {
+    return "If you share your country and goal first, the advisor call can be more focused.";
+  }
+  if (recommendation.intent === "country_overview") {
+    return "Tell me a country, budget, or goal and I can narrow this down.";
+  }
+  if (recommendation.handoffRequired) {
+    return "You can ask a follow-up, or book an advisor to verify eligibility and documents.";
+  }
+  return "Want me to compare these by cost, timeline, family inclusion, or documents?";
+}
+
 function shorten(value: string, max: number) {
   const text = value.replace(/\s+/g, " ").trim();
   return text.length > max ? `${text.slice(0, max - 3)}...` : text;
@@ -1393,7 +1477,9 @@ function shorten(value: string, max: number) {
 
 function shortReason(value: string, expanded = false, intent?: string) {
   if (intent === "country_overview") {
-    return shorten(value.replace(/^Countries:\s*/i, ""), expanded ? 320 : 190);
+    return expanded
+      ? shorten(value.replace(/^Countries:\s*/i, "Countries include: "), 150)
+      : "Open this pathway to see available countries and program pages.";
   }
   const [main, criteria] = value.split("Criteria:");
   const selected = main.trim() || criteria?.trim() || value;

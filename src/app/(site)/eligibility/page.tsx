@@ -20,9 +20,9 @@ const EligibilityHeroDynamic = nextDynamic(() =>
 /* ── SEO ─────────────────────────────────────────────────────────────── */
 export const metadata: Metadata = {
   title:
-    "Free Immigration Eligibility Check | Residency • Citizenship • Corporate • Skilled",
+    "Immigration Assessment Preview | Residency, Citizenship, Corporate & Skilled",
   description:
-    "Interactive global eligibility quiz. Answer a few smart questions and get instant results plus a personalized PDF by email.",
+    "Start with a guided XIPHIAS assessment, receive a branded preview by email, and register for a detailed personal report.",
   keywords: [
     "eligibility check",
     "residency eligibility",
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/eligibility" },
   openGraph: {
     title:
-      "Free Immigration Eligibility Check | Residency • Citizenship • Corporate • Skilled",
+      "Immigration Assessment Preview | XIPHIAS Immigration",
     description:
-      "Interactive global eligibility quiz. Answer a few smart questions and get instant results plus a personalized PDF by email.",
+      "Start with a guided XIPHIAS assessment, receive a branded preview by email, and register for a detailed personal report.",
     url: "https://www.xiphiasimmigration.com/eligibility",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -45,16 +45,16 @@ export const metadata: Metadata = {
         url: "/xiphias-immigration.png",
         width: 1200,
         height: 630,
-        alt: "Free Immigration Eligibility Check – XIPHIAS Immigration",
+        alt: "Immigration Assessment Preview - XIPHIAS Immigration",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title:
-      "Free Immigration Eligibility Check | Residency • Citizenship • Corporate • Skilled",
+      "Immigration Assessment Preview | XIPHIAS Immigration",
     description:
-      "Answer a few smart questions and get instant eligibility results plus a personalized PDF.",
+      "Answer a few guided questions and receive a branded assessment preview.",
     images: ["/xiphias-immigration.png"],
   },
 };
@@ -85,10 +85,10 @@ const faqJsonLd = {
     },
     {
       "@type": "Question",
-      name: "Do I need to share my email to see full results?",
+      name: "Do I need to share my email to get the preview?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes—after a quick preview, enter your name and email to unlock full results and download your personalized PDF.",
+        text: "Yes. Enter your name and email to receive the assessment trailer and view the preview. The full detailed report is unlocked after registration.",
       },
     },
     {
@@ -210,21 +210,52 @@ export default function EligibilityPage() {
           <section id="start" className="scroll-mt-24">
             <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 p-[1px] shadow-sm">
               <div className="rounded-2xl bg-white dark:bg-black min-w-0 overflow-hidden">
-                {/* meta chips */}
-                <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 md:px-5 md:py-3">
-                  <h2 className="text-base md:text-xl font-semibold">
-                    Start your free eligibility check
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-black/5 dark:bg-white/10 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:ring-white/10">
-                      <IconZap /> 2–4 min
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-black/5 dark:bg-white/10 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:ring-white/10">
-                      <IconFileText /> Instant results + PDF
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-black/5 dark:bg-white/10 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:ring-white/10">
-                      <IconShield /> Secure
-                    </span>
+                {/* guided entry */}
+                <div className="px-3 py-3 md:px-5 md:py-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">
+                        XIPHIAS assessment funnel
+                      </p>
+                      <h2 className="mt-1 text-base font-semibold md:text-xl">
+                        Start your guided assessment preview
+                      </h2>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:bg-white/10 dark:ring-white/10">
+                        <IconZap /> Step-by-step
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:bg-white/10 dark:ring-white/10">
+                        <IconFileText /> Email trailer
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:bg-white/10 dark:ring-white/10">
+                        <IconShield /> Private
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                      ["1", "Choose pathway", "Residency, citizenship, skilled, or corporate."],
+                      ["2", "Answer profile questions", "Budget, timeline, family, and goal inputs."],
+                      ["3", "Receive preview", "Website result plus branded trailer email."],
+                      ["4", "Register for full report", "Topmate registration unlocks the detailed workflow."],
+                    ].map(([step, title, copy]) => (
+                      <div
+                        key={step}
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.04]"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-black text-white">
+                            {step}
+                          </span>
+                          <span className="text-sm font-bold">{title}</span>
+                        </div>
+                        <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                          {copy}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -255,15 +286,15 @@ export default function EligibilityPage() {
                     <IconZap />
                     <span className="font-semibold">Fast</span>
                   </div>
-                  <p className="mt-1 text-xs md:text-sm">Finish in 2–4 minutes.</p>
+                  <p className="mt-1 text-xs md:text-sm">Move through one guided step at a time.</p>
                 </div>
                 <div className="rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black px-4 py-3">
                   <div className="flex items-center gap-2">
                     <IconFileText />
-                    <span className="font-semibold">Detailed PDF</span>
+                    <span className="font-semibold">Preview report</span>
                   </div>
                   <p className="mt-1 text-xs md:text-sm">
-                    Personalized report after the quiz.
+                    See your first route direction and email trailer.
                   </p>
                 </div>
                 {/* Desktop third card */}
@@ -319,7 +350,7 @@ export default function EligibilityPage() {
               <details className="group open:bg-black/[0.02] dark:open:bg-white/[0.04]">
                 <summary className="list-none flex items-center justify-between px-4 md:px-5 py-3 md:py-4 cursor-pointer select-none">
                   <span className="font-medium">
-                    Do I need to share my email to see full results?
+                    Do I need to share my email to get the preview?
                   </span>
                   <span className="ml-4 inline-flex h-6 w-6 items-center justify-center rounded-md ring-1 ring-black/15 dark:ring-white/25">
                     <IconPlus className="group-open:hidden" />
@@ -327,8 +358,8 @@ export default function EligibilityPage() {
                   </span>
                 </summary>
                 <div className="px-4 md:px-5 pb-4 md:pb-5 text-sm">
-                  You’ll see a preview first. Enter your name and email to unlock
-                  full results and download your personalized PDF.
+                  Enter your name and email to receive the branded trailer and view
+                  the preview. The full detailed report unlocks after registration.
                 </div>
               </details>
             </div>
@@ -339,12 +370,12 @@ export default function EligibilityPage() {
         <div className="fixed inset-x-0 bottom-3 z-30 mx-auto w-full px-4 sm:hidden">
           <div className="mx-auto max-w-md rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white/95 dark:bg-black/90 backdrop-blur px-3 py-2 shadow">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-medium">Ready to start?</span>
+              <span className="text-sm font-medium">Ready to begin?</span>
               <a
                 href="#start"
                 className="rounded-lg bg-black text-white dark:bg-white dark:text-black px-3 py-1.5 text-sm font-medium"
               >
-                Start Free Check
+                Get Started
               </a>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import type { AnswerMap, Track } from "@/lib/eligibility/types";
 
 export type PortalRole = "client" | "staff" | "admin" | "partner" | "b2g";
+export type PortalStatus = "invited" | "active" | "disabled";
 
 export type PlatformUser = {
   id: string;
@@ -10,7 +11,12 @@ export type PlatformUser = {
   clientId?: string;
   partnerId?: string;
   organizationId?: string;
+  passwordSha256?: string;
+  mustChangePassword?: boolean;
+  portalStatus?: PortalStatus;
+  registrationPaymentRef?: string;
   createdAt: string;
+  updatedAt?: string;
 };
 
 export type LeadSource =
@@ -18,6 +24,7 @@ export type LeadSource =
   | "chat"
   | "whatsapp"
   | "eligibility"
+  | "registration"
   | "partner"
   | "b2g";
 
@@ -44,6 +51,30 @@ export type PlatformLead = {
   consent?: boolean;
   score?: number;
   tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ClientProfile = {
+  id: string;
+  clientId: string;
+  userId?: string;
+  fullName: string;
+  email?: string;
+  phone?: string;
+  nationality?: string;
+  residenceCountry?: string;
+  dateOfBirth?: string;
+  familyMembers?: string;
+  occupation?: string;
+  companyName?: string;
+  preferredTrack?: Track;
+  targetCountry?: string;
+  targetProgram?: string;
+  budgetUsd?: number;
+  timelineMonths?: number;
+  sourceOfFunds?: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -199,12 +230,22 @@ export type B2GInquiry = {
 };
 
 export type AuditAction =
+  | "user.provisioned"
+  | "user.updated"
+  | "password.changed"
+  | "registration.provisioned"
+  | "profile.created"
+  | "profile.updated"
   | "lead.created"
   | "lead.updated"
   | "conversation.created"
+  | "case.created"
   | "case.updated"
+  | "document.created"
   | "document.uploaded"
   | "document.updated"
+  | "document.plan.generated"
+  | "milestone.created"
   | "risk.evaluated"
   | "compliance.screened"
   | "content_review.created"
@@ -277,6 +318,7 @@ export type PassportEngineResult = {
 
 export type PlatformSnapshot = {
   user: PlatformUser;
+  clientProfiles: ClientProfile[];
   cases: MigrationCase[];
   documents: ClientDocument[];
   milestones: CaseMilestone[];

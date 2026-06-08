@@ -34,6 +34,14 @@ export default async function OperationsPage() {
 
   return (
     <PortalShell user={user} active="operations">
+      <section className="mb-5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Staff workflow</p>
+        <h2 className="mt-1 text-xl font-bold">Operations console</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+          This is where staff move leads, cases, documents, referrals, and institutional inquiries through their working statuses.
+        </p>
+      </section>
+
       <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex flex-wrap items-center justify-between gap-3">

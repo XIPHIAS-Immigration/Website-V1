@@ -19,6 +19,13 @@ export default function B2GIntakeForm() {
 
   return (
     <form onSubmit={submit} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Institutional workflow</p>
+        <h2 className="mt-1 text-xl font-bold">Submit a B2G or bulk mobility inquiry</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+          Institutions can share region, volume, and requirement details so staff can triage the request, prepare a proposal, and track the engagement.
+        </p>
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
         <input name="organizationName" placeholder="Organization" required className="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
         <input name="contactName" placeholder="Contact name" required className="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
@@ -37,4 +44,3 @@ export default function B2GIntakeForm() {
     </form>
   );
 }
-

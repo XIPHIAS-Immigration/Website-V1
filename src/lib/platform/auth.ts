@@ -19,11 +19,11 @@ type CredentialUser = {
   organizationId?: string;
 };
 
-function sha256(value: string) {
+export function hashPassword(value: string) {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function safeEqual(a: string, b: string) {
+export function safeEqual(a: string, b: string) {
   const left = Buffer.from(a);
   const right = Buffer.from(b);
   if (left.length !== right.length) return false;
@@ -77,7 +77,7 @@ function parsePortalUsers(): CredentialUser[] {
 }
 
 function verifyPassword(candidate: string, user: CredentialUser) {
-  if (user.passwordSha256) return safeEqual(sha256(candidate), user.passwordSha256);
+  if (user.passwordSha256) return safeEqual(hashPassword(candidate), user.passwordSha256);
   if (user.password) return safeEqual(candidate, user.password);
   return false;
 }
@@ -102,18 +102,40 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         const email = String(credentials?.email ?? "").trim().toLowerCase();
         const password = String(credentials?.password ?? "");
+        const repo = getPlatformRepository();
         const configured = parsePortalUsers().find((user) => user.email.toLowerCase() === email);
-        if (!configured || !verifyPassword(password, configured)) return null;
+        if (configured) {
+          if (!verifyPassword(password, configured)) return null;
 
-        const existing = getPlatformRepository().getUserByEmail(email);
+          const existing = repo.getUserByEmail(email);
+          return {
+            id: existing?.id ?? `auth_${hashPassword(email).slice(0, 12)}`,
+            email,
+            name: configured.name,
+            role: configured.role,
+            clientId: configured.clientId ?? existing?.clientId,
+            partnerId: configured.partnerId ?? existing?.partnerId,
+            organizationId: configured.organizationId ?? existing?.organizationId,
+          };
+        }
+
+        const provisioned = repo.getUserByEmail(email);
+        if (
+          !provisioned?.passwordSha256 ||
+          provisioned.portalStatus === "disabled" ||
+          !safeEqual(hashPassword(password), provisioned.passwordSha256)
+        ) {
+          return null;
+        }
+
         return {
-          id: existing?.id ?? `auth_${sha256(email).slice(0, 12)}`,
+          id: provisioned.id,
           email,
-          name: configured.name,
-          role: configured.role,
-          clientId: configured.clientId ?? existing?.clientId,
-          partnerId: configured.partnerId ?? existing?.partnerId,
-          organizationId: configured.organizationId ?? existing?.organizationId,
+          name: provisioned.name,
+          role: provisioned.role,
+          clientId: provisioned.clientId,
+          partnerId: provisioned.partnerId,
+          organizationId: provisioned.organizationId,
         };
       },
     }),
@@ -164,7 +186,11 @@ export async function getCurrentPortalUser(): Promise<PlatformUser | null> {
     clientId: session.user.clientId ?? existing?.clientId,
     partnerId: session.user.partnerId ?? existing?.partnerId,
     organizationId: session.user.organizationId ?? existing?.organizationId,
+    mustChangePassword: existing?.mustChangePassword,
+    portalStatus: existing?.portalStatus,
+    registrationPaymentRef: existing?.registrationPaymentRef,
     createdAt: existing?.createdAt ?? new Date().toISOString(),
+    updatedAt: existing?.updatedAt,
   };
 }
 

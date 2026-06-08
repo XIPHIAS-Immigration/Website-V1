@@ -26,6 +26,11 @@ type Health = {
     defaultRecipientConfigured: boolean;
     webhookVerifyTokenConfigured: boolean;
   };
+  registration: {
+    topmateUrlConfigured: boolean;
+    webhookSecretConfigured: boolean;
+    provisioningMode: string;
+  };
   compliance: {
     mode: string;
     endpointConfigured: boolean;
@@ -84,7 +89,16 @@ export default function PlatformHealthClient({ initialHealth }: Props) {
   }
 
   return (
-    <div className="grid gap-5 xl:grid-cols-2">
+    <div className="space-y-5">
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Deployment readiness</p>
+        <h2 className="mt-1 text-xl font-bold">Platform health check</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+          Use this screen before a demo or launch to confirm storage, SMTP, WhatsApp, compliance, and uploads are configured.
+        </p>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-2">
       <ReadinessCard title="Platform storage" ready={health.storage.mode !== "memory"}>
         <p>
           Mode: <strong>{health.storage.mode}</strong>
@@ -127,6 +141,20 @@ export default function PlatformHealthClient({ initialHealth }: Props) {
         </div>
       </ReadinessCard>
 
+      <ReadinessCard
+        title="Paid registration"
+        ready={health.registration.topmateUrlConfigured && health.registration.provisioningMode !== "blocked"}
+      >
+        <div className="grid gap-1">
+          <p>Topmate INR 10,000 URL: {health.registration.topmateUrlConfigured ? "configured" : "missing"}</p>
+          <p>Provisioning secret: {health.registration.webhookSecretConfigured ? "configured" : "missing"}</p>
+          <p>Provisioning mode: {health.registration.provisioningMode}</p>
+          <p className="mt-2">
+            Payment completion should POST to <strong>/api/platform/registration/provision</strong>.
+          </p>
+        </div>
+      </ReadinessCard>
+
       <ReadinessCard title="Compliance screening" ready={health.compliance.mode === "vendor"}>
         <p>Mode: {health.compliance.mode}</p>
         <p>Provider: {health.compliance.provider}</p>
@@ -138,6 +166,7 @@ export default function PlatformHealthClient({ initialHealth }: Props) {
         <p>Mode: {health.uploads.mode}</p>
         <p className="break-all">Directory: {health.uploads.configuredDirectory}</p>
       </ReadinessCard>
+      </div>
     </div>
   );
 }

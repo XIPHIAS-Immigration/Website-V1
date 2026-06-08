@@ -1,5 +1,4 @@
 // src/app/layout.tsx
-import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { Lato, Inter, Sora } from "next/font/google";
 import "./globals.css";
@@ -7,16 +6,11 @@ import "./globals.css";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import { ThemeProvider } from "next-themes";
-import ScrollToTop from "@/components/ScrollToTop";
 import MDXProviders from "@/components/MDX/MDXProviders";
-import ChatWidget from "@/components/ChatWidget";
-import QuickEnquiryPopup from "@/components/QuickEnquiryPopup";
-import CookieConsentManager from "@/components/CookieConsentManager";
-import CookieAwareGA4 from "@/components/Analytics/CookieAwareGA4";
+import DeferredClientWidgets from "@/components/DeferredClientWidgets";
 // Import dynamic to load client‑only components
 // The GlobalBrochureGate component is a client component. We import it
 // directly here — Next.js will treat it as a client boundary.
-import GlobalBrochureGate from "@/components/GlobalBrochureGate/GlobalBrochureGate";
 
 // ✅ GA4 components
 
@@ -237,20 +231,11 @@ export default function RootLayout({
             </MDXProviders>
 
             <Footer />
-            <ScrollToTop />
-            <ChatWidget />
-            <QuickEnquiryPopup />
+            <DeferredClientWidgets gaId={GA_ID} />
             {/* Inject the global lead gate to intercept brochure downloads site‑wide */}
-            <GlobalBrochureGate />
-            <CookieConsentManager />
         </ThemeProvider>
 
         {/* ✅ GA4 */}
-        {GA_ID ? (
-          <Suspense fallback={null}>
-            <CookieAwareGA4 gaId={GA_ID} />
-          </Suspense>
-        ) : null}
 
         {/* JSON-LD */}
         <script

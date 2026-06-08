@@ -39,6 +39,9 @@ export default async function IMTPage() {
                 {activeCase.title} - {activeCase.progress}% complete
               </p>
             ) : null}
+            <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+              IMT is the case timeline. It shows which stage is complete, where the file is currently sitting, and what still needs staff or client action.
+            </p>
           </div>
           {activeCase ? <StatusPill tone="blue">{activeCase.track}</StatusPill> : null}
         </div>
@@ -108,4 +111,3 @@ export default async function IMTPage() {
     </PortalShell>
   );
 }
-

@@ -5,14 +5,16 @@
 Local dev server:
 
 ```txt
-http://127.0.0.1:3000
+http://localhost:4000
 ```
 
 Portal:
 
 ```txt
-http://127.0.0.1:3000/x-hub/sign-in
+http://localhost:4000/x-hub/sign-in
 ```
+
+Use `localhost`, not `127.0.0.1`, because local auth callbacks are configured to port 4000 on localhost.
 
 ## Demo Accounts
 
@@ -26,7 +28,7 @@ B2G:     mobility@gov.local / xiphias-b2g
 ## Presentation Flow
 
 1. Open `/x-hub/sign-in` and sign in as Admin.
-2. Show `/x-hub` for client case, milestones, documents, and secure upload.
+2. Show `/x-hub` for the XIPHIAS Hub feature map, client case, milestones, documents, and secure upload.
 3. Show `/x-hub/imt` for the Investment + Migration Tracker.
 4. Show `/x-hub/xia` for XIA Lite, the no-LLM advisory layer.
 5. Show `/x-hub/x-passport` for program ranking by budget, region, family, and timeline.
@@ -40,7 +42,7 @@ B2G:     mobility@gov.local / xiphias-b2g
 ## What Is Now Demo-Ready
 
 - File-backed platform data store for local persistence.
-- X-Hub portal with roles for client, staff, admin, partner, and B2G users.
+- XIPHIAS Hub portal with roles for client, staff, admin, partner, and B2G users.
 - Secure document upload route and portal upload UI.
 - Staff operations console for leads, cases, documents, partner referrals, and B2G inquiries.
 - Due diligence and risk console with deterministic checks.

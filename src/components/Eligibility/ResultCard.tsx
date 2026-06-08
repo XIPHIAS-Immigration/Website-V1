@@ -17,16 +17,25 @@ type Props = {
 };
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
+const DETAILED_REPORT_PRICE_INR = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR || "10000";
+const DETAILED_REPORT_PAYMENT_URL = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL || "/registration";
+
+function formatInr(value: string) {
+  const numeric = Number(String(value).replace(/[^\d.]/g, ""));
+  if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
+  return `INR ${numeric.toLocaleString("en-IN")}`;
+}
 
 export function ResultCard({ track, result, name, answers, onBackAction }: Props) {
   const reduceMotion = useReducedMotion();
   const [downloading, setDownloading] = useState(false);
   const [status, setStatus] = useState<string>("");
+  const detailedReportPrice = useMemo(() => formatInr(DETAILED_REPORT_PRICE_INR), []);
 
   // Guard: ensure shape is always safe to render
   const safeResult: Result = {
     tier: result?.tier ?? "Borderline",
-    summary: result?.summary ?? "We couldn’t render the full summary. You can still download the PDF or talk to an expert.",
+    summary: result?.summary ?? "We could not render the full summary. You can still download the preview PDF or talk to an expert.",
     programs: Array.isArray(result?.programs) ? result.programs : [],
     confidence: result?.confidence,
     criteria: result?.criteria,
@@ -46,7 +55,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
 
   const handleDownload = async () => {
     try {
-      setStatus("Preparing your PDF…");
+      setStatus("Preparing your preview PDF...");
       setDownloading(true);
       const res = await fetch("/api/eligibility/report", {
         method: "POST",
@@ -58,7 +67,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Eligibility_${track}.pdf`;
+      a.download = `XIPHIAS_Assessment_Preview_${track}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -66,7 +75,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       trackEvent("pdf_download", { track });
       setStatus("Download started.");
     } catch {
-      setStatus("Sorry — couldn’t generate the PDF. Please try again.");
+      setStatus("Sorry - could not generate the preview PDF. Please try again.");
     } finally {
       setDownloading(false);
       // auto-clear the status after a moment
@@ -93,10 +102,10 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       <div className="mb-2 flex items-center justify-between gap-2">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
-            XIPHIAS advisory result
+            Free assessment preview
           </p>
           <h3 id="result-title" className="mt-1 text-lg sm:text-xl md:text-2xl font-semibold">
-            Content-backed eligibility results
+            Your XIPHIAS route direction
           </h3>
         </div>
         {onBackAction ? (
@@ -145,7 +154,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       </div>
 
       <p className="mt-3 max-w-3xl text-sm leading-7 text-black/75 dark:text-white/75 sm:text-base">
-        <span className="font-semibold">{safeResult.tier}</span> — {safeResult.summary}
+        <span className="font-semibold">{safeResult.tier}</span> - {safeResult.summary}
       </p>
 
       {/* Programs */}
@@ -186,8 +195,8 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
           ))
         ) : (
           <div className="rounded-xl ring-1 ring-black/10 dark:ring-white/10 p-4 text-sm">
-            We didn’t detect a clear recommended program from your answers. You can still download
-            the PDF or talk to an expert.
+            We did not detect a clear recommended program from your answers. You can still download
+            the preview PDF or talk to an expert.
           </div>
         )}
       </div>
@@ -226,6 +235,56 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
           </div>
         </div>
       ) : null}
+
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[#d8b650]/50 bg-[#071a3a] text-white shadow-lg shadow-blue-950/10">
+        <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[1.4fr_0.9fr] lg:items-center">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#f6d86d]">
+              Detailed personal report
+            </p>
+            <h4 className="mt-2 text-xl font-black sm:text-2xl">
+              Unlock the 20-30 page assessment after registration
+            </h4>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/80">
+              The full report expands this preview into route comparison, document checklist,
+              risk flags, timeline, country/product fit, and advisor notes for your profile.
+            </p>
+            <div className="mt-4 grid gap-2 text-sm text-white/90 sm:grid-cols-2">
+              <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
+                <CheckIcon /> Personal route matrix
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
+                <CheckIcon /> Document and risk review
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
+                <CheckIcon /> XIPHIAS Hub onboarding
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
+                <CheckIcon /> Advisor follow-up path
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-white p-4 text-[#071a3a] ring-1 ring-white/20">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">
+              Registration
+            </p>
+            <p className="mt-2 text-3xl font-black">{detailedReportPrice}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Paid registration uses a dedicated Topmate registration product. After payment,
+              XIPHIAS Hub opens the client case, checklist, milestones, and detailed report workflow.
+            </p>
+            <Link
+              href={DETAILED_REPORT_PAYMENT_URL}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b650]"
+              onClick={() => trackEvent("detailed_report_cta_click", { track })}
+            >
+              Register for detailed report
+              <ArrowRightIcon />
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* Actions */}
       <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -266,11 +325,11 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
         >
           {downloading ? (
             <>
-              <Spinner /> Preparing PDF…
+              <Spinner /> Preparing preview...
             </>
           ) : (
             <>
-              Download PDF
+              Download preview PDF
               <DownloadIcon />
             </>
           )}
@@ -318,6 +377,17 @@ function TierBadge({ tier }: { tier: Result["tier"] }) {
 
 function BadgeDot() {
   return <span className="inline-block h-1.5 w-1.5 rounded-full bg-black/70 dark:bg-white/70" />;
+}
+
+function CheckIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-emerald-300">
+      <path
+        fill="currentColor"
+        d="M9.55 17.25 4.8 12.5l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4-9.65 9.65z"
+      />
+    </svg>
+  );
 }
 
 function ArrowRightIcon() {

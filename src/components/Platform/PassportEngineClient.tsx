@@ -31,7 +31,16 @@ export default function PassportEngineClient() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+    <div className="space-y-4">
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Global mobility index</p>
+        <h2 className="mt-1 text-xl font-bold">X-Passport Engine</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+          This ranks suitable country and program options by practical fit: region, budget, timeline, family inclusion, low-presence preference, and advisory caution.
+        </p>
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
       <form onSubmit={submit} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="grid gap-4">
           <label>
@@ -114,9 +123,10 @@ export default function PassportEngineClient() {
         ))}
         {!result ? (
           <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            X-Passport rankings will appear here.
+            Set the mobility preferences to generate a ranked shortlist for advisor review.
           </div>
         ) : null}
+      </div>
       </div>
     </div>
   );

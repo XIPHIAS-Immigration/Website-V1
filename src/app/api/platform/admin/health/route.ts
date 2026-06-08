@@ -20,6 +20,15 @@ export async function GET() {
     storage: getPlatformRepository().storageMode(),
     email: getPlatformEmailStatus(),
     whatsapp: getWhatsAppConfigStatus(),
+    registration: {
+      topmateUrlConfigured: Boolean(process.env.TOPMATE_REGISTRATION_URL || process.env.NEXT_PUBLIC_TOPMATE_REGISTRATION_URL),
+      webhookSecretConfigured: Boolean(process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET),
+      provisioningMode: process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET
+        ? "protected"
+        : process.env.NODE_ENV === "production"
+          ? "blocked"
+          : "local-demo",
+    },
     compliance: {
       mode: process.env.COMPLIANCE_VENDOR_ENDPOINT ? "vendor" : "demo",
       endpointConfigured: Boolean(process.env.COMPLIANCE_VENDOR_ENDPOINT),

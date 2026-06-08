@@ -25,11 +25,20 @@ export default function XiaAdvisorClient() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
+    <div className="space-y-4">
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">XIPHIAS Intelligent Advisor</p>
+        <h2 className="mt-1 text-xl font-bold">XIA Advisor</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+          XIA is the lightweight advisory layer. It checks the request against approved website content and route-fit rules, then gives a shortlist for staff review.
+        </p>
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
       <form onSubmit={submit} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="grid gap-4">
           <label>
-            <span className="text-sm font-semibold">Request</span>
+            <span className="text-sm font-semibold">Client request</span>
             <textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
@@ -64,7 +73,7 @@ export default function XiaAdvisorClient() {
             disabled={loading}
             className="rounded-md bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
           >
-            {loading ? "Checking..." : "Get advisory result"}
+            {loading ? "Checking..." : "Generate advisory note"}
           </button>
         </div>
       </form>
@@ -144,9 +153,10 @@ export default function XiaAdvisorClient() {
           </div>
         ) : (
           <div className="flex min-h-80 items-center justify-center text-center text-sm text-slate-500">
-            XIA Lite results will appear here.
+            Enter a goal to see the advisor summary, route matches, confidence, and next actions.
           </div>
         )}
+      </div>
       </div>
     </div>
   );

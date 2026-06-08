@@ -2,6 +2,7 @@ import type {
   B2GInquiry,
   AuditLog,
   CaseMilestone,
+  ClientProfile,
   ClientDocument,
   ContentReviewTask,
   ConversationMessage,
@@ -65,6 +66,31 @@ export function createSeedPlatformState() {
       consent: true,
       score: 82,
       tags: ["hnwi", "family", "residency"],
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+
+  const clientProfiles: ClientProfile[] = [
+    {
+      id: "prof_aarav",
+      clientId: "cli_aarav",
+      userId: "usr_client",
+      fullName: "Aarav Mehta",
+      email: "aarav@example.com",
+      phone: "+919800000000",
+      nationality: "India",
+      residenceCountry: "India",
+      familyMembers: "Spouse and one dependent child",
+      occupation: "Founder / investor",
+      companyName: "Mehta Ventures",
+      preferredTrack: "residency",
+      targetCountry: "Portugal",
+      targetProgram: "Alternative investment route",
+      budgetUsd: 300000,
+      timelineMonths: 12,
+      sourceOfFunds: "Business income, retained earnings, and liquid investments.",
+      notes: "Prefers a low-physical-presence route with family inclusion.",
       createdAt: now,
       updatedAt: now,
     },
@@ -228,6 +254,7 @@ export function createSeedPlatformState() {
 
   return {
     users,
+    clientProfiles,
     leads,
     cases,
     documents,

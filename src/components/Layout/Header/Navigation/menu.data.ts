@@ -542,6 +542,18 @@ export const headerMenu: HeaderItem[] = [
     href: '/#resources',
     submenu: [
       { label: 'Guide', href: '/guide' },
+      {
+        label: 'Passport Index',
+        href: '/passport-index',
+        submenu: [
+          { label: 'Overview', href: '/passport-index' },
+          { label: 'Ranking', href: '/passport-index/ranking' },
+          { label: 'Compare Passports', href: '/passport-index/compare' },
+          { label: 'My Passport Planner', href: '/passport-index/my-passport' },
+          { label: 'Improve Mobility', href: '/passport-index/improve' },
+          { label: 'Methodology', href: '/passport-index/methodology' },
+        ],
+      },
       { label: 'Free Eligibility Check', href: '/eligibility' },
       { label: 'Personal Advice', href: '/personal-booking' },
       { label: 'Media', href: '/media' },

@@ -13,12 +13,14 @@ type CatalogProgram = {
   processingTime?: string;
   minInvestmentUSD?: string;
   notes?: string;
+  track?: Track;
 };
 
 const TOPMATE = "/booking";
 
 function flattenPrograms(): CatalogProgram[] {
-  return Object.values(Programs).flat() as CatalogProgram[];
+  return (Object.entries(Programs) as [Track, ReadonlyArray<CatalogProgram>][])
+    .flatMap(([trackName, programs]) => programs.map((program) => ({ ...program, track: trackName })));
 }
 
 function normalize(value: unknown) {
@@ -27,6 +29,18 @@ function normalize(value: unknown) {
 
 function classifyIntent(message: string) {
   const q = normalize(message);
+  const compact = q.replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+  const wordCount = compact ? compact.split(" ").length : 0;
+
+  if (!compact) return "greeting";
+  if (/^(hi|hello|hey|heya|hiya|good morning|good afternoon|good evening|namaste|gm|yo)$/.test(compact)) {
+    return "greeting";
+  }
+  if (wordCount <= 3 && /\b(hi|hello|hey|namaste)\b/.test(compact)) return "greeting";
+  if (/^(thanks|thank you|ok thanks|cool thanks|great thanks)$/.test(compact)) return "thanks";
+  if (/\b(what can you do|help me|how can you help|start|begin)\b/.test(q)) return "assistant_help";
+  if (/\b(human|advisor|agent|person|staff|call me|talk to someone)\b/.test(q)) return "human_handoff";
+
   if (/\b(country|countries|destination|destinations|where|offer|available)\b/.test(q) && /\b(which|what|all|list|show|offer|available)\b/.test(q)) {
     return "country_overview";
   }
@@ -49,17 +63,83 @@ function scoreProgram(program: CatalogProgram, request: XiaRequest) {
   ].join(" "));
   const query = normalize([request.message, request.country, ...(request.goals ?? [])].join(" "));
   const tokens = query.split(/\W+/).filter((token) => token.length > 2);
-  const tokenScore = tokens.reduce((sum, token) => sum + (haystack.includes(token) ? 8 : 0), 0);
+  const ignored = new Set(["xiphias", "immigration", "options", "please", "shortlist", "suitable", "strongest", "matches", "only", "with", "one", "practical", "next", "step", "answer", "concise", "return"]);
+  const usefulTokens = tokens.filter((token) => !ignored.has(token));
+  const tokenScore = usefulTokens.reduce((sum, token) => sum + (haystack.includes(token) ? 8 : 0), 0);
   const countryScore = request.country && normalize(program.country).includes(normalize(request.country)) ? 30 : 0;
   const familyScore = query.includes("family") && haystack.includes("family") ? 12 : 0;
   const fastScore = /\bfast|quick|urgent|speed\b/.test(query) && /\bweek|month|fast\b/.test(haystack) ? 10 : 0;
-  return tokenScore + countryScore + familyScore + fastScore;
+  const trackScore = program.track && query.includes(program.track) ? 30 : 0;
+  const europeScore = query.includes("europe") && /\b(portugal|greece|malta|italy|ireland|uk|eu|europe)\b/.test(haystack) ? 18 : 0;
+  const gccScore = /\buae|gcc|dubai\b/.test(query) && /\buae|emirates|dubai\b/.test(haystack) ? 18 : 0;
+  const northAmericaScore = /\bcanada|usa|united states|north america\b/.test(query) && /\bcanada|usa|united states\b/.test(haystack) ? 18 : 0;
+  return tokenScore + countryScore + familyScore + fastScore + trackScore + europeScore + gccScore + northAmericaScore;
+}
+
+function isShortlistRequest(message: string) {
+  const q = normalize(message);
+  return /\b(shortlist|recommend|compare|find my route|goal:|budget:|applicant type:|destination preference:)\b/.test(q);
+}
+
+function inferTrackFromMessage(message: string): Track | undefined {
+  const q = normalize(message);
+  if (/\bcitizenship|second passport|passport\b/.test(q)) return "citizenship";
+  if (/\bcorporate|company|business|hire staff|move staff|transfer\b/.test(q)) return "corporate";
+  if (/\bskilled|work abroad|worker|employment|job\b/.test(q)) return "skilled";
+  if (/\bresidency|live abroad|residence|golden visa\b/.test(q)) return "residency";
+  return undefined;
+}
+
+function hrefForCatalogProgram(program: CatalogProgram) {
+  const track = program.track;
+  const country = normalize(program.country)
+    .replace(/\(.*?\)/g, "")
+    .split(/[,/]/)[0]
+    .trim()
+    .replace(/\s+/g, "-");
+
+  if (!track) return "/eligibility";
+  if (!country || country === "various" || country === "caribbean") return `/${track}`;
+  if (country.includes("united-arab-emirates")) return `/${track}/uae`;
+  return `/${track}/${country}`;
 }
 
 export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
   const message = request.message ?? "";
   const intent = classifyIntent(message);
   const track: Track | undefined = request.track && isTrack(request.track) ? request.track : undefined;
+
+  if (intent === "greeting" || intent === "thanks" || intent === "assistant_help" || intent === "human_handoff") {
+    const handoff = intent === "human_handoff";
+    const thanks = intent === "thanks";
+    return {
+      intent,
+      summary: thanks
+        ? "You are welcome. If you share your goal or destination, I can narrow the next step."
+        : handoff
+          ? "Yes. I can help you reach an advisor and keep the context of what you need."
+          : "Hi, I am XIA. I can help you explore immigration routes, compare countries, check document steps, or connect you with an advisor.",
+      criteria: [
+        "Greeting or conversation intent detected before retrieval.",
+        "No program search was run for this message.",
+        "Ask for a country, goal, budget, timeline, or document question to start advisory matching.",
+      ],
+      confidence: 100,
+      handoffRequired: handoff,
+      recommendedPrograms: [],
+      actions: handoff
+        ? [
+            { label: "Book advisor call", href: TOPMATE, type: "primary" },
+            { label: "Check eligibility first", href: "/eligibility", type: "secondary" },
+          ]
+        : [
+            { label: "Find my route", href: "/eligibility", type: "primary" },
+            { label: "Browse programs", href: "/residency", type: "secondary" },
+          ],
+      sources: [],
+      evidence: [],
+    };
+  }
 
   if (intent === "country_overview") {
     const groups = listCountryOfferings().filter((group) => group.countries.length > 0);
@@ -73,7 +153,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
 
     return {
       intent,
-      summary: "Hi. We support immigration pathways across these country groups. Pick a category to view the full program pages.",
+      summary: "We support multiple immigration pathways. I grouped them by route type so you can choose what fits your goal first.",
       criteria: [
         "Grouped from approved country/program pages on the website.",
         "Only countries with current site pages are listed here.",
@@ -103,7 +183,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
               href: "/eligibility",
             },
             {
-              name: "Open X-Hub",
+              name: "Open XIPHIAS Hub",
               country: "Step 2",
               reason: "Use the portal to track documents, milestones, messages, and next actions.",
               score: 88,
@@ -134,7 +214,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
               href: "/eligibility",
             },
             {
-              name: "Open X-Hub",
+              name: "Open XIPHIAS Hub",
               country: "Case tracking",
               reason: "Track staff review, document status, and next action once a case is opened.",
               score: 78,
@@ -162,7 +242,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       intent,
       summary:
         intent === "document_readiness"
-          ? "Here is the cleanest document-preparation path."
+      ? "Here is the cleanest document-preparation path."
           : intent === "risk_review"
           ? "Risk review should be handled with advisor verification."
           : "You can book directly through the current Topmate flow.",
@@ -180,8 +260,62 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       ],
       sources: [
         { label: "Eligibility check", href: "/eligibility" },
-        { label: "X-Hub", href: "/x-hub" },
+        { label: "XIPHIAS Hub", href: "/x-hub" },
         { label: "Topmate booking", href: TOPMATE },
+      ],
+      evidence: [],
+    };
+  }
+
+  if (isShortlistRequest(message)) {
+    const inferredTrack = track ?? inferTrackFromMessage(message);
+    const catalogPrograms = flattenPrograms()
+      .filter((program) => !inferredTrack || program.track === inferredTrack)
+      .map((program) => ({ program, score: scoreProgram(program, { ...request, track: inferredTrack }) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map(({ program, score }) => ({
+        name: program.name,
+        country: program.country,
+        reason: [
+          program.pathway,
+          program.processingTime ? `Typical timing: ${program.processingTime}.` : "",
+          program.notes,
+        ].filter(Boolean).join(" "),
+        score: Math.min(96, Math.max(68, score + 58)),
+        href: hrefForCatalogProgram(program),
+      }));
+
+    return {
+      intent: "program_advisory",
+      summary: "I matched your goal against curated XIPHIAS route rules and kept only the strongest starting points.",
+      criteria: [
+        "Goal, region, budget, and family profile were considered.",
+        "Curated program rules are used before broad content search.",
+        "Advisor review is still needed before filing or investment steps.",
+      ],
+      confidence: catalogPrograms[0]?.score ?? 70,
+      handoffRequired: true,
+      recommendedPrograms: catalogPrograms.length
+        ? catalogPrograms
+        : [
+            {
+              name: "Structured eligibility check",
+              country: "Profile review",
+              reason: "Share your goal, budget, destination preference, and family profile to create a better shortlist.",
+              score: 68,
+              href: "/eligibility",
+            },
+          ],
+      actions: [
+        { label: "Run eligibility check", href: "/eligibility", type: "primary" },
+        { label: "Book consultation on Topmate", href: TOPMATE, type: "secondary" },
+      ],
+      sources: [
+        { label: "Eligibility check", href: "/eligibility" },
+        { label: "Residency programs", href: "/residency" },
+        { label: "Citizenship programs", href: "/citizenship" },
+        { label: "Skilled migration", href: "/skilled" },
       ],
       evidence: [],
     };
@@ -252,8 +386,8 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       : scoredAssessment
       ? `${scoredAssessment.tier}: ${scoredAssessment.summary}`
       : content.chunks.length
-      ? "XIA Lite retrieved approved website content first, then applied deterministic routing and staff handoff rules."
-      : "XIA Lite uses approved site content first, then rules and eligibility scoring for triage before staff review.";
+      ? "I matched your request against XIPHIAS program content and route-fit rules."
+      : "I can narrow this down with your goal, country preference, budget, and family profile.";
 
   const criteria = [
     "Approved website content is searched as small retrieval chunks.",

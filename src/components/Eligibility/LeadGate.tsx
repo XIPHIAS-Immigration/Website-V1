@@ -171,7 +171,7 @@ export function LeadGate({
         transition={reduceMotion ? undefined : SPRING}
         className="grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-2"
       >
-        {/* ---------- Locked preview (teaser) ---------- */}
+        {/* ---------- Free preview (teaser) ---------- */}
         <section
           aria-labelledby="lead-preview"
           className={[
@@ -182,15 +182,15 @@ export function LeadGate({
           ].join(" ")}
         >
           <span className="inline-flex items-center gap-1.5 rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium ring-1 ring-black/10 dark:bg-white/10 dark:ring-white/15">
-            <LockIcon /> Preview
+            <LockIcon /> Free preview
           </span>
 
           <h3 id="lead-preview" className="mt-2 text-xl font-semibold">
-            Your {track} result
+            Your {track} assessment preview
           </h3>
 
           <p className="mt-2 text-sm sm:text-base">
-            <span className="font-semibold">{result.tier}</span> — {result.summary}
+            <span className="font-semibold">{result.tier}</span> - {result.summary}
           </p>
 
           <div className="mt-4 group relative rounded-xl ring-1 ring-black/10 dark:ring-white/10 p-4">
@@ -227,16 +227,16 @@ export function LeadGate({
                 >
                   <LockIcon />
                 </motion.span>
-                Unlock full details + PDF
+                Detailed report unlocks after registration
               </div>
             </motion.div>
           </div>
 
           {/* reassurance list */}
           <ul className="mt-3 grid gap-1.5 text-xs text-black/70 dark:text-white/70">
-            <li className="inline-flex items-center gap-1.5"><DocIcon /> Downloadable summary</li>
-            <li className="inline-flex items-center gap-1.5"><ShieldIcon /> Compliance notes & timelines</li>
-            <li className="inline-flex items-center gap-1.5"><MailIcon /> Private report link</li>
+            <li className="inline-flex items-center gap-1.5"><DocIcon /> Email assessment trailer</li>
+            <li className="inline-flex items-center gap-1.5"><ShieldIcon /> Advisor-ready profile notes</li>
+            <li className="inline-flex items-center gap-1.5"><MailIcon /> Paid detailed report pathway</li>
           </ul>
         </section>
 
@@ -251,19 +251,19 @@ export function LeadGate({
           ].join(" ")}
         >
           <h3 id="lead-form" className="text-lg sm:text-xl font-semibold">
-            Where should we send your report?
+            Where should we send your preview?
           </h3>
           <p className="mt-1 text-sm text-black/70 dark:text-white/70">
-            Enter your details to view full results and download your personalized PDF.
+            Get a concise assessment trailer now. The complete personal report is unlocked after registration.
           </p>
 
           {/* trust chips */}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
             <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 ring-1 ring-black/10 dark:ring-white/15">
-              <ShieldIcon /> Secure
+              <ShieldIcon /> Private
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 ring-1 ring-black/10 dark:ring-white/15">
-              GDPR
+              Trailer report
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 ring-1 ring-black/10 dark:ring-white/15">
               No spam
@@ -375,11 +375,11 @@ export function LeadGate({
               >
                 {submitting ? (
                   <>
-                    <Spinner /> Unlocking…
+                    <Spinner /> Sending preview...
                   </>
                 ) : (
                   <>
-                    View full results <ArrowRightIcon />
+                    Send preview & view result <ArrowRightIcon />
                   </>
                 )}
               </button>

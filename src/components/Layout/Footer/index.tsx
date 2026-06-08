@@ -5,7 +5,7 @@
 // ============================
 "use client";
 
-import React, { useId, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -167,7 +167,7 @@ function Collapsible({
   children: React.ReactNode;
   defaultOpen?: boolean;
 }) {
-  const panelId = useId();
+  const panelId = `footer-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="border-b border-white/15 md:border-none" aria-label={title}>

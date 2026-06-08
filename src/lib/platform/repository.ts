@@ -8,6 +8,8 @@ import type {
   AuditAction,
   AuditLog,
   B2GInquiry,
+  CaseMilestone,
+  ClientProfile,
   ContentReviewTask,
   ContentReviewStatus,
   ConversationMessage,
@@ -24,9 +26,35 @@ import type {
 
 type PlatformState = ReturnType<typeof createSeedPlatformState>;
 
+type CreateUserInput = Omit<PlatformUser, "id" | "createdAt"> & {
+  id?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 type CreateLeadInput = Omit<PlatformLead, "id" | "status" | "tags" | "createdAt" | "updatedAt"> & {
   status?: PlatformLead["status"];
   tags?: string[];
+};
+
+type UpsertClientProfileInput = Omit<ClientProfile, "id" | "createdAt" | "updatedAt"> & {
+  id?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+type CreateCaseInput = Omit<MigrationCase, "id" | "createdAt" | "updatedAt"> & {
+  id?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+type CreateDocumentInput = Omit<ClientDocument, "id"> & {
+  id?: string;
+};
+
+type CreateMilestoneInput = Omit<CaseMilestone, "id"> & {
+  id?: string;
 };
 
 function nowIso() {
@@ -53,6 +81,7 @@ function normalizeState(input: Partial<PlatformState> | null | undefined): Platf
   const seed = createSeedPlatformState();
   return {
     users: Array.isArray(input?.users) ? input!.users! : seed.users,
+    clientProfiles: Array.isArray(input?.clientProfiles) ? input!.clientProfiles! : seed.clientProfiles,
     leads: Array.isArray(input?.leads) ? input!.leads! : seed.leads,
     cases: Array.isArray(input?.cases) ? input!.cases! : seed.cases,
     documents: Array.isArray(input?.documents) ? input!.documents! : seed.documents,
@@ -86,7 +115,12 @@ class PlatformRepositoryImpl {
       }
 
       const raw = readFileSync(this.storePath, "utf8");
-      return normalizeState(JSON.parse(raw) as Partial<PlatformState>);
+      const parsed = JSON.parse(raw) as Partial<PlatformState>;
+      const normalized = normalizeState(parsed);
+      if (!Array.isArray(parsed.clientProfiles)) {
+        this.writeState(normalized);
+      }
+      return normalized;
     } catch (error) {
       console.warn("[x-hub] Could not load platform store; using seed state.", error);
       return createSeedPlatformState();
@@ -107,6 +141,13 @@ class PlatformRepositoryImpl {
     this.writeState(this.state);
   }
 
+  private clientProfiles() {
+    if (!Array.isArray(this.state.clientProfiles)) {
+      this.state.clientProfiles = [];
+    }
+    return this.state.clientProfiles;
+  }
+
   getUserByEmail(email: string) {
     const needle = email.trim().toLowerCase();
     return this.state.users.find((user) => user.email.toLowerCase() === needle) ?? null;
@@ -118,6 +159,86 @@ class PlatformRepositoryImpl {
 
   listUsers() {
     return [...this.state.users];
+  }
+
+  getClientProfile(clientId: string) {
+    return this.clientProfiles().find((profile) => profile.clientId === clientId) ?? null;
+  }
+
+  listClientProfiles() {
+    return [...this.clientProfiles()];
+  }
+
+  upsertClientProfile(input: UpsertClientProfileInput, actorId?: string) {
+    const profiles = this.clientProfiles();
+    const existing = profiles.find((profile) => profile.clientId === input.clientId);
+    const cleanPatch = Object.fromEntries(
+      Object.entries(input).filter(([, value]) => value !== undefined),
+    ) as UpsertClientProfileInput;
+
+    if (existing) {
+      Object.assign(existing, cleanPatch, { updatedAt: nowIso() });
+      this.audit("profile.updated", "client_profile", existing.id, actorId, {
+        clientId: existing.clientId,
+        preferredTrack: existing.preferredTrack,
+        targetCountry: existing.targetCountry,
+      });
+      this.persist();
+      return existing;
+    }
+
+    const createdAt = input.createdAt ?? nowIso();
+    const profile: ClientProfile = {
+      ...cleanPatch,
+      id: input.id ?? id("prof"),
+      createdAt,
+      updatedAt: input.updatedAt ?? createdAt,
+    };
+    profiles.unshift(profile);
+    this.audit("profile.created", "client_profile", profile.id, actorId, {
+      clientId: profile.clientId,
+      preferredTrack: profile.preferredTrack,
+      targetCountry: profile.targetCountry,
+    });
+    this.persist();
+    return profile;
+  }
+
+  createUser(input: CreateUserInput) {
+    const createdAt = input.createdAt ?? nowIso();
+    const user: PlatformUser = {
+      ...input,
+      id: input.id ?? id("usr"),
+      createdAt,
+      updatedAt: input.updatedAt ?? createdAt,
+    };
+    this.state.users.unshift(user);
+    this.audit("user.provisioned", "user", user.id, undefined, {
+      role: user.role,
+      clientId: user.clientId,
+      portalStatus: user.portalStatus,
+    });
+    this.persist();
+    return user;
+  }
+
+  updateUser(identifier: string, patch: Partial<PlatformUser>) {
+    const needle = identifier.trim().toLowerCase();
+    const user = this.state.users.find(
+      (item) => item.id === identifier || item.email.toLowerCase() === needle,
+    );
+    if (!user) return null;
+    const cleanPatch = Object.fromEntries(
+      Object.entries(patch).filter(([, value]) => value !== undefined),
+    ) as Partial<PlatformUser>;
+    Object.assign(user, cleanPatch, { updatedAt: nowIso() });
+    this.audit("user.updated", "user", user.id, undefined, {
+      role: user.role,
+      portalStatus: user.portalStatus,
+      mustChangePassword: user.mustChangePassword,
+    });
+    this.persist();
+    return user;
   }
 
   createLead(input: CreateLeadInput) {
@@ -163,6 +284,54 @@ class PlatformRepositoryImpl {
     });
     this.persist();
     return message;
+  }
+
+  createCase(input: CreateCaseInput) {
+    const createdAt = input.createdAt ?? nowIso();
+    const migrationCase: MigrationCase = {
+      ...input,
+      id: input.id ?? id("case"),
+      createdAt,
+      updatedAt: input.updatedAt ?? createdAt,
+    };
+    this.state.cases.unshift(migrationCase);
+    this.audit("case.created", "case", migrationCase.id, undefined, {
+      clientId: migrationCase.clientId,
+      track: migrationCase.track,
+      country: migrationCase.country,
+      program: migrationCase.program,
+    });
+    this.persist();
+    return migrationCase;
+  }
+
+  createDocument(input: CreateDocumentInput) {
+    const doc: ClientDocument = {
+      ...input,
+      id: input.id ?? id("doc"),
+    };
+    this.state.documents.unshift(doc);
+    this.audit("document.created", "document", doc.id, undefined, {
+      caseId: doc.caseId,
+      status: doc.status,
+      category: doc.category,
+    });
+    this.persist();
+    return doc;
+  }
+
+  createMilestone(input: CreateMilestoneInput) {
+    const milestone: CaseMilestone = {
+      ...input,
+      id: input.id ?? id("ms"),
+    };
+    this.state.milestones.unshift(milestone);
+    this.audit("milestone.created", "milestone", milestone.id, undefined, {
+      caseId: milestone.caseId,
+      status: milestone.status,
+    });
+    this.persist();
+    return milestone;
   }
 
   addRiskProfile(input: Omit<RiskProfile, "id" | "createdAt">) {
@@ -377,6 +546,11 @@ class PlatformRepositoryImpl {
 
     return {
       user,
+      clientProfiles: canSeeOps
+        ? [...this.clientProfiles()]
+        : user.clientId
+          ? this.clientProfiles().filter((profile) => profile.clientId === user.clientId)
+          : [],
       cases,
       documents: canSeeOps
         ? [...this.state.documents]
@@ -437,6 +611,7 @@ class PlatformRepositoryImpl {
       storePath: this.persistToFile ? this.storePath : undefined,
       counts: {
         users: this.state.users.length,
+        clientProfiles: this.clientProfiles().length,
         leads: this.state.leads.length,
         cases: this.state.cases.length,
         documents: this.state.documents.length,
@@ -456,7 +631,10 @@ const globalForPlatform = globalThis as unknown as {
 export type PlatformRepository = PlatformRepositoryImpl;
 
 export function getPlatformRepository(): PlatformRepository {
-  if (!globalForPlatform.__xiphiasPlatformRepository) {
+  if (
+    !globalForPlatform.__xiphiasPlatformRepository ||
+    typeof globalForPlatform.__xiphiasPlatformRepository.upsertClientProfile !== "function"
+  ) {
     globalForPlatform.__xiphiasPlatformRepository = new PlatformRepositoryImpl();
   }
   return globalForPlatform.__xiphiasPlatformRepository;

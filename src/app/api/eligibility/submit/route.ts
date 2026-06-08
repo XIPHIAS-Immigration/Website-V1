@@ -16,6 +16,9 @@ const PHONE_RE = /^[+]?[\d\s().-]{6,20}$/;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
 const MAX_JSON_KB = 64;
+const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
+const DEFAULT_REPORT_PAYMENT_PATH = "/registration";
+const DEFAULT_REPORT_PRICE_INR = "10000";
 
 const rlBucket: Map<string, number[]> =
   (global as any).__eligibilityRL__ ?? new Map<string, number[]>();
@@ -49,6 +52,21 @@ function escapeHtml(str: unknown): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function getSiteUrl() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
+}
+
+function absoluteUrl(pathOrUrl: string, siteUrl = getSiteUrl()) {
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  return `${siteUrl}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
+}
+
+function formatInr(value: string) {
+  const numeric = Number(String(value).replace(/[^\d.]/g, ""));
+  if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
+  return `INR ${numeric.toLocaleString("en-IN")}`;
 }
 
 function safeAnswers(input: unknown) {
@@ -215,6 +233,49 @@ export async function POST(req: NextRequest) {
       const safeTier = escapeHtml(result.tier);
       const safeSummary = escapeHtml(result.summary);
       const mailto = `mailto:${encodeURIComponent(email)}`;
+      const siteUrl = getSiteUrl();
+      const reportPaymentUrl = absoluteUrl(
+        process.env.ASSESSMENT_REPORT_PAYMENT_URL ||
+          process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL ||
+          DEFAULT_REPORT_PAYMENT_PATH,
+        siteUrl
+      );
+      const reportPrice = formatInr(
+        process.env.ASSESSMENT_REPORT_PRICE_INR ||
+          process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR ||
+          DEFAULT_REPORT_PRICE_INR
+      );
+      const logoUrl = `${siteUrl}/images/logo/xiphias-immigration.png`;
+      const contactUrl = `${siteUrl}/contact`;
+      const portalUrl = `${siteUrl}/x-hub/sign-in`;
+
+      const programsHtml =
+        result.programs?.slice(0, 3).map((program, index) => {
+          const score =
+            typeof program.score === "number"
+              ? `<span style="float:right;background:#eefbf4;color:#047857;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:800;">${program.score}</span>`
+              : "";
+          return `
+            <div style="border:1px solid #dbe7f3;border-radius:14px;padding:14px;margin-top:10px;background:#f8fbff;">
+              ${score}
+              <div style="font-size:12px;color:#0b4ea2;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Option ${index + 1}</div>
+              <div style="font-size:16px;color:#071a3a;font-weight:800;margin-top:4px;">${escapeHtml(program.name)}</div>
+              <div style="font-size:13px;color:#536277;margin-top:2px;">${escapeHtml(program.country || "Global mobility route")}</div>
+              <div style="font-size:13px;color:#34435a;line-height:1.6;margin-top:8px;">${escapeHtml(program.why || "Matched against your profile inputs and XIPHIAS route criteria.")}</div>
+            </div>
+          `;
+        }).join("") ||
+        `<div style="border:1px solid #dbe7f3;border-radius:14px;padding:14px;margin-top:10px;background:#f8fbff;color:#34435a;">Advisor review is recommended before a route is shortlisted.</div>`;
+
+      const criteriaHtml =
+        result.criteria?.slice(0, 4).map(
+          (item) => `
+            <li style="margin:8px 0;color:#34435a;">
+              <span style="color:#d8b650;font-weight:900;">&#10003;</span>
+              ${escapeHtml(item)}
+            </li>`
+        ).join("") ||
+        `<li style="margin:8px 0;color:#34435a;"><span style="color:#d8b650;font-weight:900;">&#10003;</span> Profile, goal, timeline, budget, and family factors.</li>`;
 
       const answersHtml = Object.entries(answers)
         .map(
@@ -239,6 +300,7 @@ export async function POST(req: NextRequest) {
             <p><strong>Track:</strong> ${safeTrack}</p>
             <p><strong>Tier:</strong> ${safeTier}</p>
             <p><strong>Summary:</strong> ${safeSummary}</p>
+            <p><strong>Trailer email:</strong> Sent to client with ${reportPrice} detailed report CTA.</p>
             <h3 style="margin-top:24px;margin-bottom:8px;font-size:18px;">Answers</h3>
             <table style="width:100%;border-collapse:collapse;">
               ${answersHtml}
@@ -248,16 +310,43 @@ export async function POST(req: NextRequest) {
       `;
 
       const userHtml = `
-        <div style="font-family:'Segoe UI',Roboto,Arial,sans-serif;max-width:640px;margin:auto;background:#fff;border:1px solid #eaeaea;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-          <div style="background:linear-gradient(90deg,#002961,#004fa3);color:#fff;text-align:center;padding:20px;">
-            <h2 style="margin:0;font-size:20px;">Your Eligibility Assessment</h2>
-          </div>
-          <div style="padding:24px;color:#333;line-height:1.7;">
-            <p>Hi <strong>${safeName}</strong>,</p>
-            <p>Thank you for completing the ${safeTrack} eligibility assessment with <strong>XIPHIAS Immigration</strong>.</p>
-            <p>Your result: <strong>${safeTier}</strong> - ${safeSummary}</p>
-            <p>Our advisors will review your details and contact you soon.</p>
-            <p>If you'd like to speak to an expert right away, please <a href="https://www.xiphiasimmigration.com/contact" style="color:#004fa3;text-decoration:none;">book a free consultation</a>.</p>
+        <div style="margin:0;padding:24px;background:#eef3f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#071a3a;">
+          <div style="max-width:720px;margin:auto;background:#ffffff;border:1px solid #dbe7f3;border-radius:20px;overflow:hidden;box-shadow:0 18px 42px rgba(7,26,58,0.14);">
+            <div style="background:#071a3a;color:#fff;padding:28px 28px 24px;position:relative;">
+              <img src="${logoUrl}" alt="XIPHIAS Immigration" width="148" style="display:block;background:#fff;border-radius:10px;padding:8px;margin-bottom:22px;" />
+              <div style="font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#f6d86d;">Assessment trailer</div>
+              <h1 style="margin:8px 0 0;font-size:28px;line-height:1.18;color:#fff;">Your XIPHIAS route preview is ready</h1>
+              <p style="margin:12px 0 0;color:#dbe7f3;font-size:15px;line-height:1.7;">This is a concise first look. The complete 20-30 page personal report is prepared after registration and advisor review.</p>
+            </div>
+
+            <div style="padding:28px;">
+              <p style="font-size:16px;line-height:1.7;margin:0 0 14px;">Hi <strong>${safeName}</strong>,</p>
+              <p style="font-size:15px;line-height:1.7;margin:0 0 18px;">Thank you for completing the <strong>${safeTrack}</strong> assessment with <strong>XIPHIAS Immigration</strong>. We matched your answers against approved XIPHIAS program content and route-fit rules.</p>
+
+              <div style="border:1px solid #d8b650;border-radius:16px;background:#fffaf0;padding:18px;margin:20px 0;">
+                <div style="font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8a6a00;">Your preview result</div>
+                <div style="font-size:22px;font-weight:900;color:#071a3a;margin-top:5px;">${safeTier}</div>
+                <div style="font-size:14px;line-height:1.7;color:#34435a;margin-top:8px;">${safeSummary}</div>
+              </div>
+
+              <h2 style="font-size:18px;margin:22px 0 8px;color:#071a3a;">Recommended directions</h2>
+              ${programsHtml}
+
+              <h2 style="font-size:18px;margin:24px 0 8px;color:#071a3a;">What this preview checked</h2>
+              <ul style="padding-left:0;list-style:none;margin:0;">
+                ${criteriaHtml}
+              </ul>
+
+              <div style="margin:28px 0 0;border-radius:18px;background:#071a3a;padding:22px;color:#fff;">
+                <div style="font-size:12px;color:#f6d86d;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">Next step</div>
+                <h2 style="margin:8px 0 8px;font-size:22px;color:#fff;">Unlock your detailed personal report</h2>
+                <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#dbe7f3;">Registration starts at <strong style="color:#fff;">${reportPrice}</strong>. The full report includes route comparison, country/product fit, document checklist, risk flags, timeline, advisor notes, and XIPHIAS Hub onboarding. Payment is completed through the dedicated Topmate registration flow.</p>
+                <a href="${reportPaymentUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Register for detailed report</a>
+                <a href="${contactUrl}" style="display:inline-block;margin-left:10px;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 16px;">Speak to an advisor</a>
+              </div>
+
+              <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:#607086;">After registration, your case can be organized in <a href="${portalUrl}" style="color:#0b4ea2;text-decoration:none;font-weight:800;">XIPHIAS Hub</a> for documents, milestones, messages, and report workflow.</p>
+            </div>
           </div>
         </div>
       `;
@@ -271,7 +360,7 @@ export async function POST(req: NextRequest) {
       const userMail = {
         from: `"XIPHIAS Immigration" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: `Your ${track} eligibility results from XIPHIAS Immigration`,
+        subject: `Your XIPHIAS ${track} assessment preview`,
         html: userHtml,
       };
 

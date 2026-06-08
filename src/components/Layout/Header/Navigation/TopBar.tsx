@@ -60,10 +60,16 @@ export default function TopBar() {
               <Linkedin className="h-4 w-4" aria-hidden />
             </CircleLink>
             <Link
-              href="https://www.xiphiasimmigration.com/XIPHIAS/Account/Login"
-              className="ml-1 inline-flex h-8 items-center justify-center rounded-full bg-primary/45 px-3 text-[12px] text-white ring-1 ring-white/20 hover:bg-primary/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              href="/passport-index"
+              className="ml-1 inline-flex h-8 items-center justify-center rounded-full bg-secondary px-3 text-[12px] font-bold text-primary ring-1 ring-white/30 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
             >
-              Login
+              Passport Index
+            </Link>
+            <Link
+              href="/x-hub/sign-in"
+              className="inline-flex h-8 items-center justify-center rounded-full bg-white px-3 text-[12px] font-bold text-primary ring-1 ring-white/40 hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            >
+              XIPHIAS Hub
             </Link>
           </div>
         </div>

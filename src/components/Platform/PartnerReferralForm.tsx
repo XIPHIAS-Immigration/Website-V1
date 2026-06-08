@@ -20,6 +20,13 @@ export default function PartnerReferralForm() {
 
   return (
     <form onSubmit={submit} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Partner workflow</p>
+        <h2 className="mt-1 text-xl font-bold">Submit a referred client</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+          Partners can register a lead, attach the target country or program, and then track whether XIPHIAS is screening, accepting, or opening the case.
+        </p>
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
         <input name="partnerName" placeholder="Partner name" required className="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
         <input name="companyName" placeholder="Company" className="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
@@ -40,4 +47,3 @@ export default function PartnerReferralForm() {
     </form>
   );
 }
-

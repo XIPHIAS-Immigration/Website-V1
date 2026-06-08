@@ -317,10 +317,24 @@ export default function Header() {
                 </button>
 
                 <Link
-                  href="/personal-booking"
-                  className="hidden lg:inline-flex items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-semibold text-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                  href="/x-hub/sign-in"
+                  className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white px-3.5 py-2 text-sm font-bold text-primary hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
-                  Book a Personal Consultation
+                  XIPHIAS Hub
+                </Link>
+
+                <Link
+                  href="/eligibility#start"
+                  className="hidden shrink-0 items-center rounded-xl border border-secondary/70 bg-secondary px-3.5 py-2 text-sm font-bold text-primary shadow-sm shadow-black/10 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
+                >
+                  Get Started
+                </Link>
+
+                <Link
+                  href="/personal-booking"
+                  className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-semibold text-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
+                >
+                  Book Consultation
                 </Link>
 
                 <button
@@ -369,8 +383,8 @@ export default function Header() {
               <Logo />
               <div className="flex items-center gap-1.5">
                 <Link
-                  href="https://www.xiphiasimmigration.com/XIPHIAS/Account/Login"
-                  aria-label="Login"
+                  href="/x-hub/sign-in"
+                  aria-label="XIPHIAS Hub login"
                   onClick={() => setDrawerOpen(false)}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-white dark:hover:bg-white/10"
                 >
@@ -409,6 +423,23 @@ export default function Header() {
                     closeMenuAction={() => setDrawerOpen(false)}
                   />
                 ))}
+              </div>
+
+              <div className="mt-3 grid gap-2">
+                <Link
+                  href="/eligibility#start"
+                  onClick={() => setDrawerOpen(false)}
+                  className="inline-flex items-center justify-center rounded-xl bg-secondary px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Get Started
+                </Link>
+                <Link
+                  href="/personal-booking"
+                  onClick={() => setDrawerOpen(false)}
+                  className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Book Consultation
+                </Link>
               </div>
 
               <div className="pb-28" />
