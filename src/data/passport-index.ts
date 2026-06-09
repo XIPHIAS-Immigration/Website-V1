@@ -52,7 +52,7 @@ export const passportRecords: PassportRecord[] = [
     movement: "Joint second",
     advisoryNote: "One of Asia's strongest mobility profiles.",
     xiphiasLens: "Useful for benchmarking Asian market access against European residence pathways.",
-    pathways: [{ label: "Ask XIA Advisor", href: "/x-hub/xia" }],
+    pathways: [],
   },
   {
     country: "South Korea",
@@ -65,7 +65,7 @@ export const passportRecords: PassportRecord[] = [
     movement: "Joint second",
     advisoryNote: "High travel freedom with strong regional and OECD access.",
     xiphiasLens: "A top-tier comparison point for families evaluating second-residence strategy.",
-    pathways: [{ label: "Ask XIA Advisor", href: "/x-hub/xia" }],
+    pathways: [],
   },
   {
     country: "Denmark",

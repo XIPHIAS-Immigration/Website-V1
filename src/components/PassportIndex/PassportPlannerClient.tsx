@@ -209,12 +209,6 @@ export default function PassportPlannerClient({ records, stats }: Props) {
                 >
                   {recommendation.cta} <ArrowRight className="size-4" />
                 </Link>
-                <Link
-                  href="/x-hub/x-passport"
-                  className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-4 py-3 text-sm font-black text-[#1c57b4] transition hover:border-[#1c57b4] hover:bg-blue-50 dark:border-slate-700 dark:hover:bg-slate-800"
-                >
-                  Open X-Passport engine
-                </Link>
               </div>
             </div>
             <div className="group">

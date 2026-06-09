@@ -32,8 +32,24 @@ export default function Hero() {
     e.preventDefault();
     if (!form.name || !form.email || !form.phone) return;
     setStatus("sending");
-    await new Promise((r) => setTimeout(r, 800));
-    setStatus("done");
+    try {
+      const res = await fetch("/api/platform/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          source: "website",
+          page: "hero",
+          consent: true,
+        }),
+      });
+      if (!res.ok) throw new Error("Request failed");
+      setStatus("done");
+    } catch {
+      setStatus("idle");
+    }
   };
 
   /* Shared class for each input field wrapper (label) */

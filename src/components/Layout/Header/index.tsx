@@ -13,7 +13,7 @@ import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun, LogIn } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -394,15 +394,6 @@ export default function Header() {
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-zinc-900">
               <Logo />
               <div className="flex items-center gap-1.5">
-                <Link
-                  href="/x-hub/sign-in"
-                  aria-label="XIPHIAS Hub login"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-white dark:hover:bg-white/10"
-                >
-                  <LogIn className="h-5 w-5" />
-                </Link>
-
                 <button
                   onClick={toggleTheme}
                   aria-label="Toggle theme"

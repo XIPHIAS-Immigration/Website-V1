@@ -134,13 +134,6 @@ export default function PassportIndexClient({ records, stats }: Props) {
             href="/passport-index/methodology"
             cta="Read notes"
           />
-          <RouteCard
-            icon={Globe2}
-            title="X-Passport engine"
-            description="Move from public index browsing into the XIPHIAS Hub advisory workflow."
-            href="/x-hub/x-passport"
-            cta="Open engine"
-          />
         </div>
       </section>
 
