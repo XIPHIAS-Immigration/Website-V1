@@ -36,8 +36,18 @@ export default function DeferredClientWidgets({ gaId }: Props) {
     };
 
     if (win.requestIdleCallback) {
-      const handle = win.requestIdleCallback(() => setReady(true), { timeout: 1600 });
-      return () => win.cancelIdleCallback?.(handle);
+      const fallback = window.setTimeout(() => setReady(true), 2200);
+      const handle = win.requestIdleCallback(
+        () => {
+          window.clearTimeout(fallback);
+          setReady(true);
+        },
+        { timeout: 1600 },
+      );
+      return () => {
+        window.clearTimeout(fallback);
+        win.cancelIdleCallback?.(handle);
+      };
     }
 
     const timer = window.setTimeout(() => setReady(true), 900);

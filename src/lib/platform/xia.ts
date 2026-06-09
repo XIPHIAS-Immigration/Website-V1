@@ -39,6 +39,10 @@ function classifyIntent(message: string) {
   if (wordCount <= 3 && /\b(hi|hello|hey|namaste)\b/.test(compact)) return "greeting";
   if (/^(thanks|thank you|ok thanks|cool thanks|great thanks)$/.test(compact)) return "thanks";
   if (/\b(what can you do|help me|how can you help|start|begin)\b/.test(q)) return "assistant_help";
+  if (/^(visa|visas|program|programs|programme|programmes|product|products|service|services|route|routes|pathway|pathways)$/.test(compact)) return "assistant_help";
+  if (/\b(show|list|browse|what|which|all|available|options)\b/.test(q) && /\b(visa|visas|program|programs|programme|programmes|product|products|service|services|route|routes|pathway|pathways)\b/.test(q)) {
+    return "assistant_help";
+  }
   if (/\b(human|advisor|agent|person|staff|call me|talk to someone)\b/.test(q)) return "human_handoff";
 
   if (/\b(country|countries|destination|destinations|where|offer|available)\b/.test(q) && /\b(which|what|all|list|show|offer|available)\b/.test(q)) {
@@ -112,12 +116,15 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
   if (intent === "greeting" || intent === "thanks" || intent === "assistant_help" || intent === "human_handoff") {
     const handoff = intent === "human_handoff";
     const thanks = intent === "thanks";
+    const broadHelp = intent === "assistant_help";
     return {
       intent,
       summary: thanks
         ? "You are welcome. If you share your goal or destination, I can narrow the next step."
         : handoff
           ? "Yes. I can help you reach an advisor and keep the context of what you need."
+          : broadHelp
+          ? "Tell me your destination, visa type, budget, or goal. I can route you to the right programme family and open the relevant XIPHIAS page."
           : "Hi, I am XIA. I can help you explore immigration routes, compare countries, check document steps, or connect you with an advisor.",
       criteria: [
         "Greeting or conversation intent detected before retrieval.",
@@ -126,7 +133,38 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       ],
       confidence: 100,
       handoffRequired: handoff,
-      recommendedPrograms: [],
+      recommendedPrograms: broadHelp
+        ? [
+            {
+              name: "Residency programmes",
+              country: "Live, invest, or set up abroad",
+              reason: "Golden visa, business residence, remote worker, and long-stay routes.",
+              score: 100,
+              href: "/residency",
+            },
+            {
+              name: "Citizenship and passport routes",
+              country: "Second passport planning",
+              reason: "Citizenship by investment, descent, donation, and passport mobility routes.",
+              score: 96,
+              href: "/citizenship",
+            },
+            {
+              name: "Skilled migration",
+              country: "Work and settle overseas",
+              reason: "Points-based, employer, and professional migration pathways.",
+              score: 92,
+              href: "/skilled",
+            },
+            {
+              name: "Corporate immigration",
+              country: "Companies and teams",
+              reason: "Staff transfers, company setup, founder visas, and business mobility.",
+              score: 90,
+              href: "/corporate",
+            },
+          ]
+        : [],
       actions: handoff
         ? [
             { label: "Book advisor call", href: TOPMATE, type: "primary" },
@@ -183,15 +221,8 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
               href: "/eligibility",
             },
             {
-              name: "Open XIPHIAS Hub",
-              country: "Step 2",
-              reason: "Use the portal to track documents, milestones, messages, and next actions.",
-              score: 88,
-              href: "/x-hub",
-            },
-            {
               name: "Book document review",
-              country: "Advisor review",
+              country: "Step 2",
               reason: "Have an advisor verify gaps before filing or investment steps.",
               score: 86,
               href: TOPMATE,
@@ -214,11 +245,11 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
               href: "/eligibility",
             },
             {
-              name: "Open XIPHIAS Hub",
-              country: "Case tracking",
-              reason: "Track staff review, document status, and next action once a case is opened.",
+              name: "Document checklist",
+              country: "Preparation",
+              reason: "Prepare identity, civil, financial, and source-of-funds documents before advisor review.",
               score: 78,
-              href: "/x-hub",
+              href: "/eligibility",
             },
           ]
         : [
@@ -260,7 +291,6 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       ],
       sources: [
         { label: "Eligibility check", href: "/eligibility" },
-        { label: "XIPHIAS Hub", href: "/x-hub" },
         { label: "Topmate booking", href: TOPMATE },
       ],
       evidence: [],
@@ -402,7 +432,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
   ];
 
   if (intent === "partnership") {
-    actions.unshift({ label: "Open partner portal", href: "/x-hub/partners", type: "primary" as const });
+    actions.unshift({ label: "Partner with us", href: "/partner-with-us", type: "primary" as const });
   }
 
   return {

@@ -3,17 +3,7 @@
 import React from "react";
 import {
   ArrowRight,
-  BadgeCheck,
-  BriefcaseBusiness,
-  Building2,
-  CalendarCheck,
   ChevronLeft,
-  Compass,
-  FileCheck2,
-  Globe2,
-  GraduationCap,
-  Home,
-  Route,
   Sparkles,
 } from "lucide-react";
 
@@ -448,55 +438,55 @@ type GuideIconName =
 
 const GUIDE_COPY: Record<GuideScreen, { title: string; subtitle: string }> = {
   home: {
-    title: "Welcome to XIPHIAS",
-    subtitle: "Choose a service area and we will guide you to the right program, country, or advisor.",
+    title: "How can I help?",
+    subtitle: "",
   },
   browse: {
-    title: "Explore immigration pathways",
-    subtitle: "Select a category to view programs, countries, and route details.",
+    title: "What would you like to explore?",
+    subtitle: "",
   },
   process: {
-    title: "Plan your next step",
-    subtitle: "Move from eligibility to documents, review, and case tracking.",
+    title: "Plan the next step",
+    subtitle: "",
   },
   business: {
     title: "Business and partner services",
-    subtitle: "Support for companies, referral partners, and institutional mobility programs.",
+    subtitle: "",
   },
   routeGoal: {
-    title: "Find the right route",
-    subtitle: "Answer a few quick questions and XIA will shortlist suitable options.",
+    title: "What is your main goal?",
+    subtitle: "",
   },
   routeRegion: {
     title: "Preferred destination",
-    subtitle: "Choose a region or keep the search open.",
+    subtitle: "",
   },
   routeBudget: {
     title: "Budget range",
-    subtitle: "This helps separate investment routes from work, study, and business options.",
+    subtitle: "",
   },
   routeFamily: {
     title: "Applicant profile",
-    subtitle: "Tell us whether this is for you alone or for family inclusion.",
+    subtitle: "",
   },
   routeReview: {
     title: "Ready to shortlist",
-    subtitle: "Review your choices and generate a focused recommendation.",
+    subtitle: "",
   },
 };
 
 const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
   home: [
     {
-      label: "Browse programs",
-      eyebrow: "Programs",
+      label: "Programmes",
+      eyebrow: "Programmes",
       description: "Explore residency, citizenship, skilled migration, and corporate routes.",
       icon: "compass",
       next: "browse",
     },
     {
       label: "Countries covered",
-      eyebrow: "Destinations",
+      eyebrow: "Countries",
       description: "View available countries grouped by immigration pathway.",
       icon: "globe",
       message: "what countries do you offer immigration",
@@ -504,27 +494,27 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
     {
       label: "Find my route",
       eyebrow: "Eligibility",
-      description: "Answer quick cards and receive a focused shortlist.",
+      description: "Answer a guided route check and receive a focused shortlist.",
       icon: "route",
       next: "routeGoal",
     },
     {
       label: "Documents and process",
-      eyebrow: "Preparation",
+      eyebrow: "Documents",
       description: "Prepare documents, risk review, and advisor verification.",
       icon: "docs",
       next: "process",
     },
     {
       label: "Business / partner",
-      eyebrow: "Organizations",
+      eyebrow: "Business",
       description: "Corporate immigration, referrals, and B2G mobility support.",
       icon: "briefcase",
       next: "business",
     },
     {
       label: "Talk to advisor",
-      eyebrow: "Consultation",
+      eyebrow: "Advisor",
       description: "Book a paid consultation through the existing Topmate flow.",
       icon: "calendar",
       href: "/booking",
@@ -583,13 +573,6 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
       href: "/booking",
     },
     {
-      label: "Open XIPHIAS Hub",
-      eyebrow: "Portal",
-      description: "Track documents, milestones, messages, and case status.",
-      icon: "docs",
-      href: "/x-hub",
-    },
-    {
       label: "Risk review",
       eyebrow: "Due diligence",
       description: "Review source of funds, PEP, sanctions, and risk flags.",
@@ -604,20 +587,6 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
       description: "Entity setup, transfers, work permits, and expansion.",
       icon: "building",
       href: "/corporate",
-    },
-    {
-      label: "Partner portal",
-      eyebrow: "Referrals",
-      description: "Submit referrals and track partner case progress.",
-      icon: "briefcase",
-      href: "/x-hub/partners",
-    },
-    {
-      label: "B2G / institution",
-      eyebrow: "Institutions",
-      description: "Bulk inquiry, dashboards, reports, and secure exchange.",
-      icon: "globe",
-      href: "/x-hub/b2g",
     },
     {
       label: "Partner with us",
@@ -789,6 +758,59 @@ function buildRouteQuery(profile: RouteProfile) {
     .join(" ");
 }
 
+function normalizeGuideCommand(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function optionSearchText(option: GuideOption) {
+  return normalizeGuideCommand([option.label, option.eyebrow, option.description].filter(Boolean).join(" "));
+}
+
+function getOptionByScreen(screen: GuideScreen, index: number) {
+  return GUIDE_OPTIONS[screen]?.[index];
+}
+
+function findTypedGuideOption(value: string, screen: GuideScreen) {
+  const command = normalizeGuideCommand(value);
+  if (!command) return null;
+
+  const numberMatch = command.match(/^(?:option\s*)?([1-9])$/);
+  if (numberMatch) {
+    const option = GUIDE_OPTIONS[screen]?.[Number(numberMatch[1]) - 1];
+    if (option) return option;
+  }
+
+  const currentScreenOption = GUIDE_OPTIONS[screen]?.find((option) => {
+    const label = normalizeGuideCommand(option.label);
+    const eyebrow = normalizeGuideCommand(option.eyebrow ?? "");
+    const search = optionSearchText(option);
+    return command === label || command === eyebrow || search.split(" ").includes(command);
+  });
+  if (currentScreenOption) return currentScreenOption;
+
+  const directRoutes: { terms: string[]; option?: GuideOption }[] = [
+    { terms: ["residency", "residence", "golden visa", "live abroad"], option: getOptionByScreen("browse", 0) },
+    { terms: ["citizenship", "second passport", "passport"], option: getOptionByScreen("browse", 1) },
+    { terms: ["skilled", "skilled migration", "work abroad", "work visa", "job"], option: getOptionByScreen("browse", 2) },
+    { terms: ["programme", "programmes", "program", "programs", "browse programs"], option: getOptionByScreen("home", 0) },
+    { terms: ["corporate", "corporate immigration", "company", "business"], option: getOptionByScreen("browse", 3) },
+    { terms: ["country", "countries", "destinations", "where"], option: getOptionByScreen("home", 1) },
+    { terms: ["eligibility", "find route", "find my route", "assessment"], option: getOptionByScreen("home", 2) },
+    { terms: ["documents", "document", "process", "checklist"], option: getOptionByScreen("home", 3) },
+    { terms: ["partner", "b2b", "b2g", "institution"], option: getOptionByScreen("home", 4) },
+    { terms: ["advisor", "consultation", "consult", "book", "call"], option: getOptionByScreen("home", 5) },
+  ];
+
+  return (
+    directRoutes.find(({ terms, option }) => option && terms.some((term) => command === term || command.includes(term)))?.option ??
+    null
+  );
+}
+
 function InternalXiaPanel({
   expanded,
   onToggleExpanded,
@@ -851,12 +873,31 @@ function InternalXiaPanel({
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const typedOption = findTypedGuideOption(message, screen);
+    if (typedOption) {
+      chooseOption(typedOption, message.trim());
+      return;
+    }
     await runQuery(message);
   }
 
-  function chooseOption(option: GuideOption) {
+  function chooseOption(option: GuideOption, typedLabel?: string) {
+    if (typedLabel) setMessage("");
     const nextProfile = { ...routeProfile, ...(option.routePatch ?? {}) };
     if (option.routePatch) setRouteProfile(nextProfile);
+
+    if (option.href) {
+      const selectedLabel = typedLabel || option.label;
+      setTurns((current) => [
+        ...current,
+        { id: chatId(), role: "user", text: selectedLabel },
+        { id: chatId(), role: "assistant", text: `Opening ${option.label}.` },
+      ]);
+      window.setTimeout(() => {
+        window.location.href = option.href!;
+      }, 250);
+      return;
+    }
 
     if (option.action === "recommendRoute") {
       void runQuery(buildRouteQuery(nextProfile), "Generate shortlist");
@@ -870,7 +911,7 @@ function InternalXiaPanel({
       return;
     }
     if (option.message) {
-      void runQuery(option.message, option.label);
+      void runQuery(option.message, typedLabel || option.label);
     }
   }
 
@@ -895,9 +936,9 @@ function InternalXiaPanel({
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: 0.2 }}>XIPHIAS Advisor</div>
+            <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: 0.2 }}>XIA by XIPHIAS</div>
             <div style={{ marginTop: 3, fontSize: 12, color: "rgba(255,255,255,0.76)" }}>
-              Program guidance with source-backed checks
+              Programmes, visas, countries, and advisor routing
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -947,7 +988,7 @@ function InternalXiaPanel({
 
       <div style={{ flex: 1, overflowY: "auto", padding: 14 }}>
         <div style={{ display: "grid", gap: 10 }}>
-          <GuideCards
+          <GuideMenu
             screen={screen}
             expanded={expanded}
             routeProfile={routeProfile}
@@ -1001,7 +1042,7 @@ function InternalXiaPanel({
         <input
           value={message}
           onChange={(event) => setMessage(event.target.value)}
-          placeholder="Ask XIA about a country or pathway"
+          placeholder="Type a country, visa, or programme"
           style={{
             minWidth: 0,
             flex: 1,
@@ -1035,7 +1076,7 @@ function InternalXiaPanel({
   );
 }
 
-function GuideCards({
+function GuideMenu({
   screen,
   expanded,
   routeProfile,
@@ -1050,26 +1091,38 @@ function GuideCards({
 }) {
   const copy = GUIDE_COPY[screen];
   const options = GUIDE_OPTIONS[screen];
+  const isHome = screen === "home";
 
   return (
     <section
       className="xia-guide-shell"
       style={{
-        border: "1px solid rgba(18,63,122,0.12)",
-        borderRadius: 18,
-        background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
-        boxShadow: "0 16px 34px rgba(15,23,42,0.08)",
-        padding: expanded ? 18 : 14,
+        border: "1px solid rgba(18,63,122,0.10)",
+        borderRadius: 16,
+        background: "#ffffff",
+        boxShadow: "0 10px 26px rgba(15,23,42,0.06)",
+        overflow: "hidden",
       }}
     >
+      <div
+        style={{
+          background: isHome
+            ? "linear-gradient(135deg, rgba(8,34,71,0.96) 0%, rgba(18,63,122,0.96) 72%, rgba(216,181,69,0.82) 160%)"
+            : "linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%)",
+          color: isHome ? "#fff" : "#071a3a",
+          padding: expanded ? "16px 18px 14px" : "14px",
+        }}
+      >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10, justifyContent: "space-between" }}>
         <div>
-          <h3 style={{ margin: 0, color: "#071a3a", fontSize: expanded ? 18 : 15, fontWeight: 900 }}>
+          <h3 style={{ margin: 0, color: "inherit", fontSize: expanded ? 18 : 15, fontWeight: 900 }}>
             {copy.title}
           </h3>
-          <p style={{ margin: "5px 0 0", color: "#52647f", fontSize: expanded ? 13.5 : 12.5, lineHeight: 1.5 }}>
-            {copy.subtitle}
-          </p>
+          {copy.subtitle ? (
+            <p style={{ margin: "5px 0 0", color: isHome ? "rgba(255,255,255,0.78)" : "#52647f", fontSize: expanded ? 13.5 : 12.5, lineHeight: 1.5 }}>
+              {copy.subtitle}
+            </p>
+          ) : null}
           {isRouteScreen(screen) ? <RouteProfileChips profile={routeProfile} /> : null}
         </div>
         {onBack ? (
@@ -1079,29 +1132,30 @@ function GuideCards({
           </button>
         ) : null}
       </div>
+      </div>
 
       <div
         style={{
           display: "grid",
-          gap: 8,
-          gridTemplateColumns: expanded ? "repeat(2, minmax(0, 1fr))" : "1fr",
-          marginTop: 12,
+          gap: 0,
+          padding: 0,
         }}
+        role="list"
       >
-        {options.map((option) =>
+        {options.map((option, index) =>
           option.href ? (
-            <a key={option.label} href={option.href} className="xia-guide-card" style={guideCardStyle}>
-              <GuideCardContent option={option} />
+            <a key={option.label} href={option.href} className="xia-guide-choice" style={guideChoiceStyle}>
+              <GuideMenuItemContent option={option} index={index} />
             </a>
           ) : (
             <button
               key={option.label}
               type="button"
-              className="xia-guide-card"
+              className="xia-guide-choice"
               onClick={() => onChoose(option)}
-              style={{ ...guideCardStyle, cursor: "pointer", textAlign: "left", width: "100%" }}
+              style={{ ...guideChoiceStyle, cursor: "pointer", textAlign: "left", width: "100%" }}
             >
-              <GuideCardContent option={option} />
+              <GuideMenuItemContent option={option} index={index} />
             </button>
           ),
         )}
@@ -1110,28 +1164,13 @@ function GuideCards({
         .xia-guide-shell {
           animation: xiaGuideIn 220ms ease-out both;
         }
-        .xia-guide-card {
+        .xia-guide-choice {
           position: relative;
           overflow: hidden;
-          transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+          transition: background 160ms ease, color 160ms ease;
         }
-        .xia-guide-card::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(216,181,69,0.14), rgba(18,63,122,0.04));
-          opacity: 0;
-          transition: opacity 160ms ease;
-          pointer-events: none;
-        }
-        .xia-guide-card:hover {
-          transform: translateY(-2px);
-          border-color: rgba(18,63,122,0.28) !important;
-          box-shadow: 0 14px 26px rgba(15,23,42,0.10);
-          background: #ffffff !important;
-        }
-        .xia-guide-card:hover::after {
-          opacity: 1;
+        .xia-guide-choice:hover {
+          background: #f6f9fe !important;
         }
         @keyframes xiaGuideIn {
           from { opacity: 0; transform: translateY(8px); }
@@ -1178,83 +1217,46 @@ function RouteProfileChips({ profile }: { profile: RouteProfile }) {
   );
 }
 
-function GuideCardContent({ option }: { option: GuideOption }) {
+function GuideMenuItemContent({ option, index }: { option: GuideOption; index: number }) {
   return (
     <>
-      <span style={{ alignItems: "flex-start", display: "flex", gap: 11, position: "relative", zIndex: 1 }}>
+      <span style={{ alignItems: "center", display: "grid", gap: 10, gridTemplateColumns: "28px minmax(0, 1fr) auto", position: "relative", zIndex: 1 }}>
         <span
           style={{
             alignItems: "center",
-            background: "linear-gradient(135deg, #123f7a 0%, #1e5aa8 100%)",
-            borderRadius: 12,
-            boxShadow: "0 8px 18px rgba(18,63,122,0.18)",
-            color: "#fff",
+            background: "#eef5ff",
+            border: "1px solid rgba(18,63,122,0.16)",
+            borderRadius: 999,
+            color: "#123f7a",
             display: "inline-flex",
-            flex: "0 0 auto",
-            height: 36,
+            fontSize: 11,
+            fontWeight: 900,
+            height: 28,
             justifyContent: "center",
-            width: 36,
+            width: 28,
           }}
         >
-          <GuideIcon name={option.icon} />
+          {index + 1}
         </span>
         <span style={{ minWidth: 0 }}>
-          {option.eyebrow ? (
-            <span style={{ color: "#b08918", display: "block", fontSize: 10, fontWeight: 900, letterSpacing: 0.7, textTransform: "uppercase" }}>
-              {option.eyebrow}
-            </span>
-          ) : null}
-          <span style={{ color: "#0f172a", display: "block", fontSize: 13.5, fontWeight: 900, marginTop: option.eyebrow ? 2 : 0 }}>
+          <span style={{ color: "#0f172a", display: "block", fontSize: 13.5, fontWeight: 900, lineHeight: 1.35 }}>
             {option.label}
           </span>
-          <span style={{ color: "#5c6d86", display: "block", fontSize: 12, lineHeight: 1.45, marginTop: 4 }}>
-            {option.description}
-          </span>
-          <span style={{ alignItems: "center", color: "#123f7a", display: "inline-flex", gap: 5, fontSize: 11.5, fontWeight: 900, marginTop: 9 }}>
-            {option.href ? "Open" : "Continue"}
-            <ArrowRight size={13} strokeWidth={2.7} />
-          </span>
         </span>
+        <ArrowRight size={13} strokeWidth={2.8} style={{ color: "#123f7a", flexShrink: 0 }} />
       </span>
     </>
   );
 }
 
-function GuideIcon({ name }: { name: GuideIconName }) {
-  const props = { size: 18, strokeWidth: 2.3 };
-  switch (name) {
-    case "badge":
-      return <BadgeCheck {...props} />;
-    case "briefcase":
-      return <BriefcaseBusiness {...props} />;
-    case "building":
-      return <Building2 {...props} />;
-    case "calendar":
-      return <CalendarCheck {...props} />;
-    case "docs":
-      return <FileCheck2 {...props} />;
-    case "globe":
-      return <Globe2 {...props} />;
-    case "graduation":
-      return <GraduationCap {...props} />;
-    case "home":
-      return <Home {...props} />;
-    case "route":
-      return <Route {...props} />;
-    case "compass":
-    default:
-      return <Compass {...props} />;
-  }
-}
-
-const guideCardStyle: React.CSSProperties = {
-  border: "1px solid rgba(18,63,122,0.12)",
-  borderRadius: 14,
-  background: "linear-gradient(180deg, #ffffff 0%, #f6f9fe 100%)",
+const guideChoiceStyle: React.CSSProperties = {
+  border: 0,
+  borderTop: "1px solid #e8eef6",
+  background: "transparent",
   color: "#0f172a",
   display: "block",
-  minHeight: 98,
-  padding: "14px 14px",
+  minHeight: "auto",
+  padding: "8px 14px",
   textDecoration: "none",
 };
 
@@ -1291,6 +1293,7 @@ function ChatBubble({ turn, expanded }: { turn: ChatTurn; expanded: boolean }) {
   return (
     <div style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start" }}>
       <div
+        className="xia-chat-bubble"
         style={{
           maxWidth: isUser ? "86%" : "96%",
           border: isUser ? "1px solid #123f7a" : "1px solid #e2e8f0",
@@ -1307,6 +1310,15 @@ function ChatBubble({ turn, expanded }: { turn: ChatTurn; expanded: boolean }) {
           <PlainMessage text={turn.text} isUser={isUser} />
         )}
       </div>
+      <style>{`
+        .xia-chat-bubble {
+          animation: xiaBubbleIn 180ms ease-out both;
+        }
+        @keyframes xiaBubbleIn {
+          from { opacity: 0; transform: translateY(6px) scale(0.99); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -1339,25 +1351,25 @@ function RecommendationView({
   expanded: boolean;
 }) {
   const isCountryOverview = recommendation.intent === "country_overview";
-  const visiblePrograms = recommendation.recommendedPrograms.slice(0, expanded ? 3 : isCountryOverview ? 3 : 2);
-  const primaryAction = recommendation.actions[0];
+  const visiblePrograms = recommendation.recommendedPrograms.slice(0, expanded ? (isCountryOverview ? 6 : 4) : isCountryOverview ? 4 : 3);
   const moreCount = Math.max(0, recommendation.recommendedPrograms.length - visiblePrograms.length);
   const lead = conversationLead(recommendation);
   const conversationalIntent = ["greeting", "thanks", "assistant_help", "human_handoff"].includes(recommendation.intent);
+  const actionLinks = recommendation.actions.slice(0, expanded ? 3 : 2);
 
   return (
-    <div>
+    <div className="xia-response">
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        <span style={{ color: "#123f7a", fontSize: 11, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase" }}>
+        <span style={{ color: "#123f7a", fontSize: 10.5, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase" }}>
           {formatIntentLabel(recommendation.intent)}
         </span>
         {typeof recommendation.confidence === "number" && !conversationalIntent ? (
-          <span style={{ borderRadius: 999, background: "#eff6ff", color: "#1d4ed8", fontSize: 11, fontWeight: 800, padding: "3px 7px" }}>
+          <span style={{ borderRadius: 999, background: "#eff6ff", color: "#1d4ed8", fontSize: 10.5, fontWeight: 800, padding: "3px 7px" }}>
             Confidence {recommendation.confidence}
           </span>
         ) : null}
         {recommendation.handoffRequired ? (
-          <span style={{ borderRadius: 999, background: "#fffbeb", color: "#92400e", fontSize: 11, fontWeight: 800, padding: "3px 7px" }}>
+          <span style={{ borderRadius: 999, background: "#fffbeb", color: "#92400e", fontSize: 10.5, fontWeight: 800, padding: "3px 7px" }}>
             Advisor review
           </span>
         ) : null}
@@ -1370,56 +1382,78 @@ function RecommendationView({
         {lead.body}
       </p>
 
-      <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-        {visiblePrograms.map((program) => {
+      {visiblePrograms.length ? (
+        <div style={{ marginTop: 11 }}>
+          <div style={{ color: "#64748b", fontSize: 10.5, fontWeight: 900, letterSpacing: 0.7, marginBottom: 7, textTransform: "uppercase" }}>
+            {conversationalIntent ? "Suggested starting points" : isCountryOverview ? "Choose a pathway" : "Best matches"}
+          </div>
+          <div style={{ display: "grid", gap: 0 }}>
+        {visiblePrograms.map((program, index) => {
           const href = getProgramHref(program, recommendation);
-          const CardTag = href ? "a" : "div";
+          const title = compactResultLabel(program.name);
+          const country = program.country && !program.country.toLowerCase().includes("countries") ? program.country : "";
           return (
-          <CardTag
-            key={`${program.name}-${program.country}`}
-            href={href || undefined}
-            style={{
-              border: "1px solid #e2e8f0",
-              borderRadius: 10,
-              background: "#f8fafc",
-              color: "#0f172a",
-              display: "block",
-              padding: 10,
-              textDecoration: "none",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <strong style={{ fontSize: 13, lineHeight: 1.35 }}>{program.name}</strong>
-              {program.score >= 70 ? (
-                <span style={{ color: "#047857", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap" }}>
-                  Good fit
-                </span>
-              ) : null}
-            </div>
-            {program.country ? <div style={{ marginTop: 2, color: "#64748b", fontSize: 12 }}>{program.country}</div> : null}
-            <p style={{ margin: "7px 0 0", color: "#475569", fontSize: 12, lineHeight: 1.45 }}>
-              {shortReason(program.reason, expanded, recommendation.intent)}
-            </p>
-            {href ? (
-              <span style={{ alignItems: "center", color: "#123f7a", display: "inline-flex", fontSize: 11.5, fontWeight: 900, gap: 5, marginTop: 8 }}>
-                Open details <ArrowRight size={13} strokeWidth={2.7} />
+            <a
+              key={`${program.name}-${program.country}`}
+              href={href || "/eligibility"}
+              className="xia-result-row"
+              style={{
+                alignItems: "flex-start",
+                border: 0,
+                borderTop: "1px solid #e8eef6",
+                borderRadius: 0,
+                background: "transparent",
+                color: "#0f172a",
+                display: "grid",
+                gap: 8,
+                gridTemplateColumns: "26px minmax(0, 1fr) auto",
+                padding: "10px 0",
+                textDecoration: "none",
+              }}
+            >
+              <span
+                style={{
+                  alignItems: "center",
+                  background: "#eef5ff",
+                  border: "1px solid rgba(18,63,122,0.14)",
+                  borderRadius: 999,
+                  color: "#123f7a",
+                  display: "inline-flex",
+                  fontSize: 10.5,
+                  fontWeight: 900,
+                  height: 24,
+                  justifyContent: "center",
+                  width: 24,
+                }}
+              >
+                {index + 1}
               </span>
-            ) : null}
-          </CardTag>
-        );
+              <span style={{ minWidth: 0 }}>
+                <strong style={{ display: "block", fontSize: 12.6, lineHeight: 1.32 }}>{title}</strong>
+                <span style={{ color: "#64748b", display: "block", fontSize: 11.4, lineHeight: 1.35, marginTop: 2 }}>
+                  {isCountryOverview ? shortReason(program.reason, false, recommendation.intent) : [country, shortReason(program.reason, expanded, recommendation.intent)].filter(Boolean).join(" - ")}
+                </span>
+              </span>
+              <span style={{ alignItems: "center", color: "#123f7a", display: "inline-flex", fontSize: 11.5, fontWeight: 900, gap: 4, marginTop: 2, whiteSpace: "nowrap" }}>
+                Open <ArrowRight size={12} strokeWidth={2.7} />
+              </span>
+            </a>
+          );
         })}
+          </div>
       </div>
+      ) : null}
 
       {moreCount > 0 ? (
-        <p style={{ margin: "8px 0 0", color: "#64748b", fontSize: 12, fontWeight: 700 }}>
-          {expanded ? `${moreCount} more option${moreCount === 1 ? "" : "s"} available after advisor review.` : `I kept this short. Expand to see one more option.`}
+        <p style={{ margin: "8px 0 0", color: "#64748b", fontSize: 11.7, fontWeight: 700 }}>
+          {expanded ? `${moreCount} more option${moreCount === 1 ? "" : "s"} can be reviewed by an advisor.` : `More options are available in expanded view.`}
         </p>
       ) : null}
 
       {expanded && recommendation.sources?.length ? (
         <div style={{ marginTop: 10 }}>
-          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 900, marginBottom: 6, textTransform: "uppercase" }}>
-            Checked against
+          <div style={{ color: "#64748b", fontSize: 10.5, fontWeight: 900, letterSpacing: 0.7, marginBottom: 6, textTransform: "uppercase" }}>
+            Website pages checked
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {recommendation.sources.slice(0, 4).map((item) => (
@@ -1453,7 +1487,7 @@ function RecommendationView({
       </p>
 
       <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 7 }}>
-        {recommendation.actions.slice(0, expanded ? 3 : 2).map((action, index) => {
+        {actionLinks.map((action, index) => {
           const primary = action.type === "primary" || index === 0;
           return (
             <a
@@ -1474,26 +1508,27 @@ function RecommendationView({
             </a>
           );
         })}
-        {primaryAction ? null : (
-          <a
-            href="/booking"
-            style={{
-              border: "1px solid #123f7a",
-              borderRadius: 9,
-              background: "#123f7a",
-              color: "#fff",
-              padding: "8px 10px",
-              fontSize: 12,
-              fontWeight: 900,
-              textDecoration: "none",
-            }}
-          >
-            Book consultation
-          </a>
-        )}
       </div>
+      <style>{`
+        .xia-result-row {
+          transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+        .xia-result-row:hover {
+          transform: translateX(2px);
+          background: #f8fbff !important;
+        }
+      `}</style>
     </div>
   );
+}
+
+function compactResultLabel(value: string) {
+  return value
+    .replace(/\s*[-–—]\s*Are you Eligible\??/i, "")
+    .replace(/\s*[-–—]\s*What You Should Know.*$/i, "")
+    .replace(/\s*[-–—]\s*.*Guide\)?$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function formatIntentLabel(intent: string) {
