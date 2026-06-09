@@ -5,9 +5,11 @@ import "./globals.css";
 
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
+import SocialSidebar from "@/components/Layout/SocialSidebar";
 import { ThemeProvider } from "next-themes";
 import MDXProviders from "@/components/MDX/MDXProviders";
 import DeferredClientWidgets from "@/components/DeferredClientWidgets";
+import MainPadding from "@/components/Layout/MainPadding";
 // Import dynamic to load client‑only components
 // The GlobalBrochureGate component is a client component. We import it
 // directly here — Next.js will treat it as a client boundary.
@@ -226,11 +228,13 @@ export default function RootLayout({
               <Header />
 
               <main id="main" className="min-h-screen">
+                <MainPadding />
                 {children}
               </main>
             </MDXProviders>
 
             <Footer />
+            <SocialSidebar />
             <DeferredClientWidgets gaId={GA_ID} />
             {/* Inject the global lead gate to intercept brochure downloads site‑wide */}
         </ThemeProvider>

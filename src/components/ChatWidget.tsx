@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Home,
   Route,
+  Sparkles,
 } from "lucide-react";
 
 type Props = { defaultOpen?: boolean };
@@ -109,6 +110,9 @@ export default function ChatWidget({ defaultOpen = false }: Props) {
   const [layout, setLayout] = React.useState<FloatingLayout>(() =>
     getFloatingLayout(1280),
   );
+  const [pillExpanded, setPillExpanded] = React.useState(false);
+  const pillTimerRef  = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     const applyLayout = () => {
@@ -164,21 +168,70 @@ export default function ChatWidget({ defaultOpen = false }: Props) {
     [],
   );
 
+  /* Auto-expand pill on mount, collapse after 5 s */
+  React.useEffect(() => {
+    const start = setTimeout(() => {
+      setPillExpanded(true);
+      pillTimerRef.current = setTimeout(() => setPillExpanded(false), 5000);
+    }, 1000);
+    return () => {
+      clearTimeout(start);
+      if (pillTimerRef.current)  clearTimeout(pillTimerRef.current);
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
+  }, []);
+
+  const onPillMouseEnter = () => {
+    if (open) return;
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    if (pillTimerRef.current)  { clearTimeout(pillTimerRef.current); pillTimerRef.current = null; }
+    setPillExpanded(true);
+  };
+  const onPillMouseLeave = () => {
+    if (open) return;
+    hoverTimerRef.current = setTimeout(() => setPillExpanded(false), 400);
+  };
+
   const z = 2147483000;
   const bottomWithSafeArea = `calc(${layout.bottom}px + env(safe-area-inset-bottom, 0px))`;
   const panelBottom = `calc(${bottomWithSafeArea} + ${layout.buttonSize + layout.stackGap}px)`;
 
+  /* whether pill text is visible */
+  const showPill = pillExpanded && !open;
+
   return (
     <>
+      {/* Pulse glow ring — sits behind the button, anchored to the icon position */}
+      {!open && !expanded && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            right: layout.right,
+            bottom: bottomWithSafeArea,
+            width: layout.buttonSize,
+            height: layout.buttonSize,
+            borderRadius: 9999,
+            background: "rgba(240, 208, 67, 0.45)",
+            animation: "chatPulse 2.6s ease-out infinite",
+            zIndex: z - 1,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Trigger button */}
       <button
         type="button"
-        aria-label={open ? "Close chat" : "Open chat"}
+        aria-label={open ? "Close chat" : "How can I help you?"}
         aria-expanded={open}
         aria-controls={shouldLoadFrame ? "xiphias-chat-frame" : undefined}
+        onMouseEnter={onPillMouseEnter}
+        onMouseLeave={onPillMouseLeave}
         onClick={() =>
           setOpen((v) => {
             const next = !v;
-            if (next) setShouldLoadFrame(true);
+            if (next) { setShouldLoadFrame(true); setPillExpanded(false); }
             else setExpanded(false);
             return next;
           })
@@ -187,24 +240,68 @@ export default function ChatWidget({ defaultOpen = false }: Props) {
           position: "fixed",
           right: layout.right,
           bottom: bottomWithSafeArea,
-          width: layout.buttonSize,
           height: layout.buttonSize,
-          border: "1px solid rgba(255,255,255,0.22)",
+          /* pill expands leftward — right edge stays anchored */
+          maxWidth: showPill ? 230 : layout.buttonSize,
+          minWidth: layout.buttonSize,
+          width: "auto",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          border: "1px solid rgba(255,255,255,0.25)",
           borderRadius: 9999,
-          background: "linear-gradient(135deg, #ceaf23ec 0%, #f0d043 100%)",
-          color: "#000000",
-          boxShadow:
-            "0 12px 28px rgba(12,36,90,0.35), 0 2px 8px rgba(0,0,0,0.2)",
+          background: open
+            ? "linear-gradient(135deg,#1c57b4 0%,#0f3a8a 100%)"
+            : "linear-gradient(135deg, #ceaf23ec 0%, #f0d043 100%)",
+          color: open ? "#ffffff" : "#1a1000",
+          boxShadow: "0 12px 28px rgba(12,36,90,0.35), 0 2px 8px rgba(0,0,0,0.2)",
           cursor: "pointer",
           display: expanded ? "none" : "flex",
           alignItems: "center",
           justifyContent: "center",
-          transition: "transform 140ms ease, filter 140ms ease",
+          gap: showPill ? 8 : 0,
+          padding: showPill ? `0 18px 0 14px` : "0",
+          transition: [
+            "max-width 380ms cubic-bezier(0.34,1.56,0.64,1)",
+            "padding 380ms cubic-bezier(0.34,1.56,0.64,1)",
+            "gap 380ms ease",
+            "background 200ms ease",
+            "transform 140ms ease",
+            "filter 140ms ease",
+          ].join(", "),
           zIndex: z,
         }}
-        title={open ? "Close chat" : "Chat with us"}
       >
-        {open ? <CloseIcon /> : <BubbleIcon />}
+        {open ? (
+          <CloseIcon />
+        ) : (
+          <>
+            <Sparkles
+              size={22}
+              strokeWidth={1.8}
+              style={{ flexShrink: 0, transition: "transform 200ms ease" }}
+            />
+            <span
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: "-0.01em",
+                opacity: showPill ? 1 : 0,
+                maxWidth: showPill ? 140 : 0,
+                overflow: "hidden",
+                transition: "opacity 220ms ease 120ms, max-width 380ms cubic-bezier(0.34,1.56,0.64,1)",
+              }}
+            >
+              How can I help?
+            </span>
+            {showPill && (
+              <ArrowRight
+                size={13}
+                strokeWidth={2.5}
+                style={{ flexShrink: 0, opacity: 0.7 }}
+              />
+            )}
+          </>
+        )}
       </button>
 
       {shouldLoadFrame && !useInternalXia && url && (

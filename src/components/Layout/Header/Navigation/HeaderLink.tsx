@@ -76,11 +76,11 @@ export default function HeaderLink({ item }: Props) {
       hoverTimer.current = null;
     }
   };
-  const openWithIntent = (delay = 150) => {
+  const openWithIntent = (delay = 60) => {
     clearTimer();
     hoverTimer.current = window.setTimeout(() => setOpen(true), delay);
   };
-  const closeWithIntent = (delay = 200) => {
+  const closeWithIntent = (delay = 120) => {
     clearTimer();
     hoverTimer.current = window.setTimeout(() => setOpen(false), delay);
   };
@@ -127,16 +127,10 @@ export default function HeaderLink({ item }: Props) {
   const colorIdle =
     'text-white/90 hover:text-white focus-visible:ring-2 focus-visible:ring-white/40';
   const colorActive =
-    'text-white bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.1))] ring-1 ring-white/20 shadow-[0_12px_30px_-18px_rgba(148,163,184,0.7)] after:pointer-events-none after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-white';
+    'text-white after:pointer-events-none after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-[2px] after:rounded-full after:bg-secondary';
   const pillBg = isActive
     ? ''
-    : [
-        'hover:-translate-y-px hover:ring-1 hover:ring-white/25',
-        'hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.08))]',
-        'hover:shadow-[0_14px_30px_-18px_rgba(96,165,250,0.75)]',
-        'before:pointer-events-none before:absolute before:inset-x-3 before:bottom-1 before:h-px before:rounded-full before:bg-white/0 before:transition-colors before:duration-200',
-        'hover:before:bg-white/85',
-      ].join(' ');
+    : 'hover:text-white hover:bg-white/10 hover:rounded-xl';
 
   const shouldInterceptClick = !enableHover;
 

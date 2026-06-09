@@ -7,7 +7,7 @@
 :root {
   --bg-header: #ffffff;
   --bg-modal: #ffffff;
-  --header-h: 72px;
+  --header-h: 120px;
 }
 
 .dark {
@@ -52,6 +52,15 @@ body {
 /* ✅ Improve focus styles for accessibility */
 :focus-visible {
   @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-white dark:ring-offset-darkmode;
+}
+
+/* Hero quick-contact inputs use a custom gold bottom-line indicator instead */
+#main-banner input:focus,
+#main-banner input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
 
 /* ✅ Reduce motion for accessibility */
@@ -219,6 +228,18 @@ body {
   }
 }
 
+@keyframes chatPulse {
+  0%   { transform: scale(1);    opacity: 0.55; }
+  65%  { transform: scale(1.75); opacity: 0; }
+  100% { transform: scale(1.75); opacity: 0; }
+}
+
+@keyframes megaFadeIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+.mega-panel-enter { animation: megaFadeIn 0.14s ease-out both; }
+
 @layer utilities {
   /* Right→Left marquee for all rows (duration via CSS var) */
   @keyframes marquee-rtl {
@@ -244,7 +265,6 @@ body {
 }
 
 #main-banner { background-color: transparent !important; }
-#main > :first-child { margin-top: 0 !important; }
 
 /* ✅ Only the collapsing TopBar is “contained” so it won’t affect dropdowns */
 .topbar-clip { contain: paint; }

@@ -16,6 +16,7 @@ type RichUIItem = BaseUIItem & {
 export type GlobalSearchProps = {
   className?: string;
   placeholder?: string;
+  compact?: boolean;
 };
 
 const popularSuggestions: RichUIItem[] = [
@@ -44,6 +45,7 @@ const popularSuggestions: RichUIItem[] = [
 export default function GlobalSearch({
   className = "",
   placeholder = "Search...",
+  compact = false,
 }: GlobalSearchProps) {
   const router = useRouter();
 
@@ -312,23 +314,34 @@ export default function GlobalSearch({
 
   return (
     <>
-      <button
-        ref={triggerRef}
-        onClick={() => setOpen(true)}
-        aria-label="Open search"
-        className={[
-          "pointer-events-auto w-full max-w-[520px] rounded-full border px-5 py-2 text-sm text-white mx-5",
-          "border-white/15 bg-white/10 backdrop-blur-md",
-          "focus:outline-none focus-visible:outline-none",
-          "focus:!ring-0 focus:!ring-offset-0",
-          "focus-visible:!ring-0 focus-visible:!ring-offset-0",
-          "flex items-center justify-start gap-2 transition",
-          className,
-        ].join(" ")}
-      >
-        <Search size={18} className="text-white/95" />
-        <span className="text-white/95">{placeholder}</span>
-      </button>
+      {compact ? (
+        <button
+          ref={triggerRef}
+          onClick={() => setOpen(true)}
+          aria-label="Open search"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition-colors"
+        >
+          <Search className="h-[1rem] w-[1rem]" aria-hidden />
+        </button>
+      ) : (
+        <button
+          ref={triggerRef}
+          onClick={() => setOpen(true)}
+          aria-label="Open search"
+          className={[
+            "pointer-events-auto w-full max-w-[520px] rounded-full border px-5 py-2 text-sm text-white mx-5",
+            "border-white/15 bg-white/10 backdrop-blur-md",
+            "focus:outline-none focus-visible:outline-none",
+            "focus:!ring-0 focus:!ring-offset-0",
+            "focus-visible:!ring-0 focus-visible:!ring-offset-0",
+            "flex items-center justify-start gap-2 transition",
+            className,
+          ].join(" ")}
+        >
+          <Search size={18} className="text-white/95" />
+          <span className="text-white/95">{placeholder}</span>
+        </button>
+      )}
 
       {mounted &&
         createPortal(

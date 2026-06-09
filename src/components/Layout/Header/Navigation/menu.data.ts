@@ -1,4 +1,4 @@
-// Auto-generated menu data based on the latest sitemap.
+﻿// Auto-generated menu data based on the latest sitemap.
 // Only links that exist in the current sitemap are retained.
 import type { HeaderItem } from '../menu.types'
 
@@ -6,7 +6,6 @@ import type { HeaderItem } from '../menu.types'
  * Notes:
  * - MegaPanel shows a flag if you add `meta.code` (ISO-2) or `meta.iconEmoji`.
  * - Keep labels concise; use badges to draw attention; avoid over-linking.
- * - For items with `meta`, we keep the existing `// @ts-ignore` to match your current types.
  */
 
 // ---------------------------
@@ -16,7 +15,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Bulgaria',
     href: '/residency/bulgaria',
-    // @ts-ignore
     meta: { code: 'BG' },
     submenu: [
       { label: 'AIF Residency', href: '/residency/bulgaria/bulgaria-aif-residency' },
@@ -27,7 +25,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Canada',
     href: '/residency/canada',
-    // @ts-ignore
     meta: { code: 'CA' },
     submenu: [
       { label: 'Alberta Self Employed farmer', href: '/residency/canada/alberta-self-employed-farmer' },
@@ -54,7 +51,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Curacao',
     href: '/residency/curacao',
-    // @ts-ignore
     meta: { code: 'CW' },
     submenu: [
       { label: '3-Year Active Investor', href: '/residency/curacao/3-year-active-investor' },
@@ -64,7 +60,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Cyprus',
     href: '/residency/cyprus',
-    // @ts-ignore
     meta: { code: 'CY' },
     submenu: [
       { label: 'Business Investment', href: '/residency/cyprus/business-investment' },
@@ -76,7 +71,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Greece',
     href: '/residency/greece',
-    // @ts-ignore
     meta: { code: 'GR' },
     submenu: [
       { label: 'Capital Investment', href: '/residency/greece/greece-capital-investment' },
@@ -86,7 +80,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Hong Kong',
     href: '/residency/hong-kong',
-    // @ts-ignore
     meta: { code: 'HK' },
     submenu: [
       { label: 'HK Business Investment', href: '/residency/hong-kong/hk-business-investment' },
@@ -98,7 +91,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Hungary',
     href: '/residency/hungary',
-    // @ts-ignore
     meta: { code: 'HU' },
     submenu: [
       { label: 'Donation Public Trust', href: '/residency/hungary/hungary-donation-public-trust' },
@@ -108,7 +100,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Latvia',
     href: '/residency/latvia',
-    // @ts-ignore
     meta: { code: 'LV' },
     submenu: [
       { label: 'Bank Deposit', href: '/residency/latvia/latvia-bank-deposit' },
@@ -120,7 +111,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Malaysia',
     href: '/residency/malaysia',
-    // @ts-ignore
     meta: { code: 'MY' },
     submenu: [
       { label: 'Malaysia Mm2h Property', href: '/residency/malaysia/malaysia-mm2h-property' },
@@ -131,7 +121,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Malta',
     href: '/residency/malta',
-    // @ts-ignore
     meta: { code: 'MT' },
     submenu: [
       { label: 'Government Contribution', href: '/residency/malta/malta-government-contribution' },
@@ -142,7 +131,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Mauritius',
     href: '/residency/mauritius',
-    // @ts-ignore
     meta: { code: 'MU' },
     submenu: [
       { label: 'Mauritius Business Investment', href: '/residency/mauritius/mauritius-business-investment' },
@@ -154,7 +142,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Monaco',
     href: '/residency/monaco',
-    // @ts-ignore
     meta: { code: 'MC' },
     submenu: [
       { label: 'Bank Deposit', href: '/residency/monaco/monaco-residency-bank-deposit' },
@@ -164,7 +151,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'New Zealand',
     href: '/residency/new-zealand',
-    // @ts-ignore
     meta: { code: 'NZ' },
     submenu: [
       { label: 'Active Investor Plus Balanced Category', href: '/residency/new-zealand/active-investor-plus-balanced-category' },
@@ -175,7 +161,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Panama',
     href: '/residency/panama',
-    // @ts-ignore
     meta: { code: 'PA' },
     submenu: [
       { label: 'Panama RBI via Real Estate', href: '/residency/panama/panama-residency-real-estate' },
@@ -186,7 +171,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Portugal',
     href: '/residency/portugal',
-    // @ts-ignore
     meta: { code: 'PT' },
     submenu: [
       { label: 'Business Investment', href: '/residency/portugal/portugal-business-investment' },
@@ -196,7 +180,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Singapore',
     href: '/residency/singapore',
-    // @ts-ignore
     meta: { code: 'SG' },
     submenu: [
       { label: 'GIP Business Investment', href: '/residency/singapore/singapore-gip-business-investment' },
@@ -207,7 +190,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Switzerland',
     href: '/residency/switzerland',
-    // @ts-ignore
     meta: { code: 'CH' },
     submenu: [
       { label: 'Business Investment', href: '/residency/switzerland/switzerland-business-investment' },
@@ -217,7 +199,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'UAE',
     href: '/residency/uae',
-    // @ts-ignore
     meta: { code: 'AE' },
     submenu: [
       { label: 'Real Estate', href: '/residency/uae/uae-real-estate' },
@@ -227,7 +208,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'Uruguay',
     href: '/residency/uruguay',
-    // @ts-ignore
     meta: { code: 'UY' },
     submenu: [
       { label: 'Uruguay Business Investment', href: '/residency/uruguay/uruguay-business-investment' },
@@ -237,7 +217,6 @@ const residencyCountries: HeaderItem[] = [
   {
     label: 'USA',
     href: '/residency/usa',
-    // @ts-ignore
     meta: { code: 'US' },
     submenu: [
       { label: 'EB-5 Non-Targeted Employment Area', href: '/residency/usa/eb5-non-targeted-employment-area' },
@@ -268,7 +247,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Antigua & Barbuda',
         href: '/citizenship/antigua-barbuda',
-        // @ts-ignore
         meta: { code: 'AG' },
         submenu: [
           { label: 'Business Investment', href: '/citizenship/antigua-barbuda/business-investment' },
@@ -279,7 +257,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Dominica',
         href: '/citizenship/dominica',
-        // @ts-ignore
         meta: { code: 'DM' },
         submenu: [
           { label: 'Real Estate', href: '/citizenship/dominica/real-estate' },
@@ -289,9 +266,7 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Egypt',
         href: '/citizenship/egypt',
-        // @ts-ignore
         meta: { code: 'EG' },
-        // @ts-ignore
         badge: { text: 'Fast Track', tone: 'info' },
         submenu: [
           { label: 'Bank Deposit', href: '/citizenship/egypt/bank-deposit' },
@@ -303,7 +278,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Grenada',
         href: '/citizenship/grenada',
-        // @ts-ignore
         meta: { code: 'GD' },
         submenu: [
           { label: 'Real Estate', href: '/citizenship/grenada/real-estate' },
@@ -313,7 +287,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Nauru',
         href: '/citizenship/nauru',
-        // @ts-ignore
         meta: { code: 'NR' },
         submenu: [
           { label: 'Investment', href: '/citizenship/nauru/investment' },
@@ -322,7 +295,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Saint Lucia',
         href: '/citizenship/saint-lucia',
-        // @ts-ignore
         meta: { code: 'LC' },
         submenu: [
           { label: 'National Economic Fund', href: '/citizenship/saint-lucia/national-economic-fund' },
@@ -332,7 +304,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Saotome',
         href: '/citizenship/saotome',
-        // @ts-ignore
         meta: { code: 'ST' },
         submenu: [
           { label: 'NTF', href: '/citizenship/saotome/ntf' },
@@ -341,7 +312,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Saint kitts',
         href: '/citizenship/saintkitts',
-        // @ts-ignore
         meta: { code: 'KN' },
         submenu: [
           { label: 'Approved Public Benefit Project', href: '/citizenship/saintkitts/approved-public-benefit-project' },
@@ -352,7 +322,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Turkey',
         href: '/citizenship/turkey',
-        // @ts-ignore
         meta: { code: 'TR' },
         submenu: [
           { label: 'Bank Deposit', href: '/citizenship/turkey/bank-deposit' },
@@ -366,7 +335,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Vanuatu',
         href: '/citizenship/vanuatu',
-        // @ts-ignore
         meta: { code: 'VU' },
         submenu: [
           { label: 'VDSP Donation', href: '/citizenship/vanuatu/vdsp-donation' },
@@ -383,7 +351,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Canada',
         href: '/corporate/canada',
-        // @ts-ignore
         meta: { code: 'CA' },
         submenu: [
           { label: 'Intra Company Transfer', href: '/corporate/canada/intra-company-transfer' },
@@ -392,7 +359,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Cyprus',
         href: '/corporate/cyprus',
-        // @ts-ignore
         meta: { code: 'CY' },
         submenu: [
           { label: 'Company Setup', href: '/corporate/cyprus/company-setup' },
@@ -401,7 +367,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Portugal',
         href: '/corporate/portugal',
-        // @ts-ignore
         meta: { code: 'PT' },
         submenu: [
           { label: 'Portugal D2 Visa', href: '/corporate/portugal/portugal-d2-visa' },
@@ -410,7 +375,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Spain',
         href: '/corporate/spain',
-        // @ts-ignore
         meta: { code: 'ES' },
         submenu: [
           { label: 'Entrepreneur Company Formation', href: '/corporate/spain/entrepreneur-company-formation' },
@@ -419,7 +383,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'UAE',
         href: '/corporate/uae',
-        // @ts-ignore
         meta: { code: 'AE' },
         submenu: [
           { label: 'Dubai Freezone Visa', href: '/corporate/uae/dubai-freezone-visa' },
@@ -430,7 +393,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'United Kingdom',
         href: '/corporate/united-kingdom',
-        // @ts-ignore
         meta: { code: 'GB' },
         submenu: [
           { label: 'Expansion Worker Visa', href: '/corporate/united-kingdom/expansion-worker-visa' },
@@ -440,7 +402,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'USA',
         href: '/corporate/usa',
-        // @ts-ignore
         meta: { code: 'US' },
         submenu: [
           { label: 'L1 Corporate Transfer Visa', href: '/corporate/usa/l1-corporate-transfer-visa' },
@@ -458,7 +419,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Australia',
         href: '/skilled/australia',
-        // @ts-ignore
         meta: { code: 'AU' },
         submenu: [
           { label: 'Employer Nomination Scheme-186', href: '/skilled/australia/employer-nomination-scheme-186' },
@@ -472,7 +432,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Canada',
         href: '/skilled/canada',
-        // @ts-ignore
         meta: { code: 'CA' },
         submenu: [
           { label: 'Canadian Experience Class', href: '/skilled/canada/canadian-experience-class' },
@@ -485,7 +444,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Germany',
         href: '/skilled/germany',
-        // @ts-ignore
         meta: { code: 'DE' },
         submenu: [
           { label: 'Germany Job Seeker Visa', href: '/skilled/germany/germany-job-seeker-visa' },
@@ -494,7 +452,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Italy',
         href: '/skilled/italy',
-        // @ts-ignore
         meta: { code: 'IT' },
         submenu: [
           { label: 'Italy Digital Nomad Visa', href: '/skilled/italy/italy-digital-nomad-visa' },
@@ -503,7 +460,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'Spain',
         href: '/skilled/spain',
-        // @ts-ignore
         meta: { code: 'ES' },
         submenu: [
           { label: 'Spain Digital Nomad Visa', href: '/skilled/spain/spain-digital-nomad-visa' },
@@ -512,7 +468,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'United Kingdom',
         href: '/skilled/united-kingdom',
-        // @ts-ignore
         meta: { code: 'GB' },
         submenu: [
           { label: 'UK Global Talent Visa', href: '/skilled/united-kingdom/uk-global-talent-visa' },
@@ -521,7 +476,6 @@ export const headerMenu: HeaderItem[] = [
       {
         label: 'USA',
         href: '/skilled/usa',
-        // @ts-ignore
         meta: { code: 'US' },
         submenu: [
           { label: 'EB-1A Extraordinary Ability', href: '/skilled/usa/eb1a-extraordinary-ability' },

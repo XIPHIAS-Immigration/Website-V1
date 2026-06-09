@@ -22,7 +22,6 @@ export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [compact, setCompact] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
-  const [reducedMotion, setReducedMotion] = useState(false);
 
   const headerRef = useRef<HTMLElement>(null);
   const navAnchorRef = useRef<HTMLDivElement>(null); // 👈 anchor = nav row (rounded bar)
@@ -32,7 +31,6 @@ export default function Header() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLElement | null>(null);
   const lastFocusableRef = useRef<HTMLElement | null>(null);
-  const roRef = useRef<ResizeObserver | null>(null);
 
   const colorMode = useMemo(() => (resolvedTheme || theme) ?? 'light', [resolvedTheme, theme]);
   const isDark = colorMode === 'dark';
@@ -54,26 +52,44 @@ export default function Header() {
   // Direction-aware scroll + keep CSS var in sync while scrolling
   useEffect(() => {
     lastYRef.current = window.scrollY || 0;
-    const DELTA = 12;
-    const HIDE_AT = 140;
-    const SHOW_AT = 40;
-    const COMPACT_AT = 80;
+
+    const COMPACT_ON  = 82;   // enter compact (scrolled past this)
+    const COMPACT_OFF = 58;   // exit compact (hysteresis — different threshold)
+    const HIDE_AT     = 120;  // topbar can only hide past this point
+    const HIDE_ACCUM  = 48;   // px of sustained down-scroll to hide topbar
+    const SHOW_ACCUM  = 24;   // px of sustained up-scroll to show topbar
+
+    let downAccum = 0;
+    let upAccum   = 0;
+    // Own RAF ref — never shared with setMegaTop so they can't cancel each other
+    let scrollRaf: number | null = null;
 
     const onScroll = () => {
-      if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
-      rAFRef.current = requestAnimationFrame(() => {
-        const y = window.scrollY || 0;
+      if (scrollRaf !== null) cancelAnimationFrame(scrollRaf);
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = null;
+        const y  = window.scrollY || 0;
         const dy = y - lastYRef.current;
 
-        if (Math.abs(dy) >= DELTA) {
-          const goingDown = dy > 0;
-          const goingUp = dy < 0;
-          setCompact(y > COMPACT_AT);
-          if (goingDown && y > HIDE_AT) setShowTopBar(false);
-          if (goingUp && y < SHOW_AT) setShowTopBar(true);
-          lastYRef.current = y <= 0 ? 0 : y;
+        if (dy === 0) return;
+        lastYRef.current = y <= 0 ? 0 : y;
+
+        // Hysteresis on compact: different enter/exit thresholds prevent oscillation
+        setCompact(prev => {
+          if (!prev && y > COMPACT_ON)  return true;
+          if (prev  && y < COMPACT_OFF) return false;
+          return prev; // no state change → React bails out, no re-render
+        });
+
+        if (dy > 0) {
+          downAccum += dy;
+          upAccum    = 0;
+          if (downAccum >= HIDE_ACCUM && y > HIDE_AT) setShowTopBar(false);
+        } else {
+          upAccum   += Math.abs(dy);
+          downAccum  = 0;
+          if (upAccum >= SHOW_ACCUM) setShowTopBar(true);
         }
-        setMegaTopImmediate(); // keep anchor -> panel gap correct
       });
     };
 
@@ -82,46 +98,25 @@ export default function Header() {
 
     return () => {
       window.removeEventListener('scroll', onScroll);
-      if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
+      if (scrollRaf !== null) cancelAnimationFrame(scrollRaf);
     };
   }, []);
 
-  // Recompute CSS var on layout changes / transitions (TopBar expand/collapse) + anchor resizes
+  // Keep --header-h in sync on resize only — NOT on scroll/transition/ResizeObserver
+  // because updating it during TopBar collapse makes the MainPadding spacer jump
   useEffect(() => {
-    const onResize = () => setMegaTop();
-    const onHeaderTransitionEnd = (e: TransitionEvent) => {
-      if (
-        typeof e.propertyName === 'string' &&
-        (e.propertyName.includes('height') ||
-          e.propertyName.includes('padding') ||
-          e.propertyName.includes('max-height') ||
-          e.propertyName.includes('transform'))
-      ) {
-        setMegaTop();
-      }
+    const onResize = () => {
+      if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
+      rAFRef.current = requestAnimationFrame(setMegaTopImmediate);
     };
-    const onAnchorTransitionEnd = onHeaderTransitionEnd;
-
     window.addEventListener('resize', onResize);
-    headerRef.current?.addEventListener('transitionend', onHeaderTransitionEnd as any);
-    navAnchorRef.current?.addEventListener('transitionend', onAnchorTransitionEnd as any);
-
-    // Observe anchor size changes (safer than relying only on transitionend)
-    if (navAnchorRef.current) {
-      roRef.current = new ResizeObserver(() => setMegaTop());
-      roRef.current.observe(navAnchorRef.current);
-    }
-
     setMegaTopImmediate();
-
     return () => {
       window.removeEventListener('resize', onResize);
-      headerRef.current?.removeEventListener('transitionend', onHeaderTransitionEnd as any);
-      navAnchorRef.current?.removeEventListener('transitionend', onAnchorTransitionEnd as any);
-      roRef.current?.disconnect();
-      roRef.current = null;
+      if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
     };
-  }, [showTopBar, compact]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Close drawer on route change
   useEffect(() => {
@@ -181,15 +176,6 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKey);
   }, [drawerOpen]);
 
-  // Reduced motion
-  useEffect(() => {
-    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => setReducedMotion(m.matches);
-    apply();
-    m.addEventListener?.('change', apply);
-    return () => m.removeEventListener?.('change', apply);
-  }, []);
-
   // Swipe-to-close (mobile)
   useEffect(() => {
     if (!drawerOpen) return;
@@ -246,43 +232,41 @@ export default function Header() {
 
       <header
         ref={headerRef}
-        className={[
-          'sticky top-0 z-50 w-full overflow-visible',
-          'will-change-transform [transform:translateZ(0)]',
-          'transition-[background-color,backdrop-filter,box-shadow,padding] ease-out',
-          'bg-primary/95 dark:bg-zinc-950',
-          'backdrop-blur-md',
-          compact ? 'shadow-lg' : 'shadow-md',
-        ].join(' ')}
+        className="fixed top-0 left-0 right-0 w-full z-50 overflow-visible pt-5 pb-3 will-change-transform [transform:translateZ(0)]"
       >
-        {/* TopBar */}
-        <div
-          aria-hidden={!showTopBar}
-          className={[
-            'topbar-clip',
-            'hidden lg:block',
-            'overflow-hidden transition-[max-height,opacity] ease-out',
-            showTopBar ? 'max-h-[55px] opacity-100' : 'max-h-0 opacity-0',
-          ].join(' ')}
-        >
-          <TopBar />
-        </div>
+        {/* Floating card — max-w-screen-2xl centered with side gutters */}
+        <div className="mx-auto w-full max-w-screen-2xl px-2 sm:px-4">
+          <div className={[
+            'rounded-2xl ring-1 ring-white/10',
+            'transition-[background-color,box-shadow] duration-300 ease-out',
+            compact
+              ? 'bg-primary/90 dark:bg-zinc-900/90 backdrop-blur-md shadow-[0_4px_16px_rgba(0,0,0,0.20)]'
+              : 'bg-primary dark:bg-zinc-900 shadow-[0_8px_32px_rgba(0,0,0,0.28)]',
+          ].join(' ')}>
 
-        {/* Main row */}
-        <div className="mx-auto max-w-screen-2xl px-4">
-          <div className="my-0">
+            {/* TopBar — collapsible, desktop only; slightly darker bg for visual separation */}
+            <div
+              aria-hidden={!showTopBar}
+              className={[
+                'topbar-clip',
+                'hidden lg:block',
+                'overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out',
+                showTopBar ? 'max-h-[48px] opacity-100' : 'max-h-0 opacity-0',
+              ].join(' ')}
+            >
+              <div className="bg-black/20 border-b border-white/10">
+                <TopBar />
+              </div>
+            </div>
+
+            {/* Nav row */}
             <div
               ref={navAnchorRef}
               data-mega-anchor
               className={[
-                'relative flex items-center justify-between rounded-2xl ring-1 ring-white/10',
-                'bg-white/[0.06] dark:bg-white/5',
-                'before:absolute before:inset-0 before:-z-10 before:rounded-2xl',
-                'before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.12),transparent_60%)]',
-                'dark:before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]',
+                'relative flex items-center justify-between',
+                'transition-[padding] duration-300 ease-out',
                 compact ? 'px-3 py-2' : 'px-4 py-2.5',
-                'transition-[padding,ring-color,transform,box-shadow] ease-out',
-                'hover:ring-white/20',
               ].join(' ')}
             >
               <Logo />
@@ -317,25 +301,53 @@ export default function Header() {
                 </button>
 
                 <Link
-                  href="/x-hub/sign-in"
-                  className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white px-3.5 py-2 text-sm font-bold text-primary hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  XIPHIAS Hub
-                </Link>
-
-                <Link
                   href="/eligibility#start"
                   className="hidden shrink-0 items-center rounded-xl border border-secondary/70 bg-secondary px-3.5 py-2 text-sm font-bold text-primary shadow-sm shadow-black/10 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
-                  Get Started
+                  Start Your Journey
                 </Link>
 
-                <Link
-                  href="/personal-booking"
-                  className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-semibold text-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  Book Consultation
-                </Link>
+                {/* Personal booking — avatar button + hover card */}
+                <div className="group relative hidden lg:inline-flex shrink-0">
+                  <Link
+                    href="/personal-booking"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 py-1.5 pl-2 pr-3.5 text-sm font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors duration-150"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/avtar/varun-singh-md-xiphias.jpg"
+                      alt="Varun Singh"
+                      className="h-7 w-7 rounded-full object-cover object-top ring-2 ring-white/40 shrink-0"
+                    />
+                    <span>Book</span>
+                  </Link>
+
+                  {/* Hover tooltip card — drops below the button */}
+                  <div className="pointer-events-none absolute top-[calc(100%+10px)] right-0 z-[60] w-56 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-200 ease-out">
+                    {/* Upward caret */}
+                    <div className="absolute -top-[5px] right-5 h-2.5 w-2.5 rotate-45 rounded-sm bg-white ring-1 ring-black/10" />
+                    <div className="rounded-xl bg-white p-3.5 shadow-2xl ring-1 ring-black/10">
+                      <div className="flex items-center gap-2.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/images/avtar/varun-singh-md-xiphias.jpg"
+                          alt="Varun Singh"
+                          className="h-11 w-11 rounded-full object-cover object-top ring-2 ring-primary/20 shrink-0"
+                        />
+                        <div>
+                          <p className="text-[13px] font-bold text-zinc-900 leading-tight">Varun Singh</p>
+                          <p className="text-[11px] text-zinc-500 leading-tight mt-0.5">MD, XIPHIAS Immigration</p>
+                        </div>
+                      </div>
+                      <p className="mt-2.5 text-[12px] leading-snug text-zinc-600">
+                        Start your personal booking consultation with Varun Singh
+                      </p>
+                      <p className="mt-2 text-[11.5px] font-semibold text-primary">
+                        Book now →
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 <button
                   ref={burgerBtnRef}
@@ -431,14 +443,20 @@ export default function Header() {
                   onClick={() => setDrawerOpen(false)}
                   className="inline-flex items-center justify-center rounded-xl bg-secondary px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  Get Started
+                  Start Your Journey
                 </Link>
                 <Link
                   href="/personal-booking"
                   onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  Book Consultation
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/avtar/varun-singh-md-xiphias.jpg"
+                    alt=""
+                    className="h-6 w-6 rounded-full object-cover object-top ring-1 ring-white/50 shrink-0"
+                  />
+                  Book with Varun Singh
                 </Link>
               </div>
 
