@@ -53,7 +53,7 @@ export const legacyCrmModules: LegacyCrmModule[] = [
     views: 59,
     responsibility: "Leads, enquiries, appointments, opportunities, tasks, call tracking, references, live chat, and lead import.",
     migrationPriority: "p1",
-    target: "Modern staff pipeline linked to website leads and Xiphias Hub client profiles.",
+    target: "Modern staff pipeline linked to website leads and X-Hub client profiles.",
   },
   {
     area: "Clients",
@@ -146,7 +146,7 @@ export const legacyCrmSchemaGroups: LegacyCrmSchemaGroup[] = [
       "tbl_ClientOccupation",
       "tbl_ClientBusiness",
     ],
-    hubLink: "ClientProfile and Xiphias Hub profile page",
+    hubLink: "ClientProfile and X-Hub profile page",
   },
   {
     label: "Case and documents",
@@ -203,7 +203,7 @@ export const legacyCrmConversionPhases: LegacyCrmPhase[] = [
   {
     title: "Opportunity module",
     status: "ready-next",
-    detail: "Best first port because website leads, eligibility leads, and Xiphias Hub profiles all depend on it.",
+    detail: "Best first port because website leads, eligibility leads, and X-Hub profiles all depend on it.",
   },
   {
     title: "Client and documents",

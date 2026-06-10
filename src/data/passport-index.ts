@@ -19,7 +19,7 @@ export type PassportRecord = {
 
 export const passportIndexStats = {
   snapshotLabel: "2026 public snapshot",
-  sourceLabel: "Henley Passport Index public data",
+  sourceLabel: "Public mobility snapshot",
   trackedPassports: 199,
   trackedDestinations: 227,
   topScore: 192,

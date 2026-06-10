@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     fileSize: file.size,
     mimeType: file.type || "application/octet-stream",
     storageKey,
-    notes: "Uploaded through XIPHIAS Hub. Staff review pending.",
+    notes: "Uploaded through X-Hub. Staff review pending.",
   });
 
   repo.createConversation({

@@ -6,7 +6,7 @@ import { buildDocumentPlan } from "@/lib/platform/document-intelligence";
 import { getPlatformRepository } from "@/lib/platform/repository";
 
 export const metadata: Metadata = {
-  title: "Document Intelligence | XIPHIAS Hub",
+  title: "Document Intelligence | X-Hub",
   robots: { index: false, follow: false },
 };
 

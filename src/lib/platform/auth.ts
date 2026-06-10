@@ -87,8 +87,8 @@ function recordPortalSignIn(user: PlatformUser, authSource: "configured" | "prov
         channel: "portal",
         direction: "inbound",
         from: user.email,
-        to: "XIPHIAS Hub",
-        body: `${user.name || user.email} signed in to XIPHIAS Hub.`,
+        to: "X-Hub",
+        body: `${user.name || user.email} signed in to X-Hub.`,
       });
     }
   }

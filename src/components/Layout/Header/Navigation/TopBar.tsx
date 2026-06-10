@@ -47,20 +47,20 @@ export default function TopBar() {
 
             <span className="h-4 w-px bg-white/20" aria-hidden />
 
-            {/* Passport Index */}
+            {/* Passport Power */}
             <Link
               href="/passport-index"
               className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-[12px] font-bold text-primary ring-1 ring-white/20 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition-colors duration-150"
             >
               <Globe className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              Passport Index
+              Passport Power
             </Link>
 
             {/* Login icon */}
             <Link
               href="https://www.xiphiasimmigration.com/XIPHIAS/Account/Login"
-              aria-label="Sign in to XIPHIAS Hub"
-              title="XIPHIAS Hub Login"
+              aria-label="Sign in to X-Hub"
+              title="X-Hub Login"
               className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition-colors duration-150"
             >
               <LogIn className="h-4 w-4" aria-hidden />

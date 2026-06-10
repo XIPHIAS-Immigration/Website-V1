@@ -1,4 +1,4 @@
-﻿// Auto-generated menu data based on the latest sitemap.
+// Auto-generated menu data based on the latest sitemap.
 // Only links that exist in the current sitemap are retained.
 import type { HeaderItem } from '../menu.types'
 
@@ -497,7 +497,7 @@ export const headerMenu: HeaderItem[] = [
     submenu: [
       { label: 'Guide', href: '/guide' },
       {
-        label: 'Passport Index',
+        label: 'Passport Power',
         href: '/passport-index',
         submenu: [
           { label: 'Overview', href: '/passport-index' },

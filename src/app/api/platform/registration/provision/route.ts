@@ -180,7 +180,7 @@ function credentialEmailHtml(args: {
     : `
       <div style="margin:18px 0;border:1px solid #dbe7f3;border-radius:16px;background:#f8fbff;padding:16px;">
         <div style="font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#0b4ea2;">Portal access</div>
-        <p style="margin:8px 0 0;color:#34435a;font-size:14px;line-height:1.7;">Your existing XIPHIAS Hub account remains active. Sign in with your current password to view the new registration workspace.</p>
+        <p style="margin:8px 0 0;color:#34435a;font-size:14px;line-height:1.7;">Your existing X-Hub account remains active. Sign in with your current password to view the new registration workspace.</p>
       </div>
     `;
 
@@ -190,13 +190,13 @@ function credentialEmailHtml(args: {
         <div style="background:#071a3a;color:#fff;padding:28px;">
           <img src="${logoUrl}" alt="XIPHIAS Immigration" width="150" style="display:block;background:#fff;border-radius:10px;padding:8px;margin-bottom:22px;" />
           <div style="font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#f6d86d;">Registration confirmed</div>
-          <h1 style="margin:8px 0 0;font-size:28px;line-height:1.18;color:#fff;">Welcome to XIPHIAS Hub</h1>
+          <h1 style="margin:8px 0 0;font-size:28px;line-height:1.18;color:#fff;">Welcome to X-Hub</h1>
           <p style="margin:12px 0 0;color:#dbe7f3;font-size:15px;line-height:1.7;">Your paid registration has been recorded and your secure case workspace is ready.</p>
         </div>
 
         <div style="padding:28px;">
           <p style="font-size:16px;line-height:1.7;margin:0 0 14px;">Hi <strong>${safeName}</strong>,</p>
-          <p style="font-size:15px;line-height:1.7;margin:0 0 18px;">We have opened your XIPHIAS Hub workspace for the <strong>${escapeHtml(titleCase(args.track))}</strong> route. Your advisor workflow now starts with profile confirmation, document collection, detailed report preparation, and strategy review.</p>
+          <p style="font-size:15px;line-height:1.7;margin:0 0 18px;">We have opened your X-Hub workspace for the <strong>${escapeHtml(titleCase(args.track))}</strong> route. Your advisor workflow now starts with profile confirmation, document collection, detailed report preparation, and strategy review.</p>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;">
             <div style="border:1px solid #dbe7f3;border-radius:14px;padding:14px;background:#f8fbff;">
@@ -216,12 +216,12 @@ function credentialEmailHtml(args: {
           <div style="margin:24px 0;border-radius:18px;background:#071a3a;padding:22px;color:#fff;">
             <div style="font-size:12px;color:#f6d86d;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">Next steps</div>
             <ol style="margin:12px 0 18px;padding-left:20px;color:#dbe7f3;line-height:1.8;font-size:14px;">
-              <li>Sign in to XIPHIAS Hub.</li>
+              <li>Sign in to X-Hub.</li>
               <li>Review your active case and next action.</li>
               <li>Upload requested documents in the document vault.</li>
               <li>Track report and advisor milestones online.</li>
             </ol>
-            <a href="${args.loginUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Open XIPHIAS Hub</a>
+            <a href="${args.loginUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Open X-Hub</a>
             <a href="${args.accountUrl}" style="display:inline-block;margin-left:10px;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 16px;">Account settings</a>
           </div>
         </div>
@@ -382,7 +382,7 @@ export async function POST(req: NextRequest) {
       category,
       status: "requested",
       dueAt,
-      notes: "Requested after paid registration. Upload through XIPHIAS Hub.",
+      notes: "Requested after paid registration. Upload through X-Hub.",
     });
   }
 
@@ -447,8 +447,8 @@ export async function POST(req: NextRequest) {
   const clientEmail = sendCredentialsEmail
     ? await sendPlatformEmail({
         to: email,
-        subject: "Your XIPHIAS Hub registration is ready",
-        label: "XIPHIAS Hub",
+        subject: "Your X-Hub registration is ready",
+        label: "X-Hub",
         html: credentialEmailHtml({
           name,
           email,

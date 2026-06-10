@@ -12,12 +12,12 @@ import { passportRecords } from "@/data/passport-index";
 const SITE_URL = "https://www.xiphiasimmigration.com";
 
 export const metadata: Metadata = {
-  title: "Improve Passport Mobility - XIPHIAS Passport Index",
+  title: "Improve Passport Mobility - XIPHIAS Passport Power",
   description:
     "Explore the main ways XIPHIAS helps clients improve global mobility through residence, citizenship, skilled, and corporate routes.",
   alternates: { canonical: "/passport-index/improve" },
   openGraph: {
-    title: "Improve Passport Mobility - XIPHIAS Passport Index",
+    title: "Improve Passport Mobility - XIPHIAS Passport Power",
     description: "Turn passport ranking into a practical mobility route map.",
     url: `${SITE_URL}/passport-index/improve`,
     siteName: "XIPHIAS Immigration",
@@ -32,7 +32,7 @@ const steps = [
   "Confirm current passport, family members, citizenships, and residence history.",
   "Define the main goal: travel access, EU lifestyle, education, business, tax residence, or Plan B.",
   "Shortlist routes by budget, timeline, stay requirement, due diligence, and document readiness.",
-  "Move the selected route into XIPHIAS Hub for milestones, document vault, risk review, and advisor follow-up.",
+  "Move the selected route into X-Hub for milestones, document vault, risk review, and advisor follow-up.",
 ];
 
 export default function ImprovePassportMobilityPage() {

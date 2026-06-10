@@ -63,7 +63,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
       const res = await fetch("/api/eligibility/report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, track, answers }),
+        body: JSON.stringify({ name, email, phone, track, answers }),
       });
       if (!res.ok) throw new Error("Failed to generate PDF");
       const blob = await res.blob();
@@ -290,7 +290,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
                 <CheckIcon /> Document and risk review
               </span>
               <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
-                <CheckIcon /> XIPHIAS Hub onboarding
+                <CheckIcon /> X-Hub onboarding
               </span>
               <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
                 <CheckIcon /> Advisor follow-up path
@@ -305,7 +305,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
             <p className="mt-2 text-3xl font-black">{detailedReportPrice}</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               Paid registration uses a dedicated Topmate registration product. After payment,
-              XIPHIAS Hub opens the client case, checklist, milestones, and detailed report workflow.
+              X-Hub opens the client case, checklist, milestones, and detailed report workflow.
             </p>
             <Link
               href={DETAILED_REPORT_PAYMENT_URL}

@@ -179,11 +179,11 @@ export function PassportBookVisual({ featured }: { featured?: PassportRecord }) 
         <div className="absolute inset-x-10 top-12 h-px bg-[#e1b923]/45" />
         <div className="absolute left-1/2 top-[32%] flex size-20 -translate-x-1/2 items-center justify-center rounded-full border border-[#e1b923]/70 bg-[#0d3470]">
           <Image
-            src="/xiphias-immigration.svg"
-            alt=""
-            width={58}
-            height={58}
-            className="h-12 w-12 object-contain opacity-90"
+            src="/images/logo/xiphias-immigration-white.png"
+            alt="XIPHIAS Immigration"
+            width={96}
+            height={44}
+            className="h-auto w-20 object-contain"
           />
         </div>
         <div className="absolute inset-x-10 bottom-16 text-center">
@@ -242,9 +242,9 @@ export function PassportSourceNote() {
     <div className="mx-auto max-w-screen-2xl px-4 pb-12 md:px-6">
       <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 text-sm leading-7 text-slate-600 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 lg:grid-cols-[1fr_1fr]">
         <div>
-          <h2 className="text-xl font-black text-[#071a3a] dark:text-white">Source position</h2>
+          <h2 className="text-xl font-black text-[#071a3a] dark:text-white">Data position</h2>
           <p className="mt-2">
-            This is a XIPHIAS advisory presentation layer. It references public passport mobility information and adds route-planning context for residence, citizenship, family, and risk strategy.
+            This is a XIPHIAS advisory presentation layer. It uses a neutral public mobility snapshot and adds route-planning context for residence, citizenship, family, and risk strategy.
           </p>
         </div>
         <div>
@@ -253,12 +253,12 @@ export function PassportSourceNote() {
             Passport ranking is not legal advice. Visa rules, sanctions, source-of-funds checks, and program rules can change, so an advisor must verify the latest details before decisions.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <a href="https://www.henleyglobal.com/passport-index" target="_blank" rel="noreferrer" className="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-[#1c57b4] dark:border-slate-700">
-              Henley Passport Index
-            </a>
-            <a href="https://www.henleyglobal.com/passport-index/ranking" target="_blank" rel="noreferrer" className="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-[#1c57b4] dark:border-slate-700">
-              Public ranking
-            </a>
+            <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-[#1c57b4] dark:border-slate-700">
+              XIPHIAS advisory layer
+            </span>
+            <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-[#1c57b4] dark:border-slate-700">
+              Staff verification required
+            </span>
           </div>
         </div>
       </div>

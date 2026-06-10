@@ -765,7 +765,7 @@ function addDetailedReportPages(
     kicker: "Premium report",
     title: DETAILED_REPORT_TITLE,
     intro:
-      "This expanded report is structured for advisor review: route fit, programme comparison, cost planning, document readiness, risk intelligence, and XIPHIAS Hub execution.",
+      "This expanded report is structured for advisor review: route fit, programme comparison, cost planning, document readiness, risk intelligence, and X-Hub execution.",
     items: [
       {
         title: "Client objective",
@@ -811,7 +811,7 @@ function addDetailedReportPages(
   addDetailedPage(pdf, fonts, images, {
     kicker: "Document plan",
     title: "Document readiness and upload checklist",
-    intro: "The XIPHIAS Hub document vault should collect evidence by category and flag gaps before advisor filing review.",
+    intro: "The X-Hub document vault should collect evidence by category and flag gaps before advisor filing review.",
     items: [
       {
         title: "Identity and civil documents",
@@ -828,7 +828,7 @@ function addDetailedReportPages(
       {
         title: "Programme-specific evidence",
         body: "Business plans, employment letters, education credentials, language test results, investment confirmations, or entity setup records depending on the route.",
-        bullets: ["Use route-specific checklists inside XIPHIAS Hub.", "Document status should move from requested to uploaded, review, accepted, or rework.", "Advisor notes should be kept with the case."],
+        bullets: ["Use route-specific checklists inside X-Hub.", "Document status should move from requested to uploaded, review, accepted, or rework.", "Advisor notes should be kept with the case."],
         accent: GOLD,
       },
     ],
@@ -862,8 +862,8 @@ function addDetailedReportPages(
 
   addDetailedPage(pdf, fonts, images, {
     kicker: "Execution plan",
-    title: "XIPHIAS Hub onboarding and IMT workflow",
-    intro: "After registration, the client can use XIPHIAS Hub as a standalone workspace before CRM integration is connected.",
+    title: "X-Hub onboarding and IMT workflow",
+    intro: "After registration, the client can use X-Hub as a standalone workspace before CRM integration is connected.",
     items: [
       {
         title: "Client profile",
@@ -1064,7 +1064,7 @@ function drawCoverPage(
   page.drawText("Unlock the detailed 20-30 page personal report", { x: MARGIN_X + 56, y: unlockY + 52, size: 13, font: fonts.bold, color: WHITE });
   drawWrappedText(
     page,
-    `Registration starts at ${args.reportPrice}. Full report includes route comparison, document checklist, timeline, risk flags, advisor notes, and XIPHIAS Hub onboarding.`,
+    `Registration starts at ${args.reportPrice}. Full report includes route comparison, document checklist, timeline, risk flags, advisor notes, and X-Hub onboarding.`,
     MARGIN_X + 56,
     unlockY + 34,
     410,
@@ -1100,6 +1100,7 @@ export async function POST(req: NextRequest) {
     month: "short",
     day: "2-digit",
   });
+  const reportReference = `XIP-${Date.now().toString(36).toUpperCase()}`;
   const siteUrl = getSiteUrl();
   const reportPaymentUrl = absoluteUrl(
     process.env.ASSESSMENT_REPORT_PAYMENT_URL ||
@@ -1149,6 +1150,25 @@ export async function POST(req: NextRequest) {
   y -= 26;
   drawCountryBadge(page, fonts, images, country, MARGIN_X, y - 58, usableW, 58);
   y -= 82;
+
+  ensure(92);
+  const contactY = y - 76;
+  page.drawRectangle({ x: MARGIN_X, y: contactY, width: usableW, height: 76, color: ICE, borderColor: BORDER, borderWidth: 1 });
+  page.drawText("Client contact captured", { x: MARGIN_X + 16, y: contactY + 52, size: 12, font: fonts.bold, color: NAVY });
+  const contactItems = [
+    ["Name", name],
+    ["Email", email || "Not provided"],
+    ["Phone", phone || "Not provided"],
+    ["Report ref", reportReference],
+  ];
+  const contactColW = (usableW - 32) / 4;
+  contactItems.forEach(([label, value], index) => {
+    const x = MARGIN_X + 16 + index * contactColW;
+    page.drawText(label, { x, y: contactY + 31, size: 7.2, font: fonts.bold, color: MUTED });
+    drawWrappedText(page, value, x, contactY + 18, contactColW - 10, fonts, { size: 8.4, bold: true, color: TEXT, maxLines: 1 });
+  });
+  y = contactY - 24;
+
   if (primaryProgram) {
     drawProgramCard(page, fonts, primaryProgram, MARGIN_X, y - 158, usableW, 158, true);
     y -= 182;
@@ -1210,7 +1230,7 @@ export async function POST(req: NextRequest) {
   page.drawText("Next XIPHIAS action", { x: MARGIN_X + 62, y: nextY + 68, size: 14, font: fonts.bold, color: WHITE });
   drawWrappedText(
     page,
-    `Use this preview to confirm the direction, then register for the detailed personal report at ${reportPaymentUrl}. The full report is prepared for advisor review, document planning, risk notes, and XIPHIAS Hub onboarding.`,
+    `Use this preview to confirm the direction, then register for the detailed personal report at ${reportPaymentUrl}. The full report is prepared for advisor review, document planning, risk notes, and X-Hub onboarding.`,
     MARGIN_X + 62,
     nextY + 48,
     usableW - 84,
@@ -1260,6 +1280,7 @@ export async function POST(req: NextRequest) {
       score: result.confidence,
       tags: [
         detailed ? "detailed-report-generated" : "preview-report-generated",
+        `report:${reportReference}`,
         result.handoffRequired ? "staff-review" : "auto-triaged",
       ],
     });
@@ -1269,7 +1290,7 @@ export async function POST(req: NextRequest) {
       direction: "inbound",
       from: name,
       to: "XIPHIAS",
-      body: `${detailed ? "Detailed" : "Preview"} assessment PDF generated for ${track}.`,
+      body: `${detailed ? "Detailed" : "Preview"} assessment PDF generated for ${track}. Report ref: ${reportReference}. Contact: ${email || "no email"} / ${phone || "no phone"}.`,
     });
   } catch (error) {
     console.warn("[eligibility:report] Could not record report generation.", error);
