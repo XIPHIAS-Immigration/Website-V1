@@ -3,13 +3,9 @@ import type { Metadata, Viewport } from "next";
 import { Lato, Inter, Sora } from "next/font/google";
 import "./globals.css";
 
-import Header from "@/components/Layout/Header";
-import Footer from "@/components/Layout/Footer";
-import SocialSidebar from "@/components/Layout/SocialSidebar";
 import { ThemeProvider } from "next-themes";
 import MDXProviders from "@/components/MDX/MDXProviders";
-import DeferredClientWidgets from "@/components/DeferredClientWidgets";
-import MainPadding from "@/components/Layout/MainPadding";
+import SiteChrome from "@/components/Layout/SiteChrome";
 // Import dynamic to load client‑only components
 // The GlobalBrochureGate component is a client component. We import it
 // directly here — Next.js will treat it as a client boundary.
@@ -225,18 +221,10 @@ export default function RootLayout({
 
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <MDXProviders>
-              <Header />
-
-              <main id="main" className="min-h-screen">
-                <MainPadding />
+              <SiteChrome gaId={GA_ID}>
                 {children}
-              </main>
+              </SiteChrome>
             </MDXProviders>
-
-            <Footer />
-            <SocialSidebar />
-            <DeferredClientWidgets gaId={GA_ID} />
-            {/* Inject the global lead gate to intercept brochure downloads site‑wide */}
         </ThemeProvider>
 
         {/* ✅ GA4 */}

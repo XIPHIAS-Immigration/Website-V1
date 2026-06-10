@@ -44,6 +44,11 @@ export async function sendPlatformEmail(args: {
   html: string;
   replyTo?: string;
   label?: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+    contentType?: string;
+  }>;
 }): Promise<PlatformEmailResult> {
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || 587);
@@ -69,6 +74,7 @@ export async function sendPlatformEmail(args: {
       replyTo: args.replyTo,
       subject: args.subject,
       html: args.html,
+      attachments: args.attachments,
     });
 
     return { status: "sent" };

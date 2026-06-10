@@ -27,22 +27,22 @@ export type LegacyCrmPhase = {
 
 export const legacyCrmSources: LegacyCrmSource[] = [
   {
-    path: "G:\\jun\\XCRM",
+    path: "G:\\XIPHIAS-IMMIGRATION-Server-Backup-2023",
     role: "primary-source",
     summary:
-      "Visual Studio solution with the main XIPHIAS MVC CRM app, shared services, WCF services, scheduled jobs, handlers, and LiveChat API.",
+      "Primary server backup found on the drive. Contains India/Dubai/HRMS SQL Server scripts plus the deployed CRM webroot and private upload folders.",
   },
   {
-    path: "G:\\jun\\CRM_Email",
+    path: "G:\\XIPHIAS-IMMIGRATION-Server-Backup-2023\\Database\\India-CRM\\india-crm.sql",
     role: "deployment-copy",
     summary:
-      "Deployment-style copy useful for checking email and communication behavior, but not the clean conversion source.",
+      "Main India CRM SQL Server script. It contains schema plus INSERT data and should be restored before Prisma introspection.",
   },
   {
-    path: "G:\\2026-06-01\\XIPHIAS_IMMIGRATION",
+    path: "G:\\XIPHIAS-IMMIGRATION-Server-Backup-2023\\wwwroot\\xiphiasimmigration.com\\XIPHIAS\\XIPHIAS_IMMIGRATION\\IMMIGRATION_CRM_TRAIL_PRIVATE",
     role: "deployment-snapshot",
     summary:
-      "IIS/deployed snapshot with bin files, templates, and private uploads. Useful for deployed behavior checks, not as the primary source.",
+      "Main private upload archive for ClientDocs, AgreementUploads, StatusUpdates, SupportFiles, AccountTemplates, ClientForms, and related CRM files.",
   },
 ];
 
@@ -188,12 +188,17 @@ export const legacyCrmConversionPhases: LegacyCrmPhase[] = [
   {
     title: "Source inventory",
     status: "mapped",
-    detail: "Primary source identified as G:\\jun\\XCRM. Deployment copies are documented separately.",
+    detail: "Primary data source identified as the 2023 G-drive server backup. Older 2019/2020 backups remain fallback cross-checks.",
   },
   {
     title: "Schema access",
+    status: "mapped",
+    detail: "India CRM SQL script is present and includes schema plus INSERT data. SQL Server restore is still required before Prisma db pull.",
+  },
+  {
+    title: "SQL Server restore",
     status: "blocked",
-    detail: "Need SQL Server read access, a .bak/.bacpac, or generated schema and stored procedure scripts for exact migration.",
+    detail: "Local SQL Server/sqlcmd is not available in this environment yet, so the dump cannot be restored or introspected live from here.",
   },
   {
     title: "Opportunity module",

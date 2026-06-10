@@ -444,6 +444,8 @@ export default function Flow() {
                       track={track}
                       result={serverResult ?? scoreAssessment(track, answers)}
                       name={name}
+                      email={email}
+                      phone={phone}
                       answers={answers}
                       onBackAction={back}
                     />

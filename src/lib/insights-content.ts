@@ -97,6 +97,15 @@ function coerceString(val?: unknown): string | undefined {
   return s || undefined;
 }
 
+function isHiddenInsight(data: Record<string, unknown>) {
+  return (
+    data.draft === true ||
+    (data as any).hidden === true ||
+    coerceString((data as any).visibility)?.toLowerCase() === "hidden" ||
+    coerceString((data as any).status)?.toLowerCase() === "hidden"
+  );
+}
+
 function readingTimeMins(text: string) {
   const words = (text || "").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
@@ -174,6 +183,7 @@ async function loadRawDocs(): Promise<RawDoc[]> {
   for (const filePath of files) {
     const file = await fs.readFile(filePath, "utf8");
     const { content, data } = matter(file);
+    if (isHiddenInsight(data)) continue;
 
     const relFromContent = path.relative(
       path.join(process.cwd(), "content"),
@@ -289,6 +299,10 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
 
 let _cache: { metas: InsightMeta[]; raw: RawDoc[]; loadedAt: number } | null =
   null;
+
+export async function invalidateInsightsCache() {
+  _cache = null;
+}
 
 async function ensureCache() {
   if (!DEV && _cache) return _cache; // reuse in prod

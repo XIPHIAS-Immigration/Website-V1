@@ -3,6 +3,7 @@ import "server-only";
 import { scoreAssessment } from "@/lib/eligibility/scoring";
 import { isTrack, type Track } from "@/lib/eligibility/types";
 import { Programs } from "@/lib/eligibility/programCatalog";
+import { TOPMATE_BOOKING_URL } from "@/lib/topmate";
 import type { XiaRecommendation, XiaRequest } from "./types";
 import { listCountryOfferings, retrieveContent } from "./content-rag";
 
@@ -16,7 +17,7 @@ type CatalogProgram = {
   track?: Track;
 };
 
-const TOPMATE = "/booking";
+const TOPMATE = TOPMATE_BOOKING_URL;
 
 function flattenPrograms(): CatalogProgram[] {
   return (Object.entries(Programs) as [Track, ReadonlyArray<CatalogProgram>][])

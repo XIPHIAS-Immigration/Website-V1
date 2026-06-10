@@ -65,5 +65,23 @@ export async function POST(req: NextRequest) {
     user.id,
   );
 
+  const activeCase = repo.getCasesForUser(user).find((item) => item.clientId === clientId);
+  repo.createConversation({
+    leadId: activeCase?.leadId,
+    caseId: activeCase?.id,
+    channel: "portal",
+    direction: "inbound",
+    from: user.email,
+    to: "XIPHIAS staff",
+    body: `Client profile updated: ${[
+      profile.targetCountry ? `target country ${profile.targetCountry}` : "",
+      profile.targetProgram ? `programme ${profile.targetProgram}` : "",
+      profile.budgetUsd ? `budget USD ${profile.budgetUsd}` : "",
+      profile.timelineMonths ? `timeline ${profile.timelineMonths} months` : "",
+    ]
+      .filter(Boolean)
+      .join(", ") || "profile details saved"}.`,
+  });
+
   return NextResponse.json({ ok: true, profile });
 }

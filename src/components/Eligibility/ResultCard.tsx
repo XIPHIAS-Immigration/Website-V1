@@ -6,11 +6,14 @@ import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Track, Result, AnswerMap } from "@/lib/eligibility/types";
 import { trackEvent } from "@/lib/eligibility/analytics";
+import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 
 type Props = {
   track: Track;
   result: Result;
   name: string;
+  email?: string;
+  phone?: string;
   answers: AnswerMap;
   /** Server-Action-safe handler to satisfy Next rule */
   onBackAction?: () => void | Promise<void>;
@@ -18,7 +21,7 @@ type Props = {
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
 const DETAILED_REPORT_PRICE_INR = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR || "10000";
-const DETAILED_REPORT_PAYMENT_URL = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL || "/registration";
+const DETAILED_REPORT_PAYMENT_URL = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL || TOPMATE_REGISTRATION_URL;
 
 function formatInr(value: string) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
@@ -26,7 +29,7 @@ function formatInr(value: string) {
   return `INR ${numeric.toLocaleString("en-IN")}`;
 }
 
-export function ResultCard({ track, result, name, answers, onBackAction }: Props) {
+export function ResultCard({ track, result, name, email, phone, answers, onBackAction }: Props) {
   const reduceMotion = useReducedMotion();
   const [downloading, setDownloading] = useState(false);
   const [status, setStatus] = useState<string>("");
@@ -81,6 +84,36 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       // auto-clear the status after a moment
       setTimeout(() => setStatus(""), 3000);
     }
+  };
+
+  const recordDetailedReportIntent = () => {
+    trackEvent("detailed_report_cta_click", { track });
+    const payload = JSON.stringify({
+      source: "registration",
+      name,
+      email,
+      phone,
+      track,
+      country: safeResult.countryFocus,
+      program: safeResult.programs?.[0]?.name,
+      message: "Clicked INR 10,000 detailed report registration CTA.",
+      page: typeof window !== "undefined" ? window.location.pathname : "/eligibility",
+      tags: ["detailed-report-intent", "topmate-registration"],
+      consent: true,
+    });
+
+    if (typeof navigator !== "undefined" && "sendBeacon" in navigator) {
+      const blob = new Blob([payload], { type: "application/json" });
+      navigator.sendBeacon("/api/platform/lead", blob);
+      return;
+    }
+
+    void fetch("/api/platform/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    });
   };
 
   const programs = safeResult.programs;
@@ -277,7 +310,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
             <Link
               href={DETAILED_REPORT_PAYMENT_URL}
               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b650]"
-              onClick={() => trackEvent("detailed_report_cta_click", { track })}
+              onClick={recordDetailedReportIntent}
             >
               Register for detailed report
               <ArrowRightIcon />

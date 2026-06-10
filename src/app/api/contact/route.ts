@@ -48,6 +48,14 @@ export async function POST(req: NextRequest) {
       consent: Boolean(consent),
       tags: [variant].filter(Boolean),
     });
+    getPlatformRepository().createConversation({
+      leadId: platformLead.id,
+      channel: "portal",
+      direction: "inbound",
+      from: name,
+      to: "XIPHIAS",
+      body: message || `Consultation/enquiry form submitted from ${page || "website"}.`,
+    });
 
     // ---------- EMAIL (optional) ----------
     let emailStatus: "sent" | "skipped" | "failed" = "skipped";

@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import { getEligibilityAdvisory } from "@/lib/platform/eligibility-advisor";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
+import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 import type { Track } from "@/lib/eligibility/types";
 
 export const runtime = "nodejs";
@@ -17,7 +18,6 @@ const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
 const MAX_JSON_KB = 64;
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PAYMENT_PATH = "/registration";
 const DEFAULT_REPORT_PRICE_INR = "10000";
 
 const rlBucket: Map<string, number[]> =
@@ -237,7 +237,7 @@ export async function POST(req: NextRequest) {
       const reportPaymentUrl = absoluteUrl(
         process.env.ASSESSMENT_REPORT_PAYMENT_URL ||
           process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL ||
-          DEFAULT_REPORT_PAYMENT_PATH,
+          TOPMATE_REGISTRATION_URL,
         siteUrl
       );
       const reportPrice = formatInr(

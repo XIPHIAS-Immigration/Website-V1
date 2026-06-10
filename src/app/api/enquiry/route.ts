@@ -3,6 +3,7 @@ dotenv.config({ path: ".env.local" });
 
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { getPlatformRepository } from "@/lib/platform/repository";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -33,6 +34,10 @@ export async function POST(req: Request) {
     const email = normalizeEmail(body?.email);
     const message = normalizeText(body?.message, 4000);
     const country = normalizeText(body?.country, 120);
+    const page = normalizeText(body?.page, 240);
+    const referrer = normalizeText(body?.referrer, 500);
+    const variant = normalizeText(body?.variant, 40);
+    const consent = body?.consent === "yes" || body?.consent === true;
 
     if (!name || name.length < 2) {
       return NextResponse.json(
@@ -62,7 +67,30 @@ export async function POST(req: Request) {
     const safePhone = escapeHtml(phone || "Not provided");
     const safeCountry = escapeHtml(country || "Not specified");
     const safeMessage = escapeHtml(message || "No message provided");
+    const safePage = escapeHtml(page || "Not provided");
+    const safeReferrer = escapeHtml(referrer || "Not provided");
     const mailto = `mailto:${encodeURIComponent(email)}`;
+    const lead = getPlatformRepository().createLead({
+      source: "website",
+      status: "new",
+      name,
+      email,
+      phone,
+      country,
+      message,
+      page,
+      referrer,
+      consent,
+      tags: [variant || "contact", "contact-form"],
+    });
+    getPlatformRepository().createConversation({
+      leadId: lead.id,
+      channel: "portal",
+      direction: "inbound",
+      from: name,
+      to: "XIPHIAS",
+      body: message || `Consultation/enquiry form submitted from ${page || "website"}.`,
+    });
 
     const userHtml = `
       <div style="font-family:'Segoe UI',Roboto,Arial,sans-serif;max-width:640px;margin:auto;background:#fff;border:1px solid #eaeaea;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
@@ -124,6 +152,9 @@ export async function POST(req: Request) {
             <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Email</strong></td><td style="padding:8px;border-bottom:1px solid #eee;"><a href="${mailto}" style="color:#004fa3;text-decoration:none;">${safeEmail}</a></td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Phone</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${safePhone}</td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Country</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${safeCountry}</td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Lead ID</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(lead.id)}</td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Page</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${safePage}</td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Referrer</strong></td><td style="padding:8px;border-bottom:1px solid #eee;">${safeReferrer}</td></tr>
             <tr><td style="padding:8px;"><strong>Message</strong></td><td style="padding:8px;">${safeMessage}</td></tr>
           </table>
 
@@ -153,7 +184,7 @@ export async function POST(req: Request) {
 
     await Promise.all([transporter.sendMail(adminMail), transporter.sendMail(userMail)]);
 
-    return NextResponse.json({ ok: true, message: "Emails sent successfully" });
+    return NextResponse.json({ ok: true, message: "Lead captured and emails sent successfully", leadId: lead.id });
   } catch (err: any) {
     console.error("Error in /api/enquiry:", err);
     return NextResponse.json({ error: err?.message || "Request failed" }, { status: 500 });

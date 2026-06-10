@@ -1,262 +1,182 @@
 import type { Metadata } from "next";
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  Database,
-  FolderGit2,
-  Layers3,
-  Mail,
-  ShieldCheck,
-} from "lucide-react";
-import PortalShell from "@/components/Platform/PortalShell";
+import Link from "next/link";
+import { ArrowRight, FileText, Headphones, ListChecks, Mail, UsersRound } from "lucide-react";
+import CrmShell, { CrmActionLink } from "@/components/crm/CrmShell";
+import { ErrorNotice, MetricCard, Panel, StatusPill, money, number } from "@/components/crm/CrmUi";
+import { getIndiaDashboard } from "@/lib/crm/india-live";
 import { requirePortalUser } from "@/lib/platform/auth";
-import {
-  legacyCrmConversionPhases,
-  legacyCrmModules,
-  legacyCrmSchemaGroups,
-  legacyCrmSources,
-} from "@/lib/crm/legacy-map";
 
 export const metadata: Metadata = {
-  title: "CRM Migration Console | XIPHIAS",
+  title: "India CRM | XIPHIAS",
   robots: { index: false, follow: false },
 };
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function priorityLabel(priority: string) {
-  if (priority === "p1") return "Priority 1";
-  if (priority === "p2") return "Priority 2";
-  return "Later";
-}
-
-function priorityClass(priority: string) {
-  if (priority === "p1") return "border-emerald-200 bg-emerald-50 text-emerald-800";
-  if (priority === "p2") return "border-blue-200 bg-blue-50 text-blue-800";
-  return "border-slate-200 bg-slate-50 text-slate-700";
-}
-
-function statusClass(status: string) {
-  if (status === "mapped") return "border-emerald-200 bg-emerald-50 text-emerald-800";
-  if (status === "ready-next") return "border-blue-200 bg-blue-50 text-blue-800";
-  return "border-amber-200 bg-amber-50 text-amber-900";
-}
-
-function statusIcon(status: string) {
-  if (status === "mapped") return CheckCircle2;
-  if (status === "ready-next") return ArrowRight;
-  return AlertTriangle;
-}
-
-export default async function CrmMigrationPage() {
+export default async function CrmDashboardPage() {
   const user = await requirePortalUser(["staff", "admin"]);
-  const totalControllers = legacyCrmModules.reduce((sum, item) => sum + item.controllers, 0);
-  const totalViews = legacyCrmModules.reduce((sum, item) => sum + item.views, 0);
-  const p1Modules = legacyCrmModules.filter((item) => item.migrationPriority === "p1");
+  const dashboard = await getIndiaDashboard();
 
   return (
-    <PortalShell user={user} active="crm">
-      <section className="relative overflow-hidden rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm dark:border-slate-800">
-        <div className="absolute right-0 top-0 h-56 w-56 rounded-full bg-primary/30 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-36 w-36 rounded-full bg-amber-400/20 blur-3xl" />
-        <div className="relative grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">CRM conversion cockpit</p>
-            <h2 className="mt-2 max-w-3xl text-3xl font-bold tracking-normal sm:text-4xl">
-              Legacy CRM mapped for a Next.js rebuild
-            </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-200">
-              This console tracks the old ASP.NET CRM modules, schema evidence, and the safest conversion order into the modern XIPHIAS platform.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">Modules</p>
-              <p className="mt-2 text-3xl font-bold">{legacyCrmModules.length}</p>
-            </div>
-            <div className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">Controllers</p>
-              <p className="mt-2 text-3xl font-bold">{totalControllers}</p>
-            </div>
-            <div className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">Views</p>
-              <p className="mt-2 text-3xl font-bold">{totalViews}</p>
-            </div>
-          </div>
-        </div>
-      </section>
+    <CrmShell
+      user={user}
+      active="dashboard"
+      title="Live Indian CRM operations"
+      subtitle="Restored SQL Server data from immigration_com, wired into the new employee CRM shell."
+      actions={<CrmActionLink href="/crm/schema">Review data coverage</CrmActionLink>}
+    >
+      <div className="space-y-5">
+        <ErrorNotice message={dashboard.error} />
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-              <FolderGit2 className="size-5" />
-            </span>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Source map</p>
-              <h3 className="mt-1 text-xl font-bold">Which CRM folder matters</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                The conversion should start from the Visual Studio source tree, while deployment snapshots are used only for validation.
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 grid gap-3">
-            {legacyCrmSources.map((source) => (
-              <article key={source.path} className="rounded-md border border-slate-200 p-3 dark:border-slate-800">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h4 className="font-bold">{source.path}</h4>
-                  <span className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-bold uppercase text-slate-600 dark:border-slate-700 dark:text-slate-300">
-                    {source.role.replace("-", " ")}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{source.summary}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-amber-100 text-amber-700">
-              <Database className="size-5" />
-            </span>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Database status</p>
-              <h3 className="mt-1 text-xl font-bold">Schema is mapped, exact DB is still needed</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                EDMX files expose the table/view map, but the full Prisma migration needs a SQL Server backup, read-only DB access, or generated schema and procedure scripts.
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-md border border-slate-200 p-3 dark:border-slate-800">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">EDMX models</p>
-              <p className="mt-2 text-2xl font-bold">2</p>
-              <p className="mt-1 text-xs text-slate-500">81 + 311 entity maps</p>
-            </div>
-            <div className="rounded-md border border-slate-200 p-3 dark:border-slate-800">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">DB export</p>
-              <p className="mt-2 text-2xl font-bold">Missing</p>
-              <p className="mt-1 text-xs text-slate-500">No .bak/.mdf found</p>
-            </div>
-            <div className="rounded-md border border-slate-200 p-3 dark:border-slate-800">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Stored procs</p>
-              <p className="mt-2 text-2xl font-bold">70+</p>
-              <p className="mt-1 text-xs text-slate-500">Need definitions</p>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <section className="mt-5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Port order</p>
-            <h3 className="mt-1 text-xl font-bold">Start with the modules that connect to the website</h3>
-          </div>
-          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold uppercase text-emerald-800">
-            {p1Modules.length} priority modules
-          </span>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricCard label="Clients" value={dashboard.counts.clients} hint="tbl_Client" tone="cyan" />
+          <MetricCard label="Documents" value={dashboard.counts.documents} hint="ClientDocs linked" tone="emerald" />
+          <MetricCard label="Invoices" value={dashboard.counts.invoices} hint={money(dashboard.finance.invoiceTotal)} tone="amber" />
+          <MetricCard label="Receipts" value={dashboard.counts.receipts} hint={money(dashboard.finance.receiptTotal)} tone="slate" />
+          <MetricCard label="Client files" value={dashboard.counts.clientFiles} hint="Case file rows" tone="slate" />
+          <MetricCard label="Support tickets" value={dashboard.counts.support} hint={`${number(dashboard.counts.openSupport)} open`} tone="cyan" />
+          <MetricCard label="Notes" value={dashboard.counts.notes} hint="Staff/client notes" tone="emerald" />
+          <MetricCard label="Tasks" value={dashboard.counts.tasks} hint="Task records" tone="amber" />
         </div>
 
-        <div className="mt-4 grid gap-3 xl:grid-cols-2">
-          {legacyCrmModules.map((module) => (
-            <article
-              key={module.area}
-              className="group rounded-lg border border-slate-200 p-4 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md dark:border-slate-800"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h4 className="text-lg font-bold">{module.area}</h4>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                    {module.controllers} controllers - {module.views} views
-                  </p>
-                </div>
-                <span className={`rounded-full border px-3 py-1 text-xs font-bold ${priorityClass(module.migrationPriority)}`}>
-                  {priorityLabel(module.migrationPriority)}
-                </span>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{module.responsibility}</p>
-              <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">Modern target</p>
-                <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{module.target}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-              <Layers3 className="size-5" />
-            </span>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Hub linkage</p>
-              <h3 className="mt-1 text-xl font-bold">Legacy tables mapped to modern profiles</h3>
+        <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+          <Panel
+            title="Latest clients"
+            eyebrow="Client list"
+            action={
+              <Link href="/crm/clients" className="inline-flex items-center gap-2 text-sm font-bold text-cyan-700 dark:text-cyan-300">
+                Open all <ArrowRight className="size-4" />
+              </Link>
+            }
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left text-sm">
+                <thead className="text-xs uppercase tracking-[0.12em] text-slate-500">
+                  <tr>
+                    <th className="px-3 py-2">Client</th>
+                    <th className="px-3 py-2">Contact</th>
+                    <th className="px-3 py-2">Coordinator</th>
+                    <th className="px-3 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                  {dashboard.latestClients.map((client) => (
+                    <tr key={client.id} className="hover:bg-slate-50 dark:hover:bg-slate-950">
+                      <td className="px-3 py-3">
+                        <Link href={`/crm/clients/${client.id}`} className="font-black text-slate-950 hover:text-cyan-700 dark:text-white">
+                          {client.name}
+                        </Link>
+                        <p className="text-xs font-semibold text-slate-500">#{client.id} · Joined {client.joinedOn || "not set"}</p>
+                      </td>
+                      <td className="px-3 py-3">
+                        <p>{client.email || "No email"}</p>
+                        <p className="text-xs text-slate-500">{client.phone || "No phone"}</p>
+                      </td>
+                      <td className="px-3 py-3 text-slate-600 dark:text-slate-300">{client.coordinators || "Unassigned"}</td>
+                      <td className="px-3 py-3">
+                        <StatusPill active={client.active} label={client.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-          <div className="mt-4 grid gap-3">
-            {legacyCrmSchemaGroups.map((group) => (
-              <article key={group.label} className="rounded-md border border-slate-200 p-3 dark:border-slate-800">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h4 className="font-bold">{group.label}</h4>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                    {group.hubLink}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{group.tables.join(", ")}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+          </Panel>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-emerald-100 text-emerald-700">
-              <ShieldCheck className="size-5" />
-            </span>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Conversion state</p>
-              <h3 className="mt-1 text-xl font-bold">What is ready and what is blocked</h3>
-            </div>
-          </div>
-
-          <div className="mt-4 grid gap-3">
-            {legacyCrmConversionPhases.map((phase) => {
-              const Icon = statusIcon(phase.status);
-              return (
-                <article key={phase.title} className="rounded-md border border-slate-200 p-3 dark:border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <span className={`flex size-9 items-center justify-center rounded-md border ${statusClass(phase.status)}`}>
-                      <Icon className="size-4" />
-                    </span>
-                    <div>
-                      <h4 className="font-bold">{phase.title}</h4>
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                        {phase.status.replace("-", " ")}
-                      </p>
+          <div className="space-y-5">
+            <Panel title="Client status mix" eyebrow="Pipeline">
+              <div className="space-y-3">
+                {dashboard.statusBreakdown.slice(0, 8).map((item) => (
+                  <div key={item.label}>
+                    <div className="mb-1 flex justify-between text-xs font-bold uppercase tracking-[0.1em] text-slate-500">
+                      <span>{item.label}</span>
+                      <span>{number(item.value)}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                      <div
+                        className="h-full rounded-full bg-cyan-500"
+                        style={{ width: `${Math.min(100, (item.value / Math.max(1, dashboard.counts.clients)) * 100)}%` }}
+                      />
                     </div>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{phase.detail}</p>
-                </article>
-              );
-            })}
-          </div>
+                ))}
+              </div>
+            </Panel>
 
-          <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-950 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-100">
-            <div className="flex items-start gap-3">
-              <Mail className="mt-0.5 size-5 shrink-0" />
-              <p className="text-sm leading-6">
-                SMTP and SMS modules are present in the legacy CRM. During migration, credentials must move to deployment env vars or secret storage; only templates and logs should live in the database.
-              </p>
-            </div>
+            <Panel title="Source breakdown" eyebrow="Acquisition">
+              <div className="grid gap-2 sm:grid-cols-2">
+                {dashboard.sourceBreakdown.slice(0, 8).map((item) => (
+                  <div key={item.label} className="rounded-md border border-slate-200 p-3 dark:border-slate-800">
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">{item.label}</p>
+                    <p className="mt-1 text-xl font-black">{number(item.value)}</p>
+                  </div>
+                ))}
+              </div>
+            </Panel>
           </div>
-        </section>
+        </div>
+
+        <div className="grid gap-5 xl:grid-cols-3">
+          <Panel title="Recent support" eyebrow="Tickets">
+            <div className="space-y-3">
+              {dashboard.recentSupport.map((ticket) => (
+                <Link key={ticket.id} href={`/crm/clients/${ticket.clientId}`} className="block rounded-md border border-slate-200 p-3 transition hover:border-cyan-200 dark:border-slate-800">
+                  <div className="flex items-start gap-3">
+                    <Headphones className="mt-1 size-4 text-cyan-600" />
+                    <div>
+                      <p className="font-black">{ticket.subject || "No subject"}</p>
+                      <p className="mt-1 text-xs text-slate-500">{ticket.client} · {ticket.created || "No date"}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Panel>
+
+          <Panel title="Recent tasks" eyebrow="Work queue">
+            <div className="space-y-3">
+              {dashboard.recentTasks.map((task) => (
+                <Link key={`${task.id}-${task.taskId}`} href={`/crm/clients/${task.clientId}`} className="block rounded-md border border-slate-200 p-3 transition hover:border-cyan-200 dark:border-slate-800">
+                  <div className="flex items-start gap-3">
+                    <ListChecks className="mt-1 size-4 text-emerald-600" />
+                    <div>
+                      <p className="font-black">{task.subject || "Task"}</p>
+                      <p className="mt-1 text-xs text-slate-500">{task.clientName || `Client #${task.clientId}`} · Due {task.dueDate || "not set"}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Panel>
+
+          <Panel title="Module shortcuts" eyebrow="Employee actions">
+            <div className="grid gap-3">
+              {[
+                { href: "/crm/clients", label: "Open client list", icon: UsersRound },
+                { href: "/crm/documents", label: "Review uploads", icon: FileText },
+                { href: "/crm/communication", label: "Open communication", icon: Mail },
+                { href: "/crm/accounts", label: "Check accounts", icon: ArrowRight },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center justify-between rounded-md border border-slate-200 p-3 font-bold transition hover:border-cyan-200 hover:text-cyan-700 dark:border-slate-800"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Icon className="size-4" />
+                      {item.label}
+                    </span>
+                    <ArrowRight className="size-4" />
+                  </Link>
+                );
+              })}
+            </div>
+          </Panel>
+        </div>
       </div>
-    </PortalShell>
+    </CrmShell>
   );
 }

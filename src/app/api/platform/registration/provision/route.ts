@@ -1,7 +1,7 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { isTrack, type Track } from "@/lib/eligibility/types";
-import { hashPassword } from "@/lib/platform/auth";
+import { getCurrentPortalUser, hashPassword } from "@/lib/platform/auth";
 import { sendPlatformEmail, getPlatformRecipient } from "@/lib/platform/email";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText, parseBoolean } from "@/lib/platform/sanitize";
@@ -59,6 +59,54 @@ function formatInr(value: unknown) {
   const numeric = Number(String(value ?? "").replace(/[^\d.]/g, ""));
   const amount = Number.isFinite(numeric) && numeric > 0 ? numeric : DEFAULT_PRICE_INR;
   return `INR ${amount.toLocaleString("en-IN")}`;
+}
+
+function safeAnswers(input: unknown) {
+  if (!input || typeof input !== "object") return null;
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+    const cleanKey = key.replace(/[^\w.-]/g, "").slice(0, 64);
+    if (!cleanKey) continue;
+    if (typeof value === "string") out[cleanKey] = value.slice(0, 1000);
+    else if (typeof value === "number" || typeof value === "boolean" || value == null) out[cleanKey] = value;
+    else out[cleanKey] = String(value).slice(0, 200);
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+async function buildDetailedReportAttachment(args: {
+  name: string;
+  email: string;
+  phone?: string;
+  track: Track;
+  answers: Record<string, unknown> | null;
+}) {
+  if (!args.answers) return null;
+  try {
+    const response = await fetch(absoluteUrl("/api/eligibility/report"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: args.name,
+        email: args.email,
+        phone: args.phone,
+        track: args.track,
+        answers: args.answers,
+        reportType: "detailed",
+      }),
+      cache: "no-store",
+    });
+    if (!response.ok) return null;
+    const bytes = Buffer.from(await response.arrayBuffer());
+    return {
+      filename: `XIPHIAS_Detailed_Personal_Report_${args.track}.pdf`,
+      content: bytes,
+      contentType: "application/pdf",
+    };
+  } catch (error) {
+    console.warn("[registration] Could not generate detailed PDF attachment.", error);
+    return null;
+  }
 }
 
 function randomPassword() {
@@ -185,7 +233,10 @@ function credentialEmailHtml(args: {
 export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => ({}))) as Payload;
 
-  if (!isAuthorized(req, body)) {
+  const portalUser = await getCurrentPortalUser();
+  const isPortalAdmin = portalUser?.role === "admin" || portalUser?.role === "staff";
+
+  if (!isPortalAdmin && !isAuthorized(req, body)) {
     return NextResponse.json(
       { ok: false, error: "Registration provisioning is not authorized." },
       { status: 401 },
@@ -214,6 +265,8 @@ export async function POST(req: NextRequest) {
   const amountValue = getByPath(body, "amount") || getByPath(body, "price") || DEFAULT_PRICE_INR;
   const amountLabel = formatInr(amountValue);
   const resetPassword = parseBoolean(getByPath(body, "resetPassword"));
+  const sendCredentialsEmail = getByPath(body, "sendEmail") === false ? false : !["false", "0", "off"].includes(String(getByPath(body, "sendEmail") ?? "").toLowerCase());
+  const answers = safeAnswers(getByPath(body, "answers"));
 
   if (!email) {
     return NextResponse.json(
@@ -384,23 +437,38 @@ export async function POST(req: NextRequest) {
 
   const loginUrl = absoluteUrl("/x-hub/sign-in");
   const accountUrl = absoluteUrl("/x-hub/account");
-  const clientEmail = await sendPlatformEmail({
-    to: email,
-    subject: "Your XIPHIAS Hub registration is ready",
-    label: "XIPHIAS Hub",
-    html: credentialEmailHtml({
-      name,
-      email,
-      temporaryPassword,
-      loginUrl,
-      accountUrl,
-      paymentReference,
-      track,
-      country,
-      program,
-      amount: amountLabel,
-    }),
+  const detailedReportAttachment = await buildDetailedReportAttachment({
+    name,
+    email,
+    phone: phone || undefined,
+    track,
+    answers,
   });
+  const clientEmail = sendCredentialsEmail
+    ? await sendPlatformEmail({
+        to: email,
+        subject: "Your XIPHIAS Hub registration is ready",
+        label: "XIPHIAS Hub",
+        html: credentialEmailHtml({
+          name,
+          email,
+          temporaryPassword,
+          loginUrl,
+          accountUrl,
+          paymentReference,
+          track,
+          country,
+          program,
+          amount: amountLabel,
+        }).replace(
+          "</ol>",
+          detailedReportAttachment
+            ? "<li>Open the attached detailed personal report PDF.</li></ol>"
+            : "<li>Your detailed PDF will be prepared by the advisor desk after profile verification.</li></ol>",
+        ),
+        attachments: detailedReportAttachment ? [detailedReportAttachment] : undefined,
+      })
+    : ({ status: "skipped", reason: "Admin chose not to send credentials email." } as const);
 
   const staffEmail = await sendPlatformEmail({
     to: getPlatformRecipient("general"),
@@ -435,6 +503,6 @@ export async function POST(req: NextRequest) {
     caseId: migrationCase.id,
     credentialsSent: clientEmail.status,
     staffNotification: staffEmail.status,
-    ...(process.env.NODE_ENV !== "production" && temporaryPassword ? { temporaryPassword } : {}),
+    ...(isPortalAdmin && temporaryPassword ? { temporaryPassword } : {}),
   });
 }

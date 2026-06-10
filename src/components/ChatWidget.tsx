@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   Sparkles,
 } from "lucide-react";
+import { TOPMATE_BOOKING_URL } from "@/lib/topmate";
 
 type Props = { defaultOpen?: boolean };
 type FloatingLayout = {
@@ -517,7 +518,7 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
       eyebrow: "Advisor",
       description: "Book a paid consultation through the existing Topmate flow.",
       icon: "calendar",
-      href: "/booking",
+      href: TOPMATE_BOOKING_URL,
     },
   ],
   browse: [
@@ -570,7 +571,7 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
       eyebrow: "Advisor review",
       description: "Have an advisor verify requirements and document gaps.",
       icon: "calendar",
-      href: "/booking",
+      href: TOPMATE_BOOKING_URL,
     },
     {
       label: "Risk review",
@@ -736,7 +737,7 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
       eyebrow: "Consultation",
       description: "Speak with an advisor using the Topmate booking flow.",
       icon: "calendar",
-      href: "/booking",
+      href: TOPMATE_BOOKING_URL,
     },
   ],
 };

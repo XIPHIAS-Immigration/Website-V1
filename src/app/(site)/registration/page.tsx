@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 
 export const dynamic = "force-dynamic";
 
 function registrationUrl() {
-  return process.env.TOPMATE_REGISTRATION_URL || process.env.NEXT_PUBLIC_TOPMATE_REGISTRATION_URL || "";
+  return TOPMATE_REGISTRATION_URL;
 }
 
 export default function RegistrationRedirectPage() {

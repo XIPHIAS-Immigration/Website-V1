@@ -5,23 +5,22 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 type SignInFormProps = {
-  demoMode: boolean;
+  hasConfiguredAccess: boolean;
 };
 
-export default function SignInForm({ demoMode }: SignInFormProps) {
+export default function SignInForm({ hasConfiguredAccess }: SignInFormProps) {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@xiphias.local");
-  const [password, setPassword] = useState("xiphias-admin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submitCredentials(nextEmail = email, nextPassword = password) {
     setSubmitting(true);
     setError("");
     const result = await signIn("credentials", {
-      email,
-      password,
+      email: nextEmail,
+      password: nextPassword,
       redirect: false,
     });
     setSubmitting(false);
@@ -31,6 +30,11 @@ export default function SignInForm({ demoMode }: SignInFormProps) {
     }
     router.push("/x-hub");
     router.refresh();
+  }
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await submitCredentials();
   }
 
   return (
@@ -63,13 +67,11 @@ export default function SignInForm({ demoMode }: SignInFormProps) {
       >
         {submitting ? "Signing in..." : "Sign in"}
       </button>
-      {demoMode ? (
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-          Demo accounts in local dev: admin@xiphias.local / xiphias-admin, client@xiphias.local / xiphias-client,
-          partner@xiphias.local / xiphias-partner.
+      {!hasConfiguredAccess ? (
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-6 text-amber-900">
+          Portal access is not configured yet. Add an admin account in environment variables before using XIPHIAS Hub.
         </div>
       ) : null}
     </form>
   );
 }
-

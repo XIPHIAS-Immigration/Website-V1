@@ -5,6 +5,7 @@ import {
   Building2,
   ClipboardCheck,
   FileCheck2,
+  FileText,
   FileSearch,
   Gauge,
   Globe2,
@@ -119,6 +120,14 @@ const navItems: NavItem[] = [
     description: "Staff pipeline",
     key: "operations",
     icon: FileCheck2,
+    roles: ["staff", "admin"],
+  },
+  {
+    href: "/x-hub/admin/reports",
+    label: "Paid Reports",
+    description: "Manual PDF desk",
+    key: "reports",
+    icon: FileText,
     roles: ["staff", "admin"],
   },
   {

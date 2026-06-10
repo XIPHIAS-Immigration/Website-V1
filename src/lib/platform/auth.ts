@@ -31,55 +31,67 @@ export function safeEqual(a: string, b: string) {
 }
 
 function parsePortalUsers(): CredentialUser[] {
+  const users: CredentialUser[] = [];
   const raw = process.env.XIPHIAS_PORTAL_USERS;
   if (raw) {
     try {
       const parsed = JSON.parse(raw) as CredentialUser[];
-      return parsed.filter((user) => user.email && user.name && user.role);
+      users.push(...parsed.filter((user) => user.email && user.name && user.role));
     } catch {
-      return [];
+      // Ignore malformed bulk config and still allow the single-admin env fallback below.
     }
   }
 
-  if (process.env.NODE_ENV !== "production" || process.env.XIPHIAS_PORTAL_DEMO_MODE === "true") {
-    return [
-      {
-        email: "admin@xiphias.local",
-        password: "xiphias-admin",
-        name: "XIPHIAS Admin",
-        role: "admin",
-      },
-      {
-        email: "client@xiphias.local",
-        password: "xiphias-client",
-        name: "Aarav Mehta",
-        role: "client",
-        clientId: "cli_aarav",
-      },
-      {
-        email: "partner@xiphias.local",
-        password: "xiphias-partner",
-        name: "Partner Desk",
-        role: "partner",
-        partnerId: "ptr_global",
-      },
-      {
-        email: "mobility@gov.local",
-        password: "xiphias-b2g",
-        name: "Institution Desk",
-        role: "b2g",
-        organizationId: "org_public",
-      },
-    ];
+  const adminEmail = process.env.XIPHIAS_ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.XIPHIAS_ADMIN_PASSWORD;
+  const adminPasswordSha256 = process.env.XIPHIAS_ADMIN_PASSWORD_SHA256;
+  if (adminEmail && (adminPassword || adminPasswordSha256)) {
+    users.push({
+      email: adminEmail,
+      password: adminPassword,
+      passwordSha256: adminPasswordSha256,
+      name: process.env.XIPHIAS_ADMIN_NAME || "XIPHIAS Admin",
+      role: "admin",
+    });
   }
 
-  return [];
+  return users;
+}
+
+function getConfiguredPortalUser(email: string) {
+  const needle = email.trim().toLowerCase();
+  return parsePortalUsers().find((user) => user.email.toLowerCase() === needle) ?? null;
 }
 
 function verifyPassword(candidate: string, user: CredentialUser) {
   if (user.passwordSha256) return safeEqual(hashPassword(candidate), user.passwordSha256);
   if (user.password) return safeEqual(candidate, user.password);
   return false;
+}
+
+function recordPortalSignIn(user: PlatformUser, authSource: "configured" | "provisioned") {
+  const repo = getPlatformRepository();
+  repo.audit("portal.viewed", "portal_session", user.id, user.id, {
+    event: "sign_in",
+    role: user.role,
+    email: user.email,
+    authSource,
+  });
+
+  if (user.role === "client") {
+    const activeCase = repo.getCasesForUser(user)[0];
+    if (activeCase) {
+      repo.createConversation({
+        caseId: activeCase.id,
+        leadId: activeCase.leadId,
+        channel: "portal",
+        direction: "inbound",
+        from: user.email,
+        to: "XIPHIAS Hub",
+        body: `${user.name || user.email} signed in to XIPHIAS Hub.`,
+      });
+    }
+  }
 }
 
 export const authOptions: AuthOptions = {
@@ -108,14 +120,27 @@ export const authOptions: AuthOptions = {
           if (!verifyPassword(password, configured)) return null;
 
           const existing = repo.getUserByEmail(email);
+          const stored =
+            existing ??
+            repo.createUser({
+              email,
+              name: configured.name,
+              role: configured.role,
+              clientId: configured.clientId,
+              partnerId: configured.partnerId,
+              organizationId: configured.organizationId,
+              portalStatus: "active",
+            });
+          recordPortalSignIn(stored, "configured");
+
           return {
-            id: existing?.id ?? `auth_${hashPassword(email).slice(0, 12)}`,
+            id: stored.id,
             email,
             name: configured.name,
             role: configured.role,
-            clientId: configured.clientId ?? existing?.clientId,
-            partnerId: configured.partnerId ?? existing?.partnerId,
-            organizationId: configured.organizationId ?? existing?.organizationId,
+            clientId: configured.clientId ?? stored.clientId,
+            partnerId: configured.partnerId ?? stored.partnerId,
+            organizationId: configured.organizationId ?? stored.organizationId,
           };
         }
 
@@ -127,6 +152,8 @@ export const authOptions: AuthOptions = {
         ) {
           return null;
         }
+
+        recordPortalSignIn(provisioned, "provisioned");
 
         return {
           id: provisioned.id,
@@ -178,14 +205,18 @@ export async function getCurrentPortalUser(): Promise<PlatformUser | null> {
   if (!session?.user?.email || !session.user.role) return null;
 
   const existing = getPlatformRepository().getUserByEmail(session.user.email);
+  const configured = getConfiguredPortalUser(session.user.email);
+  if (!existing && !configured) return null;
+  if (existing?.portalStatus === "disabled") return null;
+
   return {
-    id: session.user.id || existing?.id || session.user.email,
+    id: existing?.id || session.user.id || session.user.email,
     email: session.user.email,
-    name: session.user.name || existing?.name || session.user.email,
-    role: session.user.role,
-    clientId: session.user.clientId ?? existing?.clientId,
-    partnerId: session.user.partnerId ?? existing?.partnerId,
-    organizationId: session.user.organizationId ?? existing?.organizationId,
+    name: existing?.name || session.user.name || configured?.name || session.user.email,
+    role: existing?.role || session.user.role,
+    clientId: existing?.clientId ?? session.user.clientId ?? configured?.clientId,
+    partnerId: existing?.partnerId ?? session.user.partnerId ?? configured?.partnerId,
+    organizationId: existing?.organizationId ?? session.user.organizationId ?? configured?.organizationId,
     mustChangePassword: existing?.mustChangePassword,
     portalStatus: existing?.portalStatus,
     registrationPaymentRef: existing?.registrationPaymentRef,

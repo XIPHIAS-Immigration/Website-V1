@@ -25,10 +25,14 @@ type Props = {
 export default function DeferredClientWidgets({ gaId }: Props) {
   const pathname = usePathname();
   const [ready, setReady] = React.useState(false);
-  const isPortal = pathname?.startsWith("/x-hub");
+  const [engagementReady, setEngagementReady] = React.useState(false);
+  const isIsolatedRoute =
+    pathname?.startsWith("/x-hub") ||
+    pathname?.startsWith("/content-admin") ||
+    pathname?.startsWith("/crm");
 
   React.useEffect(() => {
-    if (isPortal) return;
+    if (isIsolatedRoute) return;
 
     const win = window as Window & {
       requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
@@ -52,16 +56,22 @@ export default function DeferredClientWidgets({ gaId }: Props) {
 
     const timer = window.setTimeout(() => setReady(true), 900);
     return () => window.clearTimeout(timer);
-  }, [isPortal]);
+  }, [isIsolatedRoute]);
 
-  if (isPortal || !ready) return null;
+  React.useEffect(() => {
+    if (isIsolatedRoute || !ready) return;
+    const timer = window.setTimeout(() => setEngagementReady(true), 4200);
+    return () => window.clearTimeout(timer);
+  }, [isIsolatedRoute, ready]);
+
+  if (isIsolatedRoute || !ready) return null;
 
   return (
     <>
       <ScrollToTop />
       <ChatWidget />
-      <QuickEnquiryPopup />
-      <GlobalBrochureGate />
+      {engagementReady ? <QuickEnquiryPopup /> : null}
+      {engagementReady ? <GlobalBrochureGate /> : null}
       <CookieConsentManager />
       {gaId ? <CookieAwareGA4 gaId={gaId} /> : null}
     </>

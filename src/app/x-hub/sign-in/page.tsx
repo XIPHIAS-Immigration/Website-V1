@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SignInForm from "@/components/Platform/SignInForm";
+import { hasPortalUsersConfigured } from "@/lib/platform/auth";
 
 export const metadata: Metadata = {
   title: "XIPHIAS Hub Sign In | XIPHIAS Immigration",
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function XHubSignInPage() {
-  const demoMode = process.env.NODE_ENV !== "production" || process.env.XIPHIAS_PORTAL_DEMO_MODE === "true";
+  const hasConfiguredAccess = hasPortalUsersConfigured();
 
   return (
     <section className="min-h-screen bg-slate-100 px-4 py-12 dark:bg-slate-950">
@@ -37,7 +38,7 @@ export default function XHubSignInPage() {
             Use an approved XIPHIAS portal account.
           </p>
           <div className="mt-5">
-            <SignInForm demoMode={demoMode} />
+            <SignInForm hasConfiguredAccess={hasConfiguredAccess} />
           </div>
         </div>
       </div>

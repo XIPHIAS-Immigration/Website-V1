@@ -95,6 +95,56 @@ function normalizeState(input: Partial<PlatformState> | null | undefined): Platf
   };
 }
 
+function scrubLegacyDemoState(state: PlatformState): PlatformState {
+  if (process.env.XIPHIAS_PLATFORM_KEEP_DEMO_DATA === "true") return state;
+
+  const demoUserIds = new Set(["usr_admin", "usr_client", "usr_partner", "usr_b2g"]);
+  const demoEmails = new Set([
+    "admin@xiphias.local",
+    "client@xiphias.local",
+    "partner@xiphias.local",
+    "mobility@gov.local",
+  ]);
+  const demoClientIds = new Set(["cli_aarav"]);
+  const demoLeadIds = new Set(["lead_001"]);
+  const demoCaseIds = new Set(["case_001"]);
+  const demoPartnerIds = new Set(["ptr_global"]);
+  const demoOrgIds = new Set(["org_public"]);
+
+  return {
+    users: state.users.filter(
+      (item) =>
+        !demoUserIds.has(item.id) &&
+        !demoEmails.has(item.email.toLowerCase()) &&
+        !(item.clientId && demoClientIds.has(item.clientId)) &&
+        !(item.partnerId && demoPartnerIds.has(item.partnerId)) &&
+        !(item.organizationId && demoOrgIds.has(item.organizationId)),
+    ),
+    clientProfiles: state.clientProfiles.filter((item) => !demoClientIds.has(item.clientId)),
+    leads: state.leads.filter((item) => !demoLeadIds.has(item.id) && item.email !== "aarav@example.com"),
+    cases: state.cases.filter((item) => !demoCaseIds.has(item.id) && !demoClientIds.has(item.clientId)),
+    documents: state.documents.filter((item) => !demoCaseIds.has(item.caseId)),
+    milestones: state.milestones.filter((item) => !demoCaseIds.has(item.caseId)),
+    conversations: state.conversations.filter(
+      (item) => !(item.leadId && demoLeadIds.has(item.leadId)) && !(item.caseId && demoCaseIds.has(item.caseId)),
+    ),
+    riskProfiles: state.riskProfiles.filter(
+      (item) => !(item.leadId && demoLeadIds.has(item.leadId)) && !(item.caseId && demoCaseIds.has(item.caseId)),
+    ),
+    contentTasks: state.contentTasks.filter((item) => item.id !== "cr_001"),
+    partnerReferrals: state.partnerReferrals.filter(
+      (item) => item.id !== "pr_001" && !(item.partnerId && demoPartnerIds.has(item.partnerId)),
+    ),
+    b2gInquiries: state.b2gInquiries.filter((item) => item.id !== "b2g_001"),
+    auditLogs: state.auditLogs.filter(
+      (item) =>
+        !demoUserIds.has(item.entityId) &&
+        !demoLeadIds.has(item.entityId) &&
+        !demoCaseIds.has(item.entityId),
+    ),
+  };
+}
+
 class PlatformRepositoryImpl {
   private state: PlatformState;
   private readonly storePath = getStorePath();
@@ -116,8 +166,8 @@ class PlatformRepositoryImpl {
 
       const raw = readFileSync(this.storePath, "utf8");
       const parsed = JSON.parse(raw) as Partial<PlatformState>;
-      const normalized = normalizeState(parsed);
-      if (!Array.isArray(parsed.clientProfiles)) {
+      const normalized = scrubLegacyDemoState(normalizeState(parsed));
+      if (!Array.isArray(parsed.clientProfiles) || JSON.stringify(parsed) !== JSON.stringify(normalized)) {
         this.writeState(normalized);
       }
       return normalized;
@@ -139,6 +189,14 @@ class PlatformRepositoryImpl {
 
   private persist() {
     this.writeState(this.state);
+  }
+
+  cleanupLegacyDemoData() {
+    const cleaned = scrubLegacyDemoState(this.state);
+    if (JSON.stringify(cleaned) !== JSON.stringify(this.state)) {
+      this.state = cleaned;
+      this.persist();
+    }
   }
 
   private clientProfiles() {
@@ -633,9 +691,11 @@ export type PlatformRepository = PlatformRepositoryImpl;
 export function getPlatformRepository(): PlatformRepository {
   if (
     !globalForPlatform.__xiphiasPlatformRepository ||
-    typeof globalForPlatform.__xiphiasPlatformRepository.upsertClientProfile !== "function"
+    typeof globalForPlatform.__xiphiasPlatformRepository.upsertClientProfile !== "function" ||
+    typeof globalForPlatform.__xiphiasPlatformRepository.cleanupLegacyDemoData !== "function"
   ) {
     globalForPlatform.__xiphiasPlatformRepository = new PlatformRepositoryImpl();
   }
+  globalForPlatform.__xiphiasPlatformRepository.cleanupLegacyDemoData();
   return globalForPlatform.__xiphiasPlatformRepository;
 }

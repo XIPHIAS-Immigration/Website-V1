@@ -13,7 +13,8 @@
     "prebuild": "node scripts/build-search-index.mjs",
     "prevercel-build": "node scripts/build-search-index.mjs",
     "analyze": "cross-env ANALYZE=true next build",
-    "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});}catch(e){}\""
+    "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});}catch(e){}\"",
+    "crm:configure-local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/configure-crm-sql-env.ps1"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.0.1",
@@ -25,6 +26,7 @@
     "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^16.1.4",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/mssql": "^12.3.0",
     "aos": "^2.3.4",
     "axios": "^1.7.2",
     "classnames": "^2.5.1",
@@ -34,6 +36,7 @@
     "keen-slider": "^6.8.6",
     "lucide-react": "^0.462.0",
     "minisearch": "^7.1.2",
+    "mssql": "^12.5.5",
     "next": "^16.0.10",
     "next-auth": "^4.24.7",
     "next-mdx-remote": "^5.0.0",

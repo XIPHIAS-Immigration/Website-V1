@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { Track, AnswerMap, Program } from "@/lib/eligibility/types";
 import { getEligibilityAdvisory } from "@/lib/platform/eligibility-advisor";
+import { getPlatformRepository } from "@/lib/platform/repository";
+import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage, type RGB } from "pdf-lib";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -9,8 +11,8 @@ export const runtime = "nodejs";
 
 const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigration";
 const REPORT_TITLE = "Assessment Preview Report";
+const DETAILED_REPORT_TITLE = "Detailed Personal Mobility Report";
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PAYMENT_PATH = "/registration";
 const DEFAULT_REPORT_PRICE_INR = "10000";
 const PDF_LOGO_BASE64 = process.env.PDF_LOGO_BASE64 || "";
 
@@ -326,13 +328,13 @@ function drawIcon(page: PDFPage, kind: "passport" | "travel" | "shield" | "repor
   page.drawLine({ start: { x: x + size * 0.34, y: y + size * 0.76 }, end: { x: x + size * 0.66, y: y + size * 0.76 }, thickness: 1.5, color });
 }
 
-function drawHeader(page: PDFPage, fonts: Fonts, images: ImageSet) {
+function drawHeader(page: PDFPage, fonts: Fonts, images: ImageSet, title = REPORT_TITLE) {
   const { width, height } = page.getSize();
   page.drawRectangle({ x: 0, y: height - HEADER_H, width, height: HEADER_H, color: WHITE });
   page.drawRectangle({ x: 0, y: height - HEADER_H, width, height: 4, color: GOLD });
   if (images.logo) drawImageContain(page, images.logo, MARGIN_X, height - 48, 118, 28);
-  page.drawText(REPORT_TITLE, {
-    x: width - MARGIN_X - fonts.bold.widthOfTextAtSize(REPORT_TITLE, 12),
+  page.drawText(title, {
+    x: width - MARGIN_X - fonts.bold.widthOfTextAtSize(title, 12),
     y: height - 34,
     size: 12,
     font: fonts.bold,
@@ -608,6 +610,337 @@ function buildReportPrograms(args: {
   return base.slice(0, 6);
 }
 
+function extractMoneyHints(text: string) {
+  const matches = text.match(/(?:USD|US\$|\$|EUR|€|INR|₹)\s?[\d,.]+(?:\s?(?:k|m|million|lakh|crore))?/gi);
+  return matches?.slice(0, 3).join(", ") || "";
+}
+
+function indicativeCostBand(track: Track, program: ReportProgram) {
+  const hinted = extractMoneyHints(`${program.name} ${program.why}`);
+  if (hinted) return `Referenced in content: ${hinted}. Staff must verify official fees and service scope.`;
+  if (track === "citizenship") return "Indicative programme capital, due-diligence fees, government fees, and family additions must be confirmed by destination.";
+  if (track === "residency") return "Indicative costs vary by investment, real-estate, company, remote-worker, or professional route. Government and third-party fees are separate.";
+  if (track === "corporate") return "Costs can include entity setup, licensing, immigration quota, establishment card, work/residence permits, payroll, and compliance.";
+  return "Costs can include credential assessment, language testing, government application fees, medicals, PCC, relocation, and representation.";
+}
+
+function timelineBand(track: Track, program: ReportProgram) {
+  const text = `${program.name} ${program.why}`.toLowerCase();
+  const month = text.match(/\b([1-9]|1[0-9]|2[0-4])\s*(?:month|months)\b/);
+  if (month) return `Content indicates a possible ${month[1]} month planning window, subject to official processing.`;
+  if (track === "corporate") return "Typical planning: 2-8 weeks for setup readiness, then visa/residence processing based on jurisdiction.";
+  if (track === "residency") return "Typical planning: 1-6 months for many residence pathways; investment and government stages can extend this.";
+  if (track === "citizenship") return "Typical planning: 4-12+ months, depending on due diligence, investment route, and government queue.";
+  return "Typical planning: 2-12 months, depending on job offer, credential assessment, language test, and invitation cycles.";
+}
+
+function addDetailedPage(
+  pdf: PDFDocument,
+  fonts: Fonts,
+  images: ImageSet,
+  args: {
+    kicker: string;
+    title: string;
+    intro?: string;
+    items: Array<{ title: string; body: string; bullets?: string[]; accent?: RGB }>;
+  },
+) {
+  const page = pdf.addPage(A4);
+  let y = drawHeader(page, fonts, images, DETAILED_REPORT_TITLE);
+  const usableW = A4[0] - MARGIN_X * 2;
+  page.drawText(args.kicker.toUpperCase(), { x: MARGIN_X, y, size: 8, font: fonts.bold, color: GOLD });
+  y -= 24;
+  y = drawWrappedText(page, args.title, MARGIN_X, y, usableW, fonts, {
+    size: 19,
+    bold: true,
+    color: NAVY,
+    lineHeight: 22,
+    maxLines: 2,
+  });
+  if (args.intro) {
+    y -= 8;
+    y = drawWrappedText(page, args.intro, MARGIN_X, y, usableW, fonts, {
+      size: 10,
+      color: MUTED,
+      lineHeight: 13,
+      maxLines: 5,
+    });
+  }
+  y -= 16;
+
+  for (const item of args.items) {
+    const cardH = item.bullets?.length ? 120 : 92;
+    if (y - cardH < FOOTER_H + 18) break;
+    page.drawRectangle({ x: MARGIN_X, y: y - cardH, width: usableW, height: cardH, color: ICE, borderColor: BORDER, borderWidth: 1 });
+    page.drawRectangle({ x: MARGIN_X, y: y - cardH, width: 4, height: cardH, color: item.accent || BLUE });
+    drawWrappedText(page, item.title, MARGIN_X + 18, y - 18, usableW - 36, fonts, {
+      size: 12,
+      bold: true,
+      color: NAVY,
+      lineHeight: 14,
+      maxLines: 2,
+    });
+    let innerY = y - 46;
+    innerY = drawWrappedText(page, item.body, MARGIN_X + 18, innerY, usableW - 36, fonts, {
+      size: 9,
+      color: TEXT,
+      lineHeight: 12,
+      maxLines: item.bullets?.length ? 3 : 4,
+    });
+    for (const bullet of item.bullets?.slice(0, 4) || []) {
+      if (innerY < y - cardH + 18) break;
+      page.drawCircle({ x: MARGIN_X + 23, y: innerY - 1, size: 2, color: GOLD });
+      innerY = drawWrappedText(page, bullet, MARGIN_X + 34, innerY + 2, usableW - 54, fonts, {
+        size: 8.4,
+        color: MUTED,
+        lineHeight: 10,
+        maxLines: 1,
+      });
+    }
+    y -= cardH + 12;
+  }
+}
+
+function addProgramDeepDivePages(
+  pdf: PDFDocument,
+  fonts: Fonts,
+  images: ImageSet,
+  track: Track,
+  programs: ReportProgram[],
+) {
+  programs.slice(0, 6).forEach((program, index) => {
+    addDetailedPage(pdf, fonts, images, {
+      kicker: `Programme deep dive ${index + 1}`,
+      title: program.name,
+      intro: `${program.country || "Global route"} - ${program.sourceLabel || "XIPHIAS route logic"}`,
+      items: [
+        {
+          title: "Why this appears in your shortlist",
+          body: cleanCopy(program.why) || "This route matched your submitted profile and the approved XIPHIAS content index.",
+          bullets: program.fitNotes,
+          accent: index === 0 ? GOLD : BLUE,
+        },
+        {
+          title: "Indicative cost and fee planning",
+          body: indicativeCostBand(track, program),
+          bullets: [
+            "Government fees, due-diligence fees, translations, medicals, and third-party costs are verified before filing.",
+            "XIPHIAS service scope and country product fee must be confirmed in the advisor stage.",
+            "Investment routes require source-of-funds and transaction timing review.",
+          ],
+          accent: GREEN,
+        },
+        {
+          title: "Timeline and decision points",
+          body: timelineBand(track, program),
+          bullets: [
+            "Profile confirmation comes first, then document collection and route validation.",
+            "Filing starts only after document, risk, and official rule checks are complete.",
+            "Government processing timelines can change without notice.",
+          ],
+          accent: AMBER,
+        },
+      ],
+    });
+  });
+}
+
+function addDetailedReportPages(
+  pdf: PDFDocument,
+  fonts: Fonts,
+  images: ImageSet,
+  args: {
+    name: string;
+    track: Track;
+    country?: string;
+    answers: AnswerMap;
+    result: ReturnType<typeof getEligibilityAdvisory>;
+    programs: ReportProgram[];
+    reportPrice: string;
+    reportPaymentUrl: string;
+  },
+) {
+  const topProgram = args.programs[0];
+  addDetailedPage(pdf, fonts, images, {
+    kicker: "Premium report",
+    title: DETAILED_REPORT_TITLE,
+    intro:
+      "This expanded report is structured for advisor review: route fit, programme comparison, cost planning, document readiness, risk intelligence, and XIPHIAS Hub execution.",
+    items: [
+      {
+        title: "Client objective",
+        body: `${args.name || "Client"} is being assessed for ${trackLabel(args.track)} with focus on ${args.country || "advisor shortlist"}.`,
+        bullets: [
+          `Primary match: ${topProgram?.name || "Advisor review required"}`,
+          `Assessment tier: ${args.result.tier}`,
+          `Confidence score: ${typeof args.result.confidence === "number" ? `${args.result.confidence}/100` : "Advisor review"}`,
+        ],
+        accent: GOLD,
+      },
+      {
+        title: "How XIPHIAS should use this report",
+        body:
+          "The report is not a legal opinion or guarantee. It is a structured working file for sales, advisor review, document collection, due diligence, and client onboarding.",
+        bullets: [
+          "Use this as the client-facing premium deliverable after registration.",
+          "Staff should verify rules, fees, timelines, and official channels before filing.",
+          "CRM integration can later attach this report to the single client profile.",
+        ],
+      },
+    ],
+  });
+
+  addDetailedPage(pdf, fonts, images, {
+    kicker: "Route matrix",
+    title: "Programme comparison and route ranking",
+    intro: "Routes are ranked using the submitted answers, approved XIPHIAS content, and deterministic fit rules.",
+    items: args.programs.slice(0, 5).map((program) => ({
+      title: `${program.name}${typeof program.score === "number" ? ` - ${program.score}/100` : ""}`,
+      body: `${program.country || "Global route"}: ${cleanCopy(program.why) || "Matched against XIPHIAS advisory rules."}`,
+      bullets: [
+        indicativeCostBand(args.track, program),
+        timelineBand(args.track, program),
+        program.href ? `Source page: ${program.href}` : "Advisor validation required.",
+      ],
+      accent: program === topProgram ? GOLD : BLUE,
+    })),
+  });
+
+  addProgramDeepDivePages(pdf, fonts, images, args.track, args.programs);
+
+  addDetailedPage(pdf, fonts, images, {
+    kicker: "Document plan",
+    title: "Document readiness and upload checklist",
+    intro: "The XIPHIAS Hub document vault should collect evidence by category and flag gaps before advisor filing review.",
+    items: [
+      {
+        title: "Identity and civil documents",
+        body: "Passport, birth/marriage documents, civil status records, police clearance planning, and translated/legalised copies where applicable.",
+        bullets: ["Check expiry dates and name consistency.", "Prepare spouse/children records where family inclusion is requested.", "Keep scanned originals and certified copies separated."],
+        accent: BLUE,
+      },
+      {
+        title: "Financial and source-of-funds evidence",
+        body: "Bank statements, asset records, sale deeds, tax returns, company documents, salary/dividend proof, and investment trail documents.",
+        bullets: ["High-value routes require enhanced source-of-funds review.", "Mismatch flags should be resolved before filing.", "PEP/sanctions checks remain staff-verified."],
+        accent: GREEN,
+      },
+      {
+        title: "Programme-specific evidence",
+        body: "Business plans, employment letters, education credentials, language test results, investment confirmations, or entity setup records depending on the route.",
+        bullets: ["Use route-specific checklists inside XIPHIAS Hub.", "Document status should move from requested to uploaded, review, accepted, or rework.", "Advisor notes should be kept with the case."],
+        accent: GOLD,
+      },
+    ],
+  });
+
+  addDetailedPage(pdf, fonts, images, {
+    kicker: "Risk intelligence",
+    title: "Due diligence and risk review layer",
+    intro: "The v1 risk layer is deterministic and staff-reviewed. It avoids black-box decisions and keeps every flag explainable.",
+    items: [
+      {
+        title: "Profile mismatch checks",
+        body: "Compare submitted name, nationality, date of birth, family details, country focus, funds, and document extracts for mismatches.",
+        bullets: ["Name mismatch", "Expired passport", "Missing source-of-funds record", "Family member evidence gap"],
+        accent: AMBER,
+      },
+      {
+        title: "Compliance adapter",
+        body: "The portal is prepared for PEP/sanctions vendor integration. Until live vendor credentials are configured, outputs are marked for staff verification.",
+        bullets: ["No automatic approval is issued.", "High-risk or blocked flags force manual review.", "Every check is stored as an auditable record."],
+        accent: GREEN,
+      },
+      {
+        title: "Decision controls",
+        body: "Official programme rules, fees, timelines, and eligibility details must be checked against current government guidance before submission.",
+        bullets: ["No auto-publish", "No auto-filing", "No legal guarantee", "Advisor confirmation required"],
+        accent: BLUE,
+      },
+    ],
+  });
+
+  addDetailedPage(pdf, fonts, images, {
+    kicker: "Execution plan",
+    title: "XIPHIAS Hub onboarding and IMT workflow",
+    intro: "After registration, the client can use XIPHIAS Hub as a standalone workspace before CRM integration is connected.",
+    items: [
+      {
+        title: "Client profile",
+        body: "Captures contact details, nationality, residence, family, budget, timeline, source-of-funds notes, target country, and programme interest.",
+        bullets: ["Every profile update is logged.", "Profile fields can later map to CRM.", "Client can sign in directly during demo/no-fee mode."],
+        accent: BLUE,
+      },
+      {
+        title: "Investment + Migration Tracker",
+        body: "Tracks intake, documents, due diligence, strategy, filing, government review, decision, and post-approval stages.",
+        bullets: ["Client sees progress and next actions.", "Staff can update stages.", "Later CRM sync can become the source of truth."],
+        accent: GOLD,
+      },
+      {
+        title: "Premium report fulfilment",
+        body: `Registration CTA uses ${args.reportPaymentUrl}. Price shown: ${args.reportPrice}. Topmate owns payment; XIPHIAS owns lead, report, portal, and workflow records.`,
+        bullets: ["Provision route can create credentials after payment webhook.", "Detailed PDF can attach when assessment answers are included.", "Advisor should review before final advice."],
+        accent: GREEN,
+      },
+    ],
+  });
+
+  addDetailedPage(pdf, fonts, images, {
+    kicker: "Submitted answers",
+    title: "Client input record",
+    intro: "These answers were used for the route match. They should be confirmed by staff before relying on the recommendation.",
+    items: Object.entries(args.answers)
+      .slice(0, 12)
+      .map(([key, value]) => ({
+        title: labelize(key),
+        body: toStr(value),
+        bullets: ["Stored as part of the assessment trail.", "Can be mapped into CRM/client profile fields later."],
+        accent: BLUE,
+      })),
+  });
+
+  addDetailedPage(pdf, fonts, images, {
+    kicker: "Advisor questions",
+    title: "Questions to resolve before final recommendation",
+    intro: "These are the practical discussion points that make the report feel personal and help convert the client into the correct product path.",
+    items: [
+      {
+        title: "Goal and destination",
+        body: "Confirm whether the client is optimizing for passport strength, residence, business expansion, tax/residency planning, family relocation, education, or speed.",
+        bullets: ["Main applicant objective", "Spouse/children inclusion", "Long-term citizenship intent", "Physical presence tolerance"],
+        accent: GOLD,
+      },
+      {
+        title: "Capital and risk appetite",
+        body: "Confirm liquid funds, investable capital, source-of-funds evidence, country risk tolerance, and expected exit horizon.",
+        bullets: ["Budget range", "Investment route preference", "Government donation vs real estate/funds/company", "Timeline sensitivity"],
+        accent: GREEN,
+      },
+      {
+        title: "Execution readiness",
+        body: "Confirm document availability, travel history, refusals, background flags, language/education records, and business ownership evidence.",
+        bullets: ["Passport validity", "Police clearance readiness", "Tax records", "Company ownership records"],
+        accent: BLUE,
+      },
+    ],
+  });
+
+  if (args.result.sources?.length) {
+    addDetailedPage(pdf, fonts, images, {
+      kicker: "Source-backed references",
+      title: "Website content used in this assessment",
+      intro: "These are source pages from the current XIPHIAS site used to support the route direction.",
+      items: args.result.sources.slice(0, 8).map((source) => ({
+        title: source.label,
+        body: source.href,
+        bullets: ["Staff should verify latest government rule, fee, and timing before presenting final advice."],
+        accent: BLUE,
+      })),
+    });
+  }
+}
+
 async function loadImages(pdf: PDFDocument, track: Track, country?: string, programName?: string): Promise<ImageSet> {
   const [logo, whiteLogo, hero, flag] = await Promise.all([
     embedLogo(pdf, false),
@@ -742,16 +1075,21 @@ function drawCoverPage(
 }
 
 export async function POST(req: NextRequest) {
-  const { name, track, answers } = (await req.json()) as {
+  const { name, email, phone, track, answers, reportType, full } = (await req.json()) as {
     name: string;
+    email?: string;
+    phone?: string;
     track: Track;
     answers: AnswerMap;
+    reportType?: "preview" | "detailed";
+    full?: boolean;
   };
 
   if (!name || !track || !answers) {
     return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
   }
 
+  const detailed = reportType === "detailed" || full === true;
   const result = getEligibilityAdvisory(track, answers);
   const initialProgram = result.programs?.[0];
   const country = result.countryFocus || initialProgram?.country;
@@ -766,7 +1104,7 @@ export async function POST(req: NextRequest) {
   const reportPaymentUrl = absoluteUrl(
     process.env.ASSESSMENT_REPORT_PAYMENT_URL ||
       process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL ||
-      DEFAULT_REPORT_PAYMENT_PATH,
+      TOPMATE_REGISTRATION_URL,
     siteUrl
   );
   const reportPrice = formatInr(
@@ -891,6 +1229,52 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (detailed) {
+    addDetailedReportPages(pdf, fonts, images, {
+      name,
+      track,
+      country,
+      answers,
+      result,
+      programs: reportPrograms,
+      reportPrice,
+      reportPaymentUrl,
+    });
+  }
+
+  try {
+    const repo = getPlatformRepository();
+    const lead = repo.createLead({
+      source: detailed ? "registration" : "eligibility",
+      status: detailed ? "qualified" : "new",
+      name,
+      email,
+      phone,
+      track,
+      country,
+      program: primaryProgram?.name,
+      message: `${detailed ? "Detailed" : "Preview"} assessment PDF generated. ${result.tier}: ${result.summary}`,
+      page: req.headers.get("referer") || "/eligibility",
+      referrer: req.headers.get("referer") || undefined,
+      consent: true,
+      score: result.confidence,
+      tags: [
+        detailed ? "detailed-report-generated" : "preview-report-generated",
+        result.handoffRequired ? "staff-review" : "auto-triaged",
+      ],
+    });
+    repo.createConversation({
+      leadId: lead.id,
+      channel: "portal",
+      direction: "inbound",
+      from: name,
+      to: "XIPHIAS",
+      body: `${detailed ? "Detailed" : "Preview"} assessment PDF generated for ${track}.`,
+    });
+  } catch (error) {
+    console.warn("[eligibility:report] Could not record report generation.", error);
+  }
+
   const pages = pdf.getPages();
   for (let i = 0; i < pages.length; i++) {
     drawFooter(pages[i], fonts, i + 1, pages.length);
@@ -901,7 +1285,7 @@ export async function POST(req: NextRequest) {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="XIPHIAS_Assessment_Preview_${track}.pdf"`,
+      "Content-Disposition": `attachment; filename="XIPHIAS_Assessment_${detailed ? "Detailed" : "Preview"}_${track}.pdf"`,
       "Cache-Control": "no-store",
     },
   });

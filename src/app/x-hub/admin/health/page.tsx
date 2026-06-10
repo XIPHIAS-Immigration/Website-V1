@@ -5,6 +5,7 @@ import { requirePortalUser } from "@/lib/platform/auth";
 import { getPlatformEmailStatus } from "@/lib/platform/email";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { getWhatsAppConfigStatus } from "@/lib/platform/whatsapp";
+import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 
 export const metadata: Metadata = {
   title: "Platform Health | XIPHIAS",
@@ -22,7 +23,7 @@ export default async function PlatformHealthPage() {
     email: getPlatformEmailStatus(),
     whatsapp: getWhatsAppConfigStatus(),
     registration: {
-      topmateUrlConfigured: Boolean(process.env.TOPMATE_REGISTRATION_URL || process.env.NEXT_PUBLIC_TOPMATE_REGISTRATION_URL),
+      topmateUrlConfigured: Boolean(TOPMATE_REGISTRATION_URL),
       webhookSecretConfigured: Boolean(process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET),
       provisioningMode: process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET
         ? "protected"

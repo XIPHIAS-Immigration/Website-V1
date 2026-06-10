@@ -750,9 +750,17 @@ export default function Footer() {
 
         {/* ===== Bottom Legal Bar ===== */}
         <div className="py-5 border-t border-white/15">
-          <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11.5px] text-white/80">©2009–{year} XIPHIAS Immigration. All rights reserved.</p>
-            <p className="text-[11.5px] text-white/75">Registered in India • CIN: U74900KA2015PTC078396 • Jurisdiction: Bengaluru, Karnataka</p>
+            <p className="text-[11.5px] text-white/75">
+              Registered in India • CIN: U74900KA2015PTC078396 • Jurisdiction: Bengaluru, Karnataka
+            </p>
+            <Link
+              href="/content-admin"
+              className="inline-flex w-fit items-center justify-center rounded-full border border-white/25 bg-white/12 px-3 py-1.5 text-[11.5px] font-semibold text-white hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+            >
+              Blog Admin Login
+            </Link>
           </div>
         </div>
       </div>
