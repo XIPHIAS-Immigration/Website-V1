@@ -101,6 +101,12 @@ export const authOptions: AuthOptions = {
     (process.env.NODE_ENV !== "production"
       ? "xiphias-local-dev-auth-secret-change-before-production"
       : undefined),
+  logger: {
+    error(code, metadata) {
+      if (code === "JWT_SESSION_ERROR") return; // caught gracefully by getCurrentPortalUser
+      console.error("[next-auth]", code, metadata);
+    },
+  },
   pages: {
     signIn: "/x-hub/sign-in",
   },
