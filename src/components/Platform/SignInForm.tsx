@@ -69,7 +69,7 @@ export default function SignInForm({ hasConfiguredAccess }: SignInFormProps) {
       </button>
       {!hasConfiguredAccess ? (
         <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-6 text-amber-900">
-          Portal access is not configured yet. Add an admin account in environment variables before using XIPHIAS Hub.
+          Portal access is not configured yet. Add an admin account in environment variables before using X-Hub.
         </div>
       ) : null}
     </form>

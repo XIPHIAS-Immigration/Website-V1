@@ -30,7 +30,7 @@ import { getPlatformRepository } from "@/lib/platform/repository";
 import type { ClientDocument, MigrationCase, PortalRole } from "@/lib/platform/types";
 
 export const metadata: Metadata = {
-  title: "XIPHIAS Hub | XIPHIAS Immigration",
+  title: "X-Hub | XIPHIAS Immigration",
   robots: { index: false, follow: false },
 };
 
@@ -453,7 +453,7 @@ export default async function XHubPage() {
         <section className="mt-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Recent portal activity</p>
-            <h3 className="mt-1 text-xl font-black">Interactions saved in Xiphias Hub</h3>
+            <h3 className="mt-1 text-xl font-black">Interactions saved in X-Hub</h3>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               Sign-ins, uploads, and portal messages appear here against the active case record.
             </p>

@@ -5,7 +5,7 @@ import PortalShell from "@/components/Platform/PortalShell";
 import { requirePortalUser } from "@/lib/platform/auth";
 
 export const metadata: Metadata = {
-  title: "Paid Reports | XIPHIAS Hub",
+  title: "Paid Reports | X-Hub",
   robots: { index: false, follow: false },
 };
 

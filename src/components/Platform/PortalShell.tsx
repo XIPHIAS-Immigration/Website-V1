@@ -36,7 +36,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     href: "/x-hub",
-    label: "XIPHIAS Hub",
+    label: "X-Hub",
     description: "Case home",
     key: "dashboard",
     icon: LayoutDashboard,
@@ -181,7 +181,7 @@ export default function PortalShell({ user, active, children }: PortalShellProps
                 <ShieldCheck className="size-5" />
               </span>
               <span>
-                <span className="block text-sm font-bold">XIPHIAS Hub</span>
+                <span className="block text-sm font-bold">X-Hub</span>
                 <span className="block text-xs text-slate-500 dark:text-slate-400">Secure portal</span>
               </span>
             </Link>
@@ -219,7 +219,7 @@ export default function PortalShell({ user, active, children }: PortalShellProps
           <header className="mb-5 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:px-5">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">XIPHIAS Hub</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">X-Hub</p>
                 <h1 className="mt-1 text-2xl font-bold tracking-normal sm:text-3xl">Client and mobility operations</h1>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm">

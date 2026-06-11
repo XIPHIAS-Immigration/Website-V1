@@ -30,17 +30,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!record) {
     return {
-      title: "Passport Profile - XIPHIAS Passport Index",
+      title: "Passport Profile - XIPHIAS Passport Power",
       alternates: { canonical: "/passport-index/ranking" },
     };
   }
 
   return {
-    title: `${record.country} Passport Profile - XIPHIAS Passport Index`,
+    title: `${record.country} Passport Profile - XIPHIAS Passport Power`,
     description: `View the ${record.country} passport score, rank, mobility band, and XIPHIAS advisory context.`,
     alternates: { canonical: `/passport-index/passport/${record.code.toLowerCase()}` },
     openGraph: {
-      title: `${record.country} Passport Profile - XIPHIAS Passport Index`,
+      title: `${record.country} Passport Profile - XIPHIAS Passport Power`,
       description: `Passport mobility score, rank, and XIPHIAS planning context for ${record.country}.`,
       url: `${SITE_URL}/passport-index/passport/${record.code.toLowerCase()}`,
       siteName: "XIPHIAS Immigration",

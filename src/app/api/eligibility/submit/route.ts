@@ -340,12 +340,12 @@ export async function POST(req: NextRequest) {
               <div style="margin:28px 0 0;border-radius:18px;background:#071a3a;padding:22px;color:#fff;">
                 <div style="font-size:12px;color:#f6d86d;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">Next step</div>
                 <h2 style="margin:8px 0 8px;font-size:22px;color:#fff;">Unlock your detailed personal report</h2>
-                <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#dbe7f3;">Registration starts at <strong style="color:#fff;">${reportPrice}</strong>. The full report includes route comparison, country/product fit, document checklist, risk flags, timeline, advisor notes, and XIPHIAS Hub onboarding. Payment is completed through the dedicated Topmate registration flow.</p>
+                <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#dbe7f3;">Registration starts at <strong style="color:#fff;">${reportPrice}</strong>. The full report includes route comparison, country/product fit, document checklist, risk flags, timeline, advisor notes, and X-Hub onboarding. Payment is completed through the dedicated Topmate registration flow.</p>
                 <a href="${reportPaymentUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Register for detailed report</a>
                 <a href="${contactUrl}" style="display:inline-block;margin-left:10px;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 16px;">Speak to an advisor</a>
               </div>
 
-              <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:#607086;">After registration, your case can be organized in <a href="${portalUrl}" style="color:#0b4ea2;text-decoration:none;font-weight:800;">XIPHIAS Hub</a> for documents, milestones, messages, and report workflow.</p>
+              <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:#607086;">After registration, your case can be organized in <a href="${portalUrl}" style="color:#0b4ea2;text-decoration:none;font-weight:800;">X-Hub</a> for documents, milestones, messages, and report workflow.</p>
             </div>
           </div>
         </div>

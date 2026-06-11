@@ -5,7 +5,7 @@ import { requirePortalUser } from "@/lib/platform/auth";
 import { getPlatformRepository } from "@/lib/platform/repository";
 
 export const metadata: Metadata = {
-  title: "Client Profile | XIPHIAS Hub",
+  title: "Client Profile | X-Hub",
   robots: { index: false, follow: false },
 };
 

@@ -5,12 +5,12 @@ import { passportIndexStats, passportRecords } from "@/data/passport-index";
 const SITE_URL = "https://www.xiphiasimmigration.com";
 
 export const metadata: Metadata = {
-  title: "XIPHIAS Passport Index - Global Mobility Ranking",
+  title: "XIPHIAS Passport Power - Global Mobility Ranking",
   description:
-    "Explore a premium XIPHIAS passport index experience for global mobility, visa-free score comparison, residence planning, and citizenship strategy.",
+    "Explore a premium XIPHIAS passport power experience for global mobility, visa-free score comparison, residence planning, and citizenship strategy.",
   alternates: { canonical: "/passport-index" },
   openGraph: {
-    title: "XIPHIAS Passport Index",
+    title: "XIPHIAS Passport Power",
     description:
       "Compare passport strength and plan second residence, citizenship, and family mobility routes with XIPHIAS.",
     url: `${SITE_URL}/passport-index`,
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "XIPHIAS Passport Index",
+    title: "XIPHIAS Passport Power",
     description:
       "Compare passport power and turn mobility ranking into an advisor-led route plan.",
     images: ["/xiphias-immigration.png"],
@@ -33,7 +33,7 @@ export default function PassportIndexPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "XIPHIAS Passport Index",
+    name: "XIPHIAS Passport Power",
     url: `${SITE_URL}/passport-index`,
     description:
       "A XIPHIAS global mobility index page for comparing passport strength and planning residence or citizenship routes.",
@@ -43,7 +43,7 @@ export default function PassportIndexPage() {
       url: SITE_URL,
     },
     about: [
-      "passport index",
+      "passport power",
       "global mobility",
       "visa-free travel",
       "residence by investment",

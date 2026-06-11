@@ -311,7 +311,7 @@ export default function Header() {
                   href="/x-hub"
                   className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-black/10 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
-                  Xiphias Hub
+                  X-Hub
                 </Link>
 
                 {/* Personal booking — avatar button + hover card */}
@@ -448,7 +448,7 @@ export default function Header() {
                   onClick={() => setDrawerOpen(false)}
                   className="inline-flex items-center justify-center rounded-xl border border-primary/15 bg-blue-50 px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
                 >
-                  Xiphias Hub
+                  X-Hub
                 </Link>
                 <Link
                   href="/personal-booking"

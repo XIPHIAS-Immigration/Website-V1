@@ -6,7 +6,7 @@ import { buildMobilityOS } from "@/lib/platform/mobility-os";
 import { getPlatformRepository } from "@/lib/platform/repository";
 
 export const metadata: Metadata = {
-  title: "Mobility OS | XIPHIAS Hub",
+  title: "Mobility OS | X-Hub",
   robots: { index: false, follow: false },
 };
 

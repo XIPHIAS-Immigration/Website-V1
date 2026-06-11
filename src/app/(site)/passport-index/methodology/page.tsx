@@ -6,12 +6,12 @@ import { PassportIndexShell, PassportSourceNote, RouteCard } from "@/components/
 const SITE_URL = "https://www.xiphiasimmigration.com";
 
 export const metadata: Metadata = {
-  title: "Passport Index Methodology - XIPHIAS",
+  title: "Passport Power Methodology - XIPHIAS",
   description:
-    "Understand the XIPHIAS passport index presentation layer, source notes, advisory limitations, and how passport scores are used in mobility planning.",
+    "Understand the XIPHIAS passport power presentation layer, source notes, advisory limitations, and how passport scores are used in mobility planning.",
   alternates: { canonical: "/passport-index/methodology" },
   openGraph: {
-    title: "Passport Index Methodology - XIPHIAS",
+    title: "Passport Power Methodology - XIPHIAS",
     description: "Source notes, ranking limits, and XIPHIAS advisory interpretation for passport mobility.",
     url: `${SITE_URL}/passport-index/methodology`,
     siteName: "XIPHIAS Immigration",
@@ -25,7 +25,7 @@ export const revalidate = 86400;
 const principles = [
   {
     title: "Public mobility score",
-    body: "The score is used as a travel-access signal based on public passport index information.",
+    body: "The score is used as a travel-access signal based on public passport power information.",
   },
   {
     title: "XIPHIAS advisory lens",
@@ -46,8 +46,8 @@ export default function PassportMethodologyPage() {
     <PassportIndexShell
       active="methodology"
       eyebrow="Methodology"
-      title="A transparent passport index layer for advisory conversations."
-      description="This section explains what the XIPHIAS Passport Index displays, how it should be interpreted, and why advisor review remains mandatory."
+      title="A transparent passport power layer for advisory conversations."
+      description="This section explains what the XIPHIAS Passport Power displays, how it should be interpreted, and why advisor review remains mandatory."
     >
       <section className="mx-auto max-w-screen-2xl px-4 py-10 md:px-6">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -105,7 +105,7 @@ export default function PassportMethodologyPage() {
           <RouteCard
             icon={ShieldCheck}
             title="Advisor workflow"
-            description="Move a serious inquiry into eligibility, documents, and XIPHIAS Hub."
+            description="Move a serious inquiry into eligibility, documents, and X-Hub."
             href="/x-hub/x-passport"
             cta="Open X-Hub"
           />

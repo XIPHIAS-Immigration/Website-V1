@@ -78,7 +78,7 @@ export default function MobilityOSView({ result, role }: Props) {
               Client journey intelligence without waiting for CRM sync.
             </h2>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-blue-100 sm:text-base">
-              XIPHIAS Hub now calculates next actions, evidence readiness, route-risk signals, and automation triggers from portal records and approved website content.
+              X-Hub now calculates next actions, evidence readiness, route-risk signals, and automation triggers from portal records and approved website content.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Link href="/x-hub/documents" className="inline-flex items-center gap-2 rounded-md bg-[#d8b848] px-4 py-2.5 text-sm font-black text-[#071b3d] transition hover:bg-[#f2cf54]">
