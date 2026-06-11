@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
+import { User, Lock, Eye, EyeOff, AlertCircle, FileText, Newspaper, Bell } from "lucide-react";
 
 type ContentKind = "blog" | "articles" | "news";
 
@@ -244,6 +246,7 @@ export default function ContentAdminClient({
   const [message, setMessage] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
+  const [showStudioPassword, setShowStudioPassword] = React.useState(false);
   const contentRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const score = scoreForm(form);
@@ -416,78 +419,178 @@ export default function ContentAdminClient({
   };
 
   if (!isAuthenticated) {
-    return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dbeafe,transparent_34%),linear-gradient(135deg,#071b3d,#0d3b78)] px-4 py-10 text-slate-950">
-        <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="text-white">
-            <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-[#e4b321]">
-              XIPHIAS Content Studio
-            </p>
-            <h1 className="max-w-xl text-4xl font-black leading-tight md:text-6xl">
-              Publish content without touching code.
-            </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-blue-50/85">
-              Sign in to manage blogs, articles, news, images, SEO snippets, tags, countries, and programme links.
-            </p>
-          </div>
+    const fieldWrap = "flex items-center rounded-lg border bg-white transition-colors focus-within:ring-2 focus-within:ring-offset-1";
+    const inputCls = "block w-full bg-transparent py-2.5 text-[14px] text-[#263238] placeholder-[#b0b7c3] focus:outline-none disabled:opacity-50";
 
-          <form
-            onSubmit={handleLogin}
-            className="rounded-2xl border border-white/30 bg-white p-6 shadow-2xl shadow-slate-950/30"
-          >
-            <div className="mb-5 rounded-xl bg-slate-950 p-5 text-white">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#e4b321]">
-                Secure login
+    return (
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#040f24] px-4 py-12">
+        {/* Background */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div
+            className="absolute inset-0 opacity-[0.07]"
+            style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "28px 28px" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0b2a6b] via-[#061632] to-[#040f24]" />
+          <div className="absolute left-[10%] top-[20%] h-80 w-80 rounded-full bg-[#1c57b4]/25 blur-[120px]" />
+          <div className="absolute right-[8%] bottom-[15%] h-64 w-64 rounded-full bg-[#e1b923]/12 blur-[100px]" />
+        </div>
+
+        {/* Card */}
+        <div className="relative w-full max-w-[400px] overflow-hidden rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.65)] ring-1 ring-white/10">
+
+          {/* ── Dark branding zone ── */}
+          <div className="relative bg-[#071a3a] px-7 pt-6 pb-6">
+            <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+              <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#e1b923]/10 blur-3xl" />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e1b923]/40 to-transparent" />
+            </div>
+
+            {/* Logo + badge */}
+            <div className="relative flex items-start justify-between">
+              <Image
+                src="/images/logo/xiphias-immigration-white.png"
+                alt="XIPHIAS Immigration"
+                width={120}
+                height={42}
+                priority
+                className="h-auto w-[100px]"
+              />
+              <span className="mt-0.5 rounded-full border border-[#e1b923]/35 bg-[#e1b923]/10 px-2.5 py-[3px] text-[9px] font-black uppercase tracking-[0.22em] text-[#e1b923]">
+                Studio
+              </span>
+            </div>
+
+            {/* Description */}
+            <div className="relative mt-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#e1b923]/80">
+                Content Studio
               </p>
-              <h2 className="mt-2 text-2xl font-black">Content administration</h2>
-              <p className="mt-2 text-sm text-white/75">
-                Credentials are read from deployment environment variables.
+              <p className="mt-2 text-[14px] font-semibold leading-[1.6] text-white/75">
+                Publish and manage immigration content without touching code.
               </p>
             </div>
 
-            {!configReady ? (
-              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+            {/* Feature chips */}
+            <div className="relative mt-4 flex flex-wrap gap-2">
+              {[
+                { label: "Blog", Icon: FileText },
+                { label: "Articles", Icon: Newspaper },
+                { label: "News", Icon: Bell },
+              ].map(({ label, Icon }) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11.5px] font-semibold text-white/70"
+                >
+                  <Icon className="size-3 text-[#e1b923]/80" aria-hidden="true" />
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* ── White form zone ── */}
+          <form onSubmit={handleLogin} noValidate className="bg-white px-7 pb-7 pt-6">
+            <h1 className="text-[1.2rem] font-black leading-tight tracking-tight text-[#263238]">
+              Sign in
+            </h1>
+
+            {!configReady && (
+              <p
+                role="alert"
+                className="mt-4 rounded-lg border border-[#e1b923]/50 bg-[#e1b923]/10 px-3.5 py-2.5 text-[12px] font-semibold leading-5 text-[#7a5f00]"
+              >
                 Add CONTENT_ADMIN_USERNAME, CONTENT_ADMIN_PASSWORD, and CONTENT_ADMIN_SECRET before logging in.
+              </p>
+            )}
+
+            <div className="mt-5 space-y-4">
+              {/* Username */}
+              <div>
+                <label
+                  htmlFor="content-admin-username"
+                  className="mb-1.5 block text-[12.5px] font-bold uppercase tracking-[0.06em] text-[#505050]"
+                >
+                  Username
+                </label>
+                <div className={`${fieldWrap} border-[#E1E1E1] hover:border-[#1c57b4]/60 focus-within:ring-[#1c57b4]`}>
+                  <User className="ml-3 mr-2.5 size-[15px] shrink-0 text-[#1c57b4]/60" aria-hidden="true" />
+                  <input
+                    id="content-admin-username"
+                    className={`${inputCls} pr-3.5`}
+                    value={login.username}
+                    onChange={(e) => setLogin((c) => ({ ...c, username: e.target.value }))}
+                    autoComplete="username"
+                    placeholder="contentadmin"
+                    disabled={busy}
+                  />
+                </div>
               </div>
-            ) : null}
 
-            <label className="block text-sm font-bold text-slate-800" htmlFor="content-admin-username">
-              Username
-            </label>
-            <input
-              id="content-admin-username"
-              className="mt-2 h-12 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
-              value={login.username}
-              onChange={(event) => setLogin((current) => ({ ...current, username: event.target.value }))}
-              autoComplete="username"
-            />
+              {/* Password */}
+              <div>
+                <label
+                  htmlFor="content-admin-password"
+                  className="mb-1.5 block text-[12.5px] font-bold uppercase tracking-[0.06em] text-[#505050]"
+                >
+                  Password
+                </label>
+                <div className={`${fieldWrap} border-[#E1E1E1] hover:border-[#1c57b4]/60 focus-within:ring-[#1c57b4]`}>
+                  <Lock className="ml-3 mr-2.5 size-[15px] shrink-0 text-[#1c57b4]/60" aria-hidden="true" />
+                  <input
+                    id="content-admin-password"
+                    type={showStudioPassword ? "text" : "password"}
+                    className={`${inputCls} flex-1`}
+                    value={login.password}
+                    onChange={(e) => setLogin((c) => ({ ...c, password: e.target.value }))}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    disabled={busy}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowStudioPassword((v) => !v)}
+                    aria-label={showStudioPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showStudioPassword}
+                    className="mr-3 ml-1 shrink-0 rounded text-[#9ca3af] transition-colors hover:text-[#1c57b4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1c57b4] focus-visible:ring-offset-1"
+                  >
+                    {showStudioPassword
+                      ? <EyeOff className="size-[15px]" aria-hidden="true" />
+                      : <Eye className="size-[15px]" aria-hidden="true" />
+                    }
+                  </button>
+                </div>
+              </div>
 
-            <label className="mt-4 block text-sm font-bold text-slate-800" htmlFor="content-admin-password">
-              Password
-            </label>
-            <input
-              id="content-admin-password"
-              className="mt-2 h-12 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
-              type="password"
-              value={login.password}
-              onChange={(event) => setLogin((current) => ({ ...current, password: event.target.value }))}
-              autoComplete="current-password"
-            />
+              {/* Error */}
+              {message && (
+                <p
+                  role="alert"
+                  aria-live="assertive"
+                  className="flex items-center gap-1.5 text-[12.5px] font-semibold text-[#CF3127]"
+                >
+                  <AlertCircle className="size-3.5 shrink-0" aria-hidden="true" />
+                  {message}
+                </p>
+              )}
 
-            {message ? (
-              <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{message}</p>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={busy || !configReady}
-              className="mt-5 h-12 w-full rounded-lg bg-blue-700 px-4 text-sm font-black text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {busy ? "Checking..." : "Enter studio"}
-            </button>
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={busy || !configReady}
+                aria-busy={busy}
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1c57b4] px-4 py-2.5 text-[13.5px] font-bold tracking-wide text-white transition-colors hover:bg-[#1648a0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1c57b4] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55"
+              >
+                {busy ? (
+                  <>
+                    <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden="true" />
+                    Checking…
+                  </>
+                ) : "Enter studio"}
+              </button>
+            </div>
           </form>
         </div>
-      </main>
+      </div>
     );
   }
 

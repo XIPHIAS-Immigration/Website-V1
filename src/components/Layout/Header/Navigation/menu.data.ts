@@ -201,7 +201,7 @@ const residencyCountries: HeaderItem[] = [
     href: '/residency/uae',
     meta: { code: 'AE' },
     submenu: [
-      { label: 'Real Estate', href: '/residency/uae/uae-real-estate' },
+      { label: 'Real Estate', href: '/residency/uae/uae-golden-visa' },
       { label: 'Specialized Talent', href: '/residency/uae/uae-specialized-talent' },
     ],
   },

@@ -191,7 +191,7 @@ export default function LocationsDirectory({
       city: "Australia",
       company: "XIPHIAS Immigration",
       regionKey: "australia",
-      address: ["NextGen Group, Level 2/415 Bourke St, Melbourne VIC 3000 Australia"],
+      address: ["SSCS-Suite 204, 227 Collins Street, Melbourne, Vic – 3000."],
       phones: ["+61-0451239 239"],
       email: "info@xiphiasimmigration.com",
     },
@@ -304,7 +304,7 @@ export default function LocationsDirectory({
     {
       id: "qa-doha",
       city: "Doha",
-      company: "International Law Chambers LLC (Represented by Partners)",
+      company: "ILC LLC (Represented by Partners)",
       regionKey: "qatar",
       address: [
         "Office #3402, Al Jazeera Tower, Conference Center Road, West Bay, P.O Box 4011, Doha, Qatar",

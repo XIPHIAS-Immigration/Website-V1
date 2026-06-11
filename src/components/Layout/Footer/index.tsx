@@ -84,7 +84,7 @@ const OFFICES = [
 
   {
     name: "Qatar",
-    street: "International Law Chambers LLC, Office 3402, Al Jazeera Tower, Conference Center Rd, West Bay",
+    street: "ILC LLC, Office 3402, Al Jazeera Tower, Conference Center Rd, West Bay",
     city: "Doha",
     postal: "",
     country: "Qatar",
@@ -94,7 +94,7 @@ const OFFICES = [
   },
   {
     name: "Australia",
-    street: "NextGen Group, Level 2/415 Bourke St, Melbourne VIC 3000 Australia",
+    street: "SSCS-Suite 204, 227 Collins Street, Melbourne, Vic – 3000.",
     city: "",
     postal: "",
     country: "Australia",
@@ -639,7 +639,7 @@ export default function Footer() {
                     <Icon icon="mdi:certificate-outline" className="h-5 w-5 mt-0.5" />
                     <div>
                       <strong className="text-[13.5px]">Accreditations</strong>
-                      <p className="text-[13px] text-white/85">RCIC R516194 • MARA 0854840</p>
+                      <p className="text-[13px] text-white/85">RCIC R516194 • MARA 1680615</p>
                     </div>
                   </div>
                 </li>

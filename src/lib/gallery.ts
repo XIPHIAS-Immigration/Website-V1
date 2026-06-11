@@ -93,6 +93,11 @@ const GALLERY_FILES: GallerySource[] = [
   { file: "xiphias-immigration-gallery-64.webp", w: 680, h: 510 },
   { file: "xiphias-immigration-gallery-65.jpg", w: 243, h: 203 },
   { file: "xiphias-immigration-gallery-66.webp", w: 510, h: 510 },
+  { file: "xiphias-immigration-gallery-67.jpeg", w: 2400, h: 3600 },
+  { file: "xiphias-immigration-gallery-68.jpeg", w: 3943, h: 5400 },
+  { file: "xiphias-immigration-gallery-69.jpeg", w: 6000, h: 4000 },
+  { file: "xiphias-immigration-gallery-70.jpeg", w: 5785, h: 3857 },
+  { file: "xiphias-immigration-gallery-71.jpeg", w: 1600, h: 1066 },
 ];
 
 function toGalleryItem(
