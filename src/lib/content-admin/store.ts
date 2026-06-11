@@ -39,12 +39,20 @@ const KIND_CONFIG: Record<ContentAdminKind, KindConfig> = {
 
 const CONTENT_ROOT = path.join(process.cwd(), "content");
 const PUBLIC_IMAGES_ROOT = path.join(process.cwd(), "public", "images");
+const DEFAULT_RUNTIME_ROOT = path.join(process.cwd(), ".xiphias-platform", "content-admin");
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Map([
   ["image/jpeg", ".jpg"],
   ["image/png", ".png"],
   ["image/webp", ".webp"],
   ["image/svg+xml", ".svg"],
+]);
+const IMAGE_CONTENT_TYPES = new Map([
+  [".jpg", "image/jpeg"],
+  [".jpeg", "image/jpeg"],
+  [".png", "image/png"],
+  [".webp", "image/webp"],
+  [".svg", "image/svg+xml"],
 ]);
 
 export type ContentAdminItem = {
@@ -98,6 +106,26 @@ type UploadLike = {
   arrayBuffer: () => Promise<ArrayBuffer>;
 };
 
+type PersistedContentEntry = {
+  kind: ContentAdminKind;
+  slug: string;
+  source?: string;
+  deleted?: boolean;
+  updatedAt: string;
+};
+
+type PersistedContentStore = {
+  version: 1;
+  items: PersistedContentEntry[];
+};
+
+export type ContentAdminRuntimeSource = {
+  kind: ContentAdminKind;
+  slug: string;
+  source: string;
+  filePath: string;
+};
+
 export function isContentAdminKind(value: unknown): value is ContentAdminKind {
   return CONTENT_ADMIN_KINDS.includes(value as ContentAdminKind);
 }
@@ -123,6 +151,108 @@ function imageDirForKind(kind: ContentAdminKind) {
   const dir = path.join(PUBLIC_IMAGES_ROOT, KIND_CONFIG[kind].imageDir);
   assertInside(PUBLIC_IMAGES_ROOT, dir);
   return dir;
+}
+
+function runtimeRoot() {
+  return path.resolve(process.env.CONTENT_ADMIN_DATA_DIR?.trim() || DEFAULT_RUNTIME_ROOT);
+}
+
+function runtimeContentFile() {
+  return path.join(runtimeRoot(), "content.json");
+}
+
+function runtimeAssetsRoot() {
+  return path.join(runtimeRoot(), "assets");
+}
+
+function runtimeImageDirForKind(kind: ContentAdminKind) {
+  const root = runtimeAssetsRoot();
+  const dir = path.join(root, KIND_CONFIG[kind].imageDir);
+  assertInside(root, dir);
+  return dir;
+}
+
+function runtimeContentPath(kind: ContentAdminKind, slug: string) {
+  return path.join(runtimeRoot(), "content", KIND_CONFIG[kind].contentDir, `${slug}.mdx`);
+}
+
+function runtimeKey(kind: ContentAdminKind, slug: string) {
+  return `${kind}:${slug}`;
+}
+
+async function readPersistedContentStore(): Promise<PersistedContentStore> {
+  try {
+    const raw = await fs.readFile(runtimeContentFile(), "utf8");
+    const parsed = JSON.parse(raw) as Partial<PersistedContentStore>;
+    const items = Array.isArray(parsed.items)
+      ? parsed.items
+          .filter((item): item is PersistedContentEntry => {
+            if (!item || typeof item !== "object") return false;
+            if (!isContentAdminKind((item as PersistedContentEntry).kind)) return false;
+            return Boolean(coerceString((item as PersistedContentEntry).slug));
+          })
+          .map((item) => ({
+            kind: item.kind,
+            slug: slugifyContent(item.slug),
+            source: typeof item.source === "string" ? item.source : undefined,
+            deleted: item.deleted === true,
+            updatedAt: coerceString(item.updatedAt) || new Date().toISOString(),
+          }))
+      : [];
+
+    return { version: 1, items };
+  } catch (error) {
+    const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
+    if (code === "ENOENT") return { version: 1, items: [] };
+    throw error;
+  }
+}
+
+async function writePersistedContentStore(store: PersistedContentStore) {
+  const filePath = runtimeContentFile();
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, JSON.stringify(store, null, 2), "utf8");
+}
+
+async function saveRuntimeContent(kind: ContentAdminKind, slug: string, source: string) {
+  const store = await readPersistedContentStore();
+  const key = runtimeKey(kind, slug);
+  const nextEntry: PersistedContentEntry = {
+    kind,
+    slug,
+    source,
+    deleted: false,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const nextItems = store.items.filter((item) => runtimeKey(item.kind, item.slug) !== key);
+  nextItems.push(nextEntry);
+  await writePersistedContentStore({ version: 1, items: nextItems });
+}
+
+async function markRuntimeContentDeleted(kind: ContentAdminKind, slug: string) {
+  const store = await readPersistedContentStore();
+  const key = runtimeKey(kind, slug);
+  const nextItems = store.items.filter((item) => runtimeKey(item.kind, item.slug) !== key);
+  nextItems.push({
+    kind,
+    slug,
+    deleted: true,
+    updatedAt: new Date().toISOString(),
+  });
+  await writePersistedContentStore({ version: 1, items: nextItems });
+}
+
+async function bundledContentExists(kind: ContentAdminKind, slug: string) {
+  const dir = contentDirForKind(kind);
+  const filePath = path.join(dir, `${slug}.mdx`);
+  assertInside(dir, filePath);
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function slugifyContent(value: string) {
@@ -248,7 +378,7 @@ export async function listContentAdminItems() {
     onlyFiles: true,
   });
 
-  const items: ContentAdminItem[] = [];
+  const itemsByKey = new Map<string, ContentAdminItem>();
 
   for (const filePath of files) {
     const relFromContent = path.relative(CONTENT_ROOT, filePath);
@@ -257,10 +387,22 @@ export async function listContentAdminItems() {
     if (!kind) continue;
 
     const source = await fs.readFile(filePath, "utf8");
-    items.push(itemFromFile(kind, filePath, source));
+    const item = itemFromFile(kind, filePath, source);
+    itemsByKey.set(runtimeKey(kind, item.slug), item);
   }
 
-  return items.sort((left, right) => {
+  const runtimeStore = await readPersistedContentStore();
+  for (const entry of runtimeStore.items) {
+    const key = runtimeKey(entry.kind, entry.slug);
+    if (entry.deleted) {
+      itemsByKey.delete(key);
+      continue;
+    }
+    if (!entry.source) continue;
+    itemsByKey.set(entry.kind + ":" + entry.slug, itemFromFile(entry.kind, runtimeContentPath(entry.kind, entry.slug), entry.source));
+  }
+
+  return Array.from(itemsByKey.values()).sort((left, right) => {
     const leftDate = Date.parse(left.updated || left.date || "");
     const rightDate = Date.parse(right.updated || right.date || "");
     return (Number.isFinite(rightDate) ? rightDate : 0) - (Number.isFinite(leftDate) ? leftDate : 0);
@@ -281,6 +423,16 @@ async function getExistingSlugs(kind: ContentAdminKind, exceptSlug?: string) {
       .map((file) => path.basename(file).replace(/(?:\.mdx)+$/i, ""))
       .filter((slug) => slug !== exceptSlug),
   );
+}
+
+async function getAllExistingSlugs(kind: ContentAdminKind, exceptSlug?: string) {
+  const existing = await getExistingSlugs(kind, exceptSlug);
+  const runtimeStore = await readPersistedContentStore();
+  for (const entry of runtimeStore.items) {
+    if (entry.kind !== kind || entry.deleted || entry.slug === exceptSlug) continue;
+    existing.add(entry.slug);
+  }
+  return existing;
 }
 
 function ensureUniqueSlug(baseSlug: string, existing: Set<string>) {
@@ -309,11 +461,8 @@ export async function saveContentAdminItem(input: SaveContentAdminInput) {
 
   const sameFileSlug =
     input.originalKind === kind && input.originalSlug ? slugifyContent(input.originalSlug) : undefined;
-  const existing = await getExistingSlugs(kind, sameFileSlug);
+  const existing = await getAllExistingSlugs(kind, sameFileSlug);
   const slug = ensureUniqueSlug(input.slug || title, existing);
-  const dir = contentDirForKind(kind);
-  const filePath = path.join(dir, `${slug}.mdx`);
-  assertInside(dir, filePath);
 
   const today = new Date().toISOString().slice(0, 10);
   const body =
@@ -341,11 +490,18 @@ export async function saveContentAdminItem(input: SaveContentAdminInput) {
     seoDescription: coerceString(input.seoDescription),
   });
 
-  await fs.mkdir(dir, { recursive: true });
   const file = matter.stringify(`${body.trim()}\n`, frontmatter);
-  await fs.writeFile(filePath, file, "utf8");
+  await saveRuntimeContent(kind, slug, file);
 
-  return itemFromFile(kind, filePath, file);
+  if (input.originalKind && input.originalSlug) {
+    const originalKind = isContentAdminKind(input.originalKind) ? input.originalKind : null;
+    const originalSlug = slugifyContent(input.originalSlug);
+    if (originalKind && (originalKind !== kind || originalSlug !== slug)) {
+      await markRuntimeContentDeleted(originalKind, originalSlug);
+    }
+  }
+
+  return itemFromFile(kind, runtimeContentPath(kind, slug), file);
 }
 
 export async function deleteContentAdminItem(kindValue: unknown, slugValue: unknown) {
@@ -353,17 +509,12 @@ export async function deleteContentAdminItem(kindValue: unknown, slugValue: unkn
   const slug = slugifyContent(coerceString(slugValue));
   if (!kind || !slug) throw new Error("Valid content type and slug are required.");
 
-  const dir = contentDirForKind(kind);
-  const filePath = path.join(dir, `${slug}.mdx`);
-  assertInside(dir, filePath);
+  const runtimeStore = await readPersistedContentStore();
+  const runtimeExists = runtimeStore.items.some((item) => item.kind === kind && item.slug === slug && !item.deleted);
+  const fileExists = await bundledContentExists(kind, slug);
+  if (!runtimeExists && !fileExists) throw new Error("Content item was not found.");
 
-  try {
-    await fs.unlink(filePath);
-  } catch (error) {
-    const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
-    if (code === "ENOENT") throw new Error("Content item was not found.");
-    throw error;
-  }
+  await markRuntimeContentDeleted(kind, slug);
 
   return { kind, slug };
 }
@@ -377,7 +528,7 @@ export async function saveContentAdminImage(kindValue: unknown, file: UploadLike
   const originalName = file.name.replace(/\.[^.]+$/, "");
   const baseName = slugifyContent(originalName || "content-image");
   const fileName = `${baseName}-${Date.now()}${expectedExt}`;
-  const dir = imageDirForKind(kind);
+  const dir = runtimeImageDirForKind(kind);
   const filePath = path.join(dir, fileName);
   assertInside(dir, filePath);
 
@@ -389,4 +540,76 @@ export async function saveContentAdminImage(kindValue: unknown, file: UploadLike
     url: `/images/${KIND_CONFIG[kind].imageDir}/${fileName}`,
     fileName,
   };
+}
+
+export async function listContentAdminRuntimeSources(): Promise<ContentAdminRuntimeSource[]> {
+  const store = await readPersistedContentStore();
+  return store.items
+    .filter((entry) => !entry.deleted && Boolean(entry.source))
+    .map((entry) => ({
+      kind: entry.kind,
+      slug: entry.slug,
+      source: entry.source || "",
+      filePath: runtimeContentPath(entry.kind, entry.slug),
+    }));
+}
+
+export async function listDeletedContentAdminKeys() {
+  const store = await readPersistedContentStore();
+  return store.items.filter((entry) => entry.deleted).map((entry) => runtimeKey(entry.kind, entry.slug));
+}
+
+function kindFromImageBucket(value: unknown): ContentAdminKind | null {
+  const bucket = coerceString(value).toLowerCase();
+  const match = CONTENT_ADMIN_KINDS.find((kind) => KIND_CONFIG[kind].imageDir === bucket || kind === bucket);
+  return match || null;
+}
+
+async function readPublicImage(bucketValue: unknown, fileNameValue: unknown) {
+  const bucket = coerceString(bucketValue).toLowerCase();
+  const fileName = coerceString(fileNameValue);
+  if (!bucket || !fileName || bucket.includes("/") || bucket.includes("\\") || fileName.includes("/") || fileName.includes("\\")) {
+    return null;
+  }
+
+  const ext = path.extname(fileName).toLowerCase();
+  const contentType = IMAGE_CONTENT_TYPES.get(ext);
+  if (!contentType) return null;
+
+  const filePath = path.join(PUBLIC_IMAGES_ROOT, bucket, fileName);
+  assertInside(PUBLIC_IMAGES_ROOT, filePath);
+
+  try {
+    const bytes = await fs.readFile(filePath);
+    return { bytes, contentType, fileName };
+  } catch (error) {
+    const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
+    if (code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+export async function readContentAdminImage(bucketValue: unknown, fileNameValue: unknown) {
+  const kind = kindFromImageBucket(bucketValue);
+  const fileName = coerceString(fileNameValue);
+  if (!fileName || fileName.includes("/") || fileName.includes("\\")) return null;
+
+  const ext = path.extname(fileName).toLowerCase();
+  const contentType = IMAGE_CONTENT_TYPES.get(ext);
+  if (!contentType) return null;
+
+  if (!kind) return readPublicImage(bucketValue, fileNameValue);
+
+  const dir = runtimeImageDirForKind(kind);
+  const filePath = path.join(dir, fileName);
+  assertInside(dir, filePath);
+
+  try {
+    const bytes = await fs.readFile(filePath);
+    return { bytes, contentType, fileName };
+  } catch (error) {
+    const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
+    if (code === "ENOENT") return readPublicImage(bucketValue, fileNameValue);
+    throw error;
+  }
 }

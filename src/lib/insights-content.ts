@@ -11,6 +11,10 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { rehypePrefixRelativeAssetUrls } from "@/lib/mdx-plugins";
+import {
+  listContentAdminRuntimeSources,
+  listDeletedContentAdminKeys,
+} from "@/lib/content-admin/store";
 
 import mdxComponents from "@/components/MDX/registry";
 
@@ -64,6 +68,10 @@ function toUrl(kind: InsightKind, slug: string) {
     case "blog":
       return `/blog/${slug}`;
   }
+}
+
+function rawDocKey(kind: InsightKind, slug: string) {
+  return `${kind}:${slug}`;
 }
 
 function relativeAssetBaseForKind(kind: InsightKind) {
@@ -179,11 +187,11 @@ async function loadRawDocs(): Promise<RawDoc[]> {
 
   if (DEV) console.log(`[insights] matched files: ${files.length}`);
 
-  const out: RawDoc[] = [];
+  const deletedRuntimeKeys = new Set(await listDeletedContentAdminKeys());
+  const out = new Map<string, RawDoc>();
   for (const filePath of files) {
     const file = await fs.readFile(filePath, "utf8");
     const { content, data } = matter(file);
-    if (isHiddenInsight(data)) continue;
 
     const relFromContent = path.relative(
       path.join(process.cwd(), "content"),
@@ -193,7 +201,10 @@ async function loadRawDocs(): Promise<RawDoc[]> {
     if (!assertKind(kindDir)) continue;
 
     const slug = path.basename(filePath).replace(/(?:\.mdx)+$/i, "");
-    out.push({
+    const key = rawDocKey(kindDir, slug);
+    if (deletedRuntimeKeys.has(key) || isHiddenInsight(data)) continue;
+
+    out.set(key, {
       kind: kindDir as InsightKind,
       slug,
       filePath,
@@ -202,7 +213,26 @@ async function loadRawDocs(): Promise<RawDoc[]> {
     });
   }
 
-  return out;
+  const runtimeDocs = await listContentAdminRuntimeSources();
+  for (const doc of runtimeDocs) {
+    if (!assertKind(doc.kind)) continue;
+    const { content, data } = matter(doc.source);
+    const key = rawDocKey(doc.kind, doc.slug);
+    if (isHiddenInsight(data)) {
+      out.delete(key);
+      continue;
+    }
+
+    out.set(key, {
+      kind: doc.kind,
+      slug: doc.slug,
+      filePath: doc.filePath,
+      source: content,
+      data,
+    });
+  }
+
+  return Array.from(out.values());
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */
