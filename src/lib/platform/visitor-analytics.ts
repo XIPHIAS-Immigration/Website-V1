@@ -171,11 +171,31 @@ function countBy<T extends string>(values: T[]) {
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 }
 
+function dayKey(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value.slice(0, 10) || "Unknown";
+  return date.toISOString().slice(0, 10);
+}
+
+function contactKey(event: VisitorAnalyticsEvent) {
+  return (
+    event.email ||
+    event.phone ||
+    event.name ||
+    event.visitorId
+  ).toLowerCase();
+}
+
 export async function getVisitorAnalyticsSummary(limit = 1500) {
   const events = await readEvents(limit);
   const pageViews = events.filter((event) => event.type === "page_view");
   const clicks = events.filter((event) => event.type === "cta_click");
   const contacts = events.filter((event) => event.email || event.phone || event.name);
+  const uniqueContacts = new Set(contacts.map(contactKey));
+  const eventTypes = countBy(events.map((event) => event.type));
+  const dailyEvents = countBy(events.map((event) => dayKey(event.createdAt)))
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .slice(-14);
 
   return {
     totals: {
@@ -183,9 +203,12 @@ export async function getVisitorAnalyticsSummary(limit = 1500) {
       pageViews: pageViews.length,
       clicks: clicks.length,
       knownContacts: contacts.length,
+      uniqueKnownContacts: uniqueContacts.size,
       visitors: new Set(events.map((event) => event.visitorId)).size,
       sessions: new Set(events.map((event) => event.sessionId).filter(Boolean)).size,
     },
+    eventTypes,
+    dailyEvents,
     topPages: countBy(pageViews.map((event) => event.path).filter(Boolean)).slice(0, 10),
     topInterests: countBy(events.flatMap((event) => event.interests)).slice(0, 12),
     topClicks: countBy(clicks.map((event) => event.label || event.href || "Unknown click")).slice(0, 10),

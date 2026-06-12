@@ -2,6 +2,7 @@ import "server-only";
 
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
+import { unstable_noStore as noStore } from "next/cache";
 
 export const CONTENT_ADMIN_COOKIE = "xiphias_content_admin";
 
@@ -76,6 +77,7 @@ export function verifyContentAdminToken(token?: string): ContentAdminSession | n
 }
 
 export async function getContentAdminSession() {
+  noStore();
   const cookieStore = await cookies();
   return verifyContentAdminToken(cookieStore.get(CONTENT_ADMIN_COOKIE)?.value);
 }

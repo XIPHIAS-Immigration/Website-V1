@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { User, Lock, Eye, EyeOff, AlertCircle, FileText, Newspaper, Bell } from "lucide-react";
+import AuthenticatedPageGuard from "@/components/Security/AuthenticatedPageGuard";
 
 type ContentKind = "blog" | "articles" | "news";
 
@@ -247,6 +248,7 @@ export default function ContentAdminClient({
   const [busy, setBusy] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [showStudioPassword, setShowStudioPassword] = React.useState(false);
+  const [loggedOut, setLoggedOut] = React.useState(false);
   const contentRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const score = scoreForm(form);
@@ -262,6 +264,10 @@ export default function ContentAdminClient({
         .includes(needle);
     });
   }, [activeKind, items, query]);
+
+  React.useEffect(() => {
+    setLoggedOut(new URLSearchParams(window.location.search).get("loggedOut") === "1");
+  }, []);
 
   const updateForm = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -344,7 +350,7 @@ export default function ContentAdminClient({
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data?.message || "Login failed.");
-      window.location.reload();
+      window.location.replace("/content-admin");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed.");
     } finally {
@@ -353,8 +359,12 @@ export default function ContentAdminClient({
   };
 
   const handleLogout = async () => {
-    await fetch("/api/content-admin/logout", { method: "POST" });
-    window.location.reload();
+    await fetch("/api/content-admin/logout", {
+      method: "POST",
+      cache: "no-store",
+      credentials: "include",
+    });
+    window.location.replace("/content-admin?loggedOut=1");
   };
 
   const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -494,6 +504,15 @@ export default function ContentAdminClient({
               Sign in
             </h1>
 
+            {loggedOut ? (
+              <div className="mt-4 rounded-lg border border-[#dce6f7] bg-[#f4f8ff] px-3.5 py-3 text-[12.5px] font-semibold leading-5 text-[#24466f]">
+                You have been signed out securely.
+                <a href="/" className="ml-2 font-black text-[#1c57b4] underline underline-offset-4">
+                  Return to website
+                </a>
+              </div>
+            ) : null}
+
             {!configReady && (
               <p
                 role="alert"
@@ -587,6 +606,14 @@ export default function ContentAdminClient({
                   </>
                 ) : "Enter studio"}
               </button>
+              {!loggedOut ? (
+                <a
+                  href="/"
+                  className="inline-flex text-[12.5px] font-bold text-[#1c57b4] underline underline-offset-4"
+                >
+                  Return to website
+                </a>
+              ) : null}
             </div>
           </form>
         </div>
@@ -597,6 +624,7 @@ export default function ContentAdminClient({
   if (view === "library") {
     return (
       <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950">
+        <AuthenticatedPageGuard checkUrl="/api/content-admin/posts" redirectTo="/content-admin?loggedOut=1" />
         <div className="mx-auto max-w-7xl">
           <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
             <div>
@@ -758,6 +786,7 @@ export default function ContentAdminClient({
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-5 text-slate-950">
+      <AuthenticatedPageGuard checkUrl="/api/content-admin/posts" redirectTo="/content-admin?loggedOut=1" />
       <form onSubmit={handleSave} className="mx-auto max-w-7xl">
         <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">

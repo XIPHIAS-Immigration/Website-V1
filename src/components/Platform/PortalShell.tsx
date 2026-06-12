@@ -1,4 +1,6 @@
 import Link from "next/link";
+import AuthenticatedPageGuard from "@/components/Security/AuthenticatedPageGuard";
+import PortalSignOutButton from "@/components/Platform/PortalSignOutButton";
 import {
   Bot,
   BarChart3,
@@ -182,6 +184,11 @@ export default function PortalShell({ user, active, children }: PortalShellProps
 
   return (
     <section className="min-h-screen bg-slate-100 px-4 py-8 text-slate-950 dark:bg-slate-950 dark:text-white">
+      <AuthenticatedPageGuard
+        checkUrl="/api/auth/session"
+        redirectTo="/x-hub/sign-in?loggedOut=1"
+        mode="next-auth"
+      />
       <div className="mx-auto flex max-w-screen-2xl gap-5">
         <aside className="hidden w-64 shrink-0 lg:block">
           <div className="sticky top-24 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -238,12 +245,7 @@ export default function PortalShell({ user, active, children }: PortalShellProps
                 <span className="rounded-full border border-slate-200 px-3 py-1 text-slate-600 dark:border-slate-700 dark:text-slate-300">
                   {user.email}
                 </span>
-                <Link
-                  href="/api/auth/signout"
-                  className="rounded-full border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  Sign out
-                </Link>
+                <PortalSignOutButton />
               </div>
             </div>
 

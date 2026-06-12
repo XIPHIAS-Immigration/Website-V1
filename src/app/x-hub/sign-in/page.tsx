@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Gauge, FileCheck2, ShieldCheck } from "lucide-react";
 import SignInForm from "@/components/Platform/SignInForm";
 import { hasPortalUsersConfigured } from "@/lib/platform/auth";
@@ -15,7 +16,15 @@ const FEATURES = [
   { label: "Risk",      icon: ShieldCheck },
 ] as const;
 
-export default function XHubSignInPage() {
+type SignInSearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default async function XHubSignInPage({
+  searchParams,
+}: {
+  searchParams?: SignInSearchParams;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const loggedOut = params.loggedOut === "1";
   const hasConfiguredAccess = hasPortalUsersConfigured();
 
   return (
@@ -100,9 +109,26 @@ export default function XHubSignInPage() {
             Sign in
           </h1>
 
+          {loggedOut ? (
+            <div className="mt-4 rounded-lg border border-[#dce6f7] bg-[#f4f8ff] px-3.5 py-3 text-[12.5px] font-semibold leading-5 text-[#24466f]">
+              You have been signed out securely.
+              <Link href="/" className="ml-2 font-black text-[#1c57b4] underline underline-offset-4">
+                Return to website
+              </Link>
+            </div>
+          ) : null}
+
           <div className="mt-5">
             <SignInForm hasConfiguredAccess={hasConfiguredAccess} />
           </div>
+          {!loggedOut ? (
+            <Link
+              href="/"
+              className="mt-4 inline-flex text-[12.5px] font-bold text-[#1c57b4] underline underline-offset-4"
+            >
+              Return to website
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>

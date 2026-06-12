@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 4000",
+    "dev": "next dev --webpack --port 4000",
+    "dev:turbo": "next dev --turbopack --port 4000",
     "build": "node scripts/build-search-index.mjs && next build --webpack",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings=0",

@@ -36,7 +36,7 @@ export default function SignInForm({ hasConfiguredAccess }: SignInFormProps) {
       setError("Incorrect email or password. Please try again.");
       return;
     }
-    router.push("/x-hub");
+    router.replace("/x-hub");
     router.refresh();
   }
 

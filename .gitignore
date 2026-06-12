@@ -25,6 +25,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /.xiphias-platform/
+/your/
 
 # local env files
 .env*.local

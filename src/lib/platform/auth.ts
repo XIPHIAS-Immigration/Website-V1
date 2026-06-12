@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { AuthOptions, Session } from "next-auth";
 import { getServerSession } from "next-auth";
+import { unstable_noStore as noStore } from "next/cache";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { redirect } from "next/navigation";
 import { getPlatformRepository } from "./repository";
@@ -197,6 +198,7 @@ export const authOptions: AuthOptions = {
 };
 
 export async function getCurrentPortalUser(): Promise<PlatformUser | null> {
+  noStore();
   let session: Session | null = null;
   try {
     session = (await getServerSession(authOptions)) as Session | null;

@@ -29,5 +29,6 @@ export async function POST(request: Request) {
 
   const response = NextResponse.json({ ok: true });
   response.cookies.set(CONTENT_ADMIN_COOKIE, createContentAdminToken(username), contentAdminCookieOptions());
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
   return response;
 }

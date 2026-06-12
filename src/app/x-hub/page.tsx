@@ -21,12 +21,14 @@ import {
 import ClientDueDiligenceScan from "@/components/Platform/ClientDueDiligenceScan";
 import ClientHubPlayground from "@/components/Platform/ClientHubPlayground";
 import DocumentUploadForm from "@/components/Platform/DocumentUploadForm";
+import AnalyticsDashboardPreview from "@/components/Platform/AnalyticsDashboardPreview";
 import MetricCard from "@/components/Platform/MetricCard";
 import PortalShell from "@/components/Platform/PortalShell";
 import StatusPill from "@/components/Platform/StatusPill";
 import { buildDocumentPlan } from "@/lib/platform/document-intelligence";
 import { requirePortalUser } from "@/lib/platform/auth";
 import { getPlatformRepository } from "@/lib/platform/repository";
+import { getVisitorAnalyticsSummary } from "@/lib/platform/visitor-analytics";
 import type { ClientDocument, MigrationCase, PortalRole } from "@/lib/platform/types";
 
 export const metadata: Metadata = {
@@ -235,6 +237,8 @@ export default async function XHubPage() {
   const copy = roleCopy(user.role);
   const currentStageIndex = activeCase ? Math.max(0, stages.indexOf(activeCase.stage)) : 0;
   const recentActivity = snapshot.conversations.slice(0, 5);
+  const canSeeAnalytics = user.role === "staff" || user.role === "admin";
+  const analyticsSummary = canSeeAnalytics ? await getVisitorAnalyticsSummary() : null;
 
   return (
     <PortalShell user={user} active="dashboard">
@@ -327,6 +331,19 @@ export default async function XHubPage() {
         <MetricCard label="Open actions" value={documentPlan.nextActions.length + uploadQueue.length} hint="Client and staff next steps" />
         <MetricCard label="Risk records" value={snapshot.riskProfiles.length} hint="Due diligence checks" />
       </div>
+
+      {analyticsSummary ? (
+        <AnalyticsDashboardPreview
+          visitors={analyticsSummary.totals.visitors}
+          sessions={analyticsSummary.totals.sessions}
+          pageViews={analyticsSummary.totals.pageViews}
+          clicks={analyticsSummary.totals.clicks}
+          leads={snapshot.leads.length}
+          knownContacts={analyticsSummary.totals.uniqueKnownContacts}
+          topInterests={analyticsSummary.topInterests}
+          dailyEvents={analyticsSummary.dailyEvents}
+        />
+      ) : null}
 
       {user.role === "client" ? <ClientHubPlayground activeCase={activeCase} profile={profile} /> : null}
 
