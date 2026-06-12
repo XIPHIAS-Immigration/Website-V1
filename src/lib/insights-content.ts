@@ -33,6 +33,7 @@ import type {
 
 const INSIGHT_KINDS: InsightKind[] = ["articles", "news", "media", "blog"];
 const DEV = process.env.NODE_ENV !== "production";
+const RUNTIME_CACHE_MS = Number(process.env.XIPHIAS_INSIGHTS_CACHE_MS || 5000);
 
 // Safety caps (no UI changes; just prevents edge-case abuse)
 const MAX_PAGE_SIZE = 50;
@@ -335,7 +336,7 @@ export async function invalidateInsightsCache() {
 }
 
 async function ensureCache() {
-  if (!DEV && _cache) return _cache; // reuse in prod
+  if (!DEV && _cache && Date.now() - _cache.loadedAt < RUNTIME_CACHE_MS) return _cache; // brief reuse in prod
 
   const raw = await loadRawDocs();
   const metas = raw.map(metaFromRaw).sort(sortByDateDesc);

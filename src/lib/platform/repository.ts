@@ -74,7 +74,7 @@ function getStorePath() {
 function shouldUseFileStore() {
   if (process.env.XIPHIAS_PLATFORM_STORAGE === "memory") return false;
   if (process.env.XIPHIAS_PLATFORM_STORAGE === "file") return true;
-  return process.env.NODE_ENV !== "production";
+  return true;
 }
 
 function normalizeState(input: Partial<PlatformState> | null | undefined): PlatformState {

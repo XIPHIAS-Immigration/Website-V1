@@ -57,7 +57,7 @@ export async function generateStaticParams() {
   return out;
 }
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 /**
  * Generate SEO metadata for MDX program pages.

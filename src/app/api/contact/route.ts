@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 import { NextResponse, type NextRequest } from "next/server";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 // ✅ This route never throws to the frontend (always 200).
 // ✅ If Email/WhatsApp envs are missing, it SKIPS those sends.
@@ -56,6 +57,23 @@ export async function POST(req: NextRequest) {
       to: "XIPHIAS",
       body: message || `Consultation/enquiry form submitted from ${page || "website"}.`,
     });
+
+    await captureVisitorEvent(
+      {
+        type: "lead_capture",
+        visitorId: String(body?.visitorId || platformLead.id),
+        sessionId: String(body?.sessionId || ""),
+        path: page || req.headers.get("referer") || "/",
+        referrer,
+        name,
+        email,
+        phone,
+        label: variant,
+        query: message,
+        interests: [variant],
+      },
+      req.headers,
+    );
 
     // ---------- EMAIL (optional) ----------
     let emailStatus: "sent" | "skipped" | "failed" = "skipped";

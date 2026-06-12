@@ -4,6 +4,7 @@ dotenv.config({ path: ".env.local" });
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { getPlatformRepository } from "@/lib/platform/repository";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -91,6 +92,23 @@ export async function POST(req: Request) {
       to: "XIPHIAS",
       body: message || `Consultation/enquiry form submitted from ${page || "website"}.`,
     });
+
+    await captureVisitorEvent(
+      {
+        type: "lead_capture",
+        visitorId: normalizeText(body?.visitorId, 100) || lead.id,
+        sessionId: normalizeText(body?.sessionId, 100) || undefined,
+        path: page || req.headers.get("referer") || "/",
+        referrer,
+        name,
+        email,
+        phone,
+        label: variant || "contact-form",
+        query: message,
+        interests: [country, variant].filter(Boolean),
+      },
+      req.headers,
+    );
 
     const userHtml = `
       <div style="font-family:'Segoe UI',Roboto,Arial,sans-serif;max-width:640px;margin:auto;background:#fff;border:1px solid #eaeaea;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">

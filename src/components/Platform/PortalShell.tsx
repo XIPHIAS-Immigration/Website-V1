@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   Bot,
+  BarChart3,
   BriefcaseBusiness,
   Building2,
   ClipboardCheck,
@@ -120,6 +121,14 @@ const navItems: NavItem[] = [
     description: "Staff pipeline",
     key: "operations",
     icon: FileCheck2,
+    roles: ["staff", "admin"],
+  },
+  {
+    href: "/x-hub/admin/analytics",
+    label: "Site Analytics",
+    description: "Visitors and intent",
+    key: "analytics",
+    icon: BarChart3,
     roles: ["staff", "admin"],
   },
   {

@@ -39,7 +39,9 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 86400;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // Next 15: searchParams is a Promise and values can be string | string[]
 type PageProps = {

@@ -42,7 +42,9 @@ export const metadata: Metadata = {
 import { getAllInsights, getInsightsFacets } from "@/lib/insights-content";
 import type { InsightKind } from "@/types/insights";
 
-export const revalidate = 86400;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // In Next 15, dynamic APIs like searchParams are Promises
 type PageProps = {

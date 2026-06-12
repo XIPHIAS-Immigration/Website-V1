@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack --port 4000",
-    "build": "node scripts/build-search-index.mjs && next build",
+    "build": "node scripts/build-search-index.mjs && next build --webpack",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings=0",
     "typecheck": "tsc --noEmit",
@@ -14,7 +14,8 @@
     "prevercel-build": "node scripts/build-search-index.mjs",
     "analyze": "cross-env ANALYZE=true next build",
     "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});}catch(e){}\"",
-    "crm:configure-local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/configure-crm-sql-env.ps1"
+    "crm:configure-local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/configure-crm-sql-env.ps1",
+    "test:prod-cms": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-production-cms.ps1"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.0.1",

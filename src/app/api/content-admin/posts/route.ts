@@ -10,6 +10,9 @@ import {
 } from "@/lib/content-admin/store";
 import { invalidateInsightsCache } from "@/lib/insights-content";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     await requireContentAdmin();

@@ -9,7 +9,9 @@ const InsightJsonLd = nextDynamic(() => import("@/components/SEO/InsightJsonLd")
 
 const SITE_URL = "https://www.xiphiasimmigration.com";
 
-export const revalidate = 86400;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type Params = { slug: string };
 type PageProps = { params: Params | Promise<Params> };

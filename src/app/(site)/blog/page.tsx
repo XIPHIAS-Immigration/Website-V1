@@ -39,7 +39,9 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 86400;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // Compatible typing: supports either plain object or Promise (varies by Next versions/tooling)
 type SearchParams = Record<string, string | string[] | undefined>;

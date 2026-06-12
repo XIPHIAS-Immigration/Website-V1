@@ -7,7 +7,9 @@ const InsightDetailView = nextDynamic(() => import("@/components/Insights/Insigh
 const InsightJsonLd = nextDynamic(() => import("@/components/SEO/InsightJsonLd"));
 import { getInsightBySlug } from "@/lib/insights-content";
 
-export const revalidate = 86400;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // In Next 15, params is a Promise
 type PageProps = { params: Promise<{ slug: string }> };

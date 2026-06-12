@@ -3,6 +3,7 @@ import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText, parseBoolean } from "@/lib/platform/sanitize";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
 import { sendPlatformEmail, getPlatformRecipient, keyValueHtml } from "@/lib/platform/email";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import type { LeadSource } from "@/lib/platform/types";
 import { isTrack } from "@/lib/eligibility/types";
 
@@ -54,6 +55,23 @@ export async function POST(req: NextRequest) {
       body: lead.message,
     });
   }
+
+  await captureVisitorEvent(
+    {
+      type: "lead_capture",
+      visitorId: normalizeText(body.visitorId, 100) || lead.id,
+      sessionId: normalizeText(body.sessionId, 100) || undefined,
+      path: lead.page || req.headers.get("referer") || "/",
+      referrer: lead.referrer,
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      label: lead.source,
+      interests: [lead.track, lead.country, lead.program].filter(Boolean),
+      query: lead.message,
+    },
+    req.headers,
+  );
 
   const whatsapp = await sendLeadAlert(lead);
 

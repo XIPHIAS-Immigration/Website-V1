@@ -17,7 +17,7 @@ export function generateStaticParams() {
   return VERTICALS.map((v) => ({ vertical: v }));
 }
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateMetadata({
   params,

@@ -17,6 +17,9 @@ const CookieConsentManager = dynamic(() => import("@/components/CookieConsentMan
 const CookieAwareGA4 = dynamic(() => import("@/components/Analytics/CookieAwareGA4"), {
   ssr: false,
 });
+const VisitorAnalyticsTracker = dynamic(() => import("@/components/Analytics/VisitorAnalyticsTracker"), {
+  ssr: false,
+});
 
 type Props = {
   gaId?: string;
@@ -73,6 +76,7 @@ export default function DeferredClientWidgets({ gaId }: Props) {
       {engagementReady ? <QuickEnquiryPopup /> : null}
       {engagementReady ? <GlobalBrochureGate /> : null}
       <CookieConsentManager />
+      <VisitorAnalyticsTracker />
       {gaId ? <CookieAwareGA4 gaId={gaId} /> : null}
     </>
   );

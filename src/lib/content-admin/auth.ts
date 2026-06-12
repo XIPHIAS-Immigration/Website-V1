@@ -90,7 +90,7 @@ export function contentAdminCookieOptions() {
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && process.env.CONTENT_ADMIN_INSECURE_COOKIES !== "true",
     path: "/",
     maxAge: SESSION_SECONDS,
   };
