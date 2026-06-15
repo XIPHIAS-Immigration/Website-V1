@@ -3,6 +3,7 @@ import { getCurrentPortalUser } from "@/lib/platform/auth";
 import { getPlatformRecipient, keyValueHtml, sendPlatformEmail } from "@/lib/platform/email";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText } from "@/lib/platform/sanitize";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,7 +35,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const referral = getPlatformRepository().createPartnerReferral({
+  const repo = getPlatformRepository();
+  const referral = repo.createPartnerReferral({
     partnerId: user?.partnerId,
     partnerName,
     companyName: normalizeText(body.companyName, 160) || undefined,
@@ -47,6 +49,44 @@ export async function POST(req: NextRequest) {
     targetProgram: normalizeText(body.targetProgram, 120) || undefined,
     notes: normalizeText(body.notes, 1600) || undefined,
   });
+  const lead = repo.createLead({
+    source: "partner",
+    status: "new",
+    name: referral.clientName,
+    email: referral.clientEmail || undefined,
+    phone: referral.clientPhone || undefined,
+    country: referral.targetCountry || undefined,
+    program: referral.targetProgram || undefined,
+    message: `Partner referral from ${referral.partnerName}${referral.notes ? `: ${referral.notes}` : ""}`,
+    page: "/x-hub/partners",
+    referrer: req.headers.get("referer") || undefined,
+    consent: true,
+    tags: ["partner-referral", referral.companyName].filter((tag): tag is string => Boolean(tag)),
+  });
+  repo.createConversation({
+    leadId: lead.id,
+    channel: "portal",
+    direction: "inbound",
+    from: referral.partnerName,
+    to: "XIPHIAS",
+    body: `Partner referral for ${referral.clientName}${referral.targetCountry ? ` - ${referral.targetCountry}` : ""}.`,
+  });
+  await captureVisitorEvent(
+    {
+      type: "lead_capture",
+      visitorId: lead.id,
+      path: "/x-hub/partners",
+      referrer: req.headers.get("referer") || undefined,
+      label: "partner-referral",
+      name: referral.clientName,
+      email: referral.clientEmail,
+      phone: referral.clientPhone,
+      query: referral.notes,
+      interests: [referral.targetCountry, referral.targetProgram, "partner referral"].filter(Boolean),
+      metadata: { leadId: lead.id, referralId: referral.id, partnerId: referral.partnerId },
+    },
+    req.headers,
+  );
 
   const adminEmail = await sendPlatformEmail({
     label: "XIPHIAS Partner Portal",
@@ -87,5 +127,5 @@ export async function POST(req: NextRequest) {
     `,
   });
 
-  return NextResponse.json({ ok: true, referral, email: { admin: adminEmail, acknowledgement } });
+  return NextResponse.json({ ok: true, referral, lead, email: { admin: adminEmail, acknowledgement } });
 }

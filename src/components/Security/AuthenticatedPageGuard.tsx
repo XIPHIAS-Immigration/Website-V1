@@ -42,9 +42,9 @@ export default function AuthenticatedPageGuard({
   }, [checkUrl, mode, redirect]);
 
   React.useEffect(() => {
-    const onPageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) void verify();
-    };
+    void verify();
+
+    const onPageShow = () => void verify();
     const onFocus = () => void verify();
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") void verify();

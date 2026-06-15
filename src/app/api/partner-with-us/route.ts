@@ -1,5 +1,7 @@
 ﻿import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { getPlatformRepository } from "@/lib/platform/repository";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 export const runtime = "nodejs";
 
@@ -84,6 +86,59 @@ export async function POST(req: Request) {
     }
     if (!consent) {
       return NextResponse.json({ ok: false, error: "Consent is required to submit this form." }, { status: 400 });
+    }
+
+    let leadId: string | undefined;
+    try {
+      const repo = getPlatformRepository();
+      const lead = repo.createLead({
+        source: "partner",
+        status: "new",
+        name: partnerName,
+        email: partnerEmail,
+        phone: partnerPhone,
+        country: inquiryCountry || marketsServed || undefined,
+        program: targetProgram || partnerType || undefined,
+        message: partnershipGoal,
+        page: page || req.headers.get("referer") || "/partner-with-us",
+        referrer: referrer || req.headers.get("referer") || undefined,
+        consent,
+        tags: ["partner-with-us", partnerType, companyName].filter(Boolean),
+      });
+      leadId = lead.id;
+      repo.createConversation({
+        leadId: lead.id,
+        channel: "portal",
+        direction: "inbound",
+        from: partnerName,
+        to: "XIPHIAS",
+        body: partnershipGoal,
+      });
+      await captureVisitorEvent(
+        {
+          type: "lead_capture",
+          visitorId: lead.id,
+          path: page || req.headers.get("referer") || "/partner-with-us",
+          referrer: referrer || req.headers.get("referer") || undefined,
+          label: "partner-with-us",
+          name: partnerName,
+          email: partnerEmail,
+          phone: partnerPhone,
+          query: partnershipGoal,
+          interests: [partnerType, targetProgram, inquiryCountry, marketsServed].filter(Boolean),
+          metadata: {
+            leadId: lead.id,
+            companyName,
+            website,
+            inquiryName,
+            inquiryEmail,
+            inquiryPhone,
+          },
+        },
+        req.headers,
+      );
+    } catch (leadError) {
+      console.error("[partner-with-us] X-Hub lead capture failed:", leadError);
     }
 
     const smtpHost = process.env.SMTP_HOST;
@@ -184,7 +239,7 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    return NextResponse.json({ ok: true, message: "Partnership request submitted successfully." });
+    return NextResponse.json({ ok: true, message: "Partnership request submitted successfully.", leadId });
   } catch (err: any) {
     console.error("Error in /api/partner-with-us:", err);
     return NextResponse.json(

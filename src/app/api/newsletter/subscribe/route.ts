@@ -6,6 +6,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { getPlatformRepository } from "@/lib/platform/repository";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 // If you want to be explicit:
 export const runtime = "nodejs";
@@ -376,6 +378,46 @@ export async function POST(req: NextRequest) {
     const uaRaw = req.headers.get("user-agent");
     const userAgent = uaRaw ? normalizeSingleLine(uaRaw, 500) : undefined;
 
+    let leadId: string | undefined;
+    try {
+      const repo = getPlatformRepository();
+      const lead = repo.createLead({
+        source: "website",
+        status: "new",
+        name: email.split("@")[0] || "Newsletter subscriber",
+        email,
+        message: `Newsletter subscription captured from ${source}.`,
+        page: req.headers.get("referer") || "/",
+        referrer: req.headers.get("referer") || undefined,
+        consent: true,
+        tags: ["newsletter", source].filter(Boolean),
+      });
+      leadId = lead.id;
+      repo.createConversation({
+        leadId: lead.id,
+        channel: "email",
+        direction: "inbound",
+        from: email,
+        to: "XIPHIAS",
+        body: `Subscribed to newsletter from ${source}.`,
+      });
+      await captureVisitorEvent(
+        {
+          type: "lead_capture",
+          visitorId: lead.id,
+          path: req.headers.get("referer") || "/",
+          referrer: req.headers.get("referer") || undefined,
+          label: `newsletter:${source}`,
+          email,
+          interests: ["newsletter", source],
+          metadata: { leadId: lead.id, source: "newsletter" },
+        },
+        req.headers,
+      );
+    } catch (leadError) {
+      console.error("[newsletter] X-Hub lead capture failed:", leadError);
+    }
+
     const transporter = await createTransport();
 
     // Send both emails in parallel
@@ -400,6 +442,7 @@ export async function POST(req: NextRequest) {
       {
         ok: true,
         message: "Subscribed",
+        leadId,
       },
       { status: 200 }
     );

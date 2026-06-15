@@ -191,6 +191,18 @@ class PlatformRepositoryImpl {
     this.writeState(this.state);
   }
 
+  syncFromStore() {
+    if (!this.persistToFile || !existsSync(this.storePath)) return;
+
+    try {
+      const raw = readFileSync(this.storePath, "utf8");
+      const parsed = JSON.parse(raw) as Partial<PlatformState>;
+      this.state = scrubLegacyDemoState(normalizeState(parsed));
+    } catch (error) {
+      console.warn("[x-hub] Could not refresh platform store; keeping active state.", error);
+    }
+  }
+
   cleanupLegacyDemoData() {
     const cleaned = scrubLegacyDemoState(this.state);
     if (JSON.stringify(cleaned) !== JSON.stringify(this.state)) {
@@ -324,6 +336,25 @@ class PlatformRepositoryImpl {
     lead.status = status;
     lead.updatedAt = nowIso();
     this.audit("lead.updated", "lead", lead.id, undefined, { status });
+    this.persist();
+    return lead;
+  }
+
+  deleteLead(idValue: string, actorId?: string) {
+    const index = this.state.leads.findIndex((item) => item.id === idValue);
+    if (index < 0) return null;
+    const [lead] = this.state.leads.splice(index, 1);
+    this.state.conversations = this.state.conversations.filter((item) => item.leadId !== lead.id);
+    this.state.riskProfiles = this.state.riskProfiles.filter((item) => item.leadId !== lead.id);
+    for (const migrationCase of this.state.cases) {
+      if (migrationCase.leadId === lead.id) migrationCase.leadId = undefined;
+    }
+    this.audit("lead.deleted", "lead", lead.id, actorId, {
+      source: lead.source,
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+    });
     this.persist();
     return lead;
   }
@@ -692,10 +723,12 @@ export function getPlatformRepository(): PlatformRepository {
   if (
     !globalForPlatform.__xiphiasPlatformRepository ||
     typeof globalForPlatform.__xiphiasPlatformRepository.upsertClientProfile !== "function" ||
-    typeof globalForPlatform.__xiphiasPlatformRepository.cleanupLegacyDemoData !== "function"
+    typeof globalForPlatform.__xiphiasPlatformRepository.cleanupLegacyDemoData !== "function" ||
+    typeof globalForPlatform.__xiphiasPlatformRepository.syncFromStore !== "function"
   ) {
     globalForPlatform.__xiphiasPlatformRepository = new PlatformRepositoryImpl();
   }
+  globalForPlatform.__xiphiasPlatformRepository.syncFromStore();
   globalForPlatform.__xiphiasPlatformRepository.cleanupLegacyDemoData();
   return globalForPlatform.__xiphiasPlatformRepository;
 }

@@ -18,6 +18,9 @@ const SkilledPreview = dynamic(
 const CitizenshipPreview = dynamic(
   () => import("@/components/Citizenship/CitizenshipPreview"),
 );
+const XiaIntelligencePreview = dynamic(
+  () => import("@/components/Home/XiaIntelligencePreview"),
+);
 const CorporatePreview = dynamic(
   () => import("@/components/Corporate/CorporatePreview"),
 );
@@ -56,6 +59,7 @@ export default function Home() {
     <>
       <Hero />
       <WhyChooseUs />
+      <XiaIntelligencePreview />
       <CitizenshipPreview />
       <ResidencyPreview />
 

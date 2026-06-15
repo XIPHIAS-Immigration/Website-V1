@@ -3,7 +3,14 @@ import "server-only";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-type VisitorEventType = "page_view" | "cta_click" | "engaged" | "search" | "form_submit" | "lead_capture";
+type VisitorEventType =
+  | "page_view"
+  | "cta_click"
+  | "engaged"
+  | "search"
+  | "form_submit"
+  | "lead_capture"
+  | "programme_assessment";
 
 export type VisitorAnalyticsEvent = {
   id: string;
@@ -23,12 +30,14 @@ export type VisitorAnalyticsEvent = {
   ip?: string;
   userAgent?: string;
   countryHint?: string;
+  metadata?: Record<string, unknown>;
   createdAt: string;
 };
 
 type VisitorAnalyticsInput = Partial<Omit<VisitorAnalyticsEvent, "id" | "createdAt" | "interests">> & {
   type?: string;
   interests?: unknown;
+  metadata?: unknown;
 };
 
 function nowIso() {
@@ -51,9 +60,22 @@ function normalizeArray(value: unknown): string[] {
   return value.map((item) => normalizeText(item, 80)).filter(Boolean).slice(0, 12);
 }
 
+function normalizeMetadata(value: unknown): Record<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+
+  try {
+    const json = JSON.stringify(value);
+    if (!json || json.length > 12000) return undefined;
+    const parsed = JSON.parse(json) as Record<string, unknown>;
+    return Object.fromEntries(Object.entries(parsed).slice(0, 30));
+  } catch {
+    return undefined;
+  }
+}
+
 function eventType(value: unknown): VisitorEventType {
   const next = normalizeText(value, 40);
-  if (["page_view", "cta_click", "engaged", "search", "form_submit", "lead_capture"].includes(next)) {
+  if (["page_view", "cta_click", "engaged", "search", "form_submit", "lead_capture", "programme_assessment"].includes(next)) {
     return next as VisitorEventType;
   }
   return "page_view";
@@ -129,6 +151,7 @@ export async function captureVisitorEvent(input: VisitorAnalyticsInput, headers?
     ip: clientIp(headers) || undefined,
     userAgent: normalizeText(input.userAgent, 300) || headersGet(headers, "user-agent") || undefined,
     countryHint: headersGet(headers, "cf-ipcountry") || undefined,
+    metadata: normalizeMetadata(input.metadata),
     createdAt: nowIso(),
   };
 

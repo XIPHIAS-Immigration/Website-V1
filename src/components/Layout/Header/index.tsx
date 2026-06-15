@@ -13,7 +13,7 @@ import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, Sparkles } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -308,6 +308,14 @@ export default function Header() {
                 </Link>
 
                 <Link
+                  href="/xia-intelligence"
+                  className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-black/10 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
+                >
+                  <Sparkles className="h-4 w-4" aria-hidden />
+                  XIA Intelligence
+                </Link>
+
+                <Link
                   href="/x-hub"
                   className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-black/10 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
@@ -442,6 +450,14 @@ export default function Header() {
                   className="inline-flex items-center justify-center rounded-xl bg-secondary px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   Start Your Journey
+                </Link>
+                <Link
+                  href="/xia-intelligence"
+                  onClick={() => setDrawerOpen(false)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
+                >
+                  <Sparkles className="h-4 w-4" aria-hidden />
+                  XIA Intelligence
                 </Link>
                 <Link
                   href="/x-hub"

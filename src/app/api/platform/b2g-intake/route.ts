@@ -3,6 +3,7 @@ import { getCurrentPortalUser } from "@/lib/platform/auth";
 import { getPlatformRecipient, keyValueHtml, sendPlatformEmail } from "@/lib/platform/email";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText } from "@/lib/platform/sanitize";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,7 +31,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const inquiry = getPlatformRepository().createB2GInquiry({
+  const repo = getPlatformRepository();
+  const inquiry = repo.createB2GInquiry({
     organizationName,
     contactName,
     contactEmail,
@@ -39,6 +41,44 @@ export async function POST(req: NextRequest) {
     region: normalizeText(body.region, 120) || undefined,
     volumeEstimate: normalizeText(body.volumeEstimate, 80) || undefined,
   });
+  const lead = repo.createLead({
+    source: "b2g",
+    status: "new",
+    name: inquiry.contactName,
+    email: inquiry.contactEmail,
+    phone: inquiry.contactPhone || undefined,
+    country: inquiry.region || undefined,
+    program: "B2G / institutional mobility",
+    message: inquiry.requirement,
+    page: "/x-hub/b2g",
+    referrer: req.headers.get("referer") || undefined,
+    consent: true,
+    tags: ["b2g", inquiry.organizationName, inquiry.volumeEstimate].filter((tag): tag is string => Boolean(tag)),
+  });
+  repo.createConversation({
+    leadId: lead.id,
+    channel: "portal",
+    direction: "inbound",
+    from: inquiry.contactName,
+    to: "XIPHIAS",
+    body: `B2G inquiry from ${inquiry.organizationName}: ${inquiry.requirement}`,
+  });
+  await captureVisitorEvent(
+    {
+      type: "lead_capture",
+      visitorId: lead.id,
+      path: "/x-hub/b2g",
+      referrer: req.headers.get("referer") || undefined,
+      label: "b2g-intake",
+      name: inquiry.contactName,
+      email: inquiry.contactEmail,
+      phone: inquiry.contactPhone,
+      query: inquiry.requirement,
+      interests: ["b2g", inquiry.region, inquiry.volumeEstimate].filter(Boolean),
+      metadata: { leadId: lead.id, inquiryId: inquiry.id, organizationName: inquiry.organizationName },
+    },
+    req.headers,
+  );
 
   const adminEmail = await sendPlatformEmail({
     label: "XIPHIAS B2G Portal",
@@ -76,5 +116,5 @@ export async function POST(req: NextRequest) {
     `,
   });
 
-  return NextResponse.json({ ok: true, inquiry, email: { admin: adminEmail, acknowledgement } });
+  return NextResponse.json({ ok: true, inquiry, lead, email: { admin: adminEmail, acknowledgement } });
 }

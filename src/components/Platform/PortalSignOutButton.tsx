@@ -8,11 +8,11 @@ export default function PortalSignOutButton() {
 
   async function handleSignOut() {
     setBusy(true);
-    const result = await signOut({
+    await signOut({
       redirect: false,
       callbackUrl: "/x-hub/sign-in?loggedOut=1",
     });
-    window.location.replace(result.url || "/x-hub/sign-in?loggedOut=1");
+    window.location.replace("/x-hub/sign-in?loggedOut=1");
   }
 
   return (

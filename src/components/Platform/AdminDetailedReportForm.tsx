@@ -95,6 +95,14 @@ export default function AdminDetailedReportForm() {
             <input name="phone" className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
           </label>
           <label className="block">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Client profile / role</span>
+            <input name="profile" placeholder="Software engineer, investor, founder..." className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Current location</span>
+            <input name="currentCountry" placeholder="India, UAE, Canada..." className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
+          </label>
+          <label className="block">
             <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Payment reference</span>
             <input name="paymentReference" required className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
           </label>
@@ -127,6 +135,22 @@ export default function AdminDetailedReportForm() {
           <label className="block">
             <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Family details</span>
             <input name="familyMembers" placeholder="Spouse, dependents..." className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Route fit score</span>
+            <input name="routeFitScore" inputMode="numeric" placeholder="82" className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Evidence strength</span>
+            <input name="evidenceStrength" inputMode="numeric" placeholder="68" className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Document readiness</span>
+            <input name="documentReadiness" inputMode="numeric" placeholder="56" className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Risk clarity</span>
+            <input name="riskClarity" inputMode="numeric" placeholder="72" className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" />
           </label>
         </div>
 

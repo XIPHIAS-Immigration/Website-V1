@@ -3,6 +3,8 @@ dotenv.config({ path: ".env.local" });
 
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { getPlatformRepository } from "@/lib/platform/repository";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 /**
  * API route to handle brochure download leads.
@@ -60,6 +62,51 @@ export async function POST(req: Request) {
       email: safeEmail,
       brochure: safeBrochure,
     });
+
+    let leadId: string | undefined;
+    try {
+      const repo = getPlatformRepository();
+      const lead = repo.createLead({
+        source: "website",
+        status: "new",
+        name: safeName,
+        email: safeEmail,
+        phone: safePhone,
+        message: `Brochure download requested${safeBrochure ? `: ${safeBrochure}` : ""}.`,
+        page: req.headers.get("referer") || "/",
+        referrer: req.headers.get("referer") || undefined,
+        consent: true,
+        tags: ["brochure-download"],
+      });
+      leadId = lead.id;
+      repo.createConversation({
+        leadId: lead.id,
+        channel: "portal",
+        direction: "inbound",
+        from: safeName,
+        to: "XIPHIAS",
+        body: `Requested brochure download${safeBrochure ? `: ${safeBrochure}` : ""}.`,
+      });
+      await captureVisitorEvent(
+        {
+          type: "lead_capture",
+          visitorId: lead.id,
+          path: req.headers.get("referer") || "/",
+          referrer: req.headers.get("referer") || undefined,
+          label: "brochure-download",
+          href: safeBrochure || undefined,
+          name: safeName,
+          email: safeEmail,
+          phone: safePhone,
+          query: safeBrochure || undefined,
+          interests: ["brochure", safeBrochure].filter(Boolean),
+          metadata: { leadId: lead.id, brochure: safeBrochure },
+        },
+        req.headers,
+      );
+    } catch (leadError) {
+      console.error("[brochure-lead] X-Hub lead capture failed:", leadError);
+    }
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -136,7 +183,7 @@ export async function POST(req: Request) {
     await transporter.sendMail(adminMail);
     console.log("✅ Brochure lead email sent to admin");
 
-    return NextResponse.json({ ok: true, message: "Lead received successfully" });
+    return NextResponse.json({ ok: true, message: "Lead received successfully", leadId });
   } catch (err: any) {
     console.error("❌ Error in /api/brochure-lead:", err);
     return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });

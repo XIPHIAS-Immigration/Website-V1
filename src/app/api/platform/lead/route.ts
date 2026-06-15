@@ -10,7 +10,7 @@ import { isTrack } from "@/lib/eligibility/types";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SOURCES = new Set<LeadSource>(["website", "chat", "whatsapp", "eligibility", "registration", "partner", "b2g"]);
+const SOURCES = new Set<LeadSource>(["website", "chat", "whatsapp", "eligibility", "registration", "programme_ai", "partner", "b2g"]);
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));

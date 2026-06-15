@@ -3,6 +3,8 @@ export const runtime = "nodejs";
 
 import { NextResponse, type NextRequest } from "next/server";
 import nodemailer from "nodemailer";
+import { getPlatformRepository } from "@/lib/platform/repository";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -99,6 +101,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Max file size is 5MB." }, { status: 400 });
     }
 
+    let leadId: string | undefined;
+    try {
+      const repo = getPlatformRepository();
+      const lead = repo.createLead({
+        source: "website",
+        status: "new",
+        name,
+        email,
+        phone,
+        program: role || "Career application",
+        message: `Career application${role ? ` for ${role}` : ""}. LinkedIn: ${linkedin}${message ? ` Message: ${message}` : ""}`,
+        page: req.headers.get("referer") || "/careers",
+        referrer: req.headers.get("referer") || undefined,
+        consent: true,
+        tags: ["career-application", role].filter(Boolean),
+      });
+      leadId = lead.id;
+      repo.createConversation({
+        leadId: lead.id,
+        channel: "portal",
+        direction: "inbound",
+        from: name,
+        to: "XIPHIAS HR",
+        body: `Career application${role ? ` for ${role}` : ""}. Resume: ${resume.name}.`,
+      });
+      await captureVisitorEvent(
+        {
+          type: "lead_capture",
+          visitorId: lead.id,
+          path: req.headers.get("referer") || "/careers",
+          referrer: req.headers.get("referer") || undefined,
+          label: "career-application",
+          name,
+          email,
+          phone,
+          query: role || message || undefined,
+          interests: ["careers", role].filter(Boolean),
+          metadata: { leadId: lead.id, role, linkedin, resumeName: resume.name },
+        },
+        req.headers,
+      );
+    } catch (leadError) {
+      console.error("[apply] X-Hub lead capture failed:", leadError);
+    }
+
     // SMTP config
     const host = process.env.SMTP_HOST;
     const port = Number(process.env.SMTP_PORT || 587);
@@ -183,7 +230,7 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    return redirectOrJson(req, { ok: true }, "/careers?applied=1#apply");
+    return redirectOrJson(req, { ok: true, leadId }, "/careers?applied=1#apply");
   } catch (err: any) {
     console.error("❌ /api/apply error:", err);
     return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });

@@ -4,20 +4,11 @@ import PortalSignOutButton from "@/components/Platform/PortalSignOutButton";
 import {
   Bot,
   BarChart3,
-  BriefcaseBusiness,
-  Building2,
-  ClipboardCheck,
-  FileCheck2,
   FileText,
-  FileSearch,
-  Gauge,
-  Globe2,
   KeyRound,
   LayoutDashboard,
-  Orbit,
   ShieldCheck,
-  UserRound,
-  Workflow,
+  Sparkles,
 } from "lucide-react";
 import type { PlatformUser, PortalRole } from "@/lib/platform/types";
 
@@ -40,95 +31,31 @@ const navItems: NavItem[] = [
   {
     href: "/x-hub",
     label: "X-Hub",
-    description: "Case home",
+    description: "Intelligence home",
     key: "dashboard",
     icon: LayoutDashboard,
     roles: ["client", "staff", "admin", "partner", "b2g"],
   },
   {
-    href: "/x-hub/account",
-    label: "Account",
-    description: "Login settings",
-    key: "account",
-    icon: KeyRound,
-    roles: ["client", "staff", "admin", "partner", "b2g"],
-  },
-  {
-    href: "/x-hub/profile",
-    label: "Client Profile",
-    description: "Single client record",
-    key: "profile",
-    icon: UserRound,
-    roles: ["client", "staff", "admin"],
-  },
-  {
-    href: "/x-hub/mobility-os",
-    label: "Mobility OS",
-    description: "Journey intelligence",
-    key: "mobility-os",
-    icon: Orbit,
-    roles: ["client", "staff", "admin"],
-  },
-  {
-    href: "/x-hub/documents",
-    label: "Documents",
-    description: "Evidence planner",
-    key: "documents",
-    icon: FileSearch,
-    roles: ["client", "staff", "admin"],
-  },
-  {
-    href: "/x-hub/imt",
-    label: "Case Tracker",
-    description: "IMT milestones",
-    key: "imt",
-    icon: Gauge,
-    roles: ["client", "staff", "admin"],
-  },
-  {
     href: "/x-hub/xia",
-    label: "XIA Advisor",
-    description: "Program triage",
+    label: "XIA",
+    description: "Route advisor",
     key: "xia",
     icon: Bot,
     roles: ["client", "staff", "admin", "partner", "b2g"],
   },
   {
-    href: "/x-hub/x-passport",
-    label: "X-Passport",
-    description: "Country fit score",
-    key: "passport",
-    icon: Globe2,
+    href: "/xia-intelligence",
+    label: "XIA Intelligence",
+    description: "Assessment suite",
+    key: "xia-intelligence",
+    icon: Sparkles,
     roles: ["client", "staff", "admin", "partner", "b2g"],
   },
   {
-    href: "/x-hub/partners",
-    label: "Partner Desk",
-    description: "Referral tracking",
-    key: "partners",
-    icon: BriefcaseBusiness,
-    roles: ["partner", "staff", "admin"],
-  },
-  {
-    href: "/x-hub/b2g",
-    label: "B2G Desk",
-    description: "Institutional intake",
-    key: "b2g",
-    icon: Building2,
-    roles: ["b2g", "staff", "admin"],
-  },
-  {
-    href: "/x-hub/admin/operations",
-    label: "Operations",
-    description: "Staff pipeline",
-    key: "operations",
-    icon: FileCheck2,
-    roles: ["staff", "admin"],
-  },
-  {
     href: "/x-hub/admin/analytics",
-    label: "Site Analytics",
-    description: "Visitors and intent",
+    label: "Visitor Signals",
+    description: "Users and intent",
     key: "analytics",
     icon: BarChart3,
     roles: ["staff", "admin"],
@@ -142,36 +69,12 @@ const navItems: NavItem[] = [
     roles: ["staff", "admin"],
   },
   {
-    href: "/crm",
-    label: "CRM Migration",
-    description: "Legacy map",
-    key: "crm",
-    icon: Workflow,
-    roles: ["staff", "admin"],
-  },
-  {
-    href: "/x-hub/admin/risk",
-    label: "Risk Review",
-    description: "Due diligence",
-    key: "risk",
-    icon: ShieldCheck,
-    roles: ["staff", "admin"],
-  },
-  {
-    href: "/x-hub/admin/health",
-    label: "Health Check",
-    description: "System readiness",
-    key: "health",
-    icon: Gauge,
-    roles: ["staff", "admin"],
-  },
-  {
-    href: "/x-hub/admin/content-review",
-    label: "Content Review",
-    description: "Approval queue",
-    key: "content",
-    icon: ClipboardCheck,
-    roles: ["staff", "admin"],
+    href: "/x-hub/account",
+    label: "Account",
+    description: "Login settings",
+    key: "account",
+    icon: KeyRound,
+    roles: ["client", "staff", "admin", "partner", "b2g"],
   },
 ];
 
@@ -183,7 +86,7 @@ export default function PortalShell({ user, active, children }: PortalShellProps
   const items = navItems.filter((item) => item.roles.includes(user.role));
 
   return (
-    <section className="min-h-screen bg-slate-100 px-4 py-8 text-slate-950 dark:bg-slate-950 dark:text-white">
+    <section className="min-h-screen bg-grey px-4 py-8 text-slate-950 dark:bg-darkmode dark:text-white">
       <AuthenticatedPageGuard
         checkUrl="/api/auth/session"
         redirectTo="/x-hub/sign-in?loggedOut=1"
@@ -232,11 +135,11 @@ export default function PortalShell({ user, active, children }: PortalShellProps
         </aside>
 
         <div className="min-w-0 flex-1">
-          <header className="mb-5 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:px-5">
+          <header className="mb-5 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-darklight sm:px-5">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">X-Hub</p>
-                <h1 className="mt-1 text-2xl font-bold tracking-normal sm:text-3xl">Client and mobility operations</h1>
+                <p className="text-xs font-semibold text-primary">X-Hub</p>
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Client and mobility workspace</h1>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="rounded-full border border-slate-200 px-3 py-1 font-semibold dark:border-slate-700">

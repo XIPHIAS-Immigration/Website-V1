@@ -3,6 +3,7 @@ import { validateSubmission } from "@/utils/validate";
 import nodemailer from "nodemailer";
 import { getEligibilityAdvisory } from "@/lib/platform/eligibility-advisor";
 import { getPlatformRepository } from "@/lib/platform/repository";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
 import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 import type { Track } from "@/lib/eligibility/types";
@@ -208,6 +209,28 @@ export async function POST(req: NextRequest) {
         to: "XIPHIAS",
         body: `Eligibility ${track}: ${result.summary}`,
       });
+      await captureVisitorEvent(
+        {
+          type: "lead_capture",
+          visitorId: sanitizeStr(body.visitorId, 100) || lead.id,
+          sessionId: sanitizeStr(body.sessionId, 100) || undefined,
+          path: req.headers.get("referer") || "/eligibility",
+          referrer: req.headers.get("referer") || undefined,
+          label: "eligibility-submit",
+          name,
+          email,
+          phone,
+          query: result.summary,
+          interests: [track, result.countryFocus, result.programs[0]?.name].filter(Boolean),
+          metadata: {
+            leadId: lead.id,
+            tier: result.tier,
+            confidence: result.confidence,
+            handoffRequired: result.handoffRequired,
+          },
+        },
+        req.headers,
+      );
       const whatsapp = await sendLeadAlert(lead);
       whatsappStatus =
         whatsapp.status === "sent" ? "sent" : whatsapp.status === "failed" ? "failed" : "skipped";

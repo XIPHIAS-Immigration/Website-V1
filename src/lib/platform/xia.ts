@@ -6,6 +6,7 @@ import { Programs } from "@/lib/eligibility/programCatalog";
 import { TOPMATE_BOOKING_URL } from "@/lib/topmate";
 import type { XiaRecommendation, XiaRequest } from "./types";
 import { listCountryOfferings, retrieveContent } from "./content-rag";
+import { getImmigrationKnowledgeContext, type ImmigrationKnowledgeContext } from "./immigration-knowledge";
 
 type CatalogProgram = {
   name: string;
@@ -109,10 +110,50 @@ function hrefForCatalogProgram(program: CatalogProgram) {
   return `/${track}/${country}`;
 }
 
+function uniqueSources(sources: XiaRecommendation["sources"]) {
+  const seen = new Set<string>();
+  return sources.filter((source) => {
+    const key = `${source.label}::${source.href}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function toKnowledgePayload(context: ImmigrationKnowledgeContext): XiaRecommendation["knowledge"] {
+  return {
+    coverageSummary: context.coverageSummary,
+    totalDocs: context.snapshot.totalDocs,
+    programPages: context.snapshot.programPages,
+    countryPages: context.snapshot.countryPages,
+    insightPages: context.snapshot.insightPages,
+    requestedCountry: context.requestedCountry?.label,
+    exactCountryDocs: context.exactCountryDocs,
+    exactProgramPages: context.exactProgramPages,
+    availableVerticals: context.availableVerticals,
+    gaps: context.gaps,
+  };
+}
+
+function knowledgeCriteria(context: ImmigrationKnowledgeContext) {
+  return [
+    `Knowledge library checked: ${context.snapshot.programPages} programme pages, ${context.snapshot.countryPages} country pages, ${context.snapshot.insightPages} supporting content pages.`,
+    context.coverageSummary,
+    ...context.gaps.map((gap) => `Gap: ${gap}`),
+  ];
+}
+
 export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
   const message = request.message ?? "";
   const intent = classifyIntent(message);
   const track: Track | undefined = request.track && isTrack(request.track) ? request.track : undefined;
+  const knowledgeContext = getImmigrationKnowledgeContext({
+    query: message,
+    country: request.country,
+    track,
+    limit: 5,
+  });
+  const knowledge = toKnowledgePayload(knowledgeContext);
 
   if (intent === "greeting" || intent === "thanks" || intent === "assistant_help" || intent === "human_handoff") {
     const handoff = intent === "human_handoff";
@@ -131,9 +172,11 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
         "Greeting or conversation intent detected before retrieval.",
         "No program search was run for this message.",
         "Ask for a country, goal, budget, timeline, or document question to start advisory matching.",
+        ...knowledgeCriteria(knowledgeContext).slice(0, 1),
       ],
       confidence: 100,
       handoffRequired: handoff,
+      knowledge,
       recommendedPrograms: broadHelp
         ? [
             {
@@ -197,9 +240,11 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
         "Grouped from approved country/program pages on the website.",
         "Only countries with current site pages are listed here.",
         "Exact eligibility still depends on your profile and route.",
+        ...knowledgeCriteria(knowledgeContext),
       ],
       confidence: 100,
       handoffRequired: false,
+      knowledge,
       recommendedPrograms,
       actions: [
         { label: "Run eligibility check", href: "/eligibility", type: "primary" },
@@ -282,9 +327,11 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
         "This is a workflow response, not a content search.",
         "Sensitive eligibility and risk decisions require advisor verification.",
         "The booking/payment flow stays on Topmate.",
+        ...knowledgeCriteria(knowledgeContext).slice(0, 2),
       ],
       confidence: workflowCards[0]?.score ?? 85,
       handoffRequired: intent !== "consultation",
+      knowledge,
       recommendedPrograms: workflowCards,
       actions: [
         { label: "Run eligibility check", href: "/eligibility", type: "primary" },
@@ -324,9 +371,11 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
         "Goal, region, budget, and family profile were considered.",
         "Curated program rules are used before broad content search.",
         "Advisor review is still needed before filing or investment steps.",
+        ...knowledgeCriteria(knowledgeContext),
       ],
       confidence: catalogPrograms[0]?.score ?? 70,
       handoffRequired: true,
+      knowledge,
       recommendedPrograms: catalogPrograms.length
         ? catalogPrograms
         : [
@@ -342,12 +391,13 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
         { label: "Run eligibility check", href: "/eligibility", type: "primary" },
         { label: "Book consultation on Topmate", href: TOPMATE, type: "secondary" },
       ],
-      sources: [
+      sources: uniqueSources([
+        ...knowledgeContext.topDocs.slice(0, 3).map((doc) => ({ label: doc.title, href: doc.href })),
         { label: "Eligibility check", href: "/eligibility" },
         { label: "Residency programs", href: "/residency" },
         { label: "Citizenship programs", href: "/citizenship" },
         { label: "Skilled migration", href: "/skilled" },
-      ],
+      ]),
       evidence: [],
     };
   }
@@ -391,6 +441,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       country: program.country,
       reason: `${program.pathway || program.notes || "Matches the stated goal and XIPHIAS program catalog."} Criteria: catalog keyword/track match.`,
       score: Math.min(100, score + 40),
+      href: hrefForCatalogProgram(program),
     }));
 
   const recommendedPrograms = [...contentPrograms, ...catalogPrograms].slice(0, 6);
@@ -425,6 +476,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
     "Exact country page/program matches are ranked first.",
     "Selected track is applied after country match.",
     "If no dedicated country content exists, unrelated countries are not recommended.",
+    ...knowledgeCriteria(knowledgeContext),
   ];
 
   const actions = [
@@ -444,13 +496,15 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
     handoffRequired:
       Boolean(countryMissing) ||
       fallbackPrograms[0]?.score < 65,
+    knowledge,
     recommendedPrograms: fallbackPrograms,
     actions,
-    sources: [
+    sources: uniqueSources([
       ...content.chunks.slice(0, 5).map((chunk) => ({ label: chunk.title, href: chunk.href })),
+      ...knowledgeContext.topDocs.slice(0, 3).map((doc) => ({ label: doc.title, href: doc.href })),
       { label: "Eligibility scoring", href: "/eligibility" },
       { label: "Personal consultation", href: TOPMATE },
-    ],
+    ]),
     evidence: content.chunks.slice(0, 3).map((chunk) => ({
       title: chunk.title,
       href: chunk.href,

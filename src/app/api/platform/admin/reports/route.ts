@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isTrack, type Track } from "@/lib/eligibility/types";
 import { getCurrentPortalUser } from "@/lib/platform/auth";
 import { sendPlatformEmail, getPlatformRecipient } from "@/lib/platform/email";
+import { generatePremiumReportPdf } from "@/lib/platform/premium-report";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText } from "@/lib/platform/sanitize";
 
@@ -31,6 +32,8 @@ function answerMap(body: Payload) {
   const goals = normalizeText(body.goals, 1000);
   const family = normalizeText(body.familyMembers, 300);
   const sourceOfFunds = normalizeText(body.sourceOfFunds, 800);
+  const profile = normalizeText(body.profile, 180);
+  const currentCountry = normalizeText(body.currentCountry, 100);
 
   return {
     country,
@@ -44,6 +47,8 @@ function answerMap(body: Payload) {
     familyMembers: family,
     sourceOfFunds,
     goals,
+    profile,
+    currentCountry,
     manuallyPrepared: true,
   };
 }
@@ -99,25 +104,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Client name and email are required." }, { status: 400 });
   }
 
-  const reportResponse = await fetch(new URL("/api/eligibility/report", req.url), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      email,
-      phone,
-      track,
-      answers: answerMap(body),
-      reportType: "detailed",
-    }),
-    cache: "no-store",
+  const answers = answerMap(body);
+  const pdfBytes = await generatePremiumReportPdf({
+    name,
+    email,
+    phone,
+    track,
+    country,
+    program,
+    route: program,
+    reportRef: paymentReference,
+    objective: answers.goals || `${country || "Target country"} ${track} planning`,
+    profile: answers.profile || answers.goals || "Advisor-reviewed client profile",
+    currentCountry: answers.currentCountry,
+    family: answers.family,
+    timeline: answers.timeline ? `${answers.timeline} months planning window` : undefined,
+    budget: answers.budget ? `USD ${answers.budget} planning budget` : undefined,
+    sourceOfFunds: answers.sourceOfFunds,
+    scores: {
+      routeFit: Number(body.routeFitScore) || Number(body.score) || 82,
+      evidenceStrength: Number(body.evidenceStrength) || 68,
+      documentReadiness: Number(body.documentReadiness) || 56,
+      riskClarity: Number(body.riskClarity) || 72,
+      familyReadiness: answers.family ? 70 : 58,
+    },
   });
-
-  if (!reportResponse.ok) {
-    return NextResponse.json({ ok: false, error: "Could not generate detailed PDF." }, { status: 500 });
-  }
-
-  const pdf = Buffer.from(await reportResponse.arrayBuffer());
+  const pdf = Buffer.from(pdfBytes);
   const filename = `XIPHIAS_Detailed_Report_${track}_${Date.now()}.pdf`;
 
   const repo = getPlatformRepository();

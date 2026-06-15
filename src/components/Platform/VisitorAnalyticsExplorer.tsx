@@ -17,6 +17,7 @@ type VisitorEvent = {
   name?: string;
   email?: string;
   phone?: string;
+  metadata?: Record<string, unknown>;
   createdAt: string;
 };
 
@@ -54,6 +55,7 @@ function matches(event: VisitorEvent, query: string, interest: string) {
     event.name,
     event.email,
     event.phone,
+    event.metadata ? JSON.stringify(event.metadata) : "",
     ...event.interests,
   ]
     .filter(Boolean)
@@ -62,7 +64,17 @@ function matches(event: VisitorEvent, query: string, interest: string) {
     .includes(normalized);
 }
 
+function metadataText(value: unknown, fallback = "") {
+  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
+}
+
 function EventCard({ event }: { event: VisitorEvent }) {
+  const bestMatch = event.metadata?.bestMatch && typeof event.metadata.bestMatch === "object"
+    ? (event.metadata.bestMatch as Record<string, unknown>)
+    : null;
+  const completion = metadataText(event.metadata?.completion);
+  const mode = metadataText(event.metadata?.mode);
+
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-950">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -79,6 +91,21 @@ function EventCard({ event }: { event: VisitorEvent }) {
         <p className="mt-2 rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
           {[event.name, event.email, event.phone].filter(Boolean).join(" - ")}
         </p>
+      ) : null}
+      {event.type === "programme_assessment" ? (
+        <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-2 text-xs dark:border-blue-900 dark:bg-blue-950/30">
+          <p className="font-black text-blue-900 dark:text-blue-100">
+            {mode ? `${mode === "deep" ? "Deep assessment" : "Quick explorer"}` : "Programme assessment"}
+            {completion ? ` - ${completion}% profile` : ""}
+          </p>
+          {bestMatch ? (
+            <p className="mt-1 text-slate-700 dark:text-slate-200">
+              Best match: <span className="font-bold">{metadataText(bestMatch.title, "Route")}</span>
+              {metadataText(bestMatch.country) ? `, ${metadataText(bestMatch.country)}` : ""}
+              {metadataText(bestMatch.score) ? ` (${metadataText(bestMatch.score)}/100)` : ""}
+            </p>
+          ) : null}
+        </div>
       ) : null}
       {event.interests.length ? (
         <div className="mt-2 flex flex-wrap gap-1">
@@ -158,7 +185,7 @@ export default function VisitorAnalyticsExplorer({
         <section className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-2">
             <UserRound className="size-5 text-primary" />
-            <h3 className="text-lg font-black">Known contacts</h3>
+            <h3 className="text-lg font-black">Contact-bearing events</h3>
           </div>
           <div className="mt-4 max-h-[520px] space-y-2 overflow-y-auto pr-1">
             {filteredContacts.map((event) => (
@@ -166,7 +193,7 @@ export default function VisitorAnalyticsExplorer({
             ))}
             {!filteredContacts.length ? (
               <p className="rounded-lg border border-dashed border-slate-300 p-4 text-sm font-semibold text-slate-500 dark:border-slate-700">
-                No matching contact records yet.
+                No matching contact events yet.
               </p>
             ) : null}
           </div>

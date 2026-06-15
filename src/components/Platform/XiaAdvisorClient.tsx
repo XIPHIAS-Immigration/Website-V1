@@ -93,6 +93,34 @@ export default function XiaAdvisorClient() {
               ) : null}
             </div>
             <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">{result.summary}</p>
+            {result.knowledge ? (
+              <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900 dark:bg-blue-950/30">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Knowledge checked</p>
+                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+                      {result.knowledge.coverageSummary}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs font-black">
+                    <span className="rounded-full bg-white px-2.5 py-1 text-slate-700 shadow-sm dark:bg-slate-900 dark:text-slate-200">
+                      {result.knowledge.programPages} programmes
+                    </span>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-slate-700 shadow-sm dark:bg-slate-900 dark:text-slate-200">
+                      {result.knowledge.countryPages} country pages
+                    </span>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-slate-700 shadow-sm dark:bg-slate-900 dark:text-slate-200">
+                      {result.knowledge.insightPages} insights
+                    </span>
+                  </div>
+                </div>
+                {result.knowledge.gaps?.length ? (
+                  <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold leading-6 text-amber-900">
+                    {result.knowledge.gaps[0]}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
             {result.criteria?.length ? (
               <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950">
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Criteria</p>

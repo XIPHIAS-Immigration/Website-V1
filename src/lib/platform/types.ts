@@ -25,6 +25,7 @@ export type LeadSource =
   | "whatsapp"
   | "eligibility"
   | "registration"
+  | "programme_ai"
   | "partner"
   | "b2g";
 
@@ -238,6 +239,7 @@ export type AuditAction =
   | "profile.updated"
   | "lead.created"
   | "lead.updated"
+  | "lead.deleted"
   | "conversation.created"
   | "case.created"
   | "case.updated"
@@ -282,6 +284,18 @@ export type XiaRecommendation = {
   criteria: string[];
   confidence: number;
   handoffRequired: boolean;
+  knowledge?: {
+    coverageSummary: string;
+    totalDocs: number;
+    programPages: number;
+    countryPages: number;
+    insightPages: number;
+    requestedCountry?: string;
+    exactCountryDocs?: number;
+    exactProgramPages?: number;
+    availableVerticals?: string[];
+    gaps?: string[];
+  };
   recommendedPrograms: {
     name: string;
     country?: string;

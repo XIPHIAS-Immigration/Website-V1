@@ -3,6 +3,8 @@ dotenv.config({ path: ".env.local" });
 
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { getPlatformRepository } from "@/lib/platform/repository";
+import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 
 export async function POST(req: Request) {
   console.log("📨 API /api/referral hit");
@@ -37,6 +39,64 @@ export async function POST(req: Request) {
       "for:",
       friendName
     );
+
+    let leadId: string | undefined;
+    try {
+      const cleanFriendName = String(friendName || "").trim();
+      const cleanFriendEmail = String(friendEmail || "").trim().toLowerCase();
+      const cleanFriendPhone = String(friendPhone || "").trim();
+      const cleanFriendCountry = String(friendCountry || "").trim();
+      const cleanNotes = String(notes || "").trim();
+      const cleanPage = String(page || req.headers.get("referer") || "/client-referrals").trim();
+      const cleanReferrerUrl = String(referrerUrl || req.headers.get("referer") || "").trim();
+      const repo = getPlatformRepository();
+      const lead = repo.createLead({
+        source: "website",
+        status: "new",
+        name: cleanFriendName,
+        email: cleanFriendEmail,
+        phone: cleanFriendPhone || undefined,
+        country: cleanFriendCountry || undefined,
+        message: `Client referral from ${String(referrerName || "").trim()}${cleanNotes ? `: ${cleanNotes}` : ""}`,
+        page: cleanPage || "/client-referrals",
+        referrer: cleanReferrerUrl || undefined,
+        consent: true,
+        tags: ["client-referral", referrerClientId ? "existing-client-referral" : ""].filter(Boolean),
+      });
+      leadId = lead.id;
+      repo.createConversation({
+        leadId: lead.id,
+        channel: "portal",
+        direction: "inbound",
+        from: String(referrerName || "Referral").trim() || "Referral",
+        to: "XIPHIAS",
+        body: `Referred ${cleanFriendName}${cleanFriendCountry ? ` for ${cleanFriendCountry}` : ""}.${cleanNotes ? ` Notes: ${cleanNotes}` : ""}`,
+      });
+      await captureVisitorEvent(
+        {
+          type: "lead_capture",
+          visitorId: lead.id,
+          path: cleanPage || "/client-referrals",
+          referrer: cleanReferrerUrl || undefined,
+          label: "client-referral",
+          name: cleanFriendName,
+          email: cleanFriendEmail,
+          phone: cleanFriendPhone || undefined,
+          query: cleanNotes || undefined,
+          interests: ["referral", cleanFriendCountry].filter(Boolean),
+          metadata: {
+            leadId: lead.id,
+            referrerName,
+            referrerEmail,
+            referrerPhone,
+            referrerClientId,
+          },
+        },
+        req.headers,
+      );
+    } catch (leadError) {
+      console.error("[referral] X-Hub lead capture failed:", leadError);
+    }
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -191,6 +251,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       message: "Referral submitted successfully",
+      leadId,
     });
   } catch (err: any) {
     console.error("❌ Error in /api/referral:", err);

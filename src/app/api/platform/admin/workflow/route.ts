@@ -93,3 +93,33 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json({ ok: false, error: "Unsupported workflow update." }, { status: 400 });
 }
+
+export async function DELETE(req: NextRequest) {
+  const guard = await requireOperator();
+  if (guard.response) return guard.response;
+
+  const body = await req.json().catch(() => ({}));
+  const entityType = normalizeText(body.entityType, 40);
+  const id = normalizeText(body.id, 80);
+
+  if (!entityType || !id) {
+    return NextResponse.json({ ok: false, error: "Entity type and id are required." }, { status: 400 });
+  }
+
+  if (entityType === "lead") {
+    const deleted = getPlatformRepository().deleteLead(id, guard.user.id);
+    if (!deleted) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Lead not found. It may already be deleted; refresh X-Hub and try again.",
+        },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({ ok: true, entity: deleted });
+  }
+
+  return NextResponse.json({ ok: false, error: "Unsupported delete operation." }, { status: 400 });
+}
