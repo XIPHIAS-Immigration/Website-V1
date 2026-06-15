@@ -411,6 +411,63 @@ export const headerMenu: HeaderItem[] = [
     ],
   },
 
+  // Work permits (permit advisory; not job placement)
+  {
+    label: 'Work Permits',
+    href: '/work-permits',
+    badge: { text: 'Resume Review', tone: 'info' },
+    submenu: [
+      {
+        label: 'Canada',
+        href: '/work-permits?country=canada',
+        description: 'GTS, employer-specific work permits, LMIA and ICT direction',
+        meta: { code: 'CA' },
+      },
+      {
+        label: 'United States',
+        href: '/work-permits?country=usa',
+        description: 'H-1B, L-1, O-1, J-1 and sponsored work direction',
+        meta: { code: 'US' },
+      },
+      {
+        label: 'United Kingdom',
+        href: '/work-permits?country=united-kingdom',
+        description: 'Skilled Worker, Global Talent and expansion worker planning',
+        meta: { code: 'GB' },
+      },
+      {
+        label: 'Australia',
+        href: '/work-permits?country=australia',
+        description: 'Employer nomination, points-tested skilled and regional options',
+        meta: { code: 'AU' },
+      },
+      {
+        label: 'Germany',
+        href: '/work-permits?country=germany',
+        description: 'Opportunity Card, EU Blue Card and skilled worker residence',
+        meta: { code: 'DE' },
+      },
+      {
+        label: 'UAE',
+        href: '/work-permits?country=uae',
+        description: 'Mainland, freezone, employment and professional mobility',
+        meta: { code: 'AE' },
+      },
+      {
+        label: 'Portugal',
+        href: '/work-permits?country=portugal',
+        description: 'Work residence, D2 direction and highly qualified activity',
+        meta: { code: 'PT' },
+      },
+      {
+        label: 'Spain',
+        href: '/work-permits?country=spain',
+        description: 'Digital nomad, highly qualified and entrepreneur direction',
+        meta: { code: 'ES' },
+      },
+    ],
+  },
+
   // Skilled migration (only countries with valid pages)
   {
     label: 'Skilled',

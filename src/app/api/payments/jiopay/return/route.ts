@@ -8,7 +8,7 @@ import {
   publicJiopayPayload,
   verifyJiopaySecureHash,
 } from "@/lib/payments/jiopay";
-import { updateJiopayOrder } from "@/lib/payments/jiopay-store";
+import { getJiopayOrder, updateJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getPlatformRepository } from "@/lib/platform/repository";
 
 export const runtime = "nodejs";
@@ -56,10 +56,18 @@ async function handleReturn(req: NextRequest) {
   }
 
   if (merchantTxnNo) {
+    const existingOrder = getJiopayOrder(merchantTxnNo);
+    const orderStatus =
+      existingOrder?.status === "paid" || existingOrder?.status === "provisioned"
+        ? existingOrder.status
+        : status === "failed"
+          ? "failed"
+          : "returned";
+
     updateJiopayOrder(
       merchantTxnNo,
       {
-        status: status === "success" ? "returned" : status === "failed" ? "failed" : "returned",
+        status: orderStatus,
         lastResponseCode: jiopayResponseCode(payload),
         lastStatusLabel: jiopayStatusLabel(payload),
       },
@@ -99,4 +107,3 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   return handleReturn(req);
 }
-
