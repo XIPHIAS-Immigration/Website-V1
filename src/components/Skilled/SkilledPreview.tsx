@@ -43,7 +43,7 @@ export default async function SkilledPreview() {
         countries={countries as any}
         layout="featureList"              // same 60/40 two-column layout
         variant="standard"
-        title="Skilled Migration by Country"
+        title="Skilled Migration for Professionals"
         description="Explore points-based PR, work permits and talent visas."
         ctaText="View all countries"
         ctaHref="/skilled"

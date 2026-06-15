@@ -30,7 +30,7 @@ export default async function CitizenshipPreview() {
         countries={countries as any}
         layout="featureList"            // keep the 60/40 two-column layout
         variant="standard"
-        title="Citizenship by Country"
+        title="Citizenship by Investment"
         description="Explore citizenship by investment and naturalization routes."
         ctaText="View all countries"
         ctaHref="/citizenship"

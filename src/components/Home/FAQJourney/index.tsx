@@ -34,7 +34,7 @@ const DEFAULT_FAQS: FAQ[] = [
 
 export default function FAQSectionXiphas({
   faqs = DEFAULT_FAQS,
-  title = "Your journey with XIPHIAS — Top FAQs",
+  title = "Your XIPHIAS Journey — FAQs Answered",
   subtitle = "A quick overview from first consultation to post-landing support.",
   className = "",
   hashMode = "replace", // "replace" | "push"

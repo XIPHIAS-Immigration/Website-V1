@@ -22,6 +22,7 @@ const EXPLORE = [
 const RESOURCES = Object.freeze([
   { label: "Eligibility Checker", href: "/eligibility" },
   { label: "Guides & Resources", href: "/guide" },
+  { label: "Insights", href: "/insights" },
   { label: "Events", href: "/event" },
   { label: "Awards & Recognition", href: "/awards" },
   { label: 'Partner With Us', href: '/partner-with-us' },

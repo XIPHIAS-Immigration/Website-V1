@@ -490,39 +490,4 @@ export const headerMenu: HeaderItem[] = [
     ],
   },
 
-  // Resources section with available pages from the sitemap
-  {
-    label: 'Resources',
-    href: '/#resources',
-    submenu: [
-      { label: 'Guide', href: '/guide' },
-      {
-        label: 'Passport Power',
-        href: '/passport-index',
-        submenu: [
-          { label: 'Overview', href: '/passport-index' },
-          { label: 'Ranking', href: '/passport-index/ranking' },
-          { label: 'Compare Passports', href: '/passport-index/compare' },
-          { label: 'My Passport Planner', href: '/passport-index/my-passport' },
-          { label: 'Improve Mobility', href: '/passport-index/improve' },
-          { label: 'Methodology', href: '/passport-index/methodology' },
-        ],
-      },
-      { label: 'Free Eligibility Check', href: '/eligibility' },
-      { label: 'Personal Advice', href: '/personal-booking' },
-      { label: 'Media', href: '/media' },
-      { label: 'News', href: '/news' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Insights', href: '/insights' },
-      { label: 'Articles', href: '/articles' },
-      { label: 'Events', href: '/event' },
-      { label: 'Gallery', href: '/gallery' },
-      { label: 'Careers', href: '/careers' },
-      { label: 'Partner With Us', href: '/partner-with-us' },
-      { label: 'Reviews', href: '/reviews' },
-    ],
-  },
-
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
 ];

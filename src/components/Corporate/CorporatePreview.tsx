@@ -31,7 +31,7 @@ export default async function CorporatePreview() {
         countries={countries as any}
         layout="featureList"             // same 60/40 two-column layout
         variant="standard"
-        title="Corporate Immigration by Country"
+        title="Corporate Global Mobility"
         description="Work permits, company setup & sponsored employment routes."
         ctaText="View all countries"
         ctaHref="/corporate"
