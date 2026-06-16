@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Maximize2, Minus, Plus, X } from "lucide-react";
+import { ArrowRight, Maximize2, Minus, Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { PassportRecord } from "@/data/passport-index";
 import { worldMapCountries, worldMapViewBox } from "@/data/world-map-paths";
@@ -33,13 +33,13 @@ function pointForCode(code: string) {
 }
 
 function countryFill(score?: number, highlighted = false, selected = false) {
-  if (selected) return "#f2c94c";
-  if (!highlighted) return "#31516a";
-  if (!score) return "#5b7284";
-  if (score >= 185) return "#47d5c8";
-  if (score >= 170) return "#58a6ff";
-  if (score >= 100) return "#b7c7d6";
-  return "#d96b5f";
+  if (selected) return "#e1b923";
+  if (!highlighted) return "#1e3a52";
+  if (!score) return "#3a5f7a";
+  if (score >= 185) return "#2dd4bf";
+  if (score >= 170) return "#3b82f6";
+  if (score >= 100) return "#7ea8c4";
+  return "#e07070";
 }
 
 function passportProfileHref(record: PassportRecord) {
@@ -96,15 +96,14 @@ export default function PassportWorldMap({
   const routeTargets = highlighted.filter((record) => record.code !== routeOrigin.code).slice(0, 4);
   const originPoint = pointForCode(routeOrigin.code);
   const [expanded, setExpanded] = useState(false);
-  const mapHeightClass = isExpandedView ? "min-h-[78vh]" : "min-h-[620px]";
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-[#d7b64a]/40 bg-[#061a33] text-white shadow-2xl shadow-[#071a3a]/30">
+    <div className="relative overflow-hidden rounded-xl border border-[#e1b923]/30 bg-[#071a3a] text-white shadow-xl">
       <style>{`
         @keyframes passportRouteFlow {
-          0% { stroke-dashoffset: 28; opacity: .35; }
+          0%  { stroke-dashoffset: 28; opacity: .3; }
           50% { opacity: 1; }
-          100% { stroke-dashoffset: 0; opacity: .35; }
+          100%{ stroke-dashoffset: 0;  opacity: .3; }
         }
         .passport-route-line {
           stroke-dasharray: 10 8;
@@ -112,25 +111,38 @@ export default function PassportWorldMap({
         }
         @keyframes passportFocusDraw {
           from { stroke-dashoffset: 600; }
-          to { stroke-dashoffset: 0; }
+          to   { stroke-dashoffset: 0; }
         }
         .passport-focus-outline {
           stroke-dasharray: 600;
           animation: passportFocusDraw 1.4s ease-out both;
         }
+        .map-list-btn:hover .map-score { color: #e1b923; }
       `}</style>
 
-      <div className={`grid ${mapHeightClass} lg:grid-cols-[340px_1fr]`}>
-        <aside className="border-b border-[#d7b64a]/25 bg-[#071a3a] p-4 lg:border-b-0 lg:border-r">
-          <div className="rounded-md bg-[#e1b923] px-4 py-3 text-xs font-black uppercase tracking-[0.16em] text-[#071a3a] shadow-lg shadow-black/20">
-            Global ranking snapshot
+      {/* Grid: map panel determines height via aspect-ratio; aside stretches to match */}
+      <div className={`grid lg:grid-cols-[300px_1fr] ${isExpandedView ? "h-[78vh]" : ""}`}>
+
+        {/* ── Left panel ── */}
+        <aside className="flex h-full flex-col overflow-hidden border-b border-white/10 bg-[#071a3a] lg:border-b-0 lg:border-r lg:border-white/10">
+
+          {/* Panel header */}
+          <div className="flex-none px-4 pt-4 pb-3 border-b border-white/10">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#e1b923]">
+              Global Ranking
+            </p>
+            <h2 className="mt-0.5 text-base font-black text-white">Passport Snapshot</h2>
           </div>
-          <div className="mt-4 grid grid-cols-[1fr_72px_72px] gap-3 border-b border-white/15 pb-3 text-[11px] font-black uppercase tracking-[0.14em] text-[#f6d86d]">
+
+          {/* Column labels */}
+          <div className="flex-none grid grid-cols-[1fr_60px_52px] px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/40">
             <span>Passport</span>
             <span>Rank</span>
-            <span>Access</span>
+            <span className="text-right">Score</span>
           </div>
-          <div className={isExpandedView ? "max-h-[calc(78vh-168px)] overflow-y-auto pr-1" : "max-h-[504px] overflow-y-auto pr-1"}>
+
+          {/* Scrollable list */}
+          <div className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin">
             {listRecords.map((record) => {
               const active = selected?.code === record.code;
 
@@ -140,37 +152,75 @@ export default function PassportWorldMap({
                   type="button"
                   onClick={() => setSelectedCode(record.code)}
                   className={[
-                    "grid w-full grid-cols-[1fr_72px_72px] items-center gap-3 border-b border-white/10 px-2 py-3 text-left text-sm transition",
-                    active ? "bg-[#12366c]" : "hover:bg-white/10",
+                    "map-list-btn grid w-full grid-cols-[1fr_60px_52px] items-center gap-2 border-b border-white/8 px-4 py-3 text-left transition-all duration-150",
+                    active
+                      ? "bg-[#1c57b4]/30 border-l-2 border-l-[#e1b923]"
+                      : "border-l-2 border-l-transparent hover:bg-white/6",
                   ].join(" ")}
                 >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[#e1b923]/50 bg-[#0b2a55] text-[11px] font-black text-[#f6d86d]">
+                  {/* Country */}
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className={[
+                        "flex size-7 shrink-0 items-center justify-center rounded-full text-[9.5px] font-black ring-1 transition-all",
+                        active
+                          ? "bg-[#e1b923] text-[#071a3a] ring-[#e1b923]/60"
+                          : "bg-[#0d2d5c] text-[#e1b923] ring-[#e1b923]/25",
+                      ].join(" ")}
+                    >
                       {record.code}
                     </span>
-                    <span className="truncate font-semibold text-white">{record.country}</span>
+                    <span
+                      className={[
+                        "truncate text-[13px] font-semibold transition-colors",
+                        active ? "text-white" : "text-white/75 group-hover:text-white",
+                      ].join(" ")}
+                    >
+                      {record.country}
+                    </span>
                   </span>
-                  <span className="font-black text-white underline decoration-[#e1b923]/50 underline-offset-4">
+
+                  {/* Rank */}
+                  <span
+                    className={[
+                      "text-[12px] font-black transition-colors",
+                      active ? "text-white" : "text-white/55",
+                    ].join(" ")}
+                  >
                     {record.rank}
                   </span>
-                  <span className="font-black text-white underline decoration-[#e1b923]/50 underline-offset-4">
+
+                  {/* Score */}
+                  <span
+                    className={[
+                      "map-score text-right text-[13px] font-black tabular-nums transition-colors",
+                      active ? "text-[#e1b923]" : "text-white/60",
+                    ].join(" ")}
+                  >
                     {record.score}
                   </span>
                 </button>
               );
             })}
           </div>
+
+          {/* Open passport CTA */}
           {selected ? (
-            <Link
-              href={passportProfileHref(selected)}
-              className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-[#e1b923] px-4 py-3 text-sm font-black text-[#071a3a] transition hover:bg-[#f0cb3b]"
-            >
-              Open {selected.country}
-            </Link>
+            <div className="flex-none p-4 border-t border-white/10">
+              <Link
+                href={passportProfileHref(selected)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#e1b923] px-4 py-2.5 text-[13px] font-black text-[#071a3a] transition hover:bg-[#f0cb3b]"
+              >
+                Open {selected.country} profile
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
           ) : null}
         </aside>
 
-        <div className={`relative ${mapHeightClass} overflow-hidden bg-[#092a4a]`}>
+        {/* ── Map panel ── */}
+        {/* aspect-[960/520] makes the container exactly the SVG's native ratio → meet fills it perfectly, no bars, no crop */}
+        <div className={`relative overflow-hidden bg-[#061527] ${isExpandedView ? "h-full" : "aspect-[960/520]"}`}>
           <svg
             viewBox={worldMapViewBox}
             role="img"
@@ -180,19 +230,22 @@ export default function PassportWorldMap({
           >
             <defs>
               <radialGradient id="passportOceanGlow" cx="52%" cy="40%" r="68%">
-                <stop offset="0%" stopColor="#164b76" />
-                <stop offset="62%" stopColor="#092a4a" />
-                <stop offset="100%" stopColor="#04162d" />
+                <stop offset="0%"   stopColor="#0e3156" />
+                <stop offset="62%"  stopColor="#071a3a" />
+                <stop offset="100%" stopColor="#030e22" />
               </radialGradient>
             </defs>
             <rect width="960" height="520" fill="url(#passportOceanGlow)" />
-            <g transform={`translate(480 260) scale(${zoom}) translate(-480 -260)`}>
+            <g transform={`translate(480 260) scale(${zoom}) translate(-480 -260)`} style={{ transition: "transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)" }}>
+              {/* Grid lines */}
               {[120, 240, 360, 480, 600, 720, 840].map((x) => (
-                <path key={`v-${x}`} d={`M ${x} 0 L ${x} 520`} stroke="#8bd3ff" strokeOpacity="0.16" strokeWidth="1" />
+                <path key={`v-${x}`} d={`M ${x} 0 L ${x} 520`} stroke="#4a7fa8" strokeOpacity="0.12" strokeWidth="1" />
               ))}
               {[100, 200, 300, 400].map((y) => (
-                <path key={`h-${y}`} d={`M 0 ${y} L 960 ${y}`} stroke="#8bd3ff" strokeOpacity="0.14" strokeWidth="1" />
+                <path key={`h-${y}`} d={`M 0 ${y} L 960 ${y}`} stroke="#4a7fa8" strokeOpacity="0.10" strokeWidth="1" />
               ))}
+
+              {/* Countries */}
               {worldMapCountries.map((country) => {
                 const record = recordByCode.get(country.code);
                 const isHighlighted = highlightedSet.has(country.code);
@@ -203,9 +256,9 @@ export default function PassportWorldMap({
                     key={country.code}
                     d={country.path}
                     fill={countryFill(record?.score, isHighlighted, isSelected)}
-                    stroke={isSelected ? "#ffffff" : "#0b1f38"}
-                    strokeOpacity={isHighlighted || isSelected ? 0.95 : 0.65}
-                    strokeWidth={isHighlighted || isSelected ? 1.35 : 0.7}
+                    stroke={isSelected ? "#ffffff" : "#071a3a"}
+                    strokeOpacity={isHighlighted || isSelected ? 0.9 : 0.55}
+                    strokeWidth={isHighlighted || isSelected ? 1.2 : 0.6}
                     vectorEffect="non-scaling-stroke"
                     role={record ? "button" : undefined}
                     tabIndex={record ? 0 : undefined}
@@ -220,10 +273,12 @@ export default function PassportWorldMap({
                           }
                         : undefined
                     }
-                    className={record ? "cursor-pointer transition-colors duration-200 hover:fill-[#f2c94c]" : undefined}
+                    className={record ? "cursor-pointer transition-colors duration-200 hover:fill-[#e1b923]/80" : undefined}
                   />
                 );
               })}
+
+              {/* Route arcs */}
               {routeTargets.map((target) => {
                 const targetPoint = pointForCode(target.code);
                 const midX = (originPoint.x + targetPoint.x) / 2;
@@ -237,19 +292,27 @@ export default function PassportWorldMap({
                     fill="none"
                     stroke="#e1b923"
                     strokeLinecap="round"
-                    strokeWidth="3"
+                    strokeWidth="2.5"
                   />
                 );
               })}
+
+              {/* Pin markers */}
               {highlighted.map((record) => {
                 const point = pointForCode(record.code);
                 const active = selected?.code === record.code;
 
                 return (
                   <g key={`pin-${record.code}`}>
-                    <circle cx={point.x} cy={point.y} r={active ? "18" : "15"} fill="#e1b923" fillOpacity={active ? 0.35 : 0.22} />
-                    <circle cx={point.x} cy={point.y} r={active ? "8" : "7"} fill="#e1b923" stroke="#ffffff" strokeWidth="2" />
-                    <text x={point.x + 13} y={point.y + 5} fill="#071a3a" fontSize="15" fontWeight="900">
+                    <circle cx={point.x} cy={point.y} r={active ? "16" : "13"} fill="#e1b923" fillOpacity={active ? 0.3 : 0.18} />
+                    <circle cx={point.x} cy={point.y} r={active ? "7" : "6"} fill="#e1b923" stroke="#ffffff" strokeWidth="1.5" />
+                    <text
+                      x={point.x + 11}
+                      y={point.y + 4}
+                      fill={active ? "#e1b923" : "#c8d8e8"}
+                      fontSize="13"
+                      fontWeight="900"
+                    >
                       {record.code}
                     </text>
                   </g>
@@ -258,65 +321,72 @@ export default function PassportWorldMap({
             </g>
           </svg>
 
-          <div className="absolute bottom-5 left-5 grid overflow-hidden rounded-md border border-slate-500/45 bg-white/90 text-[#40576a] shadow-lg backdrop-blur">
+          {/* Map title badge — top right */}
+          <div className="absolute right-4 top-4 rounded-lg border border-white/15 bg-[#071a3a]/90 px-3.5 py-2.5 shadow-lg backdrop-blur-sm">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#e1b923]">World Access Map</p>
+            <p className="mt-0.5 text-[12px] font-semibold text-white/70">Country-boundary view</p>
+          </div>
+
+          {/* Zoom controls — bottom left */}
+          <div className="absolute bottom-4 left-4 flex flex-col overflow-hidden rounded-lg border border-white/15 bg-white/95 text-[#1c57b4] shadow-lg backdrop-blur-sm">
             <button
               type="button"
               aria-label="Zoom in"
               onClick={() => setZoom((value) => Math.min(1.65, Number((value + 0.15).toFixed(2))))}
-              className="flex size-10 items-center justify-center border-b border-slate-300 transition hover:bg-slate-100"
+              className="flex size-9 items-center justify-center border-b border-[#E1E1E1] transition hover:bg-[#eaf2ff]"
             >
-              <Plus className="size-5" />
+              <Plus className="size-4" />
             </button>
             <button
               type="button"
               aria-label="Zoom out"
               onClick={() => setZoom((value) => Math.max(1, Number((value - 0.15).toFixed(2))))}
-              className="flex size-10 items-center justify-center border-b border-slate-300 transition hover:bg-slate-100"
+              className="flex size-9 items-center justify-center border-b border-[#E1E1E1] transition hover:bg-[#eaf2ff]"
             >
-              <Minus className="size-5" />
+              <Minus className="size-4" />
             </button>
             <button
               type="button"
               aria-label="Expand world access map"
               onClick={() => setExpanded(true)}
-              className="flex size-10 items-center justify-center transition hover:bg-slate-100"
+              className="flex size-9 items-center justify-center transition hover:bg-[#eaf2ff]"
             >
-              <Maximize2 className="size-4" />
+              <Maximize2 className="size-3.5" />
             </button>
           </div>
 
-          <div className="absolute right-5 top-5 rounded-md border border-[#e1b923]/60 bg-[#061a33]/92 px-4 py-3 text-white shadow-lg backdrop-blur">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#f6d86d]">World access map</p>
-            <p className="mt-1 text-sm font-black">Country-boundary view</p>
-          </div>
-
+          {/* Selected country detail card — bottom right */}
           {selected && selectedCountryPath ? (
-            <div className="absolute bottom-5 right-5 w-[min(360px,calc(100%-6.5rem))] rounded-lg border border-[#e1b923]/70 bg-[#061a33]/95 p-5 text-white shadow-2xl backdrop-blur">
-              <div className="flex items-start justify-between gap-3">
+            <div className="absolute bottom-4 right-4 w-[min(300px,calc(100%-6rem))] rounded-xl border border-white/15 bg-[#071a3a]/95 p-4 shadow-2xl backdrop-blur-sm">
+              <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#f6d86d]">Selected country</p>
-                  <h3 className="mt-1 text-lg font-black">{selected.country}</h3>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#e1b923]">Selected</p>
+                  <h3 className="mt-0.5 text-base font-black text-white">{selected.country}</h3>
                 </div>
-                <span className="rounded-full bg-[#e1b923] px-3 py-1 text-xs font-black text-[#071a3a]">{selected.score}</span>
+                <span className="shrink-0 rounded-full bg-[#e1b923] px-2.5 py-1 text-[11px] font-black text-[#071a3a]">
+                  {selected.score}
+                </span>
               </div>
+
               <svg
                 key={selected.code}
                 viewBox={selectedViewBox}
                 aria-hidden="true"
-                className="mt-3 h-40 w-full overflow-visible"
+                className="mt-3 h-28 w-full overflow-visible"
                 preserveAspectRatio="xMidYMid meet"
               >
-                <path d={selectedCountryPath.path} fill="rgba(225,185,35,0.18)" stroke="#f6d86d" strokeWidth="3" vectorEffect="non-scaling-stroke" />
-                <path className="passport-focus-outline" d={selectedCountryPath.path} fill="none" stroke="#ffffff" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                <path d={selectedCountryPath.path} fill="rgba(225,185,35,0.15)" stroke="#e1b923" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+                <path className="passport-focus-outline" d={selectedCountryPath.path} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
               </svg>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-md border border-white/15 bg-white/10 p-2">
-                  <span className="block text-white/60">Rank</span>
-                  <span className="font-black">{selected.rank}</span>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="rounded-lg border border-white/10 bg-white/8 p-2.5">
+                  <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Rank</span>
+                  <span className="mt-0.5 block text-sm font-black text-white">{selected.rank}</span>
                 </div>
-                <div className="rounded-md border border-white/15 bg-white/10 p-2">
-                  <span className="block text-white/60">Band</span>
-                  <span className="font-black">{selected.band}</span>
+                <div className="rounded-lg border border-white/10 bg-white/8 p-2.5">
+                  <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Band</span>
+                  <span className="mt-0.5 block text-sm font-black text-white">{selected.band}</span>
                 </div>
               </div>
             </div>
@@ -324,21 +394,22 @@ export default function PassportWorldMap({
         </div>
       </div>
 
+      {/* Expanded fullscreen overlay */}
       {expanded && !isExpandedView ? (
-        <div className="fixed inset-0 z-[2147483300] bg-[#020817]/95 p-4 backdrop-blur-md">
+        <div className="fixed inset-0 z-[2147483300] bg-[#020817]/96 p-4 backdrop-blur-md">
           <div className="mx-auto flex h-full max-w-[1600px] flex-col gap-3">
             <div className="flex items-center justify-between gap-3 text-white">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d86d]">Expanded view</p>
-                <h2 className="text-2xl font-black">XIPHIAS World Access Map</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#e1b923]">Expanded view</p>
+                <h2 className="text-xl font-black">XIPHIAS World Access Map</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setExpanded(false)}
-                className="inline-flex size-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                className="inline-flex size-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                 aria-label="Close expanded map"
               >
-                <X className="size-5" />
+                <X className="size-4" />
               </button>
             </div>
             <div className="min-h-0 flex-1">

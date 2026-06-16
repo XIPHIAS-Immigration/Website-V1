@@ -110,8 +110,11 @@ export function getRecordByCode(records: PassportRecord[], code: string) {
 
 export function PassportSectionNav({ active }: { active: SectionId }) {
   return (
-    <nav aria-label="Passport index sections" className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-[#080b12]">
-      <div className="mx-auto flex max-w-screen-2xl gap-2 overflow-x-auto px-4 py-3 md:px-6">
+    <nav
+      aria-label="Passport index sections"
+      className="sticky top-0 z-20 border-b border-[#E1E1E1] bg-white/95 backdrop-blur-sm shadow-sm"
+    >
+      <div className="flex overflow-x-auto">
         {passportSectionLinks.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.id;
@@ -122,14 +125,38 @@ export function PassportSectionNav({ active }: { active: SectionId }) {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={[
-                "group inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md border px-4 py-2 text-sm font-black transition",
+                "group flex min-w-[90px] flex-1 flex-col items-center gap-1.5 border-b-2 px-3 py-4 text-center transition-colors duration-150 md:min-w-[120px] md:py-5",
                 isActive
-                  ? "border-[#1c57b4] bg-[#1c57b4] text-white shadow-sm"
-                  : "border-slate-200 bg-white text-[#071a3a] hover:border-[#1c57b4] hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900",
+                  ? "border-[#1c57b4] bg-[#f0f6ff]"
+                  : "border-transparent hover:border-[#1c57b4]/30 hover:bg-[#f8fafc]",
               ].join(" ")}
             >
-              <Icon className="size-4" />
-              {item.label}
+              {/* Icon badge */}
+              <span
+                className={[
+                  "flex size-8 items-center justify-center rounded-lg transition-colors duration-150 md:size-9",
+                  isActive
+                    ? "bg-[#1c57b4] text-white"
+                    : "bg-[#F5F7FA] text-[#9ca3af] group-hover:bg-[#eaf2ff] group-hover:text-[#1c57b4]",
+                ].join(" ")}
+              >
+                <Icon className="size-3.5 md:size-4" aria-hidden="true" />
+              </span>
+
+              {/* Label */}
+              <span
+                className={[
+                  "text-[11.5px] font-black leading-none md:text-[12.5px]",
+                  isActive ? "text-[#1c57b4]" : "text-[#263238] group-hover:text-[#1c57b4]",
+                ].join(" ")}
+              >
+                {item.label}
+              </span>
+
+              {/* Summary — visible md+ */}
+              <span className="hidden text-[10px] leading-[1.4] text-[#9ca3af] lg:block">
+                {item.summary}
+              </span>
             </Link>
           );
         })}
@@ -152,19 +179,51 @@ export function PassportIndexShell({
   children: ReactNode;
 }) {
   return (
-    <main className="bg-[#f6f8fc] text-[#102033] dark:bg-[#080b12] dark:text-white">
-      <section className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-[#0a111f]">
-        <div className="mx-auto max-w-screen-2xl px-4 py-9 md:px-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e1b923]/40 bg-[#fff8df] px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#7a5c00] dark:bg-[#2c2408] dark:text-[#f6d86d]">
-            <Sparkles className="size-3.5" />
+    <main className="bg-white text-[#263238]">
+
+      {/* ── Hero header — centered ── */}
+      <section className="relative overflow-hidden bg-white">
+        {/* Subtle branded background */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_0%,rgba(28,87,180,0.055),transparent_70%)]" />
+          <div
+            className="absolute inset-0 opacity-[0.035]"
+            style={{
+              backgroundImage: "radial-gradient(circle, #1c57b4 1px, transparent 1px)",
+              backgroundSize: "30px 30px",
+            }}
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-screen-2xl px-4 pb-12 pt-14 text-center md:px-6 md:pb-16 md:pt-20">
+
+          {/* Eyebrow badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e1b923]/50 bg-[#fff8df] px-4 py-1.5 text-[10.5px] font-black uppercase tracking-[0.22em] text-[#7a5c00]">
+            <Sparkles className="size-3.5 text-[#e1b923]" aria-hidden="true" />
             {eyebrow}
           </div>
-          <h1 className="mt-4 max-w-4xl text-3xl font-black leading-tight text-[#071a3a] md:text-5xl dark:text-white">
+
+          {/* Main heading */}
+          <h1
+            className="mx-auto mt-6 max-w-[820px] font-black leading-[1.1] tracking-tight text-[#071a3a]"
+            style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)" }}
+          >
             {title}
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">{description}</p>
+
+          {/* Description */}
+          <p className="mx-auto mt-5 max-w-[600px] text-[1.0625rem] leading-[1.85] text-[#505050]">
+            {description}
+          </p>
+
+          {/* Gold accent rule */}
+          <div
+            className="mx-auto mt-9 h-px w-14 bg-gradient-to-r from-transparent via-[#e1b923] to-transparent"
+            aria-hidden="true"
+          />
         </div>
       </section>
+
       <PassportSectionNav active={active} />
       {children}
     </main>
@@ -187,7 +246,7 @@ export function PassportBookVisual({ featured }: { featured?: PassportRecord }) 
           />
         </div>
         <div className="absolute inset-x-10 bottom-16 text-center">
-          <p className="text-sm font-black uppercase tracking-[0.28em] text-[#f6d86d]">XIPHIAS</p>
+          <p className="text-sm font-black uppercase tracking-[0.28em] text-[#e1b923]">XIPHIAS</p>
           <p className="mt-2 text-xs font-bold uppercase tracking-[0.22em] text-[#e1b923]">Global Mobility</p>
         </div>
         <div className="absolute inset-y-0 left-8 w-px bg-white/10" />
@@ -213,7 +272,7 @@ export function PassportBookVisual({ featured }: { featured?: PassportRecord }) 
               <div className="h-2 rounded-full bg-slate-200" />
               <div className="h-2 w-4/5 rounded-full bg-slate-200" />
               <div className="h-2 w-3/5 rounded-full bg-slate-200" />
-              <div className="mt-4 rounded-md bg-[#071a3a] px-3 py-2 text-center text-sm font-black text-[#f6d86d]">
+              <div className="mt-4 rounded-md bg-[#071a3a] px-3 py-2 text-center text-sm font-black text-[#e1b923]">
                 {featured?.score ?? 192}
               </div>
             </div>
@@ -240,23 +299,23 @@ export function ScorePill({ score }: { score: number }) {
 export function PassportSourceNote() {
   return (
     <div className="mx-auto max-w-screen-2xl px-4 pb-12 md:px-6">
-      <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 text-sm leading-7 text-slate-600 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 lg:grid-cols-[1fr_1fr]">
+      <div className="grid gap-4 rounded-lg border border-[#E1E1E1] bg-white p-5 text-sm leading-7 text-[#505050] shadow-sm lg:grid-cols-[1fr_1fr]">
         <div>
-          <h2 className="text-xl font-black text-[#071a3a] dark:text-white">Data position</h2>
+          <h2 className="text-xl font-black text-[#071a3a]">Data position</h2>
           <p className="mt-2">
             This is a XIPHIAS advisory presentation layer. It uses a neutral public mobility snapshot and adds route-planning context for residence, citizenship, family, and risk strategy.
           </p>
         </div>
         <div>
-          <h2 className="text-xl font-black text-[#071a3a] dark:text-white">Important caution</h2>
+          <h2 className="text-xl font-black text-[#071a3a]">Important caution</h2>
           <p className="mt-2">
             Passport ranking is not legal advice. Visa rules, sanctions, source-of-funds checks, and program rules can change, so an advisor must verify the latest details before decisions.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-[#1c57b4] dark:border-slate-700">
+            <span className="rounded-full border border-[#E1E1E1] px-3 py-1 text-xs font-black text-[#1c57b4]">
               XIPHIAS advisory layer
             </span>
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-[#1c57b4] dark:border-slate-700">
+            <span className="rounded-full border border-[#E1E1E1] px-3 py-1 text-xs font-black text-[#1c57b4]">
               Staff verification required
             </span>
           </div>
@@ -284,13 +343,13 @@ export function RouteCard({
   return (
     <Link
       href={href}
-      className="group rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#1c57b4] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+      className="group rounded-lg border border-[#E1E1E1] bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#1c57b4] hover:shadow-xl"
     >
       <span className="flex size-11 items-center justify-center rounded-md bg-[#eaf2ff] text-[#1c57b4] transition group-hover:bg-[#1c57b4] group-hover:text-white">
         <Icon className="size-5" />
       </span>
-      <h3 className="mt-4 text-lg font-black text-[#071a3a] dark:text-white">{title}</h3>
-      <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
+      <h3 className="mt-4 text-lg font-black text-[#071a3a]">{title}</h3>
+      <p className="mt-2 min-h-12 text-sm leading-6 text-[#505050]">{description}</p>
       <span className="mt-4 inline-flex items-center gap-2 text-sm font-black text-[#1c57b4]">
         {cta}
         <ArrowRight className="size-4 transition group-hover:translate-x-1" />
@@ -303,22 +362,22 @@ export function PassportMiniCard({ record, stats }: { record: PassportRecord; st
   return (
     <Link
       href={passportProfileHref(record)}
-      className="group rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-[#1c57b4] hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
+      className="group rounded-lg border border-[#E1E1E1] bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-[#1c57b4] hover:shadow-lg"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.14em] text-[#1c57b4]">{record.rank}</p>
-          <h3 className="mt-1 text-lg font-black text-[#071a3a] dark:text-white">{record.country}</h3>
+          <h3 className="mt-1 text-lg font-black text-[#071a3a]">{record.country}</h3>
           <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-black ${regionClass(record.region)}`}>
             {record.region}
           </span>
         </div>
         <ScorePill score={record.score} />
       </div>
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#E1E1E1]">
         <div className="h-full rounded-full bg-[#e1b923]" style={{ width: scoreWidth(record.score, stats.topScore) }} />
       </div>
-      <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{record.xiphiasLens}</p>
+      <p className="mt-3 text-sm leading-6 text-[#505050]">{record.xiphiasLens}</p>
     </Link>
   );
 }
