@@ -2,6 +2,10 @@ import React from "react";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
+function SectionBreak() {
+  return <div className="h-10 sm:h-16" aria-hidden="true" />;
+}
+
 // Hero + all big home sections are code-split
 const Hero = dynamic(() => import("@/components/Home/Hero"));
 const WhyChooseUs = dynamic(() => import("@/components/Home/whychooseus"));
@@ -61,13 +65,21 @@ export default function Home() {
       <WhyChooseUs />
       <XiaIntelligencePreview />
       <CitizenshipPreview />
+      <SectionBreak />
       <ResidencyPreview />
+      <SectionBreak />
       <CorporatePreview />
+      <SectionBreak />
       <SkilledPreview />
-      <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
-        <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
+      <SectionBreak />
+      <section className="scroll-mt-28 bg-[#F5F7FA] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="mx-auto max-w-screen-2xl">
+          <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
+        </div>
       </section>
+      <SectionBreak />
       <FAQJourney />
+      <SectionBreak />
       <InsightsPreview />
     </>
   );
