@@ -22,6 +22,7 @@ export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [compact, setCompact] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
+  const [hidden, setHidden] = useState(false); // auto-hide on scroll-down
 
   const headerRef = useRef<HTMLElement>(null);
   const navAnchorRef = useRef<HTMLDivElement>(null); // 👈 anchor = nav row (rounded bar)
@@ -85,11 +86,17 @@ export default function Header() {
           downAccum += dy;
           upAccum    = 0;
           if (downAccum >= HIDE_ACCUM && y > HIDE_AT) setShowTopBar(false);
+          // Fully retract the header after sustained downward scroll.
+          if (downAccum >= 70 && y > 220) setHidden(true);
         } else {
           upAccum   += Math.abs(dy);
           downAccum  = 0;
           if (upAccum >= SHOW_ACCUM) setShowTopBar(true);
+          setHidden(false); // any upward scroll brings it back
         }
+
+        // Always visible near the very top of the page.
+        if (y < HIDE_AT) setHidden(false);
       });
     };
 
@@ -232,7 +239,11 @@ export default function Header() {
 
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 w-full z-50 overflow-visible pt-5 pb-3 will-change-transform [transform:translateZ(0)]"
+        className={[
+          "fixed top-0 left-0 right-0 w-full z-50 overflow-visible pt-5 pb-3",
+          "will-change-transform transition-transform duration-300 ease-out",
+          hidden && !drawerOpen ? "-translate-y-[140%]" : "translate-y-0",
+        ].join(" ")}
       >
         {/* Floating card — max-w-screen-2xl centered with side gutters */}
         <div className="mx-auto w-full max-w-screen-2xl px-2 sm:px-4">

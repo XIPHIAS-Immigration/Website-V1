@@ -3,6 +3,7 @@ import {
   getJiopayConfig,
   initiateJiopaySale,
   makeJiopayTxnNo,
+  auditJiopayPayload,
   publicJiopayPayload,
 } from "@/lib/payments/jiopay";
 import { saveJiopayOrder } from "@/lib/payments/jiopay-store";
@@ -130,7 +131,8 @@ export async function POST(req: NextRequest) {
           data: {
             httpStatus: result.status,
             hasCheckoutUrl: Boolean(result.checkoutUrl),
-            response: publicJiopayPayload(result.responsePayload),
+            request: auditJiopayPayload(result.requestPayload),
+            response: auditJiopayPayload(result.responsePayload),
           },
         },
       ],
@@ -166,4 +168,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

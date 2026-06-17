@@ -195,30 +195,30 @@ export function PassportIndexShell({
           />
         </div>
 
-        <div className="relative mx-auto max-w-screen-2xl px-4 pb-12 pt-14 text-center md:px-6 md:pb-16 md:pt-20">
+        <div className="relative mx-auto max-w-screen-2xl px-4 pb-16 pt-20 text-center md:px-6 md:pb-20 md:pt-28">
 
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e1b923]/50 bg-[#fff8df] px-4 py-1.5 text-[10.5px] font-black uppercase tracking-[0.22em] text-[#7a5c00]">
-            <Sparkles className="size-3.5 text-[#e1b923]" aria-hidden="true" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e1b923]/50 bg-[#fff8df] px-5 py-2 text-[12px] font-black uppercase tracking-[0.24em] text-[#7a5c00]">
+            <Sparkles className="size-4 text-[#e1b923]" aria-hidden="true" />
             {eyebrow}
           </div>
 
           {/* Main heading */}
           <h1
-            className="mx-auto mt-6 max-w-[820px] font-black leading-[1.1] tracking-tight text-[#071a3a]"
-            style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)" }}
+            className="mx-auto mt-7 max-w-[960px] font-black leading-[1.05] tracking-tight text-[#071a3a]"
+            style={{ fontSize: "clamp(2.4rem, 5.6vw, 4.5rem)" }}
           >
             {title}
           </h1>
 
           {/* Description */}
-          <p className="mx-auto mt-5 max-w-[600px] text-[1.0625rem] leading-[1.85] text-[#505050]">
+          <p className="mx-auto mt-6 max-w-[700px] text-[1.2rem] leading-[1.8] text-[#505050]">
             {description}
           </p>
 
           {/* Gold accent rule */}
           <div
-            className="mx-auto mt-9 h-px w-14 bg-gradient-to-r from-transparent via-[#e1b923] to-transparent"
+            className="mx-auto mt-10 h-1 w-20 rounded-full bg-gradient-to-r from-transparent via-[#e1b923] to-transparent"
             aria-hidden="true"
           />
         </div>

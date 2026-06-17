@@ -38,21 +38,14 @@ export default function TrustBar({
   className = "",
   items = DEFAULT_ITEMS,
   variant = "default",
-  as: Tag = "section",
+  as: TagProp = "section",
   ariaLabel = "Trust and proof points",
 }: Props) {
   const pad = variant === "compact" ? "px-3 py-2.5" : "px-4 py-3";
+  const Tag = (TagProp ?? "section") as React.ElementType;
 
-  return (
-    <Tag
-      className={[
-        "rounded-3xl bg-white ring-1 ring-blue-100/80",
-        "dark:bg-white/5 dark:ring-blue-900/30",
-        pad,
-        className,
-      ].join(" ")}
-      aria-label={ariaLabel}
-    >
+  const content = (
+    <>
       {/* Mobile: swipeable cards */}
       <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 snap-x sm:hidden">
         {items.map((it) => (
@@ -91,8 +84,19 @@ export default function TrustBar({
           </li>
         ))}
       </ul>
-    </Tag>
+    </>
   );
+
+  const classes = [
+    "rounded-3xl bg-white ring-1 ring-blue-100/80",
+    "dark:bg-white/5 dark:ring-blue-900/30",
+    pad,
+    className,
+  ].join(" ");
+
+  // createElement avoids React 19's "children: never" inference on a
+  // polymorphic React.ElementType rendered through JSX.
+  return React.createElement(Tag, { className: classes, "aria-label": ariaLabel }, content);
 }
 
 /* --------------------------------- Icons --------------------------------- */

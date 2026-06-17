@@ -377,7 +377,7 @@ type FactItem = {
 
 function StatCard({ item }: { item: FactItem }) {
   const c = accent(item.accent);
-  const IconCmp = item.Icon;
+  const IconCmp = item.Icon as React.ComponentType<{ className?: string }>;
 
   return (
     <div
