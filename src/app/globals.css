@@ -234,6 +234,16 @@ body {
   100% { transform: scale(1.75); opacity: 0; }
 }
 
+/* Redesign text effects (ShinyText / GradientText). Disabled automatically by
+   the global prefers-reduced-motion rule above. */
+@keyframes xg-shine {
+  to { background-position: -220% center; }
+}
+@keyframes xg-gradient {
+  0%, 100% { background-position: 0% center; }
+  50%      { background-position: 100% center; }
+}
+
 @keyframes megaFadeIn {
   from { opacity: 0; transform: translateY(-6px) scale(0.98); }
   to   { opacity: 1; transform: translateY(0)   scale(1); }

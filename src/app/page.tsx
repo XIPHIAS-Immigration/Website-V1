@@ -2,35 +2,25 @@ import React from "react";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
+// Server components (read the programme catalogue) — static imports.
+import GlobeScene from "@/components/Home/GlobeScene";
+import VerticalChapter from "@/components/Home/VerticalChapter";
+import Reveal from "@/components/motion/Reveal";
+
 function SectionBreak() {
   return <div className="h-10 sm:h-16" aria-hidden="true" />;
 }
 
-// Hero + all big home sections are code-split
+// Hero + cinematic chapters (code-split).
 const Hero = dynamic(() => import("@/components/Home/Hero"));
-const WhyChooseUs = dynamic(() => import("@/components/Home/whychooseus"));
+const TrustMarquee = dynamic(() => import("@/components/Home/TrustMarquee"));
+const IntroChapter = dynamic(() => import("@/components/Home/IntroChapter"));
+const GrowthChapter = dynamic(() => import("@/components/Home/GrowthChapter"));
+const XiaChapter = dynamic(() => import("@/components/Home/XiaChapter"));
+const AdvisorChapter = dynamic(() => import("@/components/Home/AdvisorChapter"));
+const StatsBand = dynamic(() => import("@/components/Home/StatsBand"));
 const FAQJourney = dynamic(() => import("@/components/Home/FAQJourney"));
-const InsightsPreview = dynamic(
-  () => import("@/components/Insights/InsightsPreview"),
-);
-const ResidencyPreview = dynamic(
-  () => import("@/components/Residency/ResidencyPreview"),
-);
-const SkilledPreview = dynamic(
-  () => import("@/components/Skilled/SkilledPreview"),
-);
-const CitizenshipPreview = dynamic(
-  () => import("@/components/Citizenship/CitizenshipPreview"),
-);
-const XiaIntelligencePreview = dynamic(
-  () => import("@/components/Home/XiaIntelligencePreview"),
-);
-const CorporatePreview = dynamic(
-  () => import("@/components/Corporate/CorporatePreview"),
-);
-const AdvisorConsultationCard = dynamic(
-  () => import("@/components/Citizenship/AdvisorConsultationCard"),
-);
+const InsightsPreview = dynamic(() => import("@/components/Insights/InsightsPreview"));
 
 export const revalidate = 86400;
 
@@ -61,26 +51,79 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+      {/* Chapter 0 — Hero photo (unchanged) */}
       <Hero />
-      <WhyChooseUs />
-      <XiaIntelligencePreview />
-      <CitizenshipPreview />
+      <TrustMarquee />
+
+      {/* Chapter 1 — kinetic intro statement */}
+      <IntroChapter />
+
+      {/* Chapter 2 — cinematic globe → destination cards */}
+      <GlobeScene />
+
+      {/* Chapter 3 — why XIPHIAS, cards one-by-one */}
+      <GrowthChapter />
+
+      {/* Chapters 4–7 — each vertical: full-screen, horizontal advancing destinations */}
+      <VerticalChapter
+        vertical="citizenship"
+        eyebrow="Citizenship by Investment"
+        title="A second passport, a safer future."
+        blurb="Donation or real-estate routes to a powerful second citizenship — visa-free travel, security and a genuine plan B for your family."
+        accent="#b8860b"
+        hubLabel="View all citizenship"
+        fallbackImage="/images/citizenship/grenada/grenada-citizenship.webp"
+      />
+
+      <VerticalChapter
+        vertical="residency"
+        eyebrow="Residency by Investment"
+        title="Live, invest and belong."
+        blurb="Golden visas and investor residence across Europe, the Gulf and Asia — a base to live, study and grow on your terms."
+        accent="#0e7c66"
+        hubLabel="View all residency"
+        fallbackImage="/images/residency/portugal/portugal-golden-visa.webp"
+        flip
+      />
+
+      <VerticalChapter
+        vertical="corporate"
+        eyebrow="Corporate Global Mobility"
+        title="Move your talent across borders."
+        blurb="Intra-company transfers, market entry and compliant workforce mobility for teams and founders — one accountable partner."
+        accent="#7c3aed"
+        hubLabel="View corporate mobility"
+        fallbackImage="/images/corporate/singapore/singapore.webp"
+      />
+
+      <VerticalChapter
+        vertical="skilled"
+        eyebrow="Skilled Migration"
+        title="Built for professionals."
+        blurb="Points-based permanent residency and work visas for talent — Canada, Australia, Germany and the UK, mapped to your profile."
+        accent="#2563eb"
+        hubLabel="View skilled migration"
+        fallbackImage="/images/skilled/canada/canada.webp"
+        flip
+      />
+
+      {/* Chapter 8 — XIA Intelligence */}
+      <XiaChapter />
+
+      {/* Chapter 9 — senior advisor paid consultation */}
+      <AdvisorChapter />
+
+      {/* Proof + journey + insights */}
+      <StatsBand />
+
+      <Reveal amount={0.12}>
+        <FAQJourney />
+      </Reveal>
       <SectionBreak />
-      <ResidencyPreview />
-      <SectionBreak />
-      <CorporatePreview />
-      <SectionBreak />
-      <SkilledPreview />
-      <SectionBreak />
-      <section className="scroll-mt-28 bg-[#F5F7FA] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-        <div className="mx-auto max-w-screen-2xl">
-          <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
-        </div>
-      </section>
-      <SectionBreak />
-      <FAQJourney />
-      <SectionBreak />
-      <InsightsPreview />
+
+      <Reveal amount={0.12}>
+        <InsightsPreview />
+      </Reveal>
     </>
   );
 }

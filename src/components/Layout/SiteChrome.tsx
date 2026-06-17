@@ -7,6 +7,7 @@ import Footer from "@/components/Layout/Footer";
 import Header from "@/components/Layout/Header";
 import MainPadding from "@/components/Layout/MainPadding";
 import SocialSidebar from "@/components/Layout/SocialSidebar";
+import { ScrollProgress, SmoothScroll } from "@/components/motion";
 
 type Props = {
   children: React.ReactNode;
@@ -34,6 +35,8 @@ export default function SiteChrome({ children, gaId }: Props) {
 
   return (
     <>
+      <SmoothScroll />
+      <ScrollProgress />
       <Header />
       <main id="main" className="min-h-screen">
         <MainPadding />

@@ -243,6 +243,11 @@ export function publicJiopayPayload(payload: JiopayUnknownPayload) {
   return clone;
 }
 
+export function auditJiopayPayload(payload: JiopayUnknownPayload) {
+  if (process.env.JIOPAY_LOG_FULL_PAYLOADS === "true") return payload;
+  return publicJiopayPayload(payload);
+}
+
 export async function initiateJiopaySale(input: JiopayCheckoutInput, config: JiopayConfig) {
   const requestPayload = buildJiopaySalePayload(input, config);
   const response = await fetch(config.initiateSaleUrl, {

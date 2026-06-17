@@ -5,7 +5,7 @@ import {
   isJiopaySuccess,
   jiopayResponseCode,
   jiopayStatusLabel,
-  publicJiopayPayload,
+  auditJiopayPayload,
   verifyJiopaySecureHash,
 } from "@/lib/payments/jiopay";
 import { getJiopayOrder, updateJiopayOrder } from "@/lib/payments/jiopay-store";
@@ -64,6 +64,11 @@ async function handleReturn(req: NextRequest) {
           ? "failed"
           : "returned";
 
+    const redirectUrl = new URL("/payment/jiopay/return", req.nextUrl.origin);
+    redirectUrl.searchParams.set("status", status);
+    redirectUrl.searchParams.set("verified", verified ? "1" : "0");
+    redirectUrl.searchParams.set("order", merchantTxnNo);
+
     updateJiopayOrder(
       merchantTxnNo,
       {
@@ -74,7 +79,10 @@ async function handleReturn(req: NextRequest) {
       {
         type: "browser_return",
         at: new Date().toISOString(),
-        data: publicJiopayPayload(payload),
+        data: {
+          receivedPayload: auditJiopayPayload(payload),
+          appResponse: { status: 303, location: redirectUrl.toString() },
+        },
       },
     );
 

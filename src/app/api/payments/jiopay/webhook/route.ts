@@ -5,7 +5,7 @@ import {
   isJiopaySuccess,
   jiopayResponseCode,
   jiopayStatusLabel,
-  publicJiopayPayload,
+  auditJiopayPayload,
   verifyJiopaySecureHash,
 } from "@/lib/payments/jiopay";
 import { getJiopayOrder, updateJiopayOrder } from "@/lib/payments/jiopay-store";
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
       {
         type: "webhook",
         at: new Date().toISOString(),
-        data: publicJiopayPayload(payload),
+        data: { receivedPayload: auditJiopayPayload(payload) },
       },
     );
 
@@ -128,13 +128,21 @@ export async function POST(req: NextRequest) {
 
     const provisioning = success ? await provisionAfterSuccess(merchantTxnNo, req) : { status: "not_success" as const };
 
-    return NextResponse.json({
+    const responsePayload = {
       ok: true,
       merchantTxnNo,
       paid: success,
       leadId: matchingLead?.id,
       provisioning,
+    };
+
+    updateJiopayOrder(merchantTxnNo, {}, {
+      type: "webhook_response",
+      at: new Date().toISOString(),
+      data: responsePayload,
     });
+
+    return NextResponse.json(responsePayload);
   } catch (error) {
     return NextResponse.json(
       { ok: false, error: error instanceof Error ? error.message : "Jiopay webhook failed." },
@@ -146,4 +154,3 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   return NextResponse.json({ ok: true, endpoint: "jiopay-webhook" });
 }
-
