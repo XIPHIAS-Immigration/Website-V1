@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, BrainCircuit, GraduationCap, Route, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BrainCircuit,
+  Calculator,
+  Gauge,
+  GraduationCap,
+  Route,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { CharReveal, GradientText, Reveal, Stagger, StaggerItem, TextType, TiltCard } from "@/components/motion";
 
 const suiteOptions = [
@@ -25,6 +35,27 @@ const suiteOptions = [
     label: "US Visa Intelligence",
     copy: "Review US visa directions including EB1A, EB2 NIW, O1A, H-1B, L1, founder and employer routes.",
     icon: BrainCircuit,
+    glow: "#e1b923",
+  },
+  {
+    href: "/cost-estimator",
+    label: "Cost Estimator",
+    copy: "Estimate an indicative, family-tailored cost — government fees, due diligence, dependants and timeline.",
+    icon: Calculator,
+    glow: "#3cd278",
+  },
+  {
+    href: "/compare-programs",
+    label: "Compare Programs",
+    copy: "Put 2–4 routes side by side on cost, timeline, presence, tax position and passport power gained.",
+    icon: Scale,
+    glow: "#4f8cff",
+  },
+  {
+    href: "/xiphias-program-index",
+    label: "Program Index",
+    copy: "A documented composite benchmark ranking programmes across six weighted factors.",
+    icon: Gauge,
     glow: "#e1b923",
   },
 ] as const;

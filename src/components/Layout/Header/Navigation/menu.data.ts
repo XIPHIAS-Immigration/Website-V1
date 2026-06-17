@@ -547,4 +547,16 @@ export const headerMenu: HeaderItem[] = [
     ],
   },
 
+  // XIA Intelligence tools (single grouped entry — not separate top-level items)
+  {
+    label: 'Tools',
+    href: '/xia-intelligence',
+    submenu: [
+      { label: 'XIA Intelligence Suite', href: '/xia-intelligence' },
+      { label: 'Cost Estimator', href: '/cost-estimator' },
+      { label: 'Compare Programmes', href: '/compare-programs' },
+      { label: 'Program Index', href: '/xiphias-program-index' },
+    ],
+  },
+
 ];

@@ -87,7 +87,7 @@ export default function PassportGlobe({ records, highlightedCodes }: Props) {
             <span className="text-right">Score</span>
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain">
             {listRecords.map((record) => {
               const active = selected?.code === record.code;
               return (

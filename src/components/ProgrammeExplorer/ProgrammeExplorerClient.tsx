@@ -9,8 +9,11 @@ import {
   Banknote,
   BrainCircuit,
   BriefcaseBusiness,
+  Calculator,
+  Gauge,
   GraduationCap,
   MapPin,
+  Scale,
   Search,
   Send,
   ShieldCheck,
@@ -1305,6 +1308,27 @@ export default function ProgrammeExplorerClient({ data }: { data: ProgrammeExplo
                   >
                     <GraduationCap className="size-4 text-[#d8ad1f]" />
                     High-Skill Visa
+                  </Link>
+                  <Link
+                    href="/cost-estimator"
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-black text-slate-700 transition hover:border-[#d8ad1f] dark:border-white/10 dark:text-white/90"
+                  >
+                    <Calculator className="size-4 text-[#d8ad1f]" />
+                    Cost Estimator
+                  </Link>
+                  <Link
+                    href="/compare-programs"
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-black text-slate-700 transition hover:border-[#d8ad1f] dark:border-white/10 dark:text-white/90"
+                  >
+                    <Scale className="size-4 text-[#d8ad1f]" />
+                    Compare
+                  </Link>
+                  <Link
+                    href="/xiphias-program-index"
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-black text-slate-700 transition hover:border-[#d8ad1f] dark:border-white/10 dark:text-white/90"
+                  >
+                    <Gauge className="size-4 text-[#d8ad1f]" />
+                    Program Index
                   </Link>
                   <button
                     type="button"
