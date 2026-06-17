@@ -120,11 +120,11 @@ export default function PassportWorldMap({
         .map-list-btn:hover .map-score { color: #e1b923; }
       `}</style>
 
-      {/* Grid: map panel determines height via aspect-ratio; aside stretches to match */}
-      <div className={`grid lg:grid-cols-[300px_1fr] ${isExpandedView ? "h-[78vh]" : ""}`}>
+      {/* Grid: fixed height on desktop so left panel and map are always equal height */}
+      <div className={`grid lg:grid-cols-[280px_1fr] ${isExpandedView ? "h-[78vh]" : "lg:h-[460px]"}`}>
 
         {/* ── Left panel ── */}
-        <aside className="flex h-full flex-col overflow-hidden border-b border-white/10 bg-[#071a3a] lg:border-b-0 lg:border-r lg:border-white/10">
+        <aside className="flex max-h-[380px] flex-col overflow-hidden border-b border-white/10 bg-[#071a3a] lg:max-h-none lg:h-full lg:border-b-0 lg:border-r lg:border-white/10">
 
           {/* Panel header */}
           <div className="flex-none px-4 pt-4 pb-3 border-b border-white/10">
@@ -220,13 +220,13 @@ export default function PassportWorldMap({
 
         {/* ── Map panel ── */}
         {/* aspect-[960/520] makes the container exactly the SVG's native ratio → meet fills it perfectly, no bars, no crop */}
-        <div className={`relative overflow-hidden bg-[#061527] ${isExpandedView ? "h-full" : "aspect-[960/520]"}`}>
+        <div className={`relative overflow-hidden bg-[#061527] ${isExpandedView ? "h-full" : "aspect-[960/520] lg:aspect-auto lg:h-full"}`}>
           <svg
             viewBox={worldMapViewBox}
             role="img"
             aria-label="World map with highlighted passport mobility countries"
             className="absolute inset-0 h-full w-full"
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="xMidYMid slice"
           >
             <defs>
               <radialGradient id="passportOceanGlow" cx="52%" cy="40%" r="68%">

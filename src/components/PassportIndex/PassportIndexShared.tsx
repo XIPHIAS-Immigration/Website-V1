@@ -114,7 +114,7 @@ export function PassportSectionNav({ active }: { active: SectionId }) {
       aria-label="Passport index sections"
       className="sticky top-0 z-20 border-b border-[#E1E1E1] bg-white/95 backdrop-blur-sm shadow-sm"
     >
-      <div className="flex overflow-x-auto">
+      <div className="mx-auto flex max-w-screen-2xl overflow-x-auto">
         {passportSectionLinks.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.id;

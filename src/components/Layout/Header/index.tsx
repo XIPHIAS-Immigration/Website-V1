@@ -281,7 +281,7 @@ export default function Header() {
 
               {/* Desktop nav */}
               <nav
-                className="hidden lg:flex flex-grow items-center justify-center gap-1 xl:gap-2"
+                className="hidden lg:flex flex-grow items-center justify-start gap-1 xl:gap-2 ml-4 xl:ml-6"
                 aria-label="Main navigation"
               >
                 {headerMenu.map((item, i) => (
