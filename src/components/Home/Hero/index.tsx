@@ -227,13 +227,13 @@ export default function Hero() {
         {/* ── Secondary CTAs ── */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
 
-          {/* Check Your Eligibility — primary ghost pill */}
+          {/* Start Your Journey — primary ghost pill */}
           <Link
-            href="/eligibility"
+            href="/eligibility#start"
             className="group inline-flex items-center gap-2.5 rounded-full border border-secondary/50 bg-secondary/10 px-6 py-2.5 text-[13.5px] font-semibold text-secondary backdrop-blur-sm hover:bg-secondary hover:text-primary transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
           >
             <FileSearch className="h-4 w-4 shrink-0" />
-            Check Your Eligibility
+            Start Your Journey
             <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
 

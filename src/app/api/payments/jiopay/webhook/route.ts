@@ -10,6 +10,7 @@ import {
 } from "@/lib/payments/jiopay";
 import { getJiopayOrder, updateJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getPlatformRepository } from "@/lib/platform/repository";
+import { fulfillJiopayOrder } from "@/lib/payments/fulfillment";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,46 +36,8 @@ async function readPayload(req: NextRequest): Promise<Payload> {
   }
 }
 
-async function provisionAfterSuccess(orderId: string, req: NextRequest) {
-  if (process.env.JIOPAY_AUTO_PROVISION !== "true") return { status: "skipped" as const };
-  const order = getJiopayOrder(orderId);
-  if (!order) return { status: "missing_order" as const };
-
-  const secret = process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET;
-  if (!secret) return { status: "missing_registration_secret" as const };
-
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.SITE_URL ||
-    req.nextUrl.origin;
-
-  const response = await fetch(`${siteUrl.replace(/\/+$/, "")}/api/platform/registration/provision`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-registration-secret": secret },
-    body: JSON.stringify({
-      secret,
-      name: order.customer.name,
-      email: order.customer.email,
-      phone: order.customer.phone,
-      track: order.track,
-      country: order.country,
-      program: order.program || order.productName,
-      amount: order.amountInr,
-      paymentReference: order.merchantTxnNo,
-      product: order.productName,
-      answers: order.answers,
-    }),
-    cache: "no-store",
-  });
-
-  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-  if (!response.ok) return { status: "failed" as const, data };
-  updateJiopayOrder(orderId, { status: "provisioned" }, {
-    type: "registration_provisioned",
-    at: new Date().toISOString(),
-    data,
-  });
-  return { status: "provisioned" as const, data };
+function resolveSiteUrl(req: NextRequest) {
+  return (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || req.nextUrl.origin).replace(/\/+$/, "");
 }
 
 export async function POST(req: NextRequest) {
@@ -97,7 +60,12 @@ export async function POST(req: NextRequest) {
     const matchingLead = order?.leadId
       ? repo.listLeads().find((lead) => lead.id === order.leadId)
       : repo.listLeads().find((lead) => lead.tags.includes(`payment:${merchantTxnNo}`));
-    const nextStatus = success ? "paid" : "failed";
+    const nextStatus =
+      order?.status === "report_sent" || order?.status === "provisioned"
+        ? order.status
+        : success
+          ? "paid"
+          : "failed";
 
     updateJiopayOrder(
       merchantTxnNo,
@@ -126,14 +94,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const provisioning = success ? await provisionAfterSuccess(merchantTxnNo, req) : { status: "not_success" as const };
+    const fulfillment = success
+      ? await fulfillJiopayOrder(merchantTxnNo, { siteUrl: resolveSiteUrl(req) })
+      : { status: "not_success" as const };
 
     const responsePayload = {
       ok: true,
       merchantTxnNo,
       paid: success,
       leadId: matchingLead?.id,
-      provisioning,
+      fulfillment,
     };
 
     updateJiopayOrder(merchantTxnNo, {}, {

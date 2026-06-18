@@ -4,6 +4,10 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
+const UAT_INITIATE_SALE_URL = "https://uat.jiopay.co.in/tsp/pg/api/v2/initiateSale";
+const UAT_COMMAND_URL = "https://uat.jiopay.co.in/tsp/pg/api/command";
+const PRODUCTION_INITIATE_SALE_URL = "https://jiopay.co.in/pg/api/v2/initiateSale";
+const PRODUCTION_COMMAND_URL = "https://jiopay.co.in/pg/api/command";
 
 export type JiopayPrimitive = string | number | boolean | null | undefined;
 export type JiopayPayload = Record<string, JiopayPrimitive>;
@@ -41,6 +45,10 @@ function requireEnv(name: string) {
   return value;
 }
 
+function envOrDefault(name: string, fallback: string) {
+  return process.env[name]?.trim() || fallback;
+}
+
 export function getSiteUrl(req?: NextRequest) {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
   if (fromEnv) return trimTrailingSlash(fromEnv);
@@ -51,12 +59,20 @@ export function getSiteUrl(req?: NextRequest) {
 export function getJiopayConfig(req?: NextRequest): JiopayConfig {
   const siteUrl = getSiteUrl(req);
   const mode = process.env.JIOPAY_MODE === "production" ? "production" : "uat";
+  const initiateSaleUrl =
+    mode === "production"
+      ? envOrDefault("JIOPAY_INITIATE_SALE_URL", PRODUCTION_INITIATE_SALE_URL)
+      : envOrDefault("JIOPAY_INITIATE_SALE_URL", UAT_INITIATE_SALE_URL);
+  const statusUrl =
+    mode === "production"
+      ? envOrDefault("JIOPAY_STATUS_URL", PRODUCTION_COMMAND_URL)
+      : envOrDefault("JIOPAY_STATUS_URL", UAT_COMMAND_URL);
   return {
     mode,
     merchantId: requireEnv("JIOPAY_MERCHANT_ID"),
     secretKey: requireEnv("JIOPAY_SECRET_KEY"),
-    initiateSaleUrl: requireEnv("JIOPAY_INITIATE_SALE_URL"),
-    statusUrl: process.env.JIOPAY_STATUS_URL?.trim(),
+    initiateSaleUrl,
+    statusUrl,
     siteUrl,
     returnUrl:
       process.env.JIOPAY_RETURN_URL?.trim() ||

@@ -15,7 +15,6 @@ function SectionBreak() {
 const Hero = dynamic(() => import("@/components/Home/Hero"));
 const TrustMarquee = dynamic(() => import("@/components/Home/TrustMarquee"));
 const IntroChapter = dynamic(() => import("@/components/Home/IntroChapter"));
-const GrowthChapter = dynamic(() => import("@/components/Home/GrowthChapter"));
 const XiaChapter = dynamic(() => import("@/components/Home/XiaChapter"));
 const AdvisorChapter = dynamic(() => import("@/components/Home/AdvisorChapter"));
 const StatsBand = dynamic(() => import("@/components/Home/StatsBand"));
@@ -58,11 +57,8 @@ export default function Home() {
       {/* Chapter 1 — kinetic intro statement */}
       <IntroChapter />
 
-      {/* Chapter 2 — cinematic globe → destination cards */}
+      {/* Chapter 2 — interactive globe: hover a beacon → destination card */}
       <GlobeScene />
-
-      {/* Chapter 3 — why XIPHIAS, cards one-by-one */}
-      <GrowthChapter />
 
       {/* Chapters 4–7 — each vertical: full-screen, horizontal advancing destinations */}
       <VerticalChapter

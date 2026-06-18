@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
 import puppeteer from "puppeteer";
+import sharp from "sharp";
 
 const root = process.cwd();
 
@@ -234,22 +235,70 @@ async function firstImageFromDirectories(relDirs) {
   return "";
 }
 
+// Collect ALL distinct images across the given directories so report slots can each get a
+// different photo (instead of repeating one country cover image everywhere).
+async function collectImagesFromDirectories(relDirs) {
+  const out = [];
+  const seen = new Set();
+  for (const relDir of relDirs.filter(Boolean)) {
+    try {
+      const entries = await fs.readdir(path.join(root, relDir), { withFileTypes: true });
+      const images = entries
+        .filter((entry) => entry.isFile() && /\.(webp|png|jpe?g|avif)$/i.test(entry.name))
+        .map((entry) => entry.name)
+        .sort((a, b) => a.localeCompare(b));
+      for (const name of images) {
+        const rel = path.join(relDir, name).replace(/\\/g, "/");
+        if (!seen.has(rel)) {
+          seen.add(rel);
+          out.push(rel);
+        }
+      }
+    } catch {
+      // skip missing directories
+    }
+  }
+  return out;
+}
+
 async function dataUri(relPath) {
+  const file = path.join(root, relPath);
+  const ext = path.extname(file).toLowerCase();
   try {
-    const file = path.join(root, relPath);
-    const bytes = await fs.readFile(file);
-    const ext = path.extname(file).toLowerCase();
-    const mime =
-      ext === ".png"
-        ? "image/png"
-        : ext === ".webp"
-          ? "image/webp"
-          : ext === ".svg"
-            ? "image/svg+xml"
-            : "image/jpeg";
-    return `data:${mime};base64,${bytes.toString("base64")}`;
+    if (ext === ".svg") {
+      const bytes = await fs.readFile(file);
+      return `data:image/svg+xml;base64,${bytes.toString("base64")}`;
+    }
+    if (ext === ".png") {
+      // Keep transparency (logos/flags) — resize + recompress only.
+      const out = await sharp(file)
+        .resize({ width: 1000, height: 1000, fit: "inside", withoutEnlargement: true })
+        .png({ compressionLevel: 9, palette: true })
+        .toBuffer();
+      return `data:image/png;base64,${out.toString("base64")}`;
+    }
+    // Downscale photos so the emailed PDF stays light.
+    const out = await sharp(file)
+      .rotate()
+      .resize({ width: 1400, height: 1400, fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 72, mozjpeg: true })
+      .toBuffer();
+    return `data:image/jpeg;base64,${out.toString("base64")}`;
   } catch {
-    return "";
+    try {
+      const bytes = await fs.readFile(file);
+      const mime =
+        ext === ".png"
+          ? "image/png"
+          : ext === ".webp"
+            ? "image/webp"
+            : ext === ".svg"
+              ? "image/svg+xml"
+              : "image/jpeg";
+      return `data:${mime};base64,${bytes.toString("base64")}`;
+    } catch {
+      return "";
+    }
   }
 }
 
@@ -965,6 +1014,18 @@ async function buildAssetPaths(input, doc) {
   const routeHero = heroImage ? `public${heroImage.startsWith("/") ? "" : "/"}${heroImage}` : "";
   const cSlugs = countrySlugCandidates(input.country || doc.data.country || client.country);
   const trackSlug = clean(input.track || doc.data.track || doc.data.vertical || "").toLowerCase();
+  // Distinct image pool for this country, used to give each report slot a different photo.
+  const countryPool = await collectImagesFromDirectories([
+    ...cSlugs.map((slug) => `public/images/report-assets/${slug}`),
+    ...cSlugs.flatMap((slug) => [
+      trackSlug ? `public/images/${trackSlug}/${slug}` : "",
+      `public/images/skilled/${slug}`,
+      `public/images/residency/${slug}`,
+      `public/images/citizenship/${slug}`,
+      `public/images/corporate/${slug}`,
+    ]),
+  ]);
+  const poolAt = (i) => countryPool[i] || "";
   const reportCover = await firstExisting(
     imageCandidates(cSlugs, "report-assets", ["cover", "hero"]),
   );
@@ -1022,14 +1083,22 @@ async function buildAssetPaths(input, doc) {
     "public/images/flags/USA.png",
   ]);
 
+  // Consistent cover portrait (the Varun Singh image) shared with the other reports.
+  const coverPortrait = await firstExisting([
+    "public/images/report-assets/_cover/cover.jpeg",
+    "public/images/report-assets/_cover/cover.jpg",
+    "public/images/report-assets/_cover/cover.webp",
+    "public/images/report-assets/_cover/cover.png",
+  ]);
+
   return {
     ...DEFAULT_ASSETS,
-    hero: (await firstExisting([reportCover, articleCountry, DEFAULT_ASSETS.hero])) || DEFAULT_ASSETS.hero,
-    routeHero: (await firstExisting([routeHero, reportRoute, reportCover, articleCountry, DEFAULT_ASSETS.routeHero])) || DEFAULT_ASSETS.routeHero,
-    greenCard: (await firstExisting([reportCover, reportLandmark, reportImg1, articleCountry, routeHero, DEFAULT_ASSETS.greenCard])) || DEFAULT_ASSETS.greenCard,
-    usWork: (await firstExisting([reportImg2, reportProcess, reportImg1, reportCity, reportRoute, routeHero, articleCountry, DEFAULT_ASSETS.usWork])) || DEFAULT_ASSETS.usWork,
-    usa: (await firstExisting([reportImg1, reportLandmark, reportCity, articleCountry, routeHero, DEFAULT_ASSETS.usa])) || DEFAULT_ASSETS.usa,
-    eb1: (await firstExisting([reportImg2, reportAlternative, reportCity, articleCountry, routeHero, DEFAULT_ASSETS.eb1])) || DEFAULT_ASSETS.eb1,
+    hero: (await firstExisting([coverPortrait, reportCover, articleCountry, DEFAULT_ASSETS.hero])) || DEFAULT_ASSETS.hero,
+    routeHero: (await firstExisting([routeHero, reportRoute, poolAt(0), reportCover, articleCountry, DEFAULT_ASSETS.routeHero])) || DEFAULT_ASSETS.routeHero,
+    greenCard: (await firstExisting([poolAt(1), reportLandmark, reportImg1, articleCountry, DEFAULT_ASSETS.greenCard])) || DEFAULT_ASSETS.greenCard,
+    usWork: (await firstExisting([poolAt(2), reportImg2, reportProcess, reportCity, DEFAULT_ASSETS.usWork])) || DEFAULT_ASSETS.usWork,
+    usa: (await firstExisting([poolAt(3), reportImg1, reportLandmark, articleCountry, DEFAULT_ASSETS.usa])) || DEFAULT_ASSETS.usa,
+    eb1: (await firstExisting([poolAt(4), reportImg2, reportAlternative, DEFAULT_ASSETS.eb1])) || DEFAULT_ASSETS.eb1,
     flag: flag || DEFAULT_ASSETS.flag,
   };
 }
@@ -1273,6 +1342,12 @@ function buildHtml(assetsMap, doc) {
   </html>`;
 }
 
+// Debug-only: when set, screenshot the Nth `.page` instead of producing the PDF.
+let PREMIUM_PNG_PAGE = null;
+export function setPremiumPngPage(index) {
+  PREMIUM_PNG_PAGE = index;
+}
+
 export async function generatePremiumReportPdf(input = {}) {
   const doc = await loadProgramDoc(input);
   const nextAssets = await buildAssetPaths(input, doc);
@@ -1293,6 +1368,12 @@ export async function generatePremiumReportPdf(input = {}) {
   try {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
+    if (PREMIUM_PNG_PAGE != null) {
+      await page.setViewport({ width: 820, height: 1160, deviceScaleFactor: 1 });
+      const handles = await page.$$("section.page");
+      const target = handles[Math.max(0, Math.min(PREMIUM_PNG_PAGE, handles.length - 1))];
+      return target ? await target.screenshot({ type: "png" }) : await page.screenshot({ type: "png" });
+    }
     return await page.pdf({
       format: "A4",
       printBackground: true,

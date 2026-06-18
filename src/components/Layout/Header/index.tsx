@@ -10,10 +10,9 @@ import { headerMenu } from './Navigation/menu.data';
 import Logo from './LogoWhite';
 import HeaderLink from './Navigation/HeaderLink';
 import MobileHeaderLink from './Navigation/MobileHeaderLink';
-import TopBar from './Navigation/TopBar';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun, Sparkles } from 'lucide-react';
+import { Menu, X, Moon, Sun, Globe } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -21,7 +20,6 @@ export default function Header() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [compact, setCompact] = useState(false);
-  const [showTopBar, setShowTopBar] = useState(true);
   const [hidden, setHidden] = useState(false); // auto-hide on scroll-down
 
   const headerRef = useRef<HTMLElement>(null);
@@ -56,12 +54,9 @@ export default function Header() {
 
     const COMPACT_ON  = 82;   // enter compact (scrolled past this)
     const COMPACT_OFF = 58;   // exit compact (hysteresis — different threshold)
-    const HIDE_AT     = 120;  // topbar can only hide past this point
-    const HIDE_ACCUM  = 48;   // px of sustained down-scroll to hide topbar
-    const SHOW_ACCUM  = 24;   // px of sustained up-scroll to show topbar
+    const HIDE_AT     = 120;  // header stays put until past this point
 
     let downAccum = 0;
-    let upAccum   = 0;
     // Own RAF ref — never shared with setMegaTop so they can't cancel each other
     let scrollRaf: number | null = null;
 
@@ -84,14 +79,10 @@ export default function Header() {
 
         if (dy > 0) {
           downAccum += dy;
-          upAccum    = 0;
-          if (downAccum >= HIDE_ACCUM && y > HIDE_AT) setShowTopBar(false);
           // Fully retract the header after sustained downward scroll.
           if (downAccum >= 70 && y > 220) setHidden(true);
         } else {
-          upAccum   += Math.abs(dy);
-          downAccum  = 0;
-          if (upAccum >= SHOW_ACCUM) setShowTopBar(true);
+          downAccum = 0;
           setHidden(false); // any upward scroll brings it back
         }
 
@@ -255,21 +246,6 @@ export default function Header() {
               : 'bg-primary dark:bg-zinc-900 shadow-[0_8px_32px_rgba(0,0,0,0.28)]',
           ].join(' ')}>
 
-            {/* TopBar — collapsible, desktop only; slightly darker bg for visual separation */}
-            <div
-              aria-hidden={!showTopBar}
-              className={[
-                'topbar-clip',
-                'hidden lg:block',
-                'overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out',
-                showTopBar ? 'max-h-[48px] opacity-100' : 'max-h-0 opacity-0',
-              ].join(' ')}
-            >
-              <div className="bg-black/20 border-b border-white/10">
-                <TopBar />
-              </div>
-            </div>
-
             {/* Nav row */}
             <div
               ref={navAnchorRef}
@@ -311,41 +287,37 @@ export default function Header() {
                   <Sun className="h-5 w-5 hidden dark:inline" />
                 </button>
 
+                {/* Site search (desktop) */}
+                <div className="hidden lg:inline-flex">
+                  <GlobalSearch compact />
+                </div>
+
+                {/* Passport Power — secondary action (outline gold; Book is the hero) */}
                 <Link
-                  href="/eligibility#start"
-                  className="hidden shrink-0 items-center rounded-xl border border-secondary/70 bg-secondary px-3.5 py-2 text-sm font-bold text-primary shadow-sm shadow-black/10 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
+                  href="/passport-index"
+                  className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-secondary/60 bg-secondary/10 px-3.5 py-2 text-sm font-bold text-secondary hover:bg-secondary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
-                  Start Your Journey
+                  <Globe className="h-4 w-4 shrink-0" aria-hidden />
+                  Passport Power
                 </Link>
 
-                <Link
-                  href="/xia-intelligence"
-                  className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-black/10 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  <Sparkles className="h-4 w-4" aria-hidden />
-                  XIA Intelligence
-                </Link>
-
-                <Link
-                  href="/x-hub"
-                  className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-black/10 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  X-Hub
-                </Link>
-
-                {/* Personal booking — avatar button + hover card */}
+                {/* Personal booking — primary income CTA: glowing gold pill + hover card */}
                 <div className="group relative hidden lg:inline-flex shrink-0">
                   <Link
                     href="/personal-booking"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 py-1.5 pl-2 pr-3.5 text-sm font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors duration-150"
+                    className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-secondary py-1.5 pl-1.5 pr-4 text-sm font-bold text-primary ring-1 ring-secondary/50 transition-transform duration-200 hover:scale-[1.03] hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 animate-[bookPulse_2.8s_ease-in-out_infinite]"
                   >
+                    {/* shine sweep on hover */}
+                    <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 ease-in-out group-hover:translate-x-full" />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/images/avtar/varun-singh-md-xiphias.jpg"
                       alt="Varun Singh"
-                      className="h-7 w-7 rounded-full object-cover object-top ring-2 ring-white/40 shrink-0"
+                      className="relative h-7 w-7 rounded-full object-cover object-top ring-2 ring-primary/25 shrink-0"
                     />
-                    <span>Book</span>
+                    <span className="relative whitespace-nowrap">
+                      Book<span className="hidden xl:inline"> Consultation</span>
+                    </span>
                   </Link>
 
                   {/* Hover tooltip card — drops below the button */}
@@ -455,40 +427,34 @@ export default function Header() {
               </div>
 
               <div className="mt-3 grid gap-2">
-                <Link
-                  href="/eligibility#start"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center rounded-xl bg-secondary px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  Start Your Journey
-                </Link>
-                <Link
-                  href="/xia-intelligence"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
-                >
-                  <Sparkles className="h-4 w-4" aria-hidden />
-                  XIA Intelligence
-                </Link>
-                <Link
-                  href="/x-hub"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center rounded-xl border border-primary/15 bg-blue-50 px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
-                >
-                  X-Hub
-                </Link>
+                {/* Primary income CTA — gold, glowing, first */}
                 <Link
                   href="/personal-booking"
                   onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-secondary px-4 py-3.5 text-sm font-black text-primary shadow-[0_6px_22px_-4px_rgba(225,185,35,0.7)] ring-1 ring-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/images/avtar/varun-singh-md-xiphias.jpg"
                     alt=""
-                    className="h-6 w-6 rounded-full object-cover object-top ring-1 ring-white/50 shrink-0"
+                    className="h-6 w-6 rounded-full object-cover object-top ring-2 ring-primary/30 shrink-0"
                   />
-                  Book with Varun Singh
+                  Book Consultation
+                </Link>
+                <Link
+                  href="/eligibility#start"
+                  onClick={() => setDrawerOpen(false)}
+                  className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-black text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Start Your Journey
+                </Link>
+                <Link
+                  href="/passport-index"
+                  onClick={() => setDrawerOpen(false)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
+                >
+                  <Globe className="h-4 w-4" aria-hidden />
+                  Passport Power
                 </Link>
               </div>
 

@@ -5,8 +5,8 @@ import { getEligibilityAdvisory } from "@/lib/platform/eligibility-advisor";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
-import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 import type { Track } from "@/lib/eligibility/types";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
 const MAX_JSON_KB = 64;
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PRICE_INR = "10000";
+const DEFAULT_REPORT_PRICE_INR = String(getProductConfig("premium_report")?.priceInr ?? 5000);
 
 const rlBucket: Map<string, number[]> =
   (global as any).__eligibilityRL__ ?? new Map<string, number[]>();
@@ -260,7 +260,7 @@ export async function POST(req: NextRequest) {
       const reportPaymentUrl = absoluteUrl(
         process.env.ASSESSMENT_REPORT_PAYMENT_URL ||
           process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL ||
-          TOPMATE_REGISTRATION_URL,
+          "/eligibility",
         siteUrl
       );
       const reportPrice = formatInr(
@@ -339,7 +339,7 @@ export async function POST(req: NextRequest) {
               <img src="${logoUrl}" alt="XIPHIAS Immigration" width="148" style="display:block;background:#fff;border-radius:10px;padding:8px;margin-bottom:22px;" />
               <div style="font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#f6d86d;">Assessment trailer</div>
               <h1 style="margin:8px 0 0;font-size:28px;line-height:1.18;color:#fff;">Your XIPHIAS route preview is ready</h1>
-              <p style="margin:12px 0 0;color:#dbe7f3;font-size:15px;line-height:1.7;">This is a concise first look. The complete 20-30 page personal report is prepared after registration and advisor review.</p>
+              <p style="margin:12px 0 0;color:#dbe7f3;font-size:15px;line-height:1.7;">This is a concise first look. Your complete, personalised report is generated and emailed to you the moment your secure payment is confirmed.</p>
             </div>
 
             <div style="padding:28px;">
@@ -363,12 +363,12 @@ export async function POST(req: NextRequest) {
               <div style="margin:28px 0 0;border-radius:18px;background:#071a3a;padding:22px;color:#fff;">
                 <div style="font-size:12px;color:#f6d86d;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">Next step</div>
                 <h2 style="margin:8px 0 8px;font-size:22px;color:#fff;">Unlock your detailed personal report</h2>
-                <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#dbe7f3;">Registration starts at <strong style="color:#fff;">${reportPrice}</strong>. The full report includes route comparison, country/product fit, document checklist, risk flags, timeline, advisor notes, and X-Hub onboarding. Payment is completed through the dedicated Topmate registration flow.</p>
-                <a href="${reportPaymentUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Register for detailed report</a>
+                <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#dbe7f3;">For <strong style="color:#fff;">${reportPrice}</strong>, your detailed personal report covers route comparison, country and product fit, document checklist, risk flags, timeline and advisor notes — generated and emailed to you as a PDF right after secure JioPay payment.</p>
+                <a href="${reportPaymentUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Get my detailed report</a>
                 <a href="${contactUrl}" style="display:inline-block;margin-left:10px;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 16px;">Speak to an advisor</a>
               </div>
 
-              <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:#607086;">After registration, your case can be organized in <a href="${portalUrl}" style="color:#0b4ea2;text-decoration:none;font-weight:800;">X-Hub</a> for documents, milestones, messages, and report workflow.</p>
+              <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:#607086;">You can also track your case in <a href="${portalUrl}" style="color:#0b4ea2;text-decoration:none;font-weight:800;">X-Hub</a> for documents, milestones, and messages.</p>
             </div>
           </div>
         </div>

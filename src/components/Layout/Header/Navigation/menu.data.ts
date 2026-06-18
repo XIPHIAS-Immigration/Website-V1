@@ -553,6 +553,7 @@ export const headerMenu: HeaderItem[] = [
     href: '/xia-intelligence',
     submenu: [
       { label: 'XIA Intelligence Suite', href: '/xia-intelligence' },
+      { label: 'X-Hub', href: '/x-hub' },
       { label: 'Cost Estimator', href: '/cost-estimator' },
       { label: 'Compare Programmes', href: '/compare-programs' },
       { label: 'Program Index', href: '/xiphias-program-index' },

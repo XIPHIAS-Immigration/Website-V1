@@ -10,6 +10,8 @@ import { saveJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText, parseBoolean } from "@/lib/platform/sanitize";
 import { isTrack, type Track } from "@/lib/eligibility/types";
+import { getCurrentPortalUser } from "@/lib/platform/auth";
+import { resolveCheckoutPrice } from "@/lib/payments/product-catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,14 +19,10 @@ export const dynamic = "force-dynamic";
 type Payload = Record<string, unknown>;
 
 const DEFAULT_PRODUCT_TYPE = "premium_report";
-const DEFAULT_PRODUCT_NAME = "XIPHIAS personalised report";
-const DEFAULT_AMOUNT_INR = 5000;
 
-function cleanAmount(value: unknown) {
+function requestedAmount(value: unknown) {
   const parsed = Number(String(value ?? "").replace(/[^\d.]/g, ""));
-  if (Number.isFinite(parsed) && parsed > 0) return parsed;
-  const fromEnv = Number(process.env.JIOPAY_DEFAULT_AMOUNT_INR);
-  return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : DEFAULT_AMOUNT_INR;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 function safeAnswers(value: unknown) {
@@ -59,11 +57,28 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const productType = normalizeText(body.productType, 60) || DEFAULT_PRODUCT_TYPE;
+
+    // Server-side price + access enforcement (single source of truth: product-catalog).
+    // Fixed-price products ignore any client-supplied amount; custom links require staff auth.
+    const portalUser = await getCurrentPortalUser();
+    const isStaff = portalUser?.role === "staff" || portalUser?.role === "admin";
+    const priced = resolveCheckoutPrice(productType, requestedAmount(body.amountInr ?? body.amount), { isStaff });
+    if (!priced.ok) {
+      const status = priced.reason === "staff_required" ? 403 : 400;
+      const error =
+        priced.reason === "staff_required"
+          ? "Staff sign-in is required to create custom payment links."
+          : priced.reason === "invalid_amount"
+            ? "A valid amount is required for custom payment links."
+            : "Unknown product type.";
+      return NextResponse.json({ ok: false, error }, { status });
+    }
+    const { config: product, amountInr } = priced;
+
     const config = getJiopayConfig(req);
     const merchantTxnNo = makeJiopayTxnNo();
-    const amountInr = cleanAmount(body.amountInr ?? body.amount);
-    const productType = normalizeText(body.productType, 60) || DEFAULT_PRODUCT_TYPE;
-    const productName = normalizeText(body.productName, 120) || DEFAULT_PRODUCT_NAME;
+    const productName = normalizeText(body.productName, 120) || product.label;
     const track = resolveTrack(body.track);
     const country = normalizeText(body.country, 80) || undefined;
     const program = normalizeText(body.program, 140) || undefined;
@@ -71,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     const repo = getPlatformRepository();
     const lead = repo.createLead({
-      source: productType === "premium_report" ? "programme_ai" : "registration",
+      source: product.fulfillment === "registration" ? "registration" : "programme_ai",
       status: "qualified",
       name,
       email,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ElementRef } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Billboard, Html, Line, OrbitControls } from "@react-three/drei";
@@ -12,6 +12,8 @@ import type { GlobeArc, GlobeMarker, GlobeTheme } from "./types";
 
 const R = 2; // globe radius (world units)
 const ONE = new THREE.Vector3(1, 1, 1);
+const UP = new THREE.Vector3(0, 1, 0); // cone apex axis — aligned to each flight's travel tangent
+const NOOP = () => {};
 
 type Palette = {
   bg: string;
@@ -171,27 +173,67 @@ function Marker({
   );
 }
 
+/** A single tiny white plane that noses along a route, fading in/out near each end. */
+function Flight({
+  curve,
+  phase,
+  speed,
+}: {
+  curve: THREE.QuadraticBezierCurve3;
+  phase: number;
+  speed: number;
+}) {
+  const ref = useRef<THREE.Group>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const aheadRef = useRef(new THREE.Vector3());
+
+  useFrame(({ clock }) => {
+    const g = ref.current;
+    if (!g) return;
+    const t = (clock.getElapsedTime() * speed + phase) % 1;
+    curve.getPointAt(t, g.position);
+    // Orient the cone apex along the direction of travel (arc-local space).
+    curve.getPointAt(Math.min(1, t + 0.012), aheadRef.current);
+    aheadRef.current.sub(g.position);
+    if (aheadRef.current.lengthSq() > 1e-10) {
+      aheadRef.current.normalize();
+      g.quaternion.setFromUnitVectors(UP, aheadRef.current);
+    }
+    if (matRef.current) matRef.current.opacity = 0.12 + 0.88 * Math.sin(t * Math.PI);
+  });
+
+  return (
+    <group ref={ref}>
+      <mesh>
+        <coneGeometry args={[0.011, 0.04, 6]} />
+        <meshBasicMaterial ref={matRef} color="#ffffff" transparent toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
 function Arc({ arc, palette, seed }: { arc: GlobeArc; palette: Palette; seed: number }) {
   const curve = useMemo(() => arcCurve(arc.from, arc.to, R * 1.01), [arc.from, arc.to]);
   const points = useMemo(() => curve.getPoints(64), [curve]);
-  const dotRef = useRef<THREE.Mesh>(null);
   const color = arc.color ?? palette.arc;
 
-  useFrame(({ clock }) => {
-    if (!dotRef.current) return;
-    const t = (clock.getElapsedTime() * 0.16 + seed) % 1;
-    curve.getPointAt(t, dotRef.current.position);
-    const mat = dotRef.current.material as THREE.MeshBasicMaterial;
-    mat.opacity = 0.25 + 0.75 * Math.sin(t * Math.PI);
-  });
+  // Air traffic: a few flights per route, evenly spaced with slightly varied speeds so
+  // they don't move in lockstep. Density comes from arc.flights (set by the caller).
+  const flights = useMemo(() => {
+    const count = Math.max(1, Math.min(5, Math.round(arc.flights ?? 1)));
+    const frac = (x: number) => x - Math.floor(x);
+    return Array.from({ length: count }, (_, i) => ({
+      phase: frac(seed + i / count),
+      speed: 0.045 + 0.03 * frac((i + 1) * 0.618 + seed),
+    }));
+  }, [arc.flights, seed]);
 
   return (
     <group>
       <Line points={points} color={color} lineWidth={1} transparent opacity={0.22} />
-      <mesh ref={dotRef}>
-        <sphereGeometry args={[0.022, 12, 12]} />
-        <meshBasicMaterial color={color} transparent toneMapped={false} />
-      </mesh>
+      {flights.map((f, i) => (
+        <Flight key={i} curve={curve} phase={f.phase} speed={f.speed} />
+      ))}
     </group>
   );
 }
@@ -206,6 +248,7 @@ function Scene({
   interactive,
   enableZoom,
   focusCode,
+  flyToken,
   onSelect,
   onHover,
 }: {
@@ -218,32 +261,69 @@ function Scene({
   interactive: boolean;
   enableZoom: boolean;
   focusCode: string | null;
+  flyToken: number;
   onSelect: (code: string) => void;
   onHover: (code: string | null) => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const controlsRef = useRef<ElementRef<typeof OrbitControls>>(null);
   const markerByCode = useMemo(() => new Map(markers.map((m) => [m.code, m])), [markers]);
+  // Non-interactive: rotate the globe group to face the focus country.
   const focusRef = useRef<{ x: number; y: number } | null>(null);
+  // Interactive: fly the camera so the focus country faces the viewer.
+  const focusDirRef = useRef<THREE.Vector3 | null>(null);
+  const flyingRef = useRef(false);
+  const resumeAtRef = useRef(0);
 
+  // Arm a fly-to whenever the focus country changes OR the same one is re-picked
+  // (flyToken bumps on every click, so re-selecting the current country re-flies).
   useEffect(() => {
-    if (!focusCode) {
+    const m = focusCode ? markerByCode.get(focusCode) : undefined;
+    if (!m) {
       focusRef.current = null;
+      focusDirRef.current = null;
+      flyingRef.current = false;
       return;
     }
-    const m = markerByCode.get(focusCode);
-    if (!m) return;
     focusRef.current = {
       x: THREE.MathUtils.degToRad(m.lat),
       y: THREE.MathUtils.degToRad(90 - (m.lng + 180)),
     };
-  }, [focusCode, markerByCode]);
+    focusDirRef.current = latLngToVector3(m.lat, m.lng, 1).normalize();
+    flyingRef.current = true;
+    // Stop auto-rotate now so drei's update() can't nudge a frame before the fly.
+    if (controlsRef.current) controlsRef.current.autoRotate = false;
+  }, [focusCode, flyToken, markerByCode]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const g = groupRef.current;
-    if (!g) return;
-    g.scale.lerp(ONE, Math.min(1, delta * 3));
-    if (interactive) return;
+    if (g) g.scale.lerp(ONE, Math.min(1, delta * 3));
 
+    if (interactive) {
+      const controls = controlsRef.current;
+      if (!controls) return;
+      const elapsed = state.clock.getElapsedTime();
+
+      if (flyingRef.current && focusDirRef.current) {
+        // Spin the camera around the globe to centre the chosen country.
+        controls.autoRotate = false;
+        const cam = state.camera;
+        const dist = cam.position.length();
+        const target = focusDirRef.current.clone().multiplyScalar(dist);
+        cam.position.lerp(target, Math.min(1, delta * 2.4)).setLength(dist);
+        controls.update();
+        if (cam.position.angleTo(target) < 0.025) {
+          flyingRef.current = false;
+          resumeAtRef.current = elapsed + 1.1; // hold on the country, then drift
+        }
+      } else {
+        // Idle: gently auto-rotate unless hovering or just after a fly-to.
+        controls.autoRotate = autoRotate && !hoveredCode && elapsed >= resumeAtRef.current;
+      }
+      return;
+    }
+
+    if (!g) return;
     if (focusRef.current) {
       let dy = focusRef.current.y - g.rotation.y;
       dy = Math.atan2(Math.sin(dy), Math.cos(dy)); // shortest path
@@ -306,17 +386,20 @@ function Scene({
 
       {interactive && (
         <OrbitControls
+          ref={controlsRef}
           makeDefault
           enablePan={false}
           enableZoom={enableZoom}
           enableDamping
           dampingFactor={0.14}
           minDistance={3.0}
-          maxDistance={6}
+          maxDistance={9}
           zoomSpeed={0.5}
-          autoRotate={autoRotate && !hoveredCode}
           autoRotateSpeed={0.3}
           rotateSpeed={0.32}
+          onStart={() => {
+            flyingRef.current = false; // user grabbed the globe — cancel fly-to
+          }}
         />
       )}
 
@@ -338,8 +421,10 @@ export type XiphiasGlobeProps = {
   interactive?: boolean;
   /** Allow scroll-wheel/pinch zoom (only when interactive). */
   enableZoom?: boolean;
-  /** ISO-2 code the globe should rotate to face (only when not interactive). */
+  /** ISO-2 code the globe should rotate/fly to face. */
   focusCode?: string | null;
+  /** Bump this on every selection so re-picking the same focusCode re-triggers the fly. */
+  flyToken?: number;
   /** Camera distance — smaller = larger globe. */
   cameraZ?: number;
   onSelect?: (code: string) => void;
@@ -358,6 +443,7 @@ export default function XiphiasGlobe({
   interactive = true,
   enableZoom = true,
   focusCode = null,
+  flyToken = 0,
   cameraZ = 4.3,
   onSelect,
   onHover,
@@ -383,8 +469,9 @@ export default function XiphiasGlobe({
           interactive={interactive}
           enableZoom={enableZoom}
           focusCode={focusCode}
-          onSelect={onSelect ?? (() => {})}
-          onHover={onHover ?? (() => {})}
+          flyToken={flyToken}
+          onSelect={onSelect ?? NOOP}
+          onHover={onHover ?? NOOP}
         />
       </Canvas>
     </div>

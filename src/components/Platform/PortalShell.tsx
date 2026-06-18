@@ -4,6 +4,7 @@ import PortalSignOutButton from "@/components/Platform/PortalSignOutButton";
 import {
   Bot,
   BarChart3,
+  CreditCard,
   FileText,
   KeyRound,
   LayoutDashboard,
@@ -66,6 +67,14 @@ const navItems: NavItem[] = [
     description: "Manual PDF desk",
     key: "reports",
     icon: FileText,
+    roles: ["staff", "admin"],
+  },
+  {
+    href: "/x-hub/admin/payments",
+    label: "JioPay",
+    description: "Payment links",
+    key: "payments",
+    icon: CreditCard,
     roles: ["staff", "admin"],
   },
   {

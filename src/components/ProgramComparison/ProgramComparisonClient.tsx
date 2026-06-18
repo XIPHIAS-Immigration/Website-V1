@@ -21,6 +21,7 @@ import { bandClass, ScorePill } from "@/components/PassportIndex/PassportIndexSh
 import { MeterBar } from "@/components/XiaTools/MeterBar";
 import { passportIndexStats } from "@/data/passport-index";
 import { BOOKING_ROUTE } from "@/lib/topmate";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 
 export type ComparableProgram = CostProgram & {
   presence: PresenceKey;
@@ -82,6 +83,10 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
   const byId = useMemo(() => new Map(programs.map((p) => [p.id, p])), [programs]);
   const [selectedIds, setSelectedIds] = useState<string[]>(() => firstDistinct(programs, 2));
   const [dependents, setDependents] = useState(0);
+  const [contact, setContact] = useState({ name: "", email: "", phone: "" });
+  const [checkout, setCheckout] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
+  const comparePrice = getProductConfig("compare_report")?.priceInr ?? 0;
+  const priceLabel = comparePrice ? `₹${comparePrice.toLocaleString("en-IN")}` : "";
 
   const selected = selectedIds.map((id) => byId.get(id)).filter(Boolean) as ComparableProgram[];
   const remaining = programs.filter((p) => !selectedIds.includes(p.id));
@@ -91,6 +96,44 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
     setSelectedIds((ids) => [...ids, id]);
   };
   const remove = (id: string) => setSelectedIds((ids) => ids.filter((x) => x !== id));
+
+  const startCompareCheckout = async () => {
+    if (selected.length < 2) return;
+    if (!contact.name.trim() || !contact.email.trim()) {
+      setCheckout({ loading: false, error: "Please add your name and email to receive your report." });
+      return;
+    }
+    setCheckout({ loading: true, error: null });
+    try {
+      const res = await fetch("/api/payments/jiopay/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: contact.name,
+          email: contact.email,
+          phone: contact.phone,
+          productType: "compare_report",
+          country: selected[0]?.country,
+          program: selected[0]?.title,
+          page: "/compare-programs",
+          consent: true,
+          answers: {
+            programmes: selected.map((p) => p.title).join(" | "),
+            countries: selected.map((p) => p.country).join(" | "),
+            dependents,
+          },
+        }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (result?.ok && result.checkoutUrl) {
+        window.location.href = result.checkoutUrl as string;
+        return;
+      }
+      setCheckout({ loading: false, error: result?.error || "Could not start checkout. Please try again." });
+    } catch {
+      setCheckout({ loading: false, error: "Could not start checkout. Please try again." });
+    }
+  };
 
   const columns: CompareColumn[] = selected.map((p) => ({
     id: p.id,
@@ -248,6 +291,60 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
           </div>
         )}
       </div>
+
+      {selected.length >= 2 && (
+        <div className="mt-7 rounded-3xl border border-[#d8ad1f]/45 bg-[#061936] p-6 text-white">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">Programme Comparison Report</p>
+              <h3 className="mt-2 text-2xl font-semibold">Get this comparison as a premium PDF</h3>
+              <p className="mt-2 max-w-xl text-sm text-white/70">
+                A polished side-by-side report of your {selected.length} selected programmes — cost, timeline,
+                presence, due-diligence, strengths and a best-for-you recommendation — emailed to you instantly.
+              </p>
+            </div>
+            {priceLabel && (
+              <div className="rounded-xl bg-[#d8ad1f] px-4 py-3 text-center text-[#061936]">
+                <p className="text-[10px] font-semibold uppercase">Only</p>
+                <p className="text-xl font-extrabold leading-none">{priceLabel}</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-3">
+            <input
+              value={contact.name}
+              onChange={(event) => setContact((prev) => ({ ...prev, name: event.target.value }))}
+              placeholder="Name"
+              className="h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-medium text-white outline-none transition placeholder:text-white/45 focus:border-[#d8ad1f]"
+            />
+            <input
+              value={contact.email}
+              onChange={(event) => setContact((prev) => ({ ...prev, email: event.target.value }))}
+              placeholder="Email"
+              className="h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-medium text-white outline-none transition placeholder:text-white/45 focus:border-[#d8ad1f]"
+            />
+            <input
+              value={contact.phone}
+              onChange={(event) => setContact((prev) => ({ ...prev, phone: event.target.value }))}
+              placeholder="Phone / WhatsApp"
+              className="h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-medium text-white outline-none transition placeholder:text-white/45 focus:border-[#d8ad1f]"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={startCompareCheckout}
+            disabled={checkout.loading}
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d8ad1f] px-5 py-3.5 text-[14px] font-bold text-[#061936] transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+          >
+            {checkout.loading ? "Starting secure checkout…" : `Get my comparison report${priceLabel ? ` · ${priceLabel}` : ""}`}
+            <ArrowRight className="size-4" />
+          </button>
+          {checkout.error && <p className="mt-3 text-xs font-semibold text-amber-300">{checkout.error}</p>}
+          <p className="mt-3 text-xs text-white/55">
+            Secure payment via JioPay. Your PDF is generated and emailed the moment payment is confirmed.
+          </p>
+        </div>
+      )}
 
       {/* Footer CTAs */}
       <div className="mt-7 flex flex-col gap-3 sm:flex-row">

@@ -9,6 +9,7 @@ export type JiopayOrderStatus =
   | "returned"
   | "paid"
   | "failed"
+  | "report_sent"
   | "provisioned";
 
 export type JiopayOrder = {
