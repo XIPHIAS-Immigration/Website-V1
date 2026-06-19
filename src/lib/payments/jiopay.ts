@@ -147,6 +147,24 @@ export function verifyJiopaySecureHash(payload: JiopayUnknownPayload, secretKey:
   return timingSafeEqual(left, right);
 }
 
+// JioPay's free-text fields (customerName, addlParam2/productName) must be plain ASCII:
+// non-ASCII punctuation like en/em dashes (– —), smart quotes, the ampersand and similar
+// can make the gateway reject or hang the request (and can break secureHash parity once the
+// JSON is re-encoded in transit). We transliterate to a safe ASCII subset before sending.
+function sanitizeJiopayText(value: unknown, max: number): string {
+  return String(value ?? "")
+    .normalize("NFKD") // decompose accents (é -> e + ́) so the combining marks can be dropped
+    .replace(/[‐-―]/g, "-") // hyphen/figure/en/em dashes -> hyphen
+    .replace(/[‘’ʼ]/g, "'") // smart single quotes -> '
+    .replace(/[“”]/g, '"') // smart double quotes -> "
+    .replace(/&/g, " and ")
+    .replace(/[^\x20-\x7E]/g, "") // drop any remaining non-ASCII (combining marks, symbols)
+    .replace(/[^A-Za-z0-9 .,'/_-]/g, " ") // keep a conservative, gateway-safe charset
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, max);
+}
+
 export function buildJiopaySalePayload(input: JiopayCheckoutInput, config: JiopayConfig): JiopayPayload {
   const payload: JiopayPayload = {
     merchantId: config.merchantId,
@@ -159,9 +177,9 @@ export function buildJiopaySalePayload(input: JiopayCheckoutInput, config: Jiopa
     returnURL: input.returnUrl || config.returnUrl,
     customerEmailID: input.customerEmail,
     customerMobileNo: input.customerPhone || undefined,
-    customerName: input.customerName,
+    customerName: sanitizeJiopayText(input.customerName, 80) || "Customer",
     addlParam1: input.productType,
-    addlParam2: input.productName.slice(0, 120),
+    addlParam2: sanitizeJiopayText(input.productName, 100),
   };
   return {
     ...payload,
@@ -264,26 +282,63 @@ export function auditJiopayPayload(payload: JiopayUnknownPayload) {
   return publicJiopayPayload(payload);
 }
 
+// Per-attempt timeout for the JioPay initiateSale call. Without this, a slow/hung JioPay
+// response holds the request open until the upstream (Cloudflare/host) gives up and
+// returns a 502 Bad Gateway. We abort at this deadline and retry once.
+const JIOPAY_INITIATE_TIMEOUT_MS = 20000;
+
 export async function initiateJiopaySale(input: JiopayCheckoutInput, config: JiopayConfig) {
   const requestPayload = buildJiopaySalePayload(input, config);
-  const response = await fetch(config.initiateSaleUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestPayload),
-    cache: "no-store",
-  });
-  const rawText = await response.text();
-  let parsed: JiopayUnknownPayload = {};
-  try {
-    parsed = JSON.parse(rawText) as JiopayUnknownPayload;
-  } catch {
-    parsed = { raw: rawText };
-  }
-  return {
-    ok: response.ok,
-    status: response.status,
-    requestPayload,
-    responsePayload: parsed,
-    checkoutUrl: resolveJiopayCheckoutUrl(parsed),
+
+  const attempt = async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), JIOPAY_INITIATE_TIMEOUT_MS);
+    try {
+      const response = await fetch(config.initiateSaleUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestPayload),
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      const rawText = await response.text();
+      let parsed: JiopayUnknownPayload = {};
+      try {
+        parsed = JSON.parse(rawText) as JiopayUnknownPayload;
+      } catch {
+        parsed = { raw: rawText };
+      }
+      return {
+        ok: response.ok,
+        status: response.status,
+        requestPayload,
+        responsePayload: parsed,
+        checkoutUrl: resolveJiopayCheckoutUrl(parsed),
+      };
+    } finally {
+      clearTimeout(timer);
+    }
   };
+
+  // One retry on a network error / timeout (transient JioPay slowness is the common cause
+  // of intermittent 502s). A valid non-2xx JioPay response is NOT retried — that is a real
+  // decline and is surfaced as-is.
+  try {
+    return await attempt();
+  } catch {
+    try {
+      return await attempt();
+    } catch (err) {
+      return {
+        ok: false,
+        status: 0,
+        requestPayload,
+        responsePayload: {
+          error: "jiopay_unreachable",
+          message: err instanceof Error ? err.message : "JioPay initiateSale timed out or failed.",
+        } as JiopayUnknownPayload,
+        checkoutUrl: "",
+      };
+    }
+  }
 }
