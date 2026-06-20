@@ -40,5 +40,8 @@ yarn-error.log*
 next-env.d.ts
 
 
-# Large local archive — never commit
-/WebsiteV4.zip
+# Large local archives — never commit
+/WebsiteV*.zip
+
+# QA / audit screenshots (regenerable, large) — not for the repo
+/report-samples/mobile/

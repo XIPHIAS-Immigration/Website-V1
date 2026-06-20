@@ -22,6 +22,7 @@ import { MeterBar } from "@/components/XiaTools/MeterBar";
 import { passportIndexStats } from "@/data/passport-index";
 import { BOOKING_ROUTE } from "@/lib/topmate";
 import { getProductConfig } from "@/lib/payments/product-catalog";
+import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 
 export type ComparableProgram = CostProgram & {
   presence: PresenceKey;
@@ -98,6 +99,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
   const remove = (id: string) => setSelectedIds((ids) => ids.filter((x) => x !== id));
 
   const startCompareCheckout = async () => {
+    if (PAYMENTS_DISABLED) return;
     if (selected.length < 2) return;
     if (!contact.name.trim() || !contact.email.trim()) {
       setCheckout({ loading: false, error: "Please add your name and email to receive your report." });
@@ -333,11 +335,18 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
           <button
             type="button"
             onClick={startCompareCheckout}
-            disabled={checkout.loading}
+            disabled={PAYMENTS_DISABLED || checkout.loading}
+            title={PAYMENTS_DISABLED ? PAYMENTS_COMING_SOON_LABEL : undefined}
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d8ad1f] px-5 py-3.5 text-[14px] font-bold text-[#061936] transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
           >
-            {checkout.loading ? "Starting secure checkout…" : `Get my comparison report${priceLabel ? ` · ${priceLabel}` : ""}`}
-            <ArrowRight className="size-4" />
+            {PAYMENTS_DISABLED ? (
+              PAYMENTS_COMING_SOON_LABEL
+            ) : (
+              <>
+                {checkout.loading ? "Starting secure checkout…" : `Get my comparison report${priceLabel ? ` · ${priceLabel}` : ""}`}
+                <ArrowRight className="size-4" />
+              </>
+            )}
           </button>
           {checkout.error && <p className="mt-3 text-xs font-semibold text-amber-300">{checkout.error}</p>}
           <p className="mt-3 text-xs text-white/55">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type ElementRef } from "react";
+import { useEffect, useMemo, useRef, useState, type ElementRef } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Billboard, Html, Line, OrbitControls } from "@react-three/drei";
@@ -451,11 +451,27 @@ export default function XiphiasGlobe({
   ariaLabel = "Interactive globe of destinations",
 }: XiphiasGlobeProps) {
   const palette = useMemo(() => getPalette(theme), [theme]);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  // Pause the render loop entirely while the globe is scrolled out of view —
+  // otherwise frameloop="always" keeps the GPU/main thread busy off-screen.
+  const [onScreen, setOnScreen] = useState(true);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry.isIntersecting),
+      { rootMargin: "200px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <div className={className} role="img" aria-label={ariaLabel}>
+    <div ref={wrapRef} className={className} role="img" aria-label={ariaLabel}>
       <Canvas
-        dpr={[1, 1.8]}
+        frameloop={onScreen ? "always" : "never"}
+        dpr={[1, 1.6]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 0.25, cameraZ], fov: 38 }}
       >

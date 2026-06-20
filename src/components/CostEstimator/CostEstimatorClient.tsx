@@ -13,6 +13,7 @@ import { estimateCost, COST_DISCLAIMER, type CostProgram } from "@/lib/cost-esti
 import { ToolShell, IndicativeChip } from "@/components/XiaTools/ToolShell";
 import { MeterBar } from "@/components/XiaTools/MeterBar";
 import { BOOKING_ROUTE } from "@/lib/topmate";
+import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 
 const TRACKS = [
   { value: "all", label: "All" },
@@ -100,6 +101,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
   }
 
   async function startPdf() {
+    if (PAYMENTS_DISABLED) return;
     if (!name || !email) return;
     setPdf({ loading: true, error: null });
     try {
@@ -327,11 +329,18 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                       whileTap={{ scale: 0.98 }}
                       type="button"
                       onClick={startPdf}
-                      disabled={pdf.loading}
+                      disabled={PAYMENTS_DISABLED || pdf.loading}
+                      title={PAYMENTS_DISABLED ? PAYMENTS_COMING_SOON_LABEL : undefined}
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3.5 text-[14px] font-bold text-[#0a1c44] transition hover:bg-[#f0cb3b] disabled:opacity-60"
                     >
-                      {pdf.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}
-                      Download full PDF report
+                      {PAYMENTS_DISABLED ? (
+                        PAYMENTS_COMING_SOON_LABEL
+                      ) : (
+                        <>
+                          {pdf.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}
+                          Download full PDF report
+                        </>
+                      )}
                     </motion.button>
                     <Link
                       href={BOOKING_ROUTE}

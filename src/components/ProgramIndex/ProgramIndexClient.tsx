@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Check, FileDown, Gauge, Loader2 } from "lucide-react";
 
+import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 import { CurrencyProvider } from "@/lib/CurrencyProvider";
 import { CurrencyGlassSelect } from "@/components/XiaTools/GlassSelect";
 import { ToolShell, IndicativeChip } from "@/components/XiaTools/ToolShell";
@@ -31,6 +32,7 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
   const validReport = name.trim().length >= 2 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   async function startReport() {
+    if (PAYMENTS_DISABLED) return;
     if (!validReport || report.loading) return;
     setReport({ loading: true, error: null });
     try {
@@ -142,11 +144,11 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
               whileTap={{ scale: 0.98 }}
               type="button"
               onClick={startReport}
-              disabled={!validReport || report.loading}
+              disabled={PAYMENTS_DISABLED || !validReport || report.loading}
+              title={PAYMENTS_DISABLED ? PAYMENTS_COMING_SOON_LABEL : undefined}
               className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3.5 text-[14px] font-bold text-[#0a1c44] transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {report.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}
-              Download full Index report
+              {PAYMENTS_DISABLED ? PAYMENTS_COMING_SOON_LABEL : (<>{report.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />} Download full Index report</>)}
             </motion.button>
             {report.error && <p className="mt-2 text-[12.5px] text-rose-300">{report.error}</p>}
             <p className="mt-3 text-[11.5px] leading-relaxed text-white/40">{INDEX_DISCLAIMER}</p>

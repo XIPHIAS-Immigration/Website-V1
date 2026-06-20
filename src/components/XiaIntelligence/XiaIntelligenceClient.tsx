@@ -26,6 +26,7 @@ import {
 import type { Vertical } from "@/lib/content/types";
 import type { XiaIntelligenceData } from "@/lib/xia-intelligence";
 import { getProductConfig } from "@/lib/payments/product-catalog";
+import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 import {
   evidenceLabels,
   highSkillCompletion,
@@ -385,7 +386,10 @@ export default function XiaIntelligenceClient({
     <div className="min-h-screen bg-white pt-8 text-slate-950 transition-colors dark:bg-darkmode dark:text-white">
       <section className="container py-10 lg:py-14">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          // Above-the-fold panel: render at final state on mount (skip the
+          // opacity/translate entrance) so the largest content paints right
+          // away instead of after a post-hydration fade.
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
           className={`group/input-panel mx-auto rounded-xl border border-slate-200 bg-white shadow-cause-shadow transition-all duration-500 dark:border-slate-800 dark:bg-darklight ${
@@ -1001,6 +1005,7 @@ function PremiumReportPanel({
   const [checkout, setCheckout] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
 
   const startCheckout = async () => {
+    if (PAYMENTS_DISABLED) return;
     if (!contact.name.trim() || !contact.email.trim()) {
       setCheckout({ loading: false, error: "Please add your name and email to receive your report." });
       return;
@@ -1155,11 +1160,18 @@ function PremiumReportPanel({
           <button
             type="button"
             onClick={startCheckout}
-            disabled={checkout.loading}
+            disabled={PAYMENTS_DISABLED || checkout.loading}
+            title={PAYMENTS_DISABLED ? PAYMENTS_COMING_SOON_LABEL : undefined}
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d8ad1f] px-4 py-3 text-sm font-semibold text-[#061936] transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {checkout.loading ? "Starting secure checkout..." : `Get my report${priceLabel ? ` · ${priceLabel}` : ""}`}
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            {PAYMENTS_DISABLED ? (
+              PAYMENTS_COMING_SOON_LABEL
+            ) : (
+              <>
+                {checkout.loading ? "Starting secure checkout..." : `Get my report${priceLabel ? ` · ${priceLabel}` : ""}`}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </>
+            )}
           </button>
           {checkout.error && <p className="mt-3 text-xs font-semibold text-amber-300">{checkout.error}</p>}
           <p className="mt-3 text-xs leading-5 text-white/58">

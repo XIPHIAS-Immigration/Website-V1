@@ -148,18 +148,27 @@ export function verifyJiopaySecureHash(payload: JiopayUnknownPayload, secretKey:
 }
 
 // JioPay's free-text fields (customerName, addlParam2/productName) must be plain ASCII:
-// non-ASCII punctuation like en/em dashes (– —), smart quotes, the ampersand and similar
+// non-ASCII punctuation (en/em dashes, smart quotes), the ampersand and similar characters
 // can make the gateway reject or hang the request (and can break secureHash parity once the
 // JSON is re-encoded in transit). We transliterate to a safe ASCII subset before sending.
 function sanitizeJiopayText(value: unknown, max: number): string {
-  return String(value ?? "")
-    .normalize("NFKD") // decompose accents (é -> e + ́) so the combining marks can be dropped
-    .replace(/[‐-―]/g, "-") // hyphen/figure/en/em dashes -> hyphen
-    .replace(/[‘’ʼ]/g, "'") // smart single quotes -> '
-    .replace(/[“”]/g, '"') // smart double quotes -> "
-    .replace(/&/g, " and ")
-    .replace(/[^\x20-\x7E]/g, "") // drop any remaining non-ASCII (combining marks, symbols)
-    .replace(/[^A-Za-z0-9 .,'/_-]/g, " ") // keep a conservative, gateway-safe charset
+  // Pure-ASCII source on purpose: code points are compared numerically (no literal non-ASCII
+  // characters and no regex ranges over them), so this survives copy-paste / encoding changes
+  // during manual deploys. A mangled non-ASCII char inside a regex range would be an invalid
+  // RegExp and would crash this module the instant a payment route loads it.
+  const decomposed = String(value ?? "").normalize("NFKD");
+  let out = "";
+  for (const ch of decomposed) {
+    const c = ch.codePointAt(0) ?? 0;
+    if (c >= 0x2010 && c <= 0x2015) out += "-"; // hyphen / figure / en / em dashes
+    else if (c === 0x2018 || c === 0x2019 || c === 0x02bc) out += "'"; // smart single quotes
+    else if (c === 0x201c || c === 0x201d) out += '"'; // smart double quotes
+    else if (ch === "&") out += " and ";
+    else if (c >= 0x20 && c <= 0x7e) out += ch; // keep printable ASCII as-is
+    // anything else (combining marks, symbols, other non-ASCII) is dropped
+  }
+  return out
+    .replace(/[^A-Za-z0-9 .,'/_-]/g, " ") // conservative, gateway-safe charset
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, max);
@@ -321,7 +330,7 @@ export async function initiateJiopaySale(input: JiopayCheckoutInput, config: Jio
   };
 
   // One retry on a network error / timeout (transient JioPay slowness is the common cause
-  // of intermittent 502s). A valid non-2xx JioPay response is NOT retried — that is a real
+  // of intermittent 502s). A valid non-2xx JioPay response is NOT retried - that is a real
   // decline and is surfaced as-is.
   try {
     return await attempt();

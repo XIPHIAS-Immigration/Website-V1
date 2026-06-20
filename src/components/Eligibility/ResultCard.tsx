@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { Track, Result, AnswerMap } from "@/lib/eligibility/types";
 import { trackEvent } from "@/lib/eligibility/analytics";
 import { getProductConfig } from "@/lib/payments/product-catalog";
+import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 
 type Props = {
   track: Track;
@@ -88,6 +89,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
   };
 
   const startPremiumCheckout = async () => {
+    if (PAYMENTS_DISABLED) return;
     trackEvent("detailed_report_cta_click", { track });
     if (!email) {
       setCheckout({ loading: false, error: "Please add your email above so we can send your report." });
@@ -323,10 +325,13 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
             <button
               type="button"
               onClick={startPremiumCheckout}
-              disabled={checkout.loading}
+              disabled={PAYMENTS_DISABLED || checkout.loading}
+              title={PAYMENTS_DISABLED ? PAYMENTS_COMING_SOON_LABEL : undefined}
               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b650]"
             >
-              {checkout.loading ? (
+              {PAYMENTS_DISABLED ? (
+                PAYMENTS_COMING_SOON_LABEL
+              ) : checkout.loading ? (
                 <>
                   <Spinner /> Starting secure checkout...
                 </>

@@ -12,6 +12,7 @@ import { normalizeEmail, normalizePhone, normalizeText, parseBoolean } from "@/l
 import { isTrack, type Track } from "@/lib/eligibility/types";
 import { getCurrentPortalUser } from "@/lib/platform/auth";
 import { resolveCheckoutPrice } from "@/lib/payments/product-catalog";
+import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,6 +44,14 @@ function resolveTrack(value: unknown): Track | undefined {
 }
 
 export async function POST(req: NextRequest) {
+  // Temporary kill-switch while the JioPay transaction-value limit is restored.
+  if (PAYMENTS_DISABLED) {
+    return NextResponse.json(
+      { ok: false, disabled: true, error: PAYMENTS_COMING_SOON_LABEL },
+      { status: 422 },
+    );
+  }
+
   const body = (await req.json().catch(() => ({}))) as Payload;
   const name = normalizeText(body.name, 120);
   const email = normalizeEmail(body.email);
@@ -154,6 +163,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (!result.ok || !result.checkoutUrl) {
+      // Return 422 (not 5xx) so Cloudflare passes this JSON straight through to the client
+      // instead of masking it with its own branded "502 Bad Gateway" page — the `jiopay`
+      // block below carries JioPay's actual responseCode/message for diagnosis.
       return NextResponse.json(
         {
           ok: false,
@@ -162,7 +174,7 @@ export async function POST(req: NextRequest) {
           leadId: lead.id,
           jiopay: publicJiopayPayload(result.responsePayload),
         },
-        { status: 502 },
+        { status: 422 },
       );
     }
 
