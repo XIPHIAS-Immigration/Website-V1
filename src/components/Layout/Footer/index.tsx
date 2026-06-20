@@ -15,29 +15,46 @@ import LogoWhite from "@/components/Layout/Header/LogoWhite/index";
 const EXPLORE = [
   { label: "Residency", href: "/residency" },
   { label: "Citizenship", href: "/citizenship" },
+  { label: "Skilled Migration", href: "/skilled" },
   { label: "Corporate", href: "/corporate" },
-  { label: "Skilled", href: "/skilled" },
+  { label: "Work Permits", href: "/work-permits" },
+  { label: "Browse Countries", href: "/countries" },
 ];
 
-const RESOURCES = Object.freeze([
-  { label: "Eligibility Checker", href: "/eligibility" },
-  { label: "Guides & Resources", href: "/guide" },
-  { label: "Insights", href: "/insights" },
-  { label: "Events", href: "/event" },
-  { label: "Awards & Recognition", href: "/awards" },
-  { label: 'Partner With Us', href: '/partner-with-us' },
-  { label: 'Reviews', href: '/reviews' },
-]);
+const SOLUTIONS = [
+  { label: "For Investors", href: "/for-investors" },
+  { label: "For Families", href: "/for-families" },
+  { label: "For Professionals", href: "/for-professionals" },
+  { label: "For Businesses", href: "/for-businesses" },
+  { label: "For Entrepreneurs", href: "/for-entrepreneurs" },
+];
 
+// Tools demoted from the top bar (XIA / X-Hub) plus the planning tools.
+const TOOLS = [
+  { label: "XIA Intelligence", href: "/xia-intelligence" },
+  { label: "X-Hub Portal", href: "/x-hub" },
+  { label: "Cost Estimator", href: "/cost-estimator" },
+  { label: "Compare Programmes", href: "/compare-programs" },
+  { label: "Programme Index", href: "/xiphias-program-index" },
+  { label: "Passport Index", href: "/passport-index" },
+  { label: "Eligibility Checker", href: "/eligibility" },
+];
 
 const COMPANY = [
   { label: "About Us", href: "/about" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Careers", href: "/careers" },
+  { label: "Team & Leadership", href: "/teams" },
+  { label: "Insights", href: "/insights" },
   { label: "Blog", href: "/blog" },
   { label: "Articles", href: "/articles" },
   { label: "News", href: "/news" },
   { label: "Media", href: "/media" },
+  { label: "Events", href: "/event" },
+  { label: "Guides", href: "/guide" },
+  { label: "Awards", href: "/awards" },
+  { label: "Reviews", href: "/reviews" },
+  { label: "Gallery", href: "/gallery" },
+  { label: "Careers", href: "/careers" },
+  { label: "Partner With Us", href: "/partner-with-us" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -423,7 +440,7 @@ export default function Footer() {
 
         {/* ===== Link Columns (Explore + Resources + Company + Legal) ===== */}
         <div className="py-6 border-b border-white/15">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             <div>
               <Collapsible title="Explore">
                 <ul className="space-y-1.5">
@@ -439,20 +456,30 @@ export default function Footer() {
             </div>
 
             <div>
-              <Collapsible title="Resources">
+              <Collapsible title="Solutions">
                 <ul className="space-y-1.5">
-                  {RESOURCES.map((l) => (
+                  {SOLUTIONS.map((l) => (
                     <li key={l.href}>
-                      <Link
-                        className="text-[13.5px] lg:text-[14px] text-white/85 hover:text-white underline-offset-4 hover:underline"
-                        href={l.href}
-                      >
+                      <Link className="text-[13.5px] lg:text-[14px] text-white/85 hover:text-white underline-offset-4 hover:underline" href={l.href}>
                         {l.label}
                       </Link>
                     </li>
                   ))}
                 </ul>
+              </Collapsible>
+            </div>
 
+            <div>
+              <Collapsible title="Tools">
+                <ul className="space-y-1.5">
+                  {TOOLS.map((l) => (
+                    <li key={l.href}>
+                      <Link className="text-[13.5px] lg:text-[14px] text-white/85 hover:text-white underline-offset-4 hover:underline" href={l.href}>
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </Collapsible>
             </div>
 

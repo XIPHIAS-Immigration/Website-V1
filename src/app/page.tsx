@@ -4,7 +4,8 @@ import dynamic from "next/dynamic";
 
 // Server components (read the programme catalogue) — static imports.
 import GlobeScene from "@/components/Home/GlobeScene";
-import VerticalChapter from "@/components/Home/VerticalChapter";
+import ProgrammesChapter from "@/components/Home/ProgrammesChapter";
+import CountriesChapter from "@/components/Home/CountriesChapter";
 import Reveal from "@/components/motion/Reveal";
 
 function SectionBreak() {
@@ -60,48 +61,11 @@ export default function Home() {
       {/* Chapter 2 — interactive globe: hover a beacon → destination card */}
       <GlobeScene />
 
-      {/* Chapters 4–7 — each vertical: full-screen, horizontal advancing destinations */}
-      <VerticalChapter
-        vertical="citizenship"
-        eyebrow="Citizenship by Investment"
-        title="A second passport, a safer future."
-        blurb="Donation or real-estate routes to a powerful second citizenship — visa-free travel, security and a genuine plan B for your family."
-        accent="#b8860b"
-        hubLabel="View all citizenship"
-        fallbackImage="/images/citizenship/grenada/grenada-citizenship.webp"
-      />
+      {/* Chapter 3 — browse by programme (pathway-first) */}
+      <ProgrammesChapter />
 
-      <VerticalChapter
-        vertical="residency"
-        eyebrow="Residency by Investment"
-        title="Live, invest and belong."
-        blurb="Golden visas and investor residence across Europe, the Gulf and Asia — a base to live, study and grow on your terms."
-        accent="#0e7c66"
-        hubLabel="View all residency"
-        fallbackImage="/images/residency/portugal/portugal-golden-visa.webp"
-        flip
-      />
-
-      <VerticalChapter
-        vertical="corporate"
-        eyebrow="Corporate Global Mobility"
-        title="Move your talent across borders."
-        blurb="Intra-company transfers, market entry and compliant workforce mobility for teams and founders — one accountable partner."
-        accent="#7c3aed"
-        hubLabel="View corporate mobility"
-        fallbackImage="/images/corporate/singapore/singapore.webp"
-      />
-
-      <VerticalChapter
-        vertical="skilled"
-        eyebrow="Skilled Migration"
-        title="Built for professionals."
-        blurb="Points-based permanent residency and work visas for talent — Canada, Australia, Germany and the UK, mapped to your profile."
-        accent="#2563eb"
-        hubLabel="View skilled migration"
-        fallbackImage="/images/skilled/canada/canada.webp"
-        flip
-      />
+      {/* Chapter 4 — browse by country (destination-first) */}
+      <CountriesChapter />
 
       {/* Chapter 8 — XIA Intelligence */}
       <XiaChapter />

@@ -117,14 +117,14 @@ export default function Hero() {
             <svg aria-hidden className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 8" fill="none" preserveAspectRatio="none">
               <path d="M2 6 C80 2, 220 2, 298 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
-          </span>{" "}
-          &amp; Citizenship
+          </span>
+          , Citizenship &amp; Mobility
         </h1>
 
         {/* Subheadline */}
         <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
-          Expert advisory across Residency by Investment, Citizenship by Investment,
-          Skilled Migration &amp; Corporate Mobility — 50+ countries, one trusted partner.
+          Find your route by programme, country or goal — residency, citizenship, skilled and
+          corporate pathways across 50+ countries, guided by senior advisors.
         </p>
 
         {/* Stats strip */}

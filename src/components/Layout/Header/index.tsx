@@ -12,7 +12,7 @@ import HeaderLink from './Navigation/HeaderLink';
 import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun, Globe } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -292,16 +292,7 @@ export default function Header() {
                   <GlobalSearch compact />
                 </div>
 
-                {/* Passport Power — secondary action (outline gold; Book is the hero) */}
-                <Link
-                  href="/passport-index"
-                  className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-secondary/60 bg-secondary/10 px-3.5 py-2 text-sm font-bold text-secondary hover:bg-secondary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  <Globe className="h-4 w-4 shrink-0" aria-hidden />
-                  Passport Power
-                </Link>
-
-                {/* Personal booking — primary income CTA: glowing gold pill + hover card */}
+                {/* Personal booking — single primary income CTA: glowing gold pill + hover card */}
                 <div className="group relative hidden lg:inline-flex shrink-0">
                   <Link
                     href="/personal-booking"
@@ -440,21 +431,6 @@ export default function Header() {
                     className="h-6 w-6 rounded-full object-cover object-top ring-2 ring-primary/30 shrink-0"
                   />
                   Book Consultation
-                </Link>
-                <Link
-                  href="/eligibility#start"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-black text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  Start Your Journey
-                </Link>
-                <Link
-                  href="/passport-index"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
-                >
-                  <Globe className="h-4 w-4" aria-hidden />
-                  Passport Power
                 </Link>
               </div>
 

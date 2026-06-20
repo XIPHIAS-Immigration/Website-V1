@@ -22,13 +22,13 @@ type Destination = {
 };
 
 const DESTINATIONS: Destination[] = [
-  { code: "CA", name: "Canada", track: "Skilled migration", href: "/skilled/canada", image: "/images/skilled/canada/canada.webp", blurb: "Express Entry, provincial nominee programs and start-up visas to permanent residency.", flights: 3 },
-  { code: "PT", name: "Portugal", track: "Residency", href: "/residency/portugal", image: "/images/residency/portugal/portugal-golden-visa.webp", blurb: "The Golden Visa route to EU residency, schooling and a path to a powerful passport.", flights: 4 },
-  { code: "AE", name: "United Arab Emirates", track: "Residency", href: "/residency/uae", image: "/images/residency/uae/uae-golden-visa.webp", blurb: "The 10-year Golden Visa — 0% income tax and a global business hub.", flights: 2 },
-  { code: "GD", name: "Grenada", track: "Citizenship", href: "/citizenship/grenada", image: "/images/citizenship/grenada/grenada-citizenship.webp", blurb: "Citizenship by investment with rare US E-2 treaty access for your family.", flights: 1 },
-  { code: "GR", name: "Greece", track: "Residency", href: "/residency/greece", image: "/images/residency/greece/greece-golden-visa.webp", blurb: "Europe's most popular Golden Visa — real estate to Schengen residency.", flights: 2 },
-  { code: "AU", name: "Australia", track: "Skilled migration", href: "/skilled/australia", image: "/images/skilled/australia/skilled-australia-xiphias-immigration.webp", blurb: "Points-based skilled and regional visas leading to Australian PR.", flights: 3 },
-  { code: "TR", name: "Turkey", track: "Citizenship", href: "/citizenship/turkey", image: "/images/citizenship/turkey/turkey.webp", blurb: "Fast citizenship by investment bridging Europe and Asia.", flights: 1 },
+  { code: "CA", name: "Canada", track: "Skilled migration", href: "/countries/canada", image: "/images/skilled/canada/canada.webp", blurb: "Express Entry, provincial nominee programs and start-up visas to permanent residency.", flights: 3 },
+  { code: "PT", name: "Portugal", track: "Residency", href: "/countries/portugal", image: "/images/residency/portugal/portugal-golden-visa.webp", blurb: "The Golden Visa route to EU residency, schooling and a path to a powerful passport.", flights: 4 },
+  { code: "AE", name: "United Arab Emirates", track: "Residency", href: "/countries/uae", image: "/images/residency/uae/uae-golden-visa.webp", blurb: "The 10-year Golden Visa — 0% income tax and a global business hub.", flights: 2 },
+  { code: "GD", name: "Grenada", track: "Citizenship", href: "/countries/grenada", image: "/images/citizenship/grenada/grenada-citizenship.webp", blurb: "Citizenship by investment with rare US E-2 treaty access for your family.", flights: 1 },
+  { code: "GR", name: "Greece", track: "Residency", href: "/countries/greece", image: "/images/residency/greece/greece-golden-visa.webp", blurb: "Europe's most popular Golden Visa — real estate to Schengen residency.", flights: 2 },
+  { code: "AU", name: "Australia", track: "Skilled migration", href: "/countries/australia", image: "/images/skilled/australia/skilled-australia-xiphias-immigration.webp", blurb: "Points-based skilled and regional visas leading to Australian PR.", flights: 3 },
+  { code: "TR", name: "Turkey", track: "Citizenship", href: "/countries/turkey", image: "/images/citizenship/turkey/turkey.webp", blurb: "Fast citizenship by investment bridging Europe and Asia.", flights: 1 },
 ];
 
 const BEACON_COLOR = "#f3c945";
