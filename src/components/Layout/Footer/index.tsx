@@ -13,14 +13,20 @@ import LogoWhite from "@/components/Layout/Header/LogoWhite/index";
 
 // --------- Groups (landing links only) ----------
 const EXPLORE = [
+  { label: "Programs", href: "/programs" },
+  { label: "Countries", href: "/countries" },
+  { label: "Solutions", href: "/solutions" },
   { label: "Residency", href: "/residency" },
   { label: "Citizenship", href: "/citizenship" },
   { label: "Corporate", href: "/corporate" },
   { label: "Skilled", href: "/skilled" },
+  { label: "Work Permits", href: "/work-permits" },
 ];
 
 const RESOURCES = Object.freeze([
-  { label: "Eligibility Checker", href: "/eligibility" },
+  { label: "Start Your Journey", href: "/eligibility" },
+  { label: "XIA Intelligence", href: "/xia-intelligence" },
+  { label: "X-Hub", href: "/x-hub" },
   { label: "Guides & Resources", href: "/guide" },
   { label: "Insights", href: "/insights" },
   { label: "Events", href: "/event" },
@@ -442,7 +448,7 @@ export default function Footer() {
               <Collapsible title="Resources">
                 <ul className="space-y-1.5">
                   {RESOURCES.map((l) => (
-                    <li key={l.href}>
+                    <li key={l.label}>
                       <Link
                         className="text-[13.5px] lg:text-[14px] text-white/85 hover:text-white underline-offset-4 hover:underline"
                         href={l.href}

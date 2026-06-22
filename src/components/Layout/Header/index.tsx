@@ -13,7 +13,7 @@ import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun, Sparkles } from 'lucide-react';
+import { Menu, X, Moon, Sun, CalendarCheck } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -311,69 +311,14 @@ export default function Header() {
                   <Sun className="h-5 w-5 hidden dark:inline" />
                 </button>
 
+                {/* Primary CTA — Book Free Consultation */}
                 <Link
-                  href="/eligibility#start"
-                  className="hidden shrink-0 items-center rounded-xl border border-secondary/70 bg-secondary px-3.5 py-2 text-sm font-bold text-primary shadow-sm shadow-black/10 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
+                  href="/contact"
+                  className="hidden shrink-0 items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-extrabold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.40)] hover:bg-[#f0cb3b] hover:shadow-[0_4px_20px_rgba(225,185,35,0.55)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 lg:inline-flex"
                 >
-                  Start Your Journey
+                  <CalendarCheck className="h-4 w-4 shrink-0" aria-hidden />
+                  Book Free Consultation
                 </Link>
-
-                <Link
-                  href="/xia-intelligence"
-                  className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-black/10 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  <Sparkles className="h-4 w-4" aria-hidden />
-                  XIA Intelligence
-                </Link>
-
-                <Link
-                  href="/x-hub"
-                  className="hidden shrink-0 items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-black/10 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  X-Hub
-                </Link>
-
-                {/* Personal booking — avatar button + hover card */}
-                <div className="group relative hidden lg:inline-flex shrink-0">
-                  <Link
-                    href="/personal-booking"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 py-1.5 pl-2 pr-3.5 text-sm font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors duration-150"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/avtar/varun-singh-md-xiphias.jpg"
-                      alt="Varun Singh"
-                      className="h-7 w-7 rounded-full object-cover object-top ring-2 ring-white/40 shrink-0"
-                    />
-                    <span>Book</span>
-                  </Link>
-
-                  {/* Hover tooltip card — drops below the button */}
-                  <div className="pointer-events-none absolute top-[calc(100%+10px)] right-0 z-[60] w-56 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-200 ease-out">
-                    {/* Upward caret */}
-                    <div className="absolute -top-[5px] right-5 h-2.5 w-2.5 rotate-45 rounded-sm bg-white ring-1 ring-black/10" />
-                    <div className="rounded-xl bg-white p-3.5 shadow-2xl ring-1 ring-black/10">
-                      <div className="flex items-center gap-2.5">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src="/images/avtar/varun-singh-md-xiphias.jpg"
-                          alt="Varun Singh"
-                          className="h-11 w-11 rounded-full object-cover object-top ring-2 ring-primary/20 shrink-0"
-                        />
-                        <div>
-                          <p className="text-[13px] font-bold text-zinc-900 leading-tight">Varun Singh</p>
-                          <p className="text-[11px] text-zinc-500 leading-tight mt-0.5">MD, XIPHIAS Immigration</p>
-                        </div>
-                      </div>
-                      <p className="mt-2.5 text-[12px] leading-snug text-zinc-600">
-                        Start your personal booking consultation with Varun Singh
-                      </p>
-                      <p className="mt-2 text-[11.5px] font-semibold text-primary">
-                        Book now →
-                      </p>
-                    </div>
-                  </div>
-                </div>
 
                 <button
                   ref={burgerBtnRef}
@@ -456,39 +401,12 @@ export default function Header() {
 
               <div className="mt-3 grid gap-2">
                 <Link
-                  href="/eligibility#start"
+                  href="/contact"
                   onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center rounded-xl bg-secondary px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3.5 text-sm font-extrabold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  Start Your Journey
-                </Link>
-                <Link
-                  href="/xia-intelligence"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
-                >
-                  <Sparkles className="h-4 w-4" aria-hidden />
-                  XIA Intelligence
-                </Link>
-                <Link
-                  href="/x-hub"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center rounded-xl border border-primary/15 bg-blue-50 px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/15 dark:bg-white/10 dark:text-white"
-                >
-                  X-Hub
-                </Link>
-                <Link
-                  href="/personal-booking"
-                  onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/avtar/varun-singh-md-xiphias.jpg"
-                    alt=""
-                    className="h-6 w-6 rounded-full object-cover object-top ring-1 ring-white/50 shrink-0"
-                  />
-                  Book with Varun Singh
+                  <CalendarCheck className="h-4 w-4 shrink-0" aria-hidden />
+                  Book Free Consultation
                 </Link>
               </div>
 
