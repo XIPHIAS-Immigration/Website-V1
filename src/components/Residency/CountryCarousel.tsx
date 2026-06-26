@@ -218,7 +218,7 @@ function FeatureList({
             className="object-cover"
             sizes="(max-width: 768px) 40vw, 33vw"
             loading="lazy"
-            unoptimized
+            unoptimized={/^https?:\/\//.test(img || "")}
           />
         </Link>
         <div className="flex-1 p-4">
@@ -264,7 +264,7 @@ function FeatureList({
               className="object-cover"
               sizes="80px"
               loading="lazy"
-              unoptimized
+              unoptimized={/^https?:\/\//.test(img || "")}
             />
           </div>
           <div className="min-w-0 flex-1">
@@ -664,7 +664,7 @@ export default function CountryCarousel({
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       loading={idx === 0 ? "eager" : "lazy"}
-                      unoptimized
+                      unoptimized={/^https?:\/\//.test(heroImage || "")}
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                   </div>

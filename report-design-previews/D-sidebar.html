@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Personal Immigration Strategy Report</title>
+<style>
+  :root{
+    --ivory:#f4efe6;
+    --navy:#0c1f3f;
+    --navy-deep:#091831;
+    --brass:#b8924a;
+    --brass-soft:#cdab6e;
+    --ink:#1d2538;
+    --muted:#5c6378;
+    --line:rgba(12,31,63,.14);
+    --line-light:rgba(255,255,255,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#cfcabf;}
+  body{
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:Georgia,"Times New Roman",serif;}
+
+  section.page{
+    position:relative;
+    width:210mm;
+    height:297mm;
+    overflow:hidden;
+    background:var(--ivory);
+    margin:0 auto;
+    display:flex;
+  }
+  @media screen{
+    section.page{margin:10mm auto;box-shadow:0 6mm 18mm rgba(0,0,0,.28);}
+  }
+
+  /* ---------- SIDEBAR (shared) ---------- */
+  .sidebar{
+    position:relative;
+    width:58mm;
+    height:297mm;
+    flex:0 0 58mm;
+    background:
+      linear-gradient(180deg,var(--navy) 0%,var(--navy-deep) 100%);
+    color:#eef1f6;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .sidebar::before{
+    content:"";
+    position:absolute;top:0;right:0;width:1.4mm;height:100%;
+    background:linear-gradient(180deg,var(--brass-soft),var(--brass));
+    opacity:.9;
+  }
+  .sb-pad{padding:14mm 11mm;}
+
+  .eyebrow{
+    font-size:2.5mm;
+    letter-spacing:.42em;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+
+  /* ---------- PAGE 1 : COVER ---------- */
+  .cover-side{justify-content:space-between;}
+  .cover-logo img{height:9mm;width:auto;object-fit:contain;display:block;}
+  .cover-side .eyebrow{color:var(--brass-soft);margin-top:18mm;}
+
+  .dial{
+    position:relative;
+    width:36mm;height:36mm;
+    margin:9mm 0 0;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(184,146,74,.18) 0 52%, transparent 53%),
+      conic-gradient(var(--brass) 0deg 295deg, rgba(255,255,255,.14) 295deg 360deg);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .dial::after{
+    content:"";position:absolute;inset:4.2mm;border-radius:50%;
+    background:var(--navy-deep);
+    box-shadow:inset 0 0 0 .3mm rgba(255,255,255,.08);
+  }
+  .dial-inner{position:relative;z-index:2;text-align:center;line-height:1;}
+  .dial-num{font-size:14mm;font-weight:600;color:#fff;letter-spacing:-.02em;}
+  .dial-den{font-size:3.4mm;color:var(--brass-soft);margin-top:.5mm;letter-spacing:.12em;}
+  .dial-label{
+    margin-top:4mm;font-size:2.6mm;letter-spacing:.4em;
+    text-transform:uppercase;color:#c7cedd;
+  }
+
+  .cover-foot{font-size:2.7mm;line-height:1.7;color:#aeb6c9;}
+  .cover-foot .rule{height:.3mm;background:var(--line-light);margin:0 0 6mm;}
+  .cover-foot strong{color:#fff;font-weight:600;letter-spacing:.06em;}
+
+  /* cover main */
+  .cover-main{
+    position:relative;
+    flex:1;
+    height:297mm;
+    display:flex;
+    flex-direction:column;
+  }
+  .cover-img-wrap{position:relative;flex:1;overflow:hidden;}
+  .cover-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cover-img-wrap::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(12,31,63,.12) 0%,rgba(12,31,63,.05) 45%,rgba(244,239,230,.0) 60%,var(--ivory) 100%);
+  }
+  .cover-img-wrap .topfade{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(9,24,49,.55) 0%,transparent 30%);
+  }
+  .cover-portrait{
+    position:absolute;
+    right:11mm;bottom:0;
+    width:54mm;height:70mm;
+    object-fit:cover;
+    border:1.2mm solid var(--ivory);
+    box-shadow:0 3mm 10mm rgba(12,31,63,.3);
+    z-index:3;
+  }
+  .cover-titleblock{
+    position:relative;
+    z-index:2;
+    background:var(--ivory);
+    padding:12mm 14mm 13mm;
+  }
+  .cover-titleblock .eyebrow{color:var(--brass);}
+  .cover-title{
+    font-size:15.5mm;
+    line-height:1.02;
+    color:var(--navy);
+    font-weight:400;
+    margin:6mm 0 5mm;
+    letter-spacing:-.01em;
+  }
+  .cover-sub{
+    font-size:4mm;
+    line-height:1.55;
+    color:var(--muted);
+    max-width:118mm;
+    font-style:italic;
+    font-family:Georgia,"Times New Roman",serif;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:3mm;margin-top:9mm;}
+  .chip{
+    font-size:2.7mm;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--navy);
+    border:.3mm solid var(--line);
+    border-radius:1mm;
+    padding:2.4mm 4mm;
+    background:rgba(255,255,255,.5);
+    font-weight:600;
+  }
+  .chip.accent{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .chip.accent b{color:var(--brass-soft);font-weight:600;}
+
+  /* ---------- PAGE 2 : CONTENT ---------- */
+  .content-side{color:#eef1f6;}
+  .content-side .sb-pad{
+    padding:14mm 10mm;
+    display:flex;flex-direction:column;height:100%;
+  }
+  .cs-eyebrow{color:var(--brass-soft);}
+  .cs-contents{margin-top:9mm;}
+  .cs-contents .label{
+    font-size:2.5mm;letter-spacing:.34em;text-transform:uppercase;
+    color:#9aa3b8;margin-bottom:4mm;
+  }
+  .toc{list-style:none;font-size:3.2mm;line-height:1.2;}
+  .toc li{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:3mm 0;border-bottom:.3mm solid var(--line-light);
+    color:#d6dbe8;font-family:Georgia,serif;
+  }
+  .toc li .pg{color:var(--brass-soft);font-size:2.7mm;font-family:"Segoe UI",sans-serif;}
+  .toc li.on{color:#fff;}
+
+  .cs-thumb{
+    margin-top:9mm;
+    width:100%;height:42mm;
+    overflow:hidden;
+    border:.3mm solid var(--line-light);
+    position:relative;
+  }
+  .cs-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cs-thumb .cap{
+    position:absolute;left:0;bottom:0;right:0;
+    background:linear-gradient(0deg,rgba(9,24,49,.85),transparent);
+    color:#cdd3e0;font-size:2.5mm;letter-spacing:.1em;text-transform:uppercase;
+    padding:6mm 4mm 3mm;
+  }
+
+  .cs-score{
+    margin-top:auto;
+    padding-top:9mm;
+    border-top:.3mm solid var(--line-light);
+  }
+  .cs-score .big{
+    font-family:Georgia,serif;font-size:18mm;line-height:1;color:#fff;font-weight:400;
+  }
+  .cs-score .big span{font-size:5mm;color:var(--brass-soft);}
+  .cs-score .lab{
+    font-size:2.6mm;letter-spacing:.34em;text-transform:uppercase;color:#9aa3b8;margin-top:3mm;
+  }
+
+  /* content main */
+  .content-main{
+    flex:1;
+    height:297mm;
+    padding:16mm 15mm 0 15mm;
+    display:flex;flex-direction:column;
+  }
+  .cm-eyebrow{color:var(--brass);}
+  .cm-title{
+    font-family:Georgia,serif;
+    font-size:12mm;line-height:1.02;color:var(--navy);
+    margin:5mm 0 6mm;font-weight:400;letter-spacing:-.01em;
+  }
+  .lead{
+    font-family:Georgia,serif;
+    font-size:4.3mm;line-height:1.55;color:var(--ink);
+    padding-left:5mm;border-left:1mm solid var(--brass);
+    margin-bottom:9mm;
+  }
+
+  .stats{display:flex;gap:0;border:.3mm solid var(--line);border-radius:1mm;overflow:hidden;margin-bottom:10mm;}
+  .stat{flex:1;padding:6mm 5mm;background:rgba(255,255,255,.42);}
+  .stat+.stat{border-left:.3mm solid var(--line);}
+  .stat .v{font-family:Georgia,serif;font-size:8mm;line-height:1;color:var(--navy);}
+  .stat .v small{font-size:3.6mm;color:var(--brass);}
+  .stat .k{font-size:2.5mm;letter-spacing:.26em;text-transform:uppercase;color:var(--brass);margin:3.5mm 0 1.5mm;font-weight:600;}
+  .stat .d{font-size:3mm;color:var(--muted);line-height:1.3;}
+
+  .reasons-h{
+    font-size:2.8mm;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--navy);font-weight:700;
+    display:flex;align-items:center;gap:4mm;margin-bottom:6mm;
+  }
+  .reasons-h::after{content:"";flex:1;height:.3mm;background:var(--line);}
+  .reasons{display:grid;grid-template-columns:1fr 1fr;gap:5mm 9mm;margin-bottom:9mm;}
+  .reason{display:flex;gap:4mm;align-items:flex-start;}
+  .reason .tick{
+    flex:0 0 5mm;width:5mm;height:5mm;border-radius:50%;
+    background:var(--navy);color:var(--brass-soft);
+    display:flex;align-items:center;justify-content:center;
+    font-size:3mm;font-weight:700;margin-top:.5mm;
+  }
+  .reason p{font-size:3.3mm;line-height:1.42;color:var(--ink);}
+
+  .cm-strip{
+    margin-top:auto;
+    display:flex;align-items:stretch;
+    border-top:.3mm solid var(--line);
+  }
+  .bottom-line{
+    flex:1;
+    background:var(--navy);
+    color:#eef1f6;
+    padding:8mm 9mm;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .bottom-line .tag{
+    font-size:2.6mm;letter-spacing:.34em;text-transform:uppercase;color:var(--brass-soft);margin-bottom:3.5mm;
+  }
+  .bottom-line p{font-family:Georgia,serif;font-size:4.1mm;line-height:1.5;}
+  .bottom-line p b{color:#fff;}
+
+  .footer{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:5mm 15mm;
+    font-size:2.6mm;letter-spacing:.12em;color:var(--muted);
+    border-top:.3mm solid var(--line);
+    text-transform:uppercase;
+  }
+  .footer .pg{font-family:Georgia,serif;font-size:4mm;color:var(--navy);letter-spacing:0;}
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 — COVER ============ -->
+<section class="page">
+  <aside class="sidebar cover-side">
+    <div class="sb-pad">
+      <div class="cover-logo"><img src="{{LOGO_WHITE}}" alt="XIPHIAS"></div>
+      <div class="eyebrow">Private Client Assessment</div>
+      <div class="dial">
+        <div class="dial-inner">
+          <div class="dial-num">82</div>
+          <div class="dial-den">/ 100</div>
+        </div>
+      </div>
+      <div class="dial-label">Route fit</div>
+    </div>
+    <div class="sb-pad cover-foot">
+      <div class="rule"></div>
+      Prepared exclusively for
+      <br><strong>ARJUN MEHTA</strong>
+      <br><br>Confidential advisory document.<br>For the named recipient only.
+    </div>
+  </aside>
+
+  <main class="cover-main">
+    <div class="cover-img-wrap">
+      <img src="{{IMG0}}" alt="United States cityscape">
+      <div class="topfade"></div>
+      <img class="cover-portrait" src="{{PORTRAIT}}" alt="Client portrait">
+    </div>
+    <div class="cover-titleblock">
+      <div class="eyebrow">Personal Immigration Strategy</div>
+      <h1 class="cover-title serif">Personal Immigration<br>Strategy Report</h1>
+      <p class="cover-sub">A focused, advisor-led recommendation for your move to the United States.</p>
+      <div class="chips">
+        <span class="chip accent">EB-2 NIW · <b>National Interest Waiver</b></span>
+        <span class="chip">United States</span>
+        <span class="chip">18 June 2026</span>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ============ PAGE 2 — CONTENT ============ -->
+<section class="page">
+  <aside class="sidebar content-side">
+    <div class="sb-pad">
+      <img src="{{LOGO_WHITE}}" alt="XIPHIAS" style="height:7.5mm;width:auto;object-fit:contain;">
+      <div class="eyebrow cs-eyebrow" style="margin-top:11mm;">Strategic Rationale</div>
+
+      <div class="cs-contents">
+        <div class="label">In this report</div>
+        <ul class="toc">
+          <li><span>Profile assessment</span><span class="pg">01</span></li>
+          <li class="on"><span>Why this route fits</span><span class="pg">02</span></li>
+          <li><span>Evidence &amp; timeline</span><span class="pg">03</span></li>
+          <li><span>Next steps</span><span class="pg">04</span></li>
+        </ul>
+      </div>
+
+      <div class="cs-thumb">
+        <img src="{{IMG0}}" alt="Destination">
+        <div class="cap">United States · destination</div>
+      </div>
+
+      <div class="cs-score">
+        <div class="big">82<span>/100</span></div>
+        <div class="lab">Route fit · EB-2 NIW</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="content-main">
+    <div class="eyebrow cm-eyebrow">Strategic Rationale</div>
+    <h2 class="cm-title">Why EB-2 NIW fits you</h2>
+
+    <p class="lead">Your profile maps cleanly onto the National Interest Waiver — a route that lets exceptional professionals self-petition for a U.S. green card without an employer or labour certification.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="v">82<small>/100</small></div>
+        <div class="k">Route fit</div>
+        <div class="d">Strong route-fit</div>
+      </div>
+      <div class="stat">
+        <div class="v">12<small> mo</small></div>
+        <div class="k">Indicative timeline</div>
+        <div class="d">To filing-ready</div>
+      </div>
+      <div class="stat">
+        <div class="v" style="font-size:5mm;line-height:1.2;">Permanent<br>residency</div>
+        <div class="k">Objective</div>
+        <div class="d">Green card</div>
+      </div>
+    </div>
+
+    <div class="reasons-h">Six reasons this route holds</div>
+    <div class="reasons">
+      <div class="reason"><span class="tick">&#10003;</span><p>Advanced degree and demonstrable expertise satisfy the core eligibility test.</p></div>
+      <div class="reason"><span class="tick">&#10003;</span><p>Your work carries national importance — a central NIW pillar.</p></div>
+      <div class="reason"><span class="tick">&#10003;</span><p>No employer sponsor or PERM labour certification required.</p></div>
+      <div class="reason"><span class="tick">&#10003;</span><p>Family inclusion: spouse and children under 21 are covered.</p></div>
+      <div class="reason"><span class="tick">&#10003;</span><p>Self-petition keeps you in control of timing and strategy.</p></div>
+      <div class="reason"><span class="tick">&#10003;</span><p>Evidence pack can be built around your existing achievements.</p></div>
+    </div>
+
+    <div class="cm-strip">
+      <div class="bottom-line">
+        <div class="tag">The bottom line</div>
+        <p>On a long-term stability priority, <b>EB-2 NIW converts your profile into a credible, advisor-backed green-card plan</b> with the fewest open risks.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>XIPHIAS Immigration Private Limited · Personal Strategy</span>
+      <span class="pg">02</span>
+    </div>
+  </main>
+</section>
+
+</body>
+</html>

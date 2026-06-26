@@ -520,3 +520,43 @@ export const Programs = {
     },
   ],
 } as const;
+
+// ---------------------------------------------------------------------------
+// Canonical minimum investment (USD), keyed by program `slug`.
+// This is the SOURCE OF TRUTH for the numeric figure shown/used by the tools.
+// It overrides the fragile text-parsing of the descriptive `minInvestmentUSD`
+// strings above (which mis-read ranges, fees and non-USD amounts).
+//
+//   number  → use this exact USD minimum
+//   null    → there is NO fixed investment (varies by route / advisor quote);
+//             tools show "No fixed investment" and use 0 for the math.
+//   (absent)→ fall back to the legacy parser (only the clean "USD 235k+"-style
+//             entries that already parse correctly are left absent).
+//
+// ⚠️ INDICATIVE — verify against current government schedules before quoting.
+// ---------------------------------------------------------------------------
+export const CANONICAL_MIN_USD: Record<string, number | null> = {
+  // residency
+  "us-eb5-investor": 800_000, // TEA minimum (1.05M standard)
+  "nz-active-investor-plus": 3_000_000, // ~NZD 5M growth route
+  "sg-global-investor-programme": 7_400_000, // ~SGD 10M
+  "uae-residency": null, // varies hugely by route → advisor quote
+  "ca-start-up-visa": null, // no fixed investment → advisor quote
+  "uk-innovator-founder": null, // no fixed minimum → advisor quote
+  "sa-premium-residency": null, // varies by category (was mis-parsed as $4M)
+  "pt-alt-routes": null, // route-dependent (funds/cultural/etc.) → advisor quote
+  "gr-property": null, // region-dependent, thresholds changed 2024 → advisor quote
+  // citizenship
+  "tr-cbi": 400_000, // real-estate route
+  "gd-cbi": 235_000,
+  "ag-cbi": 230_000,
+  "dm-cbi": 200_000,
+  "vu-cbi": 130_000,
+  "eg-cbi": 250_000, // route dependent; indicative
+  "mt-exceptional-services": null, // multi-part contribution+property+donation → advisor quote
+  "caribbean-cbi": null, // generic program-dependent grouping → advisor quote
+  // corporate
+  "uae-golden-visa": 545_000, // ~AED 2M property route
+  "entity-plus-visa": null, // setup/capitalization varies → advisor quote
+  "us-e2-treaty-investor": null, // no fixed minimum — substantial (was mis-parsed as $6M)
+};

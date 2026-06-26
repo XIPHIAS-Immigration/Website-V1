@@ -4,10 +4,13 @@ import * as React from "react";
 type Currency = "INR" | "USD" | "AED" | "EUR";
 type Rates = Record<Currency, number>; // per 1 USD (base)
 
+// Indicative FX per 1 USD. ⚠️ Refresh periodically (or wire to a live rate
+// source) — stale rates skew every converted price shown in the tools.
+// Last reviewed: keep INR current (it drifts the most for our audience).
 const DEFAULT_RATES: Rates = {
   USD: 1,
-  INR: 83,     // adjust to your preference
-  AED: 3.67,
+  INR: 88,
+  AED: 3.67, // pegged
   EUR: 0.92,
 };
 

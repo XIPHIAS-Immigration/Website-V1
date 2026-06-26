@@ -8,9 +8,9 @@ type Props = {
   /** Seconds before the first word animates. */
   delay?: number;
   once?: boolean;
-  /** 0-based word indices to apply accentClassName to. */
+  /** Indices of words (0-based) to render with `accentClassName`. */
   accentIndices?: number[];
-  /** CSS class applied to accented words. */
+  /** Class applied to accent words (e.g. a gradient or secondary colour). */
   accentClassName?: string;
 };
 
@@ -31,9 +31,17 @@ const word: Variants = {
  * framer-motion. Falls back to plain text under reduced motion. Keeps the full
  * string available to screen readers via aria-label.
  */
-export default function SplitText({ text, className, delay = 0, once = true, accentIndices, accentClassName }: Props) {
+export default function SplitText({
+  text,
+  className,
+  delay = 0,
+  once = true,
+  accentIndices,
+  accentClassName,
+}: Props) {
   const reduce = useReducedMotion();
   const words = text.split(" ");
+  const accent = new Set(accentIndices ?? []);
 
   if (reduce) return <span className={className}>{text}</span>;
 
@@ -48,25 +56,22 @@ export default function SplitText({ text, className, delay = 0, once = true, acc
       custom={delay}
       aria-label={text}
     >
-      {words.map((w, i) => {
-        const isAccent = accentIndices?.includes(i) && accentClassName;
-        return (
-          <span
-            key={`${w}-${i}`}
-            aria-hidden
-            style={{ display: "inline-block", overflow: "hidden", verticalAlign: "bottom" }}
+      {words.map((w, i) => (
+        <span
+          key={`${w}-${i}`}
+          aria-hidden
+          style={{ display: "inline-block", overflow: "hidden", verticalAlign: "bottom" }}
+        >
+          <motion.span
+            style={{ display: "inline-block" }}
+            variants={word}
+            className={accent.has(i) ? accentClassName : undefined}
           >
-            <motion.span
-              style={{ display: "inline-block" }}
-              variants={word}
-              className={isAccent ? accentClassName : undefined}
-            >
-              {w}
-              {i < words.length - 1 ? " " : ""}
-            </motion.span>
-          </span>
-        );
-      })}
+            {w}
+            {i < words.length - 1 ? " " : ""}
+          </motion.span>
+        </span>
+      ))}
     </motion.span>
   );
 }

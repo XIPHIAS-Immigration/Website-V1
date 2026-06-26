@@ -1,0 +1,103 @@
+import "server-only";
+
+import puppeteer from "puppeteer";
+import { REPORT_CSS } from "./theme";
+
+function wrapReportHtml(title: string, bodyHtml: string): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${title}</title>
+  <style>${REPORT_CSS}</style>
+</head>
+<body>${bodyHtml}</body>
+</html>`;
+}
+
+// Debug-only: when set (by the report-preview endpoint), renderReportPdf returns a PNG
+// screenshot of the Nth `.page` instead of the full PDF, so the design can be reviewed
+// visually. Reset to null after each preview request.
+let PNG_PAGE_INDEX: number | null = null;
+export function setRenderPngPage(index: number | null): void {
+  PNG_PAGE_INDEX = index;
+}
+export function getRenderPngPage(): number | null {
+  return PNG_PAGE_INDEX;
+}
+
+// Debug-only: when true, renderReportPdf returns a JSON Buffer listing each
+// `section.page` element's rendered height in px (and the A4 reference height) so
+// overflowing pages — which spill onto half-empty printed pages — can be found.
+let PROBE_HEIGHTS = false;
+export function setRenderProbe(on: boolean): void {
+  PROBE_HEIGHTS = on;
+}
+
+// Debug-only: device scale factor for PNG previews. A value >1 renders the page at higher
+// pixel density so a preview screenshot reflects how sharp the embedded images actually
+// are in print (a 1× preview hides upscaling blur).
+let PNG_SCALE = 2;
+export function setRenderPngScale(scale: number): void {
+  PNG_SCALE = Math.max(1, Math.min(4, scale));
+}
+
+/**
+ * Render a full HTML document (a sequence of `.page` sections) to an A4 PDF Buffer
+ * using headless Chromium. Shared by every report template.
+ */
+export async function renderReportPdf(opts: { title: string; bodyHtml: string }): Promise<Buffer> {
+  const html = wrapReportHtml(opts.title, opts.bodyHtml);
+  const pngPage = PNG_PAGE_INDEX;
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
+  try {
+    const page = await browser.newPage();
+    // Reports embed several high-resolution images as inline data URIs, so decode + layout
+    // can take well over Puppeteer's default 30s on a busy server (the synchronous webhook
+    // render must not fail). Give it generous headroom.
+    page.setDefaultTimeout(120000);
+    await page.setViewport({ width: 820, height: 1160, deviceScaleFactor: pngPage != null ? PNG_SCALE : 1 });
+    // Images are inline data URIs (no network), so "load" settles as soon as the document
+    // and its embedded images are parsed — more reliable than networkidle0 here.
+    await page.setContent(html, { waitUntil: "load", timeout: 120000 });
+
+    if (PROBE_HEIGHTS) {
+      const data = await page.evaluate(() => {
+        const els = Array.from(document.querySelectorAll("section.page"));
+        const mm = (document.querySelector("section.page") as HTMLElement | null)?.offsetWidth ?? 0;
+        return {
+          count: els.length,
+          a4Width: mm,
+          heights: els.map((el, i) => ({
+            i,
+            h: Math.round((el as HTMLElement).getBoundingClientRect().height),
+            cls: el.className,
+          })),
+        };
+      });
+      return Buffer.from(JSON.stringify(data, null, 2));
+    }
+
+    if (pngPage != null) {
+      const handles = await page.$$("section.page");
+      const target = handles[Math.max(0, Math.min(pngPage, handles.length - 1))];
+      const shot = target ? await target.screenshot({ type: "png" }) : await page.screenshot({ type: "png", fullPage: false });
+      return Buffer.from(shot);
+    }
+
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      preferCSSPageSize: true,
+      margin: { top: "0", right: "0", bottom: "0", left: "0" },
+    });
+    return Buffer.from(pdf);
+  } finally {
+    await browser.close();
+  }
+}

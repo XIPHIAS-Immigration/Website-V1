@@ -2,7 +2,9 @@ import "server-only";
 
 import { getAllContentCached } from "@/lib/content";
 import type { ProgramDoc, Vertical } from "@/lib/content/types";
-import { Programs } from "@/lib/eligibility/programCatalog";
+import { Programs, CANONICAL_MIN_USD } from "@/lib/eligibility/programCatalog";
+
+const NO_FIXED_LABEL = "Talk to advisor for custom pricing";
 
 export type ProgrammeExplorerItem = {
   id: string;
@@ -260,7 +262,13 @@ function fromDoc(doc: ProgramDoc): ProgrammeExplorerItem {
     .filter(Boolean)
     .join(" ");
 
-  const investment = catalog ? parseMoney(`${catalog.minInvestmentUSD} ${raw}`, doc.vertical) : parseMoney(raw, doc.vertical);
+  const canon = catalog ? CANONICAL_MIN_USD[catalog.slug] : undefined;
+  const investment =
+    canon !== undefined
+      ? canon ?? 0
+      : catalog
+        ? parseMoney(`${catalog.minInvestmentUSD} ${raw}`, doc.vertical)
+        : parseMoney(raw, doc.vertical);
   const timeline = catalog ? parseTimeline(`${catalog.processingTime} ${raw}`, doc.vertical) : parseTimeline(raw, doc.vertical);
 
   return {
@@ -274,7 +282,8 @@ function fromDoc(doc: ProgramDoc): ProgrammeExplorerItem {
     heroImage: doc.heroImage,
     tags: doc.tags ?? [],
     investmentUsd: investment,
-    investmentLabel: catalog?.minInvestmentUSD || investmentLabel(investment),
+    investmentLabel:
+      canon === null ? NO_FIXED_LABEL : catalog?.minInvestmentUSD || investmentLabel(investment),
     timelineMonths: timeline,
     timelineLabel: catalog?.processingTime || timelineLabel(timeline),
     presence: detectPresence(raw, doc.vertical),
@@ -312,7 +321,8 @@ function resolveCountryRouteSlug(track: Vertical, country: string, routes: Count
 function fromCatalog(item: ReturnType<typeof catalogPrograms>[number], countryRouteSlug?: string): ProgrammeExplorerItem {
   const countrySlug = slugify(item.country.split("(")[0]);
   const raw = Object.values(item).join(" ");
-  const investment = parseMoney(raw, item.track);
+  const canon = CANONICAL_MIN_USD[item.slug];
+  const investment = canon !== undefined ? canon ?? 0 : parseMoney(raw, item.track);
   const timeline = parseTimeline(raw, item.track);
 
   return {
@@ -325,7 +335,7 @@ function fromCatalog(item: ReturnType<typeof catalogPrograms>[number], countryRo
     summary: item.notes,
     tags: [item.track, item.pathway],
     investmentUsd: investment,
-    investmentLabel: item.minInvestmentUSD,
+    investmentLabel: canon === null ? NO_FIXED_LABEL : item.minInvestmentUSD,
     timelineMonths: timeline,
     timelineLabel: item.processingTime,
     presence: detectPresence(raw, item.track),

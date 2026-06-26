@@ -92,9 +92,9 @@ export default function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(255,255,255,0.04),transparent)]" />
       </div>
 
-      {/* Ambient glows */}
-      <div className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-secondary/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-32 bottom-1/4 h-80 w-80 rounded-full bg-primary/30 blur-[100px]" />
+      {/* Ambient glows — desktop only (large blurs are costly to composite on mobile) */}
+      <div className="pointer-events-none absolute -left-32 top-1/4 hidden h-96 w-96 rounded-full bg-secondary/20 blur-[120px] md:block" />
+      <div className="pointer-events-none absolute -right-32 bottom-1/4 hidden h-80 w-80 rounded-full bg-primary/30 blur-[100px] md:block" />
 
       {/* ── Content ── */}
       <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6 flex flex-col items-center text-center pt-36 pb-24">
@@ -240,9 +240,9 @@ export default function Hero() {
           {/* XIA Intelligence */}
           <Link
             href="/xia-intelligence"
-            className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-[13.5px] font-bold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.35)] hover:bg-[#f0cb3b] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
+            className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-[13.5px] font-semibold text-white backdrop-blur-sm hover:bg-white/20 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            <Sparkles className="h-4 w-4 shrink-0" />
+            <Sparkles className="h-4 w-4 text-secondary shrink-0" />
             XIA Intelligence
           </Link>
         </div>

@@ -1,0 +1,96 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
+  :root{ --navy:#0a1f44; --navy2:#0e264f; --ink:#1c2433; --slate:#5b6678; --ivory:#f6f2ea; --cream:#fbf8f2; --gold:#c2992f; --goldsoft:#d8b65a; --line:#e4ddd0; }
+  body{ font-family:"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink); }
+  .serif{ font-family:Georgia,"Times New Roman",serif; }
+  section.page{ position:relative; width:210mm; height:297mm; overflow:hidden; background:var(--cream); }
+
+  /* ---------- COVER ---------- */
+  .cv{ background:var(--navy); color:#fff; }
+  .cv__bg{ position:absolute; inset:0; }
+  .cv__bg img{ width:100%; height:100%; object-fit:cover; object-position:center top; opacity:.72; }
+  .cv__bg::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,31,68,.55) 0%, rgba(10,31,68,.2) 35%, rgba(10,31,68,.85) 78%, rgba(10,31,68,.97) 100%); }
+  .cv__frame{ position:absolute; inset:9mm; border:.4mm solid rgba(216,182,90,.6); }
+  .cv__in{ position:absolute; inset:9mm; padding:13mm 14mm; display:flex; flex-direction:column; height:auto; }
+  .cv__logo{ height:14mm; object-fit:contain; object-position:left; }
+  .cv__ey{ margin-top:auto; font-size:9.5pt; letter-spacing:.32em; text-transform:uppercase; color:var(--goldsoft); font-weight:700; }
+  .cv__rule{ width:24mm; height:.8mm; background:var(--gold); margin:6mm 0; }
+  .cv__title{ font-size:40pt; line-height:1.04; letter-spacing:-.01em; max-width:150mm; }
+  .cv__sub{ margin-top:6mm; font-size:12pt; line-height:1.55; color:#dfe6f2; max-width:120mm; }
+  .cv__meta{ margin-top:9mm; display:flex; gap:8mm; align-items:flex-end; }
+  .cv__for .k{ font-size:8pt; letter-spacing:.18em; text-transform:uppercase; color:var(--goldsoft); }
+  .cv__for .v{ font-size:15pt; margin-top:1.5mm; }
+  .cv__seal{ margin-left:auto; width:30mm; height:30mm; border-radius:50%; border:.9mm solid var(--gold); display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(10,31,68,.45); }
+  .cv__seal b{ font-size:24pt; line-height:1; color:var(--goldsoft); }
+  .cv__seal span{ font-size:7pt; letter-spacing:.2em; text-transform:uppercase; color:#cdd6e6; margin-top:1mm; }
+  .cv__chips{ display:flex; flex-wrap:wrap; gap:3mm; margin-top:9mm; }
+  .cv__chips span{ border:.25mm solid rgba(216,182,90,.55); border-radius:99mm; padding:2.2mm 4mm; font-size:8.5pt; color:var(--goldsoft); letter-spacing:.04em; }
+
+  /* ---------- CONTENT ---------- */
+  .pg{ padding:18mm 16mm; height:100%; display:flex; flex-direction:column; }
+  .ey{ font-size:9pt; letter-spacing:.26em; text-transform:uppercase; color:var(--gold); font-weight:800; }
+  .h2{ font-size:30pt; line-height:1.06; color:var(--navy); margin-top:3mm; max-width:150mm; }
+  .rule{ width:22mm; height:.8mm; background:var(--gold); margin:5mm 0 7mm; }
+  .lead{ font-size:12.5pt; line-height:1.6; color:var(--slate); max-width:160mm; }
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:0; border:.3mm solid var(--line); border-radius:3mm; overflow:hidden; margin:9mm 0; background:#fff; }
+  .stats > div{ padding:7mm 6mm; border-right:.3mm solid var(--line); }
+  .stats > div:last-child{ border-right:0; }
+  .stats .k{ font-size:8pt; letter-spacing:.14em; text-transform:uppercase; color:var(--slate); font-weight:700; }
+  .stats .v{ font-size:23pt; color:var(--navy); margin-top:2mm; }
+  .stats .n{ font-size:8.5pt; color:#94a; color:var(--slate); margin-top:1mm; }
+  .reasons{ display:grid; grid-template-columns:1fr 1fr; gap:4mm 10mm; }
+  .reasons li{ list-style:none; position:relative; padding-left:8mm; font-size:11pt; line-height:1.5; color:var(--ink); }
+  .reasons li::before{ content:"\2713"; position:absolute; left:0; top:0; color:var(--gold); font-weight:900; }
+  .strip{ margin:9mm 0; height:48mm; border-radius:3mm; overflow:hidden; position:relative; }
+  .strip img{ width:100%; height:100%; object-fit:cover; }
+  .strip::after{ content:""; position:absolute; inset:0; background:linear-gradient(90deg, rgba(10,31,68,.55), rgba(10,31,68,0) 60%); }
+  .strip span{ position:absolute; left:7mm; bottom:6mm; color:#fff; font-size:13pt; }
+  .quote{ margin-top:auto; border-left:1mm solid var(--gold); background:var(--cream); padding:7mm 8mm; }
+  .quote .k{ font-size:8pt; letter-spacing:.16em; text-transform:uppercase; color:#8a6a00; font-weight:800; }
+  .quote p{ margin-top:2.5mm; font-size:12pt; line-height:1.55; color:var(--ink); }
+  .foot{ position:absolute; left:16mm; right:16mm; bottom:9mm; display:flex; justify-content:space-between; font-size:8pt; color:var(--slate); border-top:.3mm solid var(--line); padding-top:3mm; }
+</style></head><body>
+
+<section class="page cv">
+  <div class="cv__bg"><img src="{{PORTRAIT}}"></div>
+  <div class="cv__frame"></div>
+  <div class="cv__in">
+    <img class="cv__logo" src="{{LOGO_WHITE}}">
+    <div class="cv__ey">Private Client Assessment</div>
+    <div class="cv__rule"></div>
+    <h1 class="serif cv__title">Personal Immigration Strategy Report</h1>
+    <p class="cv__sub">A focused, advisor-led recommendation for your move to the United States.</p>
+    <div class="cv__meta">
+      <div class="cv__for"><div class="k">Prepared exclusively for</div><div class="v serif">Arjun Mehta</div></div>
+      <div class="cv__seal"><b class="serif">82</b><span>Route fit</span></div>
+    </div>
+    <div class="cv__chips"><span>EB-2 NIW · National Interest Waiver</span><span>United States</span><span>18 June 2026</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="pg">
+    <div class="ey">Strategic rationale</div>
+    <h2 class="serif h2">Why EB-2 NIW fits you</h2>
+    <div class="rule"></div>
+    <p class="lead">Your profile maps cleanly onto the National Interest Waiver — a route that lets exceptional professionals self-petition for a U.S. green card without an employer or labour certification.</p>
+    <div class="stats">
+      <div><div class="k">Route fit</div><div class="v serif">82<span style="font-size:12pt">/100</span></div><div class="n">Strong route-fit</div></div>
+      <div><div class="k">Indicative timeline</div><div class="v serif">12 mo</div><div class="n">To filing-ready</div></div>
+      <div><div class="k">Objective</div><div class="v serif" style="font-size:15pt">Permanent residency</div><div class="n">Green card</div></div>
+    </div>
+    <ul class="reasons">
+      <li>Advanced degree and demonstrable expertise satisfy the core eligibility test.</li>
+      <li>Your work carries national importance — a central NIW pillar.</li>
+      <li>No employer sponsor or PERM labour certification required.</li>
+      <li>Family inclusion: spouse and children under 21 are covered.</li>
+      <li>Self-petition keeps you in control of timing and strategy.</li>
+      <li>Evidence pack can be built around your existing achievements.</li>
+    </ul>
+    <div class="strip"><img src="{{IMG0}}"><span class="serif">United States · National Interest Waiver</span></div>
+    <div class="quote"><div class="k">The bottom line</div><p>On a long-term stability priority, EB-2 NIW converts your profile into a credible, advisor-backed green-card plan with the fewest open risks.</p></div>
+  </div>
+  <div class="foot"><span>XIPHIAS Immigration Private Limited · Personal Strategy</span><span>02</span></div>
+</section>
+
+</body></html>

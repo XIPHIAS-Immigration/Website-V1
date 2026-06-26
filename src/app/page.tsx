@@ -29,6 +29,9 @@ const AdvisorConsultationCard = dynamic(
 );
 const XiaSection = dynamic(() => import("@/components/Home/XiaSection"));
 
+// Defers hydration/JS of below-the-fold sections until they near the viewport.
+import DeferOnView from "@/components/util/DeferOnView";
+
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
@@ -59,19 +62,23 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <WhyChooseUs />
-      <CitizenshipPreview />
-      <ResidencyPreview />
-      <CorporatePreview />
-      <SkilledPreview />
-      <XiaSection />
-      <FAQJourney />
+      {/* min-heights match measured mobile section heights so deferred mounting
+          doesn't shift layout (keeps CLS ~0). */}
+      <DeferOnView minHeight="1330px"><WhyChooseUs /></DeferOnView>
+      <DeferOnView minHeight="1600px"><CitizenshipPreview /></DeferOnView>
+      <DeferOnView minHeight="1560px"><ResidencyPreview /></DeferOnView>
+      <DeferOnView minHeight="1545px"><CorporatePreview /></DeferOnView>
+      <DeferOnView minHeight="1585px"><SkilledPreview /></DeferOnView>
+      <DeferOnView minHeight="720px"><XiaSection /></DeferOnView>
+      <DeferOnView minHeight="815px"><FAQJourney /></DeferOnView>
 
-      <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
-        <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
-      </section>
+      <DeferOnView minHeight="1010px">
+        <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
+          <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
+        </section>
+      </DeferOnView>
 
-      <InsightsPreview />
+      <DeferOnView minHeight="1230px"><InsightsPreview /></DeferOnView>
     </>
   );
 }

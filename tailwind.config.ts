@@ -79,6 +79,8 @@ const config: Config = {
       colors: {
         primary: "#1c57b4",
         secondary: "#e1b923",
+        // Single source of truth for the dark cinematic section background.
+        ink: "#0a1c44",
         light_bg: "#ffffff",
         light_text: "#1a1a1a",
         dark_bg: "#121212",

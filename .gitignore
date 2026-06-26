@@ -40,5 +40,9 @@ yarn-error.log*
 next-env.d.ts
 
 
-# Large local archive — never commit
+# Large local archives — never commit (GitHub rejects files > 100MB)
 /WebsiteV4.zip
+/WebsiteV18.zip
+*.zip
+# audit screenshots / generated samples
+/report-samples/
