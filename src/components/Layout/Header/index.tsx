@@ -13,7 +13,7 @@ import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, Sparkles } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -299,6 +299,15 @@ export default function Header() {
                   <Moon className="h-5 w-5 dark:hidden" />
                   <Sun className="h-5 w-5 hidden dark:inline" />
                 </button>
+
+                {/* XIA Intelligence — yellow CTA */}
+                <Link
+                  href="/xia-intelligence"
+                  className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-secondary px-3.5 py-1.5 text-sm font-bold text-primary hover:bg-[#f0cb3b] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shrink-0"
+                >
+                  <Sparkles className="h-4 w-4 shrink-0" />
+                  XIA Intelligence
+                </Link>
 
                 {/* Personal booking — avatar button + hover card */}
                 <div className="group relative hidden lg:inline-flex shrink-0">

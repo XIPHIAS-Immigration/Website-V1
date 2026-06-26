@@ -240,9 +240,9 @@ export default function Hero() {
           {/* XIA Intelligence */}
           <Link
             href="/xia-intelligence"
-            className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-[13.5px] font-semibold text-white backdrop-blur-sm hover:bg-white/20 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-[13.5px] font-bold text-primary hover:bg-[#f0cb3b] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
           >
-            <Sparkles className="h-4 w-4 text-secondary shrink-0" />
+            <Sparkles className="h-4 w-4 shrink-0" />
             XIA Intelligence
           </Link>
         </div>

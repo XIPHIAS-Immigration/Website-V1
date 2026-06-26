@@ -490,31 +490,18 @@ export const headerMenu: HeaderItem[] = [
     ],
   },
 
-<<<<<<< HEAD
-=======
-  // Interactive tools — XIA Intelligence hub + its 6 modules
-  {
-    label: 'Tools',
-    href: '/xia-intelligence',
-    badge: { text: 'New', tone: 'info' },
-    submenu: [
-      { label: 'XIA Intelligence', href: '/xia-intelligence' },
-      { label: 'Route Intelligence', href: '/route-intelligence' },
-      { label: 'Deep Analysis', href: '/deep-analysis' },
-      { label: 'US Visa Intelligence', href: '/us-visa-intelligence' },
-      { label: 'Cost Estimator', href: '/cost-estimator' },
-      { label: 'Compare Programs', href: '/compare-programs' },
-      { label: 'Program Index', href: '/xiphias-program-index' },
-    ],
-  },
-
->>>>>>> 5d1dadb57d53d9ae3376511e24fd2a637cfafd09
   {
     label: 'Resources',
     href: '/#resources',
     submenu: [
       { label: 'Start Your Journey',  href: '/eligibility#start' },
       { label: 'XIA Intelligence',    href: '/xia-intelligence' },
+      { label: 'Route Intelligence',  href: '/route-intelligence' },
+      { label: 'Deep Analysis',       href: '/deep-analysis' },
+      { label: 'US Visa Intelligence', href: '/us-visa-intelligence' },
+      { label: 'Cost Estimator',      href: '/cost-estimator' },
+      { label: 'Compare Programs',    href: '/compare-programs' },
+      { label: 'Program Index',       href: '/xiphias-program-index' },
       { label: 'X-Hub',               href: '/x-hub' },
       { label: 'Passport Power',      href: '/passport-index' },
       { label: 'Guide',               href: '/guide' },
