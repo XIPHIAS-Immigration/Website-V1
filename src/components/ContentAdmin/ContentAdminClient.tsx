@@ -737,7 +737,15 @@ export default function ContentAdminClient({
                   </span>
                   <span className="min-w-0">
                     <span className="line-clamp-1 font-black text-slate-950">{item.title}</span>
-                    <span className="mt-1 block truncate text-xs text-slate-500">{item.url}</span>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 block truncate text-xs text-slate-500 hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {item.url}
+                    </a>
                   </span>
                   <span className="text-xs text-slate-600">
                     {(item.seoTitle || item.title).length}/60 title, {(item.seoDescription || item.summary).length}/160 meta
@@ -754,6 +762,15 @@ export default function ContentAdminClient({
                   <span className="text-xs font-semibold text-slate-600">{item.updated || item.date || "-"}</span>
                   <span className="text-xs font-semibold text-slate-600">{item.wordCount}</span>
                   <span className="flex gap-2">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-50"
+                    >
+                      View
+                    </a>
                     <button
                       type="button"
                       onClick={() => openExisting(item)}
@@ -1137,9 +1154,14 @@ export default function ContentAdminClient({
               <h2 className="text-lg font-black">Search preview</h2>
               <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-base font-semibold text-blue-800">{form.seoTitle || form.title || "SEO title"}</p>
-                <p className="mt-1 text-xs text-emerald-700">
+                <a
+                  href={`/${form.kind === "blog" ? "blog" : form.kind}/${form.slug || "new-post"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 block text-xs text-emerald-700 hover:underline"
+                >
                   www.xiphiasimmigration.com/{form.kind === "blog" ? "blog" : form.kind}/{form.slug || "new-post"}
-                </p>
+                </a>
                 <p className="mt-2 text-sm text-slate-600">{form.seoDescription || form.summary || "Meta description preview"}</p>
               </div>
               <label className="mt-4 block text-sm font-black" htmlFor="seo-title">

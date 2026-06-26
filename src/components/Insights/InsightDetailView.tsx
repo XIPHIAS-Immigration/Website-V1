@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import InsightTOC from "./InsightTOC";
-import ReadingProgress from "./ReadingProgress";
 import ShareBar from "./ShareBar";
 import InsightsList from "./InsightsList";
 import MediaHero from "./MediaHero";
@@ -91,7 +90,6 @@ export default async function InsightDetailView({
   return (
     <>
       {/* Top progress bar (GPU-accelerated, non-intrusive) */}
-      <ReadingProgress />
 
       {/* TOP: crumbs + hero */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
