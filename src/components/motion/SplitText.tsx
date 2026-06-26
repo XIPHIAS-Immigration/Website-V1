@@ -8,6 +8,10 @@ type Props = {
   /** Seconds before the first word animates. */
   delay?: number;
   once?: boolean;
+  /** 0-based word indices to apply accentClassName to. */
+  accentIndices?: number[];
+  /** CSS class applied to accented words. */
+  accentClassName?: string;
 };
 
 const container: Variants = {
@@ -27,7 +31,7 @@ const word: Variants = {
  * framer-motion. Falls back to plain text under reduced motion. Keeps the full
  * string available to screen readers via aria-label.
  */
-export default function SplitText({ text, className, delay = 0, once = true }: Props) {
+export default function SplitText({ text, className, delay = 0, once = true, accentIndices, accentClassName }: Props) {
   const reduce = useReducedMotion();
   const words = text.split(" ");
 
@@ -44,18 +48,25 @@ export default function SplitText({ text, className, delay = 0, once = true }: P
       custom={delay}
       aria-label={text}
     >
-      {words.map((w, i) => (
-        <span
-          key={`${w}-${i}`}
-          aria-hidden
-          style={{ display: "inline-block", overflow: "hidden", verticalAlign: "bottom" }}
-        >
-          <motion.span style={{ display: "inline-block" }} variants={word}>
-            {w}
-            {i < words.length - 1 ? " " : ""}
-          </motion.span>
-        </span>
-      ))}
+      {words.map((w, i) => {
+        const isAccent = accentIndices?.includes(i) && accentClassName;
+        return (
+          <span
+            key={`${w}-${i}`}
+            aria-hidden
+            style={{ display: "inline-block", overflow: "hidden", verticalAlign: "bottom" }}
+          >
+            <motion.span
+              style={{ display: "inline-block" }}
+              variants={word}
+              className={isAccent ? accentClassName : undefined}
+            >
+              {w}
+              {i < words.length - 1 ? " " : ""}
+            </motion.span>
+          </span>
+        );
+      })}
     </motion.span>
   );
 }

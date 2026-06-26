@@ -98,6 +98,22 @@ const GALLERY_FILES: GallerySource[] = [
   { file: "xiphias-immigration-gallery-69.jpeg", w: 6000, h: 4000 },
   { file: "xiphias-immigration-gallery-70.jpeg", w: 5785, h: 3857 },
   { file: "xiphias-immigration-gallery-71.jpeg", w: 1600, h: 1066 },
+  { file: "Image_20260611_142043_585.jpeg", w: 1600, h: 1066 },
+  { file: "Image_20260611_142043_850.jpeg", w: 6020, h: 3843 },
+  { file: "Image_20260611_142043_891.jpeg", w: 960,  h: 720  },
+  { file: "Image_20260611_142043_938.jpeg", w: 4032, h: 3024 },
+  { file: "Image_20260611_142043_972.jpeg", w: 1191, h: 1798 },
+  { file: "Image_20260611_142053_286.jpeg", w: 4032, h: 3024 },
+  { file: "Image_20260611_142100_553.jpeg", w: 4032, h: 3024 },
+  { file: "Image_20260611_142100_751.jpeg", w: 1200, h: 1600 },
+  { file: "Image_20260611_142108_789.jpeg", w: 3024, h: 4032 },
+  { file: "Image_20260611_142108_874.jpeg", w: 3024, h: 4032 },
+  { file: "Image_20260611_142109_132.jpeg", w: 1625, h: 2167 },
+  { file: "Image_20260611_142113_229.jpeg", w: 4032, h: 3024 },
+  { file: "Image_20260611_142135_427.jpeg", w: 4032, h: 3024 },
+  { file: "Image_20260611_142135_855.jpeg", w: 3024, h: 4032 },
+  { file: "Image_20260611_142136_216.jpeg", w: 4032, h: 3024 },
+  { file: "Image_20260611_142136_782.jpeg", w: 4032, h: 3024 },
 ];
 
 function toGalleryItem(

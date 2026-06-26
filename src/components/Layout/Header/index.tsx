@@ -13,7 +13,7 @@ import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun, CalendarCheck } from 'lucide-react';
+import { Menu, X, Moon, Sun, Sparkles } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -22,7 +22,6 @@ export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [compact, setCompact] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
-  const [hidden, setHidden] = useState(false); // auto-hide on scroll-down
 
   const headerRef = useRef<HTMLElement>(null);
   const navAnchorRef = useRef<HTMLDivElement>(null); // 👈 anchor = nav row (rounded bar)
@@ -86,17 +85,11 @@ export default function Header() {
           downAccum += dy;
           upAccum    = 0;
           if (downAccum >= HIDE_ACCUM && y > HIDE_AT) setShowTopBar(false);
-          // Fully retract the header after sustained downward scroll.
-          if (downAccum >= 70 && y > 220) setHidden(true);
         } else {
           upAccum   += Math.abs(dy);
           downAccum  = 0;
           if (upAccum >= SHOW_ACCUM) setShowTopBar(true);
-          setHidden(false); // any upward scroll brings it back
         }
-
-        // Always visible near the very top of the page.
-        if (y < HIDE_AT) setHidden(false);
       });
     };
 
@@ -239,11 +232,7 @@ export default function Header() {
 
       <header
         ref={headerRef}
-        className={[
-          "fixed top-0 left-0 right-0 w-full z-50 overflow-visible pt-5 pb-3",
-          "will-change-transform transition-transform duration-300 ease-out",
-          hidden && !drawerOpen ? "-translate-y-[140%]" : "translate-y-0",
-        ].join(" ")}
+        className="fixed top-0 left-0 right-0 w-full z-50 overflow-visible pt-5 pb-3 will-change-transform [transform:translateZ(0)]"
       >
         {/* Floating card — max-w-screen-2xl centered with side gutters */}
         <div className="mx-auto w-full max-w-screen-2xl px-2 sm:px-4">
@@ -292,7 +281,7 @@ export default function Header() {
 
               {/* Desktop nav */}
               <nav
-                className="hidden lg:flex flex-grow items-center justify-start gap-1 xl:gap-2 ml-4 xl:ml-6"
+                className="hidden lg:flex flex-grow items-center justify-center gap-1 xl:gap-2"
                 aria-label="Main navigation"
               >
                 {headerMenu.map((item, i) => (
@@ -311,14 +300,56 @@ export default function Header() {
                   <Sun className="h-5 w-5 hidden dark:inline" />
                 </button>
 
-                {/* Primary CTA — Book Free Consultation */}
+                {/* XIA Intelligence — yellow CTA */}
                 <Link
-                  href="/contact"
-                  className="hidden shrink-0 items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-extrabold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.40)] hover:bg-[#f0cb3b] hover:shadow-[0_4px_20px_rgba(225,185,35,0.55)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 lg:inline-flex"
+                  href="/xia-intelligence"
+                  className="hidden shrink-0 items-center gap-1.5 rounded-xl bg-secondary px-3.5 py-2 text-sm font-bold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.40)] hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 lg:inline-flex transition-colors duration-150"
                 >
-                  <CalendarCheck className="h-4 w-4 shrink-0" aria-hidden />
-                  Book Free Consultation
+                  <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+                  XIA Intelligence
                 </Link>
+
+                {/* Personal booking — avatar button + hover card */}
+                <div className="group relative hidden lg:inline-flex shrink-0">
+                  <Link
+                    href="/personal-booking"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 py-1.5 pl-2 pr-3.5 text-sm font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors duration-150"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/avtar/varun-singh-md-xiphias.jpg"
+                      alt="Varun Singh"
+                      className="h-7 w-7 rounded-full object-cover object-top ring-2 ring-white/40 shrink-0"
+                    />
+                    <span>Talk to Senior Advisor</span>
+                  </Link>
+
+                  {/* Hover tooltip card — drops below the button */}
+                  <div className="pointer-events-none absolute top-[calc(100%+10px)] right-0 z-[60] w-56 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-200 ease-out">
+                    {/* Upward caret */}
+                    <div className="absolute -top-[5px] right-5 h-2.5 w-2.5 rotate-45 rounded-sm bg-white ring-1 ring-black/10" />
+                    <div className="rounded-xl bg-white p-3.5 shadow-2xl ring-1 ring-black/10">
+                      <div className="flex items-center gap-2.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/images/avtar/varun-singh-md-xiphias.jpg"
+                          alt="Varun Singh"
+                          className="h-11 w-11 rounded-full object-cover object-top ring-2 ring-primary/20 shrink-0"
+                        />
+                        <div>
+                          <p className="text-[13px] font-bold text-zinc-900 leading-tight">Varun Singh</p>
+                          <p className="text-[11px] text-zinc-500 leading-tight mt-0.5">MD · Fellow IMC · Cert IMC</p>
+                        </div>
+                      </div>
+                      <p className="mt-2.5 text-[12px] leading-snug text-zinc-600">
+                        Start your personal booking consultation with Varun Singh
+                      </p>
+                      <p className="mt-2 text-[11.5px] font-semibold text-primary">
+                        Book now →
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 <button
                   ref={burgerBtnRef}
@@ -401,12 +432,17 @@ export default function Header() {
 
               <div className="mt-3 grid gap-2">
                 <Link
-                  href="/contact"
+                  href="/personal-booking"
                   onClick={() => setDrawerOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3.5 text-sm font-extrabold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  <CalendarCheck className="h-4 w-4 shrink-0" aria-hidden />
-                  Book Free Consultation
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/avtar/varun-singh-md-xiphias.jpg"
+                    alt=""
+                    className="h-6 w-6 rounded-full object-cover object-top ring-1 ring-white/50 shrink-0"
+                  />
+                  Book with Varun Singh
                 </Link>
               </div>
 

@@ -93,7 +93,7 @@ export default function AdvisorChapter() {
               </span>
               <div>
                 <p className="text-2xl font-black sm:text-3xl">Varun Singh</p>
-                <p className="mt-0.5 text-[15px] text-white/60">Managing Director, XIPHIAS</p>
+                <p className="mt-0.5 text-[15px] text-white/60">MD · Fellow IMC · Cert IMC, XIPHIAS</p>
                 <span className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-semibold text-secondary">
                   <BadgeCheck className="size-4" /> 17+ years advising HNWIs
                 </span>

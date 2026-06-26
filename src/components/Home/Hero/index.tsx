@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight, ShieldCheck, Clock, Users, Globe,
+  ArrowRight, ShieldCheck, Sparkles, Users, Globe,
   CheckCircle2, User, Mail, Phone, FileSearch,
 } from "lucide-react";
 
@@ -237,13 +237,13 @@ export default function Hero() {
             <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
 
-          {/* Download Guide */}
+          {/* XIA Intelligence */}
           <Link
-            href="/images/residency/xiphias-corporate-mobility.pdf"
-            className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-[13.5px] font-semibold text-white backdrop-blur-sm hover:bg-white/20 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            href="/xia-intelligence"
+            className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-[13.5px] font-bold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.35)] hover:bg-[#f0cb3b] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
           >
-            <Clock className="h-4 w-4 text-secondary shrink-0" />
-            Download Guide
+            <Sparkles className="h-4 w-4 shrink-0" />
+            XIA Intelligence
           </Link>
         </div>
       </div>

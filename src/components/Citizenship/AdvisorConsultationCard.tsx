@@ -45,7 +45,7 @@ function money(amount: number, currency: string) {
 /* ──────────────────────────── Component ──────────────────────────── */
 export default function AdvisorConsultationCard({
   advisorName = "Varun Singh",
-  role = "Global CBI & RBI Specialist",
+  role = "MD · Fellow IMC · Cert IMC",
   avatarSrc = "/images/avtar/varun-singh.png",
   languages = "English • Hindi",
   timezone = "Gulf / IST friendly",

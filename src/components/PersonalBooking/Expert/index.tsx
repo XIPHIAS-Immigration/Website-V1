@@ -28,7 +28,7 @@ type CredentialLogo = {
 /* ------------------------------ Content ------------------------------ */
 
 const NAME = "Varun Singh";
-const ROLE = "Managing Director, XIPHIAS Immigration";
+const ROLE = "MD · Fellow IMC · Cert IMC, XIPHIAS Immigration";
 
 const PORTRAIT_SRC: string = "/images/avtar/varun-singh-md-xiphias.jpg";
 /** Set to an MP4 path if you want video; keep empty string to force portrait image */
@@ -40,7 +40,7 @@ const HAS_VIDEO: boolean =
 
 // Keep copy neutral (no unverified claims)
 const BIO: string =
-  "With more than 17 years of experience, Varun Singh, MD, Cert IMC, is an experienced advisor in international immigration and investment migration, known for his focus on integrity, precision, and client service as Managing Director of XIPHIAS Immigration.";
+  "With more than 17 years of experience, Varun Singh, MD, Fellow IMC, Cert IMC, is an experienced advisor in international immigration and investment migration, known for his focus on integrity, precision, and client service as Managing Director of XIPHIAS Immigration.";
 
 const HIGHLIGHTS: Highlight[] = [
   {
@@ -63,7 +63,7 @@ const HIGHLIGHTS: Highlight[] = [
 
 const FACTS: Fact[] = [
   { label: "Role", value: "Managing Director" },
-  { label: "Credentials", value: "FIMC (IMC Fellow), Cert IM" },
+  { label: "Credentials", value: "Fellow IMC · Cert IMC" },
   { label: "Focus", value: "Advisory for elite global clients" },
   { label: "Programs", value: "Specialisation in investment & corporate mobility" },
 ];
