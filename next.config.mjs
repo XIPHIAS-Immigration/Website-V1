@@ -5,7 +5,9 @@ const nextConfig = {
   outputFileTracingIncludes: { "*": ["./content/**/*"] },
 
   images: {
-    formats: ["image/avif", "image/webp"],
+    // WebP only: ~2-3x faster to decode than AVIF on low-power / CPU-throttled
+    // devices (AVIF is smaller but its decode cost hurts perceived load there).
+    formats: ["image/webp"],
     qualities: [75, 80],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },

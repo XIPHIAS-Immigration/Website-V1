@@ -4,10 +4,6 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const UAT_INITIATE_SALE_URL = "https://uat.jiopay.co.in/tsp/pg/api/v2/initiateSale";
-const UAT_COMMAND_URL = "https://uat.jiopay.co.in/tsp/pg/api/command";
-const PRODUCTION_INITIATE_SALE_URL = "https://jiopay.co.in/pg/api/v2/initiateSale";
-const PRODUCTION_COMMAND_URL = "https://jiopay.co.in/pg/api/command";
 
 export type JiopayPrimitive = string | number | boolean | null | undefined;
 export type JiopayPayload = Record<string, JiopayPrimitive>;
@@ -45,10 +41,6 @@ function requireEnv(name: string) {
   return value;
 }
 
-function envOrDefault(name: string, fallback: string) {
-  return process.env[name]?.trim() || fallback;
-}
-
 export function getSiteUrl(req?: NextRequest) {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
   if (fromEnv) return trimTrailingSlash(fromEnv);
@@ -59,20 +51,12 @@ export function getSiteUrl(req?: NextRequest) {
 export function getJiopayConfig(req?: NextRequest): JiopayConfig {
   const siteUrl = getSiteUrl(req);
   const mode = process.env.JIOPAY_MODE === "production" ? "production" : "uat";
-  const initiateSaleUrl =
-    mode === "production"
-      ? envOrDefault("JIOPAY_INITIATE_SALE_URL", PRODUCTION_INITIATE_SALE_URL)
-      : envOrDefault("JIOPAY_INITIATE_SALE_URL", UAT_INITIATE_SALE_URL);
-  const statusUrl =
-    mode === "production"
-      ? envOrDefault("JIOPAY_STATUS_URL", PRODUCTION_COMMAND_URL)
-      : envOrDefault("JIOPAY_STATUS_URL", UAT_COMMAND_URL);
   return {
     mode,
     merchantId: requireEnv("JIOPAY_MERCHANT_ID"),
     secretKey: requireEnv("JIOPAY_SECRET_KEY"),
-    initiateSaleUrl,
-    statusUrl,
+    initiateSaleUrl: requireEnv("JIOPAY_INITIATE_SALE_URL"),
+    statusUrl: process.env.JIOPAY_STATUS_URL?.trim(),
     siteUrl,
     returnUrl:
       process.env.JIOPAY_RETURN_URL?.trim() ||
@@ -147,33 +131,6 @@ export function verifyJiopaySecureHash(payload: JiopayUnknownPayload, secretKey:
   return timingSafeEqual(left, right);
 }
 
-// JioPay's free-text fields (customerName, addlParam2/productName) must be plain ASCII:
-// non-ASCII punctuation (en/em dashes, smart quotes), the ampersand and similar characters
-// can make the gateway reject or hang the request (and can break secureHash parity once the
-// JSON is re-encoded in transit). We transliterate to a safe ASCII subset before sending.
-function sanitizeJiopayText(value: unknown, max: number): string {
-  // Pure-ASCII source on purpose: code points are compared numerically (no literal non-ASCII
-  // characters and no regex ranges over them), so this survives copy-paste / encoding changes
-  // during manual deploys. A mangled non-ASCII char inside a regex range would be an invalid
-  // RegExp and would crash this module the instant a payment route loads it.
-  const decomposed = String(value ?? "").normalize("NFKD");
-  let out = "";
-  for (const ch of decomposed) {
-    const c = ch.codePointAt(0) ?? 0;
-    if (c >= 0x2010 && c <= 0x2015) out += "-"; // hyphen / figure / en / em dashes
-    else if (c === 0x2018 || c === 0x2019 || c === 0x02bc) out += "'"; // smart single quotes
-    else if (c === 0x201c || c === 0x201d) out += '"'; // smart double quotes
-    else if (ch === "&") out += " and ";
-    else if (c >= 0x20 && c <= 0x7e) out += ch; // keep printable ASCII as-is
-    // anything else (combining marks, symbols, other non-ASCII) is dropped
-  }
-  return out
-    .replace(/[^A-Za-z0-9 .,'/_-]/g, " ") // conservative, gateway-safe charset
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, max);
-}
-
 export function buildJiopaySalePayload(input: JiopayCheckoutInput, config: JiopayConfig): JiopayPayload {
   const payload: JiopayPayload = {
     merchantId: config.merchantId,
@@ -186,9 +143,9 @@ export function buildJiopaySalePayload(input: JiopayCheckoutInput, config: Jiopa
     returnURL: input.returnUrl || config.returnUrl,
     customerEmailID: input.customerEmail,
     customerMobileNo: input.customerPhone || undefined,
-    customerName: sanitizeJiopayText(input.customerName, 80) || "Customer",
+    customerName: input.customerName,
     addlParam1: input.productType,
-    addlParam2: sanitizeJiopayText(input.productName, 100),
+    addlParam2: input.productName.slice(0, 120),
   };
   return {
     ...payload,
@@ -291,63 +248,26 @@ export function auditJiopayPayload(payload: JiopayUnknownPayload) {
   return publicJiopayPayload(payload);
 }
 
-// Per-attempt timeout for the JioPay initiateSale call. Without this, a slow/hung JioPay
-// response holds the request open until the upstream (Cloudflare/host) gives up and
-// returns a 502 Bad Gateway. We abort at this deadline and retry once.
-const JIOPAY_INITIATE_TIMEOUT_MS = 20000;
-
 export async function initiateJiopaySale(input: JiopayCheckoutInput, config: JiopayConfig) {
   const requestPayload = buildJiopaySalePayload(input, config);
-
-  const attempt = async () => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), JIOPAY_INITIATE_TIMEOUT_MS);
-    try {
-      const response = await fetch(config.initiateSaleUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestPayload),
-        cache: "no-store",
-        signal: controller.signal,
-      });
-      const rawText = await response.text();
-      let parsed: JiopayUnknownPayload = {};
-      try {
-        parsed = JSON.parse(rawText) as JiopayUnknownPayload;
-      } catch {
-        parsed = { raw: rawText };
-      }
-      return {
-        ok: response.ok,
-        status: response.status,
-        requestPayload,
-        responsePayload: parsed,
-        checkoutUrl: resolveJiopayCheckoutUrl(parsed),
-      };
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-
-  // One retry on a network error / timeout (transient JioPay slowness is the common cause
-  // of intermittent 502s). A valid non-2xx JioPay response is NOT retried - that is a real
-  // decline and is surfaced as-is.
+  const response = await fetch(config.initiateSaleUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestPayload),
+    cache: "no-store",
+  });
+  const rawText = await response.text();
+  let parsed: JiopayUnknownPayload = {};
   try {
-    return await attempt();
+    parsed = JSON.parse(rawText) as JiopayUnknownPayload;
   } catch {
-    try {
-      return await attempt();
-    } catch (err) {
-      return {
-        ok: false,
-        status: 0,
-        requestPayload,
-        responsePayload: {
-          error: "jiopay_unreachable",
-          message: err instanceof Error ? err.message : "JioPay initiateSale timed out or failed.",
-        } as JiopayUnknownPayload,
-        checkoutUrl: "",
-      };
-    }
+    parsed = { raw: rawText };
   }
+  return {
+    ok: response.ok,
+    status: response.status,
+    requestPayload,
+    responsePayload: parsed,
+    checkoutUrl: resolveJiopayCheckoutUrl(parsed),
+  };
 }

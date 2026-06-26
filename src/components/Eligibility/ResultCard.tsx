@@ -6,8 +6,7 @@ import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Track, Result, AnswerMap } from "@/lib/eligibility/types";
 import { trackEvent } from "@/lib/eligibility/analytics";
-import { getProductConfig } from "@/lib/payments/product-catalog";
-import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
+import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 
 type Props = {
   track: Track;
@@ -21,8 +20,8 @@ type Props = {
 };
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
-const DETAILED_REPORT_PRICE_INR =
-  process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR || String(getProductConfig("premium_report")?.priceInr ?? 5000);
+const DETAILED_REPORT_PRICE_INR = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR || "10000";
+const DETAILED_REPORT_PAYMENT_URL = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL || TOPMATE_REGISTRATION_URL;
 
 function formatInr(value: string) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
@@ -34,7 +33,6 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
   const reduceMotion = useReducedMotion();
   const [downloading, setDownloading] = useState(false);
   const [status, setStatus] = useState<string>("");
-  const [checkout, setCheckout] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
   const detailedReportPrice = useMemo(() => formatInr(DETAILED_REPORT_PRICE_INR), []);
 
   // Guard: ensure shape is always safe to render
@@ -88,47 +86,34 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
     }
   };
 
-  const startPremiumCheckout = async () => {
-    if (PAYMENTS_DISABLED) return;
+  const recordDetailedReportIntent = () => {
     trackEvent("detailed_report_cta_click", { track });
-    if (!email) {
-      setCheckout({ loading: false, error: "Please add your email above so we can send your report." });
+    const payload = JSON.stringify({
+      source: "registration",
+      name,
+      email,
+      phone,
+      track,
+      country: safeResult.countryFocus,
+      program: safeResult.programs?.[0]?.name,
+      message: "Clicked INR 10,000 detailed report registration CTA.",
+      page: typeof window !== "undefined" ? window.location.pathname : "/eligibility",
+      tags: ["detailed-report-intent", "topmate-registration"],
+      consent: true,
+    });
+
+    if (typeof navigator !== "undefined" && "sendBeacon" in navigator) {
+      const blob = new Blob([payload], { type: "application/json" });
+      navigator.sendBeacon("/api/platform/lead", blob);
       return;
     }
-    setCheckout({ loading: true, error: null });
-    try {
-      const res = await fetch("/api/payments/jiopay/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          productType: "premium_report",
-          productName: "XIPHIAS Personal Immigration Strategy Report",
-          track,
-          country: safeResult.countryFocus,
-          program: safeResult.programs?.[0]?.name,
-          page: typeof window !== "undefined" ? window.location.pathname : "/eligibility",
-          consent: true,
-          answers: {
-            ...answers,
-            tier: safeResult.tier,
-            fitScore: safeResult.programs?.[0]?.score,
-            recommendedProgram: safeResult.programs?.[0]?.name,
-            countryFocus: safeResult.countryFocus,
-          },
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (data?.ok && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl as string;
-        return;
-      }
-      setCheckout({ loading: false, error: data?.error || "Could not start checkout. Please try again." });
-    } catch {
-      setCheckout({ loading: false, error: "Could not start checkout. Please try again." });
-    }
+
+    void fetch("/api/platform/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    });
   };
 
   const programs = safeResult.programs;
@@ -291,7 +276,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
               Detailed personal report
             </p>
             <h4 className="mt-2 text-xl font-black sm:text-2xl">
-              Unlock your detailed personal immigration report
+              Unlock the 20-30 page assessment after registration
             </h4>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/80">
               The full report expands this preview into route comparison, document checklist,
@@ -305,7 +290,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
                 <CheckIcon /> Document and risk review
               </span>
               <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
-                <CheckIcon /> Emailed to you as PDF
+                <CheckIcon /> X-Hub onboarding
               </span>
               <span className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
                 <CheckIcon /> Advisor follow-up path
@@ -315,36 +300,21 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
 
           <div className="rounded-2xl bg-white p-4 text-[#071a3a] ring-1 ring-white/20">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">
-              Premium report
+              Registration
             </p>
             <p className="mt-2 text-3xl font-black">{detailedReportPrice}</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Secure payment via JioPay. The moment your payment is confirmed, your personalised
-              PDF report is generated and emailed to you.
+              Paid registration uses a dedicated Topmate registration product. After payment,
+              X-Hub opens the client case, checklist, milestones, and detailed report workflow.
             </p>
-            <button
-              type="button"
-              onClick={startPremiumCheckout}
-              disabled={PAYMENTS_DISABLED || checkout.loading}
-              title={PAYMENTS_DISABLED ? PAYMENTS_COMING_SOON_LABEL : undefined}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b650]"
+            <Link
+              href={DETAILED_REPORT_PAYMENT_URL}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b650]"
+              onClick={recordDetailedReportIntent}
             >
-              {PAYMENTS_DISABLED ? (
-                PAYMENTS_COMING_SOON_LABEL
-              ) : checkout.loading ? (
-                <>
-                  <Spinner /> Starting secure checkout...
-                </>
-              ) : (
-                <>
-                  Get the detailed report
-                  <ArrowRightIcon />
-                </>
-              )}
-            </button>
-            {checkout.error ? (
-              <p className="mt-2 text-xs font-semibold text-red-600">{checkout.error}</p>
-            ) : null}
+              Register for detailed report
+              <ArrowRightIcon />
+            </Link>
           </div>
         </div>
       </div>

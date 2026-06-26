@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Landmark, BadgeCheck, Gem, GraduationCap, Briefcase, FileBadge } from "lucide-react";
 
-import { Reveal, Stagger, StaggerItem } from "@/components/motion";
+import { Reveal, Stagger, StaggerItem, SplitText } from "@/components/motion";
 import { getProgrammeExplorerData } from "@/lib/programme-explorer";
 
 type Pathway = {
@@ -73,15 +73,15 @@ export default function ProgrammesChapter() {
   ];
 
   return (
-    <section className="relative overflow-hidden py-16 sm:py-20">
+    <section className="relative overflow-hidden bg-white py-16 sm:py-20">
       <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-[12px] font-semibold uppercase tracking-[0.2em] text-primary dark:border-white/15 dark:bg-white/5 dark:text-white">
               Find by programme
             </span>
-            <h2 className="mt-5 text-[clamp(2rem,4.6vw,3.25rem)] font-black leading-[1.05] tracking-tight text-midnight_text dark:text-white">
-              Choose your pathway
+            <h2 className="mt-5 text-[clamp(2rem,4.6vw,3.25rem)] font-black leading-[1.05] tracking-tight text-midnight_text">
+              <SplitText text="Choose your pathway" accentIndices={[2]} accentClassName="text-primary" />
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-[15.5px] leading-relaxed text-light_grey dark:text-white/65">
               Know the route you want? Jump straight in. Every programme is advisor-reviewed and mapped

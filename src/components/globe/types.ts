@@ -17,8 +17,6 @@ export type GlobeArc = {
   from: [number, number];
   to: [number, number];
   color?: string;
-  /** How many flights travel this route (air-traffic density). Clamped 1–5; defaults to 1. */
-  flights?: number;
 };
 
 export type GlobeTheme = "light" | "dark";

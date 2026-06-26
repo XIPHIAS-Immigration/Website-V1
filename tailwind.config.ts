@@ -1,6 +1,5 @@
 // tailwind.config.ts
 import type { Config } from "tailwindcss";
-import typography from "@tailwindcss/typography";
 
 // make TS happy about the theme resolver used in typography extension
 type ThemeResolver = (path: string) => string;
@@ -80,6 +79,8 @@ const config: Config = {
       colors: {
         primary: "#1c57b4",
         secondary: "#e1b923",
+        // Single source of truth for the dark cinematic section background.
+        ink: "#0a1c44",
         light_bg: "#ffffff",
         light_text: "#1a1a1a",
         dark_bg: "#121212",
@@ -169,7 +170,7 @@ const config: Config = {
       }),
     },
   },
-  plugins: [typography],
+  plugins: [require("@tailwindcss/typography")],
 };
 
 export default config;

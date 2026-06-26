@@ -9,8 +9,8 @@ export type JiopayOrderStatus =
   | "returned"
   | "paid"
   | "failed"
-  | "report_sent"
-  | "provisioned";
+  | "provisioned"
+  | "report_sent";
 
 export type JiopayOrder = {
   merchantTxnNo: string;

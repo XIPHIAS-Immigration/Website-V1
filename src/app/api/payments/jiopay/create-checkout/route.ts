@@ -10,9 +10,6 @@ import { saveJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText, parseBoolean } from "@/lib/platform/sanitize";
 import { isTrack, type Track } from "@/lib/eligibility/types";
-import { getCurrentPortalUser } from "@/lib/platform/auth";
-import { resolveCheckoutPrice } from "@/lib/payments/product-catalog";
-import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,10 +17,14 @@ export const dynamic = "force-dynamic";
 type Payload = Record<string, unknown>;
 
 const DEFAULT_PRODUCT_TYPE = "premium_report";
+const DEFAULT_PRODUCT_NAME = "XIPHIAS personalised report";
+const DEFAULT_AMOUNT_INR = 5000;
 
-function requestedAmount(value: unknown) {
+function cleanAmount(value: unknown) {
   const parsed = Number(String(value ?? "").replace(/[^\d.]/g, ""));
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+  if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  const fromEnv = Number(process.env.JIOPAY_DEFAULT_AMOUNT_INR);
+  return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : DEFAULT_AMOUNT_INR;
 }
 
 function safeAnswers(value: unknown) {
@@ -44,14 +45,6 @@ function resolveTrack(value: unknown): Track | undefined {
 }
 
 export async function POST(req: NextRequest) {
-  // Temporary kill-switch while the JioPay transaction-value limit is restored.
-  if (PAYMENTS_DISABLED) {
-    return NextResponse.json(
-      { ok: false, disabled: true, error: PAYMENTS_COMING_SOON_LABEL },
-      { status: 422 },
-    );
-  }
-
   const body = (await req.json().catch(() => ({}))) as Payload;
   const name = normalizeText(body.name, 120);
   const email = normalizeEmail(body.email);
@@ -66,28 +59,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const productType = normalizeText(body.productType, 60) || DEFAULT_PRODUCT_TYPE;
-
-    // Server-side price + access enforcement (single source of truth: product-catalog).
-    // Fixed-price products ignore any client-supplied amount; custom links require staff auth.
-    const portalUser = await getCurrentPortalUser();
-    const isStaff = portalUser?.role === "staff" || portalUser?.role === "admin";
-    const priced = resolveCheckoutPrice(productType, requestedAmount(body.amountInr ?? body.amount), { isStaff });
-    if (!priced.ok) {
-      const status = priced.reason === "staff_required" ? 403 : 400;
-      const error =
-        priced.reason === "staff_required"
-          ? "Staff sign-in is required to create custom payment links."
-          : priced.reason === "invalid_amount"
-            ? "A valid amount is required for custom payment links."
-            : "Unknown product type.";
-      return NextResponse.json({ ok: false, error }, { status });
-    }
-    const { config: product, amountInr } = priced;
-
     const config = getJiopayConfig(req);
     const merchantTxnNo = makeJiopayTxnNo();
-    const productName = normalizeText(body.productName, 120) || product.label;
+    const amountInr = cleanAmount(body.amountInr ?? body.amount);
+    const productType = normalizeText(body.productType, 60) || DEFAULT_PRODUCT_TYPE;
+    const productName = normalizeText(body.productName, 120) || DEFAULT_PRODUCT_NAME;
     const track = resolveTrack(body.track);
     const country = normalizeText(body.country, 80) || undefined;
     const program = normalizeText(body.program, 140) || undefined;
@@ -95,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     const repo = getPlatformRepository();
     const lead = repo.createLead({
-      source: product.fulfillment === "registration" ? "registration" : "programme_ai",
+      source: productType === "premium_report" ? "programme_ai" : "registration",
       status: "qualified",
       name,
       email,
@@ -163,9 +139,6 @@ export async function POST(req: NextRequest) {
     });
 
     if (!result.ok || !result.checkoutUrl) {
-      // Return 422 (not 5xx) so Cloudflare passes this JSON straight through to the client
-      // instead of masking it with its own branded "502 Bad Gateway" page — the `jiopay`
-      // block below carries JioPay's actual responseCode/message for diagnosis.
       return NextResponse.json(
         {
           ok: false,
@@ -174,7 +147,7 @@ export async function POST(req: NextRequest) {
           leadId: lead.id,
           jiopay: publicJiopayPayload(result.responsePayload),
         },
-        { status: 422 },
+        { status: 502 },
       );
     }
 

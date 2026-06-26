@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight, ShieldCheck, Clock, Users, Globe,
+  ArrowRight, ShieldCheck, Sparkles, Users, Globe,
   CheckCircle2, User, Mail, Phone, FileSearch,
 } from "lucide-react";
 
@@ -92,9 +92,9 @@ export default function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(255,255,255,0.04),transparent)]" />
       </div>
 
-      {/* Ambient glows */}
-      <div className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-secondary/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-32 bottom-1/4 h-80 w-80 rounded-full bg-primary/30 blur-[100px]" />
+      {/* Ambient glows — desktop only (large blurs are costly to composite on mobile) */}
+      <div className="pointer-events-none absolute -left-32 top-1/4 hidden h-96 w-96 rounded-full bg-secondary/20 blur-[120px] md:block" />
+      <div className="pointer-events-none absolute -right-32 bottom-1/4 hidden h-80 w-80 rounded-full bg-primary/30 blur-[100px] md:block" />
 
       {/* ── Content ── */}
       <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6 flex flex-col items-center text-center pt-36 pb-24">
@@ -117,14 +117,14 @@ export default function Hero() {
             <svg aria-hidden className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 8" fill="none" preserveAspectRatio="none">
               <path d="M2 6 C80 2, 220 2, 298 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
-          </span>
-          , Citizenship &amp; Mobility
+          </span>{" "}
+          &amp; Citizenship
         </h1>
 
         {/* Subheadline */}
         <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
-          Find your route by programme, country or goal — residency, citizenship, skilled and
-          corporate pathways across 50+ countries, guided by senior advisors.
+          Expert advisory across Residency by Investment, Citizenship by Investment,
+          Skilled Migration &amp; Corporate Mobility — 50+ countries, one trusted partner.
         </p>
 
         {/* Stats strip */}
@@ -227,23 +227,23 @@ export default function Hero() {
         {/* ── Secondary CTAs ── */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
 
-          {/* Start Your Journey — primary ghost pill */}
+          {/* Check Your Eligibility — primary ghost pill */}
           <Link
-            href="/eligibility#start"
+            href="/eligibility"
             className="group inline-flex items-center gap-2.5 rounded-full border border-secondary/50 bg-secondary/10 px-6 py-2.5 text-[13.5px] font-semibold text-secondary backdrop-blur-sm hover:bg-secondary hover:text-primary transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
           >
             <FileSearch className="h-4 w-4 shrink-0" />
-            Start Your Journey
+            Check Your Eligibility
             <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
 
-          {/* Download Guide */}
+          {/* XIA Intelligence */}
           <Link
-            href="/images/residency/xiphias-corporate-mobility.pdf"
+            href="/xia-intelligence"
             className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-[13.5px] font-semibold text-white backdrop-blur-sm hover:bg-white/20 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            <Clock className="h-4 w-4 text-secondary shrink-0" />
-            Download Guide
+            <Sparkles className="h-4 w-4 text-secondary shrink-0" />
+            XIA Intelligence
           </Link>
         </div>
       </div>

@@ -2,25 +2,35 @@ import React from "react";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
-// Server components (read the programme catalogue) — static imports.
-import GlobeScene from "@/components/Home/GlobeScene";
-import ProgrammesChapter from "@/components/Home/ProgrammesChapter";
-import CountriesChapter from "@/components/Home/CountriesChapter";
-import Reveal from "@/components/motion/Reveal";
-
-function SectionBreak() {
-  return <div className="h-10 sm:h-16" aria-hidden="true" />;
-}
-
-// Hero + cinematic chapters (code-split).
+// Hero + all big home sections are code-split
 const Hero = dynamic(() => import("@/components/Home/Hero"));
-const TrustMarquee = dynamic(() => import("@/components/Home/TrustMarquee"));
-const IntroChapter = dynamic(() => import("@/components/Home/IntroChapter"));
-const XiaChapter = dynamic(() => import("@/components/Home/XiaChapter"));
-const AdvisorChapter = dynamic(() => import("@/components/Home/AdvisorChapter"));
-const StatsBand = dynamic(() => import("@/components/Home/StatsBand"));
+const WhyChooseUs = dynamic(() => import("@/components/Home/whychooseus"));
 const FAQJourney = dynamic(() => import("@/components/Home/FAQJourney"));
-const InsightsPreview = dynamic(() => import("@/components/Insights/InsightsPreview"));
+const InsightsPreview = dynamic(
+  () => import("@/components/Insights/InsightsPreview"),
+);
+const ResidencyPreview = dynamic(
+  () => import("@/components/Residency/ResidencyPreview"),
+);
+const SkilledPreview = dynamic(
+  () => import("@/components/Skilled/SkilledPreview"),
+);
+const CitizenshipPreview = dynamic(
+  () => import("@/components/Citizenship/CitizenshipPreview"),
+);
+const XiaIntelligencePreview = dynamic(
+  () => import("@/components/Home/XiaIntelligencePreview"),
+);
+const CorporatePreview = dynamic(
+  () => import("@/components/Corporate/CorporatePreview"),
+);
+const AdvisorConsultationCard = dynamic(
+  () => import("@/components/Citizenship/AdvisorConsultationCard"),
+);
+const XiaSection = dynamic(() => import("@/components/Home/XiaSection"));
+
+// Defers hydration/JS of below-the-fold sections until they near the viewport.
+import DeferOnView from "@/components/util/DeferOnView";
 
 export const revalidate = 86400;
 
@@ -51,39 +61,24 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      {/* Chapter 0 — Hero photo (unchanged) */}
       <Hero />
-      <TrustMarquee />
+      {/* min-heights match measured mobile section heights so deferred mounting
+          doesn't shift layout (keeps CLS ~0). */}
+      <DeferOnView minHeight="1330px"><WhyChooseUs /></DeferOnView>
+      <DeferOnView minHeight="1600px"><CitizenshipPreview /></DeferOnView>
+      <DeferOnView minHeight="1560px"><ResidencyPreview /></DeferOnView>
+      <DeferOnView minHeight="1545px"><CorporatePreview /></DeferOnView>
+      <DeferOnView minHeight="1585px"><SkilledPreview /></DeferOnView>
+      <DeferOnView minHeight="720px"><XiaSection /></DeferOnView>
+      <DeferOnView minHeight="815px"><FAQJourney /></DeferOnView>
 
-      {/* Chapter 1 — kinetic intro statement */}
-      <IntroChapter />
+      <DeferOnView minHeight="1010px">
+        <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
+          <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
+        </section>
+      </DeferOnView>
 
-      {/* Chapter 2 — interactive globe: hover a beacon → destination card */}
-      <GlobeScene />
-
-      {/* Chapter 3 — browse by programme (pathway-first) */}
-      <ProgrammesChapter />
-
-      {/* Chapter 4 — browse by country (destination-first) */}
-      <CountriesChapter />
-
-      {/* Chapter 8 — XIA Intelligence */}
-      <XiaChapter />
-
-      {/* Chapter 9 — senior advisor paid consultation */}
-      <AdvisorChapter />
-
-      {/* Proof + journey + insights */}
-      <StatsBand />
-
-      <Reveal amount={0.12}>
-        <FAQJourney />
-      </Reveal>
-      <SectionBreak />
-
-      <Reveal amount={0.12}>
-        <InsightsPreview />
-      </Reveal>
+      <DeferOnView minHeight="1230px"><InsightsPreview /></DeferOnView>
     </>
   );
 }

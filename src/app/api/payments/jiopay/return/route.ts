@@ -43,7 +43,7 @@ async function readPayload(req: NextRequest): Promise<Payload> {
 async function handleReturn(req: NextRequest) {
   const payload = await readPayload(req);
   let verified = false;
-  const merchantTxnNo = extractJiopayMerchantTxnNo(payload);
+  let merchantTxnNo = extractJiopayMerchantTxnNo(payload);
   let status = "pending";
 
   try {

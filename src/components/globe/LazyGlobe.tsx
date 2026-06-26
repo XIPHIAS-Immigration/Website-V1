@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { useReducedMotion } from "framer-motion";
 
-import { useLowPowerDevice } from "@/lib/device";
 import GlobeFallback from "./GlobeFallback";
 import type { XiphiasGlobeProps } from "./XiphiasGlobe";
 import type { GlobeTheme } from "./types";
@@ -27,13 +26,11 @@ type Props = Omit<XiphiasGlobeProps, "theme"> & {
 /**
  * Client wrapper around the WebGL globe. Code-splits three.js (ssr:false),
  * resolves the active theme (or uses an explicit override), and degrades to a
- * static <GlobeFallback> when the user prefers reduced motion, on low-power /
- * touch devices (phones & tablets — the WebGL scene + bloom hangs there under
- * load), or before hydration.
+ * static <GlobeFallback> when the user prefers reduced motion or before
+ * hydration.
  */
 export default function LazyGlobe({ theme: forcedTheme, ...props }: Props) {
   const reduce = useReducedMotion();
-  const lowPower = useLowPowerDevice();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -41,7 +38,7 @@ export default function LazyGlobe({ theme: forcedTheme, ...props }: Props) {
 
   const theme = forcedTheme ?? (resolvedTheme === "light" ? "light" : "dark");
 
-  if (!mounted || reduce || lowPower) {
+  if (!mounted || reduce) {
     return <GlobeFallback className={props.className} markers={props.markers} theme={theme} />;
   }
 

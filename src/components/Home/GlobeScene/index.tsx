@@ -1,10 +1,12 @@
+import { getGlobeExplorerData } from "@/lib/globe-data";
 import GlobeSceneClient from "./GlobeSceneClient";
 
 /**
- * Interactive, single-screen globe: spin/drag to explore, hover a glowing
- * beacon to reveal that destination's card. Markers/arcs are built client-side
- * from a curated destination list (see GlobeSceneClient).
+ * Server wrapper: provides the globe markers/arcs (from the programme
+ * catalogue) to the cinematic, scroll-driven globe scene.
  */
 export default function GlobeScene() {
-  return <GlobeSceneClient />;
+  const { markers, arcs } = getGlobeExplorerData();
+  if (!markers.length) return null;
+  return <GlobeSceneClient markers={markers} arcs={arcs} />;
 }

@@ -23,7 +23,6 @@ function scoreColor(score?: number) {
   return "#e07070";
 }
 
-
 export default function PassportGlobe({ records, highlightedCodes }: Props) {
   const effective = highlightedCodes ?? records.map((r) => r.code);
   const listRecords = useMemo(
@@ -63,18 +62,13 @@ export default function PassportGlobe({ records, highlightedCodes }: Props) {
       .sort((a, b) => a.rankValue - b.rankValue)
       .filter((r) => r.code !== selected?.code)
       .slice(0, 4)
-      .map((r, i) => {
-        const c = centroidForCode(r.code);
-        if (!c) return null;
-        return {
-          from: [origin.lat, origin.lng] as [number, number],
-          to: [c.lat, c.lng] as [number, number],
-          color: "#e1b923",
-          // Busier routes to the stronger passports (top of the ranking).
-          flights: Math.max(1, 4 - i),
-        };
-      })
-      .filter(Boolean) as GlobeArc[];
+      .map((r) => centroidForCode(r.code))
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+      .map((c) => ({
+        from: [origin.lat, origin.lng] as [number, number],
+        to: [c.lat, c.lng] as [number, number],
+        color: "#e1b923",
+      }));
   }, [records, selected]);
 
   return (
