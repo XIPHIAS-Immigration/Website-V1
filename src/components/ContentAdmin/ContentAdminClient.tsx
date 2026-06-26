@@ -320,8 +320,9 @@ export default function ContentAdminClient({
 
   const refreshItems = async () => {
     const response = await fetch("/api/content-admin/posts", { cache: "no-store" });
-    const data = await response.json();
-    if (response.ok && data?.items) setItems(data.items);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data?.message || "Unable to refresh content list.");
+    if (data?.items) setItems(data.items);
   };
 
   const openNew = (kind: ContentKind) => {
@@ -384,6 +385,8 @@ export default function ContentAdminClient({
         tags: csvToArray(form.tags),
         countries: csvToArray(form.countries),
         programs: csvToArray(form.programs),
+        // always stamp updated to today on every save
+        updated: today(),
       };
 
       const response = await fetch("/api/content-admin/posts", {
@@ -655,10 +658,7 @@ export default function ContentAdminClient({
                 <button
                   key={entry.kind}
                   type="button"
-                  onClick={() => {
-                    setActiveKind(entry.kind);
-                    openNew(entry.kind);
-                  }}
+                  onClick={() => openNew(entry.kind)}
                   className="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/10"
                 >
                   <span className="flex items-start justify-between gap-4">
@@ -922,9 +922,25 @@ export default function ContentAdminClient({
                       setForm((current) => ({
                         ...current,
                         title,
-                        slug: current.originalSlug || current.slug ? current.slug : slugify(title),
-                        seoTitle: current.seoTitle || title.slice(0, 60),
-                        heroAlt: current.heroAlt || title,
+                        // keep auto-deriving slug while it still matches the title;
+                        // once user manually edits the slug field it diverges and stops
+                        slug: current.originalSlug
+                          ? current.slug
+                          : current.slug === slugify(current.title)
+                          ? slugify(title)
+                          : current.slug,
+                        // same pattern for seoTitle
+                        seoTitle: current.originalSlug
+                          ? current.seoTitle
+                          : current.seoTitle === current.title.slice(0, 60)
+                          ? title.slice(0, 60)
+                          : current.seoTitle,
+                        // same pattern for heroAlt
+                        heroAlt: current.originalSlug
+                          ? current.heroAlt
+                          : current.heroAlt === current.title
+                          ? title
+                          : current.heroAlt,
                       }));
                     }}
                   />
@@ -938,7 +954,11 @@ export default function ContentAdminClient({
                     id="content-kind"
                     className="mt-2 h-12 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
                     value={form.kind}
-                    onChange={(event) => updateForm("kind", event.target.value as ContentKind)}
+                    onChange={(event) => {
+                      const kind = event.target.value as ContentKind;
+                      setActiveKind(kind);
+                      updateForm("kind", kind);
+                    }}
                   >
                     {KINDS.map((entry) => (
                       <option key={entry.kind} value={entry.kind}>
@@ -958,7 +978,10 @@ export default function ContentAdminClient({
                     id="content-slug"
                     className="mt-2 h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
                     value={form.slug}
-                    onChange={(event) => updateForm("slug", slugify(event.target.value))}
+                    onChange={(event) =>
+                      updateForm("slug", event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+                    }
+                    onBlur={(event) => updateForm("slug", slugify(event.target.value))}
                   />
                   <p className="mt-1 text-xs text-slate-500">/{form.kind === "blog" ? "blog" : form.kind}/{form.slug || "new-post"}</p>
                 </div>
@@ -991,7 +1014,13 @@ export default function ContentAdminClient({
                   setForm((current) => ({
                     ...current,
                     summary,
-                    seoDescription: current.seoDescription || summary.slice(0, 160),
+                    // keep auto-filling seoDescription while it still matches the summary;
+                    // once user manually edits the seoDescription field it diverges and stops
+                    seoDescription: current.originalSlug
+                      ? current.seoDescription
+                      : current.seoDescription === current.summary.slice(0, 160)
+                      ? summary.slice(0, 160)
+                      : current.seoDescription,
                   }));
                 }}
               />
