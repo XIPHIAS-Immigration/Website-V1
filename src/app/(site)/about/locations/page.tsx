@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { MapPin, Phone, Clock, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, PhoneCall, Clock, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Office Locations – XIPHIAS Immigration | India, UAE, Qatar, Australia & Canada',
@@ -21,14 +21,15 @@ export const metadata: Metadata = {
 const OFFICES = [
   {
     name: 'Bengaluru HQ',
-    street: 'Aurbis Prime, 11 Kaveri Regent Coronet, 80 ft Rd, 3rd Blk, Koramangala',
+    street: '1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala',
     city: 'Bengaluru',
     postal: '560034',
     country: 'India',
     flag: '🇮🇳',
     hours: 'Mon–Sat, 9:30–18:30',
     phone: '+91 9021335577',
-    maps: 'https://maps.google.com/?q=Aurbis+Prime+Kaveri+Regent+Coronet+Koramangala+Bengaluru+560034',
+    phoneAlt: '+91 08049768088',
+    maps: 'https://maps.google.com/?q=JK+Nirmala+Arcade+Plot+780+80+Feet+Road+4th+Block+Koramangala+Bengaluru+560034',
   },
   {
     name: 'Gurugram',
@@ -39,6 +40,7 @@ const OFFICES = [
     flag: '🇮🇳',
     hours: 'Mon–Sat, 9:30–18:30',
     phone: '+91 96675 20211',
+    phoneAlt: '',
     maps: 'https://maps.google.com/?q=Augusta+Point+Golf+Course+Road+DLF+Phase+5+Sector+53+Gurugram+122002',
   },
   {
@@ -50,6 +52,7 @@ const OFFICES = [
     flag: '🇦🇪',
     hours: 'Sun–Thu, 9:00–18:00',
     phone: '+971-527 275 101',
+    phoneAlt: '',
     maps: 'https://maps.google.com/?q=Platinum+Tower+JLT+Dubai',
   },
   {
@@ -61,6 +64,7 @@ const OFFICES = [
     flag: '🇶🇦',
     hours: 'Sun–Thu, 9:00–18:00',
     phone: '+974 4476 0562',
+    phoneAlt: '',
     maps: 'https://maps.google.com/?q=Al+Jazeera+Tower+West+Bay+Doha',
   },
   {
@@ -72,6 +76,7 @@ const OFFICES = [
     flag: '🇦🇺',
     hours: 'Mon–Sat, 9:00–17:00',
     phone: '+61 451 239 239',
+    phoneAlt: '',
     maps: 'https://maps.google.com/?q=227+Collins+Street+Melbourne+VIC+3000+Australia',
   },
   {
@@ -83,6 +88,7 @@ const OFFICES = [
     flag: '🇨🇦',
     hours: 'Mon–Sat, 9:00–17:00',
     phone: '+1 438 379 9101',
+    phoneAlt: '',
     maps: 'https://maps.google.com/?q=3-133+Weber+St+N+Suite+514+Waterloo+ON+N2J+3G9',
   },
 ];
@@ -102,7 +108,7 @@ const jsonLd = {
       postalCode: o.postal,
       addressCountry: o.country,
     },
-    telephone: o.phone,
+    telephone: [o.phone, o.phoneAlt].filter(Boolean),
   })),
 };
 
@@ -159,9 +165,14 @@ export default function LocationsPage() {
                   </div>
                   <div className="flex items-center gap-2 text-zinc-600 dark:text-white/65">
                     <Phone className="h-4 w-4 shrink-0 text-primary dark:text-secondary" />
-                    <a href={`tel:${office.phone.replace(/\s/g, '')}`} className="hover:text-primary dark:hover:text-secondary transition-colors">
-                      {office.phone}
-                    </a>
+                    <div className="flex flex-wrap gap-x-2">
+                      {[office.phone, office.phoneAlt].filter(Boolean).map((phone, index) => (
+                        <a key={phone} href={`tel:${phone.replace(/[^\d+]/g, '').replace(/^\+910/, '+91')}`} title={index === 0 ? "Phone" : "Landline"} className="inline-flex items-center gap-1 hover:text-primary dark:hover:text-secondary transition-colors">
+                          {index > 0 && <PhoneCall className="h-3.5 w-3.5 shrink-0" aria-hidden />}
+                          {phone}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

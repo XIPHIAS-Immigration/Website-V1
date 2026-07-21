@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Phone, Mail, Globe, LogIn } from 'lucide-react';
+import { Phone, PhoneCall, Mail, Globe, LogIn } from 'lucide-react';
 import GlobalSearch from '@/components/GlobalSearch';
 
 export default function TopBar() {
@@ -23,6 +23,18 @@ export default function TopBar() {
                 <Phone className="h-3 w-3" aria-hidden />
               </span>
               <span className="font-medium tracking-wide">+91 9021335577</span>
+            </a>
+
+            <a
+              href="tel:+918049768088"
+              aria-label="Call landline +91 08049768088"
+              title="Landline"
+              className="group flex items-center gap-1.5 font-medium tracking-wide text-white/80 hover:text-white transition-colors duration-150"
+            >
+              <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full bg-secondary/90 text-primary shrink-0 group-hover:bg-secondary transition-colors duration-150">
+                <PhoneCall className="h-3 w-3" aria-hidden />
+              </span>
+              +91 08049768088
             </a>
 
             <span className="h-4 w-px bg-white/20" aria-hidden />

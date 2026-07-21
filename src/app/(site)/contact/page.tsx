@@ -77,13 +77,13 @@ const CONTACT = {
   headline: "Talk to an Immigration Expert",
   sub: "Fast, discreet, compliant. Choose the channel you prefer.",
   phonePrimary: "+91 9021335577",
-  phoneAlt: "",
+  phoneAlt: "+91 08049768088",
   email: "immigration@xiphias.in",
   whatsapp: "+91 7406006061",
   address: [
     "XIPHIAS IMMIGRATION PVT LTD",
-    "Aurbis Prime, 11, Kaveri Regent Coronet",
-    "80 Feet Rd, 3rd Block, Koramangala, Bengaluru 560034",
+    "1st Floor, JK Nirmala Arcade, Plot no. 780",
+    "80 Feet Rd, 4th Block, Koramangala, Bengaluru, Karnataka 560034",
   ],
   hours: "Mon–Sat • 9:00–18:00 IST",
   responseNote: "No obligation · Response within 24 hours",
@@ -154,7 +154,7 @@ export default function ContactPage() {
         <MapCard
           className="hidden sm:block"
           title="Bengaluru HQ"
-          query="Aurbis Prime, 80 Feet Road, 3rd Block Koramangala, Bengaluru 560034"
+          query="JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru 560034"
           address={[...CONTACT.address]}
           height={300}
           zoom={14}
@@ -187,7 +187,7 @@ function buildContactJsonLd(cfg: typeof CONTACT) {
     contactPoint: [
       {
         "@type": "ContactPoint",
-        telephone: cfg.phonePrimary,
+        telephone: [cfg.phonePrimary, cfg.phoneAlt].filter(Boolean),
         email: cfg.email ? `mailto:${cfg.email}` : undefined,
         contactType: "customer service",
         areaServed: "IN",

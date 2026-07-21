@@ -1,5 +1,5 @@
 import "server-only";
-
+import { saveLeadToCrm } from "@/lib/crm/save-lead";
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -308,6 +308,7 @@ class PlatformRepositoryImpl {
       mustChangePassword: user.mustChangePassword,
     });
     this.persist();
+    
     return user;
   }
 
@@ -327,6 +328,9 @@ class PlatformRepositoryImpl {
       track: lead.track,
     });
     this.persist();
+    void saveLeadToCrm(lead).catch((error) => {
+      console.error("[x-hub] CRM mirror failed for", lead.id, "-", error?.message ?? error);
+    });
     return lead;
   }
 

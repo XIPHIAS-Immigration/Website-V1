@@ -16,14 +16,14 @@ const OurOffer = nextDynamic(() => import("@/components/Citizenship/OurOffer"));
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Residency Programs – Countries & Options",
+  title: "Golden Visa & Residency by Investment | XIPHIAS Immigration",
   description:
-    "Explore residency pathways by country. Compare timelines, requirements and costs. Book a personal consultation.",
+    "Compare the world's leading Golden Visa and residency by investment programs. Get expert advice and start your residency journey with XIPHIAS today.",
   alternates: { canonical: "/residency" },
   openGraph: {
-    title: "Residency Programs – Countries & Options",
+    title: "Golden Visa & Residency by Investment | XIPHIAS Immigration",
     description:
-      "Explore residency pathways by country. Compare timelines, requirements and costs. Book a personal consultation.",
+      "Compare the world's leading Golden Visa and residency by investment programs. Get expert advice and start your residency journey with XIPHIAS today.",
     url: "https://www.xiphiasimmigration.com/residency",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -33,15 +33,15 @@ export const metadata: Metadata = {
         url: "/xiphias-immigration.png",
         width: 1200,
         height: 630,
-        alt: "Residency Programs – Countries & Options – XIPHIAS Immigration",
+        alt: "Golden Visa & Residency by Investment | XIPHIAS Immigration",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Residency Programs – Countries & Options",
+    title: "Golden Visa & Residency by Investment | XIPHIAS Immigration",
     description:
-      "Explore residency pathways by country. Compare timelines, requirements and costs. Book a personal consultation.",
+      "Compare the world's leading Golden Visa and residency by investment programs. Get expert advice and start your residency journey with XIPHIAS today.",
     images: ["/xiphias-immigration.png"],
   },
 };

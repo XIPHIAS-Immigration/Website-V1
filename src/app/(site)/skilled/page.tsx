@@ -20,14 +20,14 @@ const SkilledExploreGrid = nextDynamic(() => import("@/components/Skilled/Skille
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Skilled Migration & Work Permits – Countries & Options",
+  title: "Skilled Migration & PR Services by XIPHIAS Immigration",
   description:
-    "Explore skilled migration routes by country: points-tested PR, employer sponsorships, and talent visas. Compare timelines, eligibility and costs.",
+    "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
   alternates: { canonical: "/skilled" },
   openGraph: {
-    title: "Skilled Migration & Work Permits – Countries & Options",
+    title: "Skilled Migration & PR Services by XIPHIAS Immigration",
     description:
-      "Explore skilled migration routes by country: points-tested PR, employer sponsorships, and talent visas. Compare timelines, eligibility and costs.",
+      "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
     url: "https://www.xiphiasimmigration.com/skilled",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -37,15 +37,15 @@ export const metadata: Metadata = {
         url: "/xiphias-immigration.png",
         width: 1200,
         height: 630,
-        alt: "Skilled Migration & Work Permits – Countries & Options – XIPHIAS Immigration",
+        alt: "Skilled Migration & PR Services by XIPHIAS Immigration",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Skilled Migration & Work Permits – Countries & Options",
+    title: "Skilled Migration & PR Services by XIPHIAS Immigration",
     description:
-      "Explore skilled migration routes by country: points-tested PR, employer sponsorships, and talent visas. Compare timelines, eligibility and costs.",
+      "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
     images: ["/xiphias-immigration.png"],
   },
 };
@@ -79,10 +79,10 @@ export default function SkilledPage() {
   const webPageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "Skilled Migration & Work Permits – Countries & Options",
+    name: "Skilled Migration & PR Services by XIPHIAS Immigration",
     url: "https://yourdomain.com/skilled",
     description:
-      "Explore skilled migration routes by country: points-tested PR, employer sponsorships, and talent visas. Compare timelines, eligibility and costs.",
+      "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
   };
   const countryListLd = {
     "@context": "https://schema.org",

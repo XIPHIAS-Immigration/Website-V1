@@ -19,14 +19,14 @@ import { JsonLd } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Citizenship Programs – Countries & Options",
+  title: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
   description:
-    "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
+    "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",
   alternates: { canonical: "/citizenship" },
   openGraph: {
-    title: "Citizenship Programs – Countries & Options",
+    title: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
     description:
-      "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
+      "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",
     url: "https://www.xiphiasimmigration.com/citizenship",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -36,15 +36,15 @@ export const metadata: Metadata = {
         url: "/xiphias-immigration.png",
         width: 1200,
         height: 630,
-        alt: "Citizenship Programs – Countries & Options – XIPHIAS Immigration",
+        alt: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Citizenship Programs – Countries & Options",
+    title: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
     description:
-      "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
+      "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",
     images: ["/xiphias-immigration.png"],
   },
 };
@@ -77,10 +77,10 @@ export default function CitizenshipPage() {
   const webPageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "Citizenship Programs – Countries & Options",
+    name: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
     url: "https://www.xiphiasimmigration.com/citizenship",
     description:
-      "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
+      "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",
   };
   const countryListLd = {
     "@context": "https://schema.org",
