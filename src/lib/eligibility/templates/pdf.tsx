@@ -3,10 +3,11 @@ import type { Result, Track, AnswerMap } from "@/lib/eligibility/types";
 const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigration";
 const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_PDF_WEBSITE || "www.xiphiasimmigration.com";
 const COMPANY_EMAIL = process.env.NEXT_PUBLIC_PDF_EMAIL || "immigration@xiphias.in";
-const COMPANY_PHONE = process.env.NEXT_PUBLIC_PDF_PHONE || "+91 9021335577";
+const COMPANY_PHONE =
+  process.env.NEXT_PUBLIC_PDF_PHONE || "+91 9021335577 / +91 08049768088";
 const COMPANY_ADDRESS =
   process.env.NEXT_PUBLIC_PDF_ADDRESS ||
-  "Aurbis Prime No. 1, Koramangala, Bengaluru, India 560034";
+  "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru, Karnataka 560034";
 
 const esc = (s: unknown) =>
   String(s ?? "")

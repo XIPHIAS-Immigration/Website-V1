@@ -10,6 +10,7 @@ export default [
   {
     ignores: [
       "**/.next/**",
+      "**/.next.deploy-backup*/**",
       "**/node_modules/**",
       "public/**",
       "coverage/**",
@@ -18,6 +19,9 @@ export default [
       ".turbo/**",
       ".vercel/**",
       "next-env.d.ts",
+      "report-design-previews/**",
+      "reports/**",
+      "scripts/_*.mjs",
     ],
   },
 

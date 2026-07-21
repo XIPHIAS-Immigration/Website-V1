@@ -79,7 +79,7 @@ export default function TermsPage() {
     site: SITE_URL,
     legalEmail: "immigration@xiphias.in",
     registeredOffice:
-      "Aurbis Prime, 11, Kaveri Regent Coronet, 80 Feet Road, 3rd Block, Koramangala, Bangalore - 560034",
+      "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru, Karnataka 560034",
     jurisdiction: "Bengaluru, Karnataka, India",
   } as const;
 

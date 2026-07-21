@@ -36,7 +36,7 @@ type Office = {
 /* ------------------------ Utilities (typed helpers) --------------------- */
 
 function normalizeTel(input: string): string {
-  return input.replace(/[^\d+]/g, "");
+  return input.replace(/[^\d+]/g, "").replace(/^\+910/, "+91");
 }
 
 function PhoneIcon() {
@@ -46,6 +46,14 @@ function PhoneIcon() {
         fill="currentColor"
         d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.03-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.24 1.03l-2.2 2.2z"
       />
+    </svg>
+  );
+}
+
+function LandlineIcon() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4">
+      <path fill="currentColor" d="M6.6 10.8a15.5 15.5 0 006.6 6.6l2.2-2.2a1 1 0 011-.24c1.1.36 2.3.55 3.6.55a1 1 0 011 1V20a1 1 0 01-1 1C10.6 21 3 13.4 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.56 3.56a1 1 0 01-.24 1.02l-2.22 2.22zM14 3h7v2h-7V3zm0 4h7v2h-7V7z" />
     </svg>
   );
 }
@@ -144,13 +152,13 @@ export default function LocationsDirectory({
       company: "XIPHIAS IMMIGRATION PVT LTD",
       regionKey: "india",
       address: [
-        "Aurbis Prime, 11, Kaveri Regent Coronet, 80 Feet Road, 3rd Block, Koramangala",
+        "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala",
         "Bengaluru - 560034",
       ],
-      phones: ["+91 9021335577"],
+      phones: ["+91 9021335577", "+91 08049768088"],
       email: "immigration@xiphias.in",
       mapQuery:
-        "Aurbis Prime, 80 Feet Road, 3rd Block Koramangala, Bengaluru 560034",
+        "JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru 560034",
     },
     {
       id: "gurugram",
@@ -449,10 +457,11 @@ function OfficeRow({ office: o }: { office: Office }) {
         <dl className="space-y-1 text-sm">
           {phones.map((p: string, i: number) => (
             <div key={`ph-${i}`} className="flex items-center gap-2">
-              <PhoneIcon />
+              {i === 0 ? <PhoneIcon /> : <LandlineIcon />}
               <a
                 className="underline decoration-blue-400 hover:decoration-blue-600"
                 href={tel(p)}
+                title={i === 0 ? "Phone" : "Landline"}
               >
                 {p}
               </a>

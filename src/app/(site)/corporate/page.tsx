@@ -17,25 +17,25 @@ import { JsonLd } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Corporate Setup & Employment Visas — Countries & Options",
+  title: "Business & Corporate Immigration Services by XIPHIAS Immigration",
   description:
-    "Explore corporate setup and employment visa options by country, including free zone & mainland company formation, investor visas, and work permits",
+    "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",
   alternates: { canonical: "/corporate" },
   openGraph: {
-    title: "Corporate Setup & Employment Visas — Countries & Options",
+    title: "Business & Corporate Immigration Services by XIPHIAS Immigration",
     description:
-      "Explore corporate setup and employment visa options by country, including free zone & mainland company formation, investor visas, and work permits",
+      "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",
     url: "https://www.xiphiasimmigration.com/corporate",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
     type: "website",
-    images: [{ url: "/xiphias-immigration.png", width: 1200, height: 630, alt: "Corporate Setup & Employment Visas – XIPHIAS Immigration" }],
+    images: [{ url: "/xiphias-immigration.png", width: 1200, height: 630, alt: "Business & Corporate Immigration Services by XIPHIAS Immigration" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Corporate Setup & Employment Visas — Countries & Options",
+    title: "Business & Corporate Immigration Services by XIPHIAS Immigration",
     description:
-      "Explore corporate routes by country: free zone & mainland company formation, investor/entrepreneur options, employment/work permits, and residence sponsorship. Compare timelines, eligibility, and fees.",
+      "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",
     images: ["/xiphias-immigration.png"],
   },
 };
@@ -63,10 +63,10 @@ export default function CorporatePage() {
   const webPageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "Corporate Setup & Employment Visas — Countries & Options",
+    name: "Business & Corporate Immigration Services by XIPHIAS Immigration",
     url: "https://www.xiphiasimmigration.com/corporate",
     description:
-      "Explore corporate routes by country: free zone & mainland company formation, investor/entrepreneur options, employment/work permits, and residence sponsorship. Compare timelines, eligibility, and fees.",
+      "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",
   };
   const countryListLd = {
     "@context": "https://schema.org",

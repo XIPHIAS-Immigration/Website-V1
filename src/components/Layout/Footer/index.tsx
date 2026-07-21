@@ -60,13 +60,13 @@ const LEGAL = [
 const OFFICES = [
   {
     name: "Bengaluru HQ",
-    street: "Aurbis Prime, 11 Kaveri Regent Coronet, 80 ft Rd, 3rd Blk, Koramangala",
+    street: "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala",
     city: "Bengaluru",
     postal: "560034",
     country: "India",
     hours: "Mon–Sat, 9:30–18:30",
     phone: "+91 9021335577",
-    maps: "https://maps.google.com/?q=Aurbis+Prime+Kaveri+Regent+Coronet+Koramangala+Bengaluru+560034",
+    maps: "https://maps.google.com/?q=JK+Nirmala+Arcade+Plot+780+80+Feet+Road+4th+Block+Koramangala+Bengaluru+560034",
   },
   {
     name: "Gurugram",
@@ -312,7 +312,8 @@ export default function Footer() {
 
               <div className="flex flex-wrap gap-2 md:justify-end">
                 {[
-                  { href: "tel:+91-9021335577", icon: "mdi:phone", label: "+91-9021335577" },
+                  { href: "tel:+919021335577", icon: "mdi:phone", label: "+91 9021335577" },
+                  { href: "tel:+918049768088", icon: "mdi:phone-classic", label: "+91 08049768088" },
                   { href: "https://wa.me/919021335577", icon: "mdi:whatsapp", label: "WhatsApp", ext: true },
                   { href: "mailto:immigration@xiphias.in", icon: "mdi:email-outline", label: "Email" },
                 ].map(({ href, icon, label, ext }) => (
@@ -585,6 +586,7 @@ export default function Footer() {
               <div className="flex flex-wrap gap-2 mb-2">
                 {[
                   { href: "tel:+919021335577", icon: "mdi:phone", label: "Call" },
+                  { href: "tel:+918049768088", icon: "mdi:phone-classic", label: "Landline" },
                   { href: "https://wa.me/919021335577", icon: "mdi:whatsapp", label: "WhatsApp", ext: true },
                   { href: "mailto:immigration@xiphias.in", icon: "mdi:email-outline", label: "Email" },
                   { href: "/personal-booking", icon: "mdi:calendar-clock", label: "Personal Paid Consultation" },

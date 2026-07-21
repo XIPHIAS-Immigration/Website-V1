@@ -33,8 +33,8 @@ export default function ContactChannels({
   hours,
   className = "",
 }: Props) {
-  const telHref = phone ? `tel:${phone.replace(/\s+/g, "")}` : undefined;
-  const altTelHref = altPhone ? `tel:${altPhone.replace(/\s+/g, "")}` : undefined;
+  const telHref = phone ? toTelephone(phone) : undefined;
+  const altTelHref = altPhone ? toTelephone(altPhone) : undefined;
   const waHref = whatsapp ? toWhatsApp(whatsapp) : undefined;
   const mailHref = email ? `mailto:${email}` : undefined;
 
@@ -65,7 +65,12 @@ export default function ContactChannels({
             {altPhone && (
               <>
                 {" "}/{" "}
-                <a className="underline decoration-blue-400 underline-offset-2 hover:decoration-blue-600" href={altTelHref}>
+                <a
+                  className="inline-flex items-center gap-1 underline decoration-blue-400 underline-offset-2 hover:decoration-blue-600"
+                  href={altTelHref}
+                  title="Landline"
+                >
+                  <LandlineIcon />
                   {altPhone}
                 </a>
               </>
@@ -168,6 +173,11 @@ function toWhatsApp(n: string) {
   return `https://wa.me/${digits}?text=${text}`;
 }
 
+function toTelephone(n: string) {
+  const normalized = n.replace(/[^\d+]/g, "").replace(/^\+910/, "+91");
+  return `tel:${normalized}`;
+}
+
 /* -------------------------------- Icons -------------------------------- */
 
 function ArrowRight() {
@@ -181,6 +191,13 @@ function PhoneIcon() {
   return (
     <svg aria-hidden viewBox="0 0 24 24" className="h-5 w-5">
       <path fill="currentColor" d="M6.62 10.79a15.91 15.91 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1v3.49a1 1 0 01-1 1C11.3 22 2 12.7 2 1.99a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.58a1 1 0 01-.25 1.01l-2.2 2.21z" />
+    </svg>
+  );
+}
+function LandlineIcon() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0">
+      <path fill="currentColor" d="M6.6 10.8a15.5 15.5 0 006.6 6.6l2.2-2.2a1 1 0 011-.24c1.1.36 2.3.55 3.6.55a1 1 0 011 1V20a1 1 0 01-1 1C10.6 21 3 13.4 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.56 3.56a1 1 0 01-.24 1.02l-2.22 2.22zM14 3h7v2h-7V3zm0 4h7v2h-7V7z" />
     </svg>
   );
 }

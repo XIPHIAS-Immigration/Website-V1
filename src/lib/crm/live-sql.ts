@@ -56,7 +56,7 @@ function env(name: string, fallback = "") {
 function getDatabaseName(region: CrmRegionKey) {
   return region === "india"
     ? env("XIPHIAS_CRM_INDIA_DATABASE", "immigration_com")
-    : env("XIPHIAS_CRM_DUBAI_DATABASE", "dubai_crm");
+    : env("XIPHIAS_CRM_DUBAI_DATABASE", "immigration_com_Dubai");
 }
 
 export function isLiveCrmConfigured() {

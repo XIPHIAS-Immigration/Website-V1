@@ -166,7 +166,7 @@ const orgJsonLd = {
   address: {
     "@type": "PostalAddress",
     streetAddress:
-      "Aurbis Prime, 11, Kaveri Regent Coronet, 80 Feet Road, 3rd Block, Koramangala",
+      "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala",
     addressLocality: "Bengaluru",
     addressRegion: "KA",
     postalCode: "560034",
@@ -175,7 +175,7 @@ const orgJsonLd = {
   contactPoint: [
     {
       "@type": "ContactPoint",
-      telephone: "+919021335577",
+      telephone: ["+919021335577", "+918049768088"],
       contactType: "customer service",
       areaServed: "IN",
       availableLanguage: ["en", "hi"],

@@ -827,6 +827,9 @@ function buildReportHtml(args: {
                                 <div style="margin-top:4px;color:#EAF0FF;">
                                   <a href="tel:+919021335577" style="color:#FFFFFF;text-decoration:underline;">
                                     +91 9021335577
+                                  </a>{" / "}
+                                  <a href="tel:+918049768088" style="color:#FFFFFF;text-decoration:underline;">
+                                    +91 08049768088
                                   </a>
                                 </div>
 
