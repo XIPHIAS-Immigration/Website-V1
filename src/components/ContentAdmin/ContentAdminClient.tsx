@@ -302,9 +302,10 @@ function ContentDraftPreview({
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-black">Live preview</h2>
+          <h2 className="text-lg font-black">Draft preview</h2>
           <p className="mt-1 text-xs font-semibold text-slate-500">
-            Updated {refreshedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            Unsaved editor view. Updated{" "}
+            {refreshedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
           </p>
         </div>
         <button
@@ -312,7 +313,7 @@ function ContentDraftPreview({
           onClick={onRefresh}
           className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
         >
-          Refresh preview
+          Refresh draft
         </button>
       </div>
 
@@ -408,7 +409,7 @@ function ContentDraftPreview({
             ) : (
               <p className="font-semibold text-slate-400">Start typing to preview the article body.</p>
             )}
-            {blocks.length > 8 ? <p className="mt-3 text-xs font-black text-slate-400">Preview clipped after 8 blocks.</p> : null}
+            {blocks.length > 8 ? <p className="mt-3 text-xs font-black text-slate-400">Draft preview clipped after 8 blocks.</p> : null}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -481,6 +482,23 @@ export default function ContentAdminClient({
   const refreshPreview = () => {
     setPreviewSnapshot(form);
     setPreviewUpdatedAt(new Date());
+  };
+
+  const openFullDraftPreview = () => {
+    const snapshot = {
+      ...form,
+      slug: form.slug || slugify(form.title),
+      updated: today(),
+      body: textToMdx(form.contentText),
+      tags: csvToArray(form.tags),
+      countries: csvToArray(form.countries),
+      programs: csvToArray(form.programs),
+    };
+    const key = `xiphias-content-preview-${Date.now()}`;
+    window.localStorage.setItem(key, JSON.stringify(snapshot));
+    setPreviewSnapshot(form);
+    setPreviewUpdatedAt(new Date());
+    window.open(`/content-admin/preview?draft=${encodeURIComponent(key)}`, "_blank", "noopener,noreferrer");
   };
 
   const insertContent = (snippet: string, selectText?: string) => {
@@ -601,14 +619,15 @@ export default function ContentAdminClient({
     window.location.replace("/content-admin?loggedOut=1");
   };
 
-  const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const saveForm = async (forcedVisibility?: FormState["visibility"]) => {
     setBusy(true);
     setMessage(null);
 
     try {
+      const visibility = forcedVisibility || form.visibility;
       const payload = {
         ...form,
+        visibility,
         title: form.title.slice(0, 60),
         slug: form.slug || slugify(form.title),
         summary: form.summary.slice(0, 200),
@@ -632,12 +651,21 @@ export default function ContentAdminClient({
 
       await refreshItems();
       setForm(formFromItem(data.item));
-      setMessage("Saved. Your text was converted into MDX and the content cache was refreshed.");
+      setMessage(
+        visibility === "draft"
+          ? "Draft saved. It is not posted publicly."
+          : "Saved. Your text was converted into MDX and the content cache was refreshed.",
+      );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to save content.");
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await saveForm();
   };
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1094,7 +1122,30 @@ export default function ContentAdminClient({
                 disabled={busy}
                 className="h-12 rounded-xl bg-blue-700 px-6 text-sm font-black text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {busy ? "Saving..." : "Save content"}
+                {busy
+                  ? "Saving..."
+                  : form.visibility === "public"
+                  ? "Publish content"
+                  : form.visibility === "hidden"
+                  ? "Save hidden"
+                  : "Save draft"}
+              </button>
+              {form.visibility !== "draft" ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void saveForm("draft")}
+                  className="h-12 rounded-xl border border-amber-200 bg-amber-50 px-5 text-sm font-black text-amber-800 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {busy ? "Saving..." : "Save draft"}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={openFullDraftPreview}
+                className="h-12 rounded-xl border border-slate-300 px-5 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+              >
+                Preview full page
               </button>
               {form.originalSlug ? (
                 <button
