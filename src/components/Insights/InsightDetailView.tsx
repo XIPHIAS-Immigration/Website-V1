@@ -98,6 +98,7 @@ export default async function InsightDetailView({
         <MediaHero
           title={record.title}
           subtitle={record.summary || undefined}
+          titlePlacement={record.heroTitlePlacement || "overlay"}
           videoSrc={record.heroVideo || undefined}
           poster={record.heroPoster ?? record.hero ?? undefined}
           imageSrc={record.hero || undefined}

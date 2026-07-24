@@ -19,6 +19,7 @@ type ContentItem = {
   updated: string;
   hero: string;
   heroAlt: string;
+  heroTitlePlacement?: "overlay" | "below" | "both";
   tags: string[];
   countries: string[];
   programs: string[];
@@ -43,6 +44,7 @@ type FormState = {
   updated: string;
   hero: string;
   heroAlt: string;
+  heroTitlePlacement: "overlay" | "below" | "both";
   tags: string;
   countries: string;
   programs: string;
@@ -107,13 +109,14 @@ function wordCount(value: string) {
 function stripMdxToText(value: string) {
   return value
     .replace(/^---[\s\S]*?---\s*/g, "")
+    .replace(/^<!--\s*CMS:[\s\S]*?-->\s*$/gm, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^##\s+(.+)$/gm, "<!-- CMS: SECTION START -->\n$1\n<!-- CMS: SECTION END -->")
+    .replace(/^###\s+(.+)$/gm, "<!-- CMS: SUBHEADING START -->\n$1\n<!-- CMS: SUBHEADING END -->")
     .replace(/^\s*[-*]\s+/gm, "- ")
     .replace(/^\s*\d+\.\s+/gm, "")
-    .replace(/[>`*_{}[\]]/g, "")
+    .replace(/[>`*_{}]/g, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
@@ -127,7 +130,15 @@ function isHeadingCandidate(line: string) {
 }
 
 function textToMdx(value: string) {
-  const normalized = value.replace(/\r\n/g, "\n").trim();
+  const normalized = value
+    .replace(/\r\n/g, "\n")
+    .replace(/^<!--\s*CMS:\s*SECTION START\s*-->\s*$/gim, "")
+    .replace(/^<!--\s*CMS:\s*SECTION END\s*-->\s*$/gim, "")
+    .replace(/^<!--\s*CMS:\s*SUBHEADING START\s*-->\s*$/gim, "")
+    .replace(/^<!--\s*CMS:\s*SUBHEADING END\s*-->\s*$/gim, "")
+    .replace(/^<!--\s*CMS:\s*(?:QUOTE|CALLOUT|LIST|LINK|BUTTON) (?:START|END)\s*-->\s*$/gim, "")
+    .replace(/^<!--\s*CMS:\s*[^>]+-->\s*$/gim, "")
+    .trim();
   if (!normalized) return "";
 
   return normalized
@@ -144,6 +155,7 @@ function textToMdx(value: string) {
         const line = lines[0];
         if (/^<\/?[A-Z][A-Za-z0-9]*(\s|>)/.test(line)) return line;
         if (/^#{1,6}\s+/.test(line) || /^[-*]\s+/.test(line) || /^\d+\.\s+/.test(line)) return line;
+        if (/\[[^\]]+\]\([^)]+\)/.test(line) || /[*_]{1,2}[^*_]+[*_]{1,2}/.test(line)) return line;
         if (isHeadingCandidate(line)) return `## ${line.replace(/:$/, "")}`;
         return line;
       }
@@ -177,12 +189,13 @@ function emptyForm(kind: ContentKind): FormState {
     title: "",
     slug: "",
     summary: "",
-    contentText: `Overview\n\nWrite the ${label} in normal text. Use short paragraphs. If you add a short heading on its own line, the system will format it as a section heading.\n\nKey points\n\n- First point\n- Second point\n- Third point\n\nHow XIPHIAS can help\n\n`,
+    contentText: `<!-- CMS: SECTION START -->\nOverview\n\nWrite the ${label} in normal text. Use short paragraphs inside the section markers so the beginning and end are clear.\n<!-- CMS: SECTION END -->\n\n<!-- CMS: LIST START -->\nKey points\n\n- First point\n- Second point\n- Third point\n<!-- CMS: LIST END -->\n\n<!-- CMS: SECTION START -->\nHow XIPHIAS can help\n\nAdd the next section text here.\n<!-- CMS: SECTION END -->\n`,
     author: "XIPHIAS Immigration",
     date,
     updated: date,
     hero: "",
     heroAlt: "",
+    heroTitlePlacement: "overlay",
     tags: "",
     countries: "",
     programs: "",
@@ -206,6 +219,7 @@ function formFromItem(item: ContentItem): FormState {
     updated: item.updated || today(),
     hero: item.hero,
     heroAlt: item.heroAlt,
+    heroTitlePlacement: item.heroTitlePlacement || "overlay",
     tags: item.tags.join(", "),
     countries: item.countries.join(", "),
     programs: item.programs.join(", "),
@@ -290,6 +304,23 @@ export default function ContentAdminClient({
       });
       return { ...current, contentText: next };
     });
+  };
+
+  const insertLink = () => {
+    const textarea = contentRef.current;
+    const selected = textarea
+      ? form.contentText.slice(textarea.selectionStart ?? 0, textarea.selectionEnd ?? 0).trim()
+      : "";
+    const label = window.prompt("Text to display for the link", selected || "Link text");
+    if (!label) return;
+    const url = window.prompt("Paste the link URL. Use /contact for internal links.", "/contact");
+    if (!url) return;
+    const cleanUrl = url.trim();
+    if (!/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(cleanUrl)) {
+      setMessage("Use a full URL, an internal path starting with /, #anchor, mailto:, or tel:.");
+      return;
+    }
+    insertContent(`<!-- CMS: LINK START -->\n[${label.trim()}](${cleanUrl})\n<!-- CMS: LINK END -->`, selected || "Link text");
   };
 
   const handleDelete = async (item: ContentItem) => {
@@ -877,6 +908,7 @@ export default function ContentAdminClient({
                       updated: form.updated,
                       hero: form.hero,
                       heroAlt: form.heroAlt,
+                      heroTitlePlacement: form.heroTitlePlacement,
                       tags: csvToArray(form.tags),
                       countries: csvToArray(form.countries),
                       programs: csvToArray(form.programs),
@@ -1031,39 +1063,84 @@ export default function ContentAdminClient({
               <label className="block text-sm font-black" htmlFor="content-body">
                 Content
               </label>
-              <div className="mt-3 flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
-                {[
-                  ["Title", "\n\n## Section title\n\n"],
-                  ["Subtitle", "\n\n### Subsection title\n\n"],
-                  ["Bullet list", "\n\n- First point\n- Second point\n- Third point\n\n"],
-                  ["Numbered", "\n\n1. First step\n2. Second step\n3. Third step\n\n"],
-                  ["Quote", "\n\n> Add a client-friendly insight or quoted note here.\n\n"],
-                  ["Callout", "\n\n<Callout tone=\"info\" title=\"Advisor note\">\nAdd the important advisory note here.\n</Callout>\n\n"],
-                  ["Button", "\n\n<ButtonLink href=\"/contact\">Book a consultation</ButtonLink>\n\n"],
-                ].map(([label, snippet]) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => insertContent(snippet)}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
-                  >
-                    {label}
-                  </button>
-                ))}
-                {[
-                  ["B", "**selected text**", "selected text"],
-                  ["I", "*selected text*", "selected text"],
-                  ["U", "<u>selected text</u>", "selected text"],
-                ].map(([label, snippet, selected]) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => insertContent(snippet, selected)}
-                    className="flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div className="mt-3 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div>
+                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">Structure blocks</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      [
+                        "Section",
+                        "\n\n<!-- CMS: SECTION START -->\nSection title\n\nWrite this section here.\n<!-- CMS: SECTION END -->\n\n",
+                      ],
+                      [
+                        "Subheading",
+                        "\n\n<!-- CMS: SUBHEADING START -->\n### Subsection title\n<!-- CMS: SUBHEADING END -->\n\n",
+                      ],
+                      [
+                        "Bullets",
+                        "\n\n<!-- CMS: LIST START -->\n- First point\n- Second point\n- Third point\n<!-- CMS: LIST END -->\n\n",
+                      ],
+                      [
+                        "Numbered",
+                        "\n\n<!-- CMS: LIST START -->\n1. First step\n2. Second step\n3. Third step\n<!-- CMS: LIST END -->\n\n",
+                      ],
+                      [
+                        "Quote",
+                        "\n\n<!-- CMS: QUOTE START -->\n> Add a client-friendly insight or quoted note here.\n<!-- CMS: QUOTE END -->\n\n",
+                      ],
+                      [
+                        "Callout",
+                        "\n\n<!-- CMS: CALLOUT START -->\n<Callout tone=\"info\" title=\"Advisor note\">\nAdd the important advisory note here.\n</Callout>\n<!-- CMS: CALLOUT END -->\n\n",
+                      ],
+                    ].map(([label, snippet]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => insertContent(snippet)}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="border-t border-slate-200 pt-3">
+                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">Inline and actions</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      ["B", "**selected text**", "selected text"],
+                      ["I", "*selected text*", "selected text"],
+                      ["U", "<u>selected text</u>", "selected text"],
+                    ].map(([label, snippet, selected]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => insertContent(snippet, selected)}
+                        className="flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={insertLink}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                    >
+                      Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        insertContent(
+                          "\n\n<!-- CMS: BUTTON START -->\n<ButtonLink href=\"/contact\">Book a consultation</ButtonLink>\n<!-- CMS: BUTTON END -->\n\n",
+                        )
+                      }
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                    >
+                      Button
+                    </button>
+                  </div>
+                </div>
               </div>
               <textarea
                 id="content-body"
@@ -1075,8 +1152,8 @@ export default function ContentAdminClient({
               />
               <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
                 <span>{wordCount(form.contentText)} words</span>
-                <span>Short standalone lines become section headings.</span>
-                <span>Lines starting with - stay as bullet points.</span>
+                <span>CMS start/end tags mark editable blocks and are removed when published.</span>
+                <span>Standalone section titles become headings.</span>
               </div>
             </div>
           </div>
@@ -1117,6 +1194,24 @@ export default function ContentAdminClient({
                 onChange={(event) => updateForm("heroAlt", event.target.value)}
               />
               <p className="mt-1 text-xs text-slate-500">{form.heroAlt.length} of 140 characters used</p>
+              <label className="mt-4 block text-sm font-black" htmlFor="hero-title-placement">
+                Title placement
+              </label>
+              <select
+                id="hero-title-placement"
+                className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                value={form.heroTitlePlacement}
+                onChange={(event) =>
+                  updateForm("heroTitlePlacement", event.target.value as FormState["heroTitlePlacement"])
+                }
+              >
+                <option value="overlay">On image</option>
+                <option value="below">Below image</option>
+                <option value="both">Both</option>
+              </select>
+              <p className="mt-1 text-xs text-slate-500">
+                Controls where the article title and excerpt appear on the public detail page.
+              </p>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

@@ -69,6 +69,7 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
 export default function MediaHero({
   title,
   subtitle,
+  titlePlacement = "overlay",
   videoSrc,
   poster,
   imageSrc,
@@ -76,6 +77,7 @@ export default function MediaHero({
 }: {
   title: string;
   subtitle?: string;
+  titlePlacement?: "overlay" | "below" | "both";
   videoSrc?: string;
   poster?: string;
   imageSrc?: string;
@@ -86,6 +88,8 @@ export default function MediaHero({
 
   const hasImage = !!imageSrc;
   const hasVideo = !hasImage && !!videoSrc;
+  const showOverlayTitle = titlePlacement === "overlay" || titlePlacement === "both";
+  const showBelowTitle = titlePlacement === "below" || titlePlacement === "both";
   const [isPlaying, setIsPlaying] = useState<boolean>(hasVideo); // auto-start if video exists
   const [isMuted, setIsMuted] = useState<boolean>(true); // browsers block autoplay w/ sound
   const [duration, setDuration] = useState<number>(0);
@@ -238,41 +242,42 @@ export default function MediaHero({
   );
 
   return (
-    <header className="relative">
-      {/* Media (container width, not full-bleed) */}
-      <div
-        ref={containerRef}
-        tabIndex={0}
-        onKeyDown={onKeyDown}
-        className="
-          group relative w-full aspect-video md:aspect-[16/7] overflow-hidden rounded-2xl md:rounded-3xl
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60
-        "
-      >
-        {hasImage ? (
-          <Image
-            src={imageSrc!}
-            alt={title}
-            fill
-            priority
-            sizes="(min-width: 1024px) 1024px, 100vw"
-            className="object-cover"
-          />
-        ) : hasVideo ? (
-          <>
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover"
-              muted={isMuted}
-              loop
-              playsInline
-              preload="metadata"
-              poster={poster}
-              // Clicking the video toggles play/pause
-              onClick={togglePlay}
-            >
-              <source src={videoSrc} type="video/mp4" />
-            </video>
+    <header>
+      <div className="relative">
+        {/* Media (container width, not full-bleed) */}
+        <div
+          ref={containerRef}
+          tabIndex={0}
+          onKeyDown={onKeyDown}
+          className="
+            group relative w-full aspect-video md:aspect-[16/7] overflow-hidden rounded-2xl md:rounded-3xl
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60
+          "
+        >
+          {hasImage ? (
+            <Image
+              src={imageSrc!}
+              alt={title}
+              fill
+              priority
+              sizes="(min-width: 1024px) 1024px, 100vw"
+              className="object-cover"
+            />
+          ) : hasVideo ? (
+            <>
+              <video
+                ref={videoRef}
+                className="absolute inset-0 h-full w-full object-cover"
+                muted={isMuted}
+                loop
+                playsInline
+                preload="metadata"
+                poster={poster}
+                // Clicking the video toggles play/pause
+                onClick={togglePlay}
+              >
+                <source src={videoSrc} type="video/mp4" />
+              </video>
 
             {/* Controls overlay */}
             <div
@@ -423,49 +428,88 @@ export default function MediaHero({
                 </div>
               </div>
             </div>
-          </>
-        ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_30%_0%,theme(colors.sky.400/.35),transparent),linear-gradient(to_bottom_right,theme(colors.slate.50),theme(colors.slate.100))] dark:bg-[radial-gradient(80%_60%_at_30%_0%,theme(colors.sky.900/.5),transparent),linear-gradient(to_bottom_right,theme(colors.neutral.900),theme(colors.neutral.950))]" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_30%_0%,theme(colors.sky.400/.35),transparent),linear-gradient(to_bottom_right,theme(colors.slate.50),theme(colors.slate.100))] dark:bg-[radial-gradient(80%_60%_at_30%_0%,theme(colors.sky.900/.5),transparent),linear-gradient(to_bottom_right,theme(colors.neutral.900),theme(colors.neutral.950))]" />
+          )}
+        </div>
+
+        {/* title overlay for readability */}
+        {showOverlayTitle && (
+          <div className="pointer-events-none absolute inset-0 rounded-2xl md:rounded-3xl">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-black/10 rounded-2xl md:rounded-3xl" />
+            <div className="absolute inset-0 flex items-end">
+              <div className="p-5 md:p-10">
+                <div className="max-w-3xl text-white">
+                  <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-md">
+                    {title}
+                  </h1>
+                  {subtitle && <p className="mt-2 hidden text-white/90 sm:block">{subtitle}</p>}
+                  {!!actions.length && (
+                    <div className="mt-6 flex flex-wrap items-end gap-3 sm:gap-4">
+                      {actions.map((a) => {
+                        const base =
+                          "pointer-events-auto inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80";
+                        const styles =
+                          a.variant === "ghost"
+                            ? "bg-white/15 text-white backdrop-blur ring-1 ring-inset ring-white/25 hover:bg-white/25"
+                            : "bg-white text-black shadow-lg hover:brightness-[1.02]";
+                        return (
+                          <Link
+                            key={a.label}
+                            href={a.href}
+                            prefetch={false}
+                            download={a.download}
+                            className={`${base} ${styles}`}
+                          >
+                            {a.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* desktop title overlay for readability */}
-      <div className="pointer-events-none absolute inset-0 hidden md:block rounded-2xl md:rounded-3xl">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-black/10 rounded-2xl md:rounded-3xl" />
-        <div className="absolute inset-0 flex items-end">
-          <div className="p-6 md:p-10">
-            <div className="max-w-3xl text-white">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-md">
-                {title}
-              </h1>
-              {subtitle && <p className="mt-2 text-white/90">{subtitle}</p>}
-              {!!actions.length && (
-                <div className="mt-6 flex flex-wrap items-end gap-3 sm:gap-4">
-                  {actions.map((a) => {
-                    const base =
-                      "pointer-events-auto inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80";
-                    const styles =
-                      a.variant === "ghost"
-                        ? "bg-white/15 text-white backdrop-blur ring-1 ring-inset ring-white/25 hover:bg-white/25"
-                        : "bg-white text-black shadow-lg hover:brightness-[1.02]";
-                    return (
-                      <Link
-                        key={a.label}
-                        href={a.href}
-                        prefetch={false}
-                        download={a.download}
-                        className={`${base} ${styles}`}
-                      >
-                        {a.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+      {showBelowTitle && (
+        <div className="mt-6 max-w-4xl">
+          <h1 className="text-3xl font-bold leading-tight text-black dark:text-white md:text-5xl">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mt-3 text-base leading-7 text-black/70 dark:text-white/75 md:text-lg">
+              {subtitle}
+            </p>
+          )}
+          {titlePlacement === "below" && !!actions.length && (
+            <div className="mt-5 flex flex-wrap gap-3">
+              {actions.map((a) => {
+                const base =
+                  "inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30 dark:focus-visible:ring-white/40";
+                const styles =
+                  a.variant === "ghost"
+                    ? "bg-white text-black ring-1 ring-black/10 hover:bg-black/[0.03] dark:bg-black dark:text-white dark:ring-white/15 dark:hover:bg-white/10"
+                    : "bg-black text-white hover:brightness-110 dark:bg-white dark:text-black";
+                return (
+                  <Link
+                    key={a.label}
+                    href={a.href}
+                    prefetch={false}
+                    download={a.download}
+                    className={`${base} ${styles}`}
+                  >
+                    {a.label}
+                  </Link>
+                );
+              })}
             </div>
-          </div>
+          )}
         </div>
-      </div>
+      )}
 
       {/* mobile CTA bar — removed per request */}
       {/* <MobileCTABar actions={actions} /> */}

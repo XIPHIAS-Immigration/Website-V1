@@ -115,6 +115,12 @@ function isHiddenInsight(data: Record<string, unknown>) {
   );
 }
 
+function normalizeHeroTitlePlacement(value: unknown): "overlay" | "below" | "both" {
+  const placement = coerceString(value)?.toLowerCase();
+  if (placement === "below" || placement === "both") return placement;
+  return "overlay";
+}
+
 function readingTimeMins(text: string) {
   const words = (text || "").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
@@ -284,6 +290,9 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     coerceString((raw.data as any).heroAlt) ||
     coerceString((raw.data as any).imageAlt) ||
     title;
+  const heroTitlePlacement = normalizeHeroTitlePlacement(
+    (raw.data as any).heroTitlePlacement,
+  );
 
   // Detail hero video/poster (optional)
   const heroVideo =
@@ -315,6 +324,7 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     tags,
     hero: hero || undefined,
     heroAlt,
+    heroTitlePlacement,
     heroVideo,
     heroPoster,
     date,

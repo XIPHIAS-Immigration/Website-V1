@@ -23,6 +23,7 @@ export type InsightMeta = {
   /** Card/list image and generic fallback */
   hero?: string;
   heroAlt?: string;
+  heroTitlePlacement?: "overlay" | "below" | "both";
 
   /** Detail page video hero (optional). If present, use in MediaHero. */
   heroVideo?: string;

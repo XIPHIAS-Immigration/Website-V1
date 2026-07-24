@@ -67,6 +67,7 @@ export type ContentAdminItem = {
   updated: string;
   hero: string;
   heroAlt: string;
+  heroTitlePlacement: "overlay" | "below" | "both";
   tags: string[];
   countries: string[];
   programs: string[];
@@ -91,6 +92,7 @@ export type SaveContentAdminInput = {
   updated?: string;
   hero?: string;
   heroAlt?: string;
+  heroTitlePlacement?: string;
   tags?: string[] | string;
   countries?: string[] | string;
   programs?: string[] | string;
@@ -314,6 +316,12 @@ function isHiddenFrontmatter(data: Record<string, unknown>) {
   );
 }
 
+function normalizeHeroTitlePlacement(value: unknown): "overlay" | "below" | "both" {
+  const placement = coerceString(value).toLowerCase();
+  if (placement === "below" || placement === "both") return placement;
+  return "overlay";
+}
+
 function normalizeDate(value: unknown) {
   const raw = coerceString(value);
   if (!raw) return "";
@@ -357,6 +365,7 @@ function itemFromFile(kind: ContentAdminKind, filePath: string, source: string):
     updated: normalizeDate(data.updated || data.lastmod),
     hero,
     heroAlt: firstString(data.heroAlt, data.imageAlt, title),
+    heroTitlePlacement: normalizeHeroTitlePlacement(data.heroTitlePlacement),
     tags: coerceArray(data.tags),
     countries: coerceArray(data.countries || data.country),
     programs: coerceArray(data.programs || data.program),
@@ -482,6 +491,7 @@ export async function saveContentAdminItem(input: SaveContentAdminInput) {
     draft: visibility === "hidden" ? true : undefined,
     hero: coerceString(input.hero),
     heroAlt: coerceString(input.heroAlt) || title,
+    heroTitlePlacement: normalizeHeroTitlePlacement(input.heroTitlePlacement),
     tags: coerceArray(input.tags),
     countries: coerceArray(input.countries),
     programs: coerceArray(input.programs),
