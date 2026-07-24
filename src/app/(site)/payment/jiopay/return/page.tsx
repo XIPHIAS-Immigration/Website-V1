@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { CheckCircle2, Clock3, FileText, ShieldAlert } from "lucide-react";
+import ReportAutoDownload from "@/components/payments/ReportAutoDownload";
 
 export const metadata: Metadata = {
   title: "Payment Status | XIPHIAS Immigration",
@@ -21,19 +22,37 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
   const status = first(params.status);
   const verified = first(params.verified) === "1";
   const order = first(params.order);
+  const expires = first(params.expires);
+  const token = first(params.token);
+  const isCrmPayment = first(params.crm) === "1";
+  const crmReturnUrl = first(params.back);
+  const checkoutMessage = first(params.message);
   const success = status === "success";
   const failed = status === "failed";
+  const downloadUrl =
+    success && verified && order && expires && token
+      ? `/api/payments/jiopay/report-download?${new URLSearchParams({
+          order,
+          expires,
+          token,
+        }).toString()}`
+      : "";
 
   const Icon = success ? CheckCircle2 : failed ? ShieldAlert : Clock3;
   const title = success
-    ? "Payment response received"
+    ? isCrmPayment
+      ? "Payment received"
+      : "Payment response received"
     : failed
       ? "Payment was not completed"
       : "Payment is being verified";
   const copy = success
-    ? "Jiopay returned a successful browser response. XIPHIAS will confirm the final payment state through secure S2S/webhook verification before unlocking the report or case workflow."
+    ? isCrmPayment
+      ? "JioPay returned a successful response. Your payment is being recorded in CRM and the usual invoice or receipt confirmation will be sent to your registered email."
+      : "Jiopay returned a successful response. XIPHIAS will verify and record your purchase, automatically download the personalised PDF, and email a second copy to the address used at checkout."
     : failed
-      ? "Jiopay returned a failed or cancelled payment response. If money was debited, please contact XIPHIAS with the reference shown below."
+      ? checkoutMessage ||
+        "Jiopay returned a failed or cancelled payment response. If money was debited, please contact XIPHIAS with the reference shown below."
       : "We are waiting for Jiopay confirmation. Please do not retry immediately if your bank app shows a successful debit.";
 
   return (
@@ -65,14 +84,26 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
           </div>
         </div>
 
+        {downloadUrl && <ReportAutoDownload downloadUrl={downloadUrl} />}
+
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/xia-intelligence"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f5fbc] px-5 py-3 text-sm font-semibold text-white"
-          >
-            <FileText className="size-4" aria-hidden="true" />
-            Return to XIA Intelligence
-          </Link>
+          {isCrmPayment && crmReturnUrl ? (
+            <a
+              href={crmReturnUrl}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f5fbc] px-5 py-3 text-sm font-semibold text-white"
+            >
+              <FileText className="size-4" aria-hidden="true" />
+              Return to client CRM
+            </a>
+          ) : (
+            <Link
+              href="/xia-intelligence"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f5fbc] px-5 py-3 text-sm font-semibold text-white"
+            >
+              <FileText className="size-4" aria-hidden="true" />
+              Return to XIA Intelligence
+            </Link>
+          )}
           <Link
             href="/contact"
             className="inline-flex items-center justify-center rounded-lg border border-[#dbe7f3] px-5 py-3 text-sm font-semibold text-[#071a3a]"
@@ -84,4 +115,3 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
     </main>
   );
 }
-

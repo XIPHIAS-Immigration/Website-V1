@@ -1,5 +1,7 @@
 import "server-only";
 
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import sql from "mssql";
 
 export { sql as crmSql };
@@ -60,7 +62,7 @@ function getDatabaseName(region: CrmRegionKey) {
 }
 
 export function isLiveCrmConfigured() {
-  return Boolean(env("XIPHIAS_CRM_SQL_PASSWORD"));
+  return Boolean(env("XIPHIAS_CRM_SQL_PASSWORD") || getLegacyIndiaConnectionString());
 }
 
 function getSqlConfig(region: CrmRegionKey): sql.config {
@@ -84,6 +86,44 @@ function getSqlConfig(region: CrmRegionKey): sql.config {
   };
 }
 
+function decodeXmlAttribute(value: string) {
+  return value
+    .replaceAll("&quot;", '"')
+    .replaceAll("&apos;", "'")
+    .replaceAll("&#39;", "'")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&");
+}
+
+function getLegacyIndiaConnectionString() {
+  const configuredPath = env("XIPHIAS_CRM_LEGACY_WEB_CONFIG");
+  const webConfigPath =
+    configuredPath ||
+    path.resolve(
+      process.cwd(),
+      "..",
+      "..",
+      "XIPHIAS",
+      "XIPHIAS_IMMIGRATION",
+      "WCFServices",
+      "Web.config",
+    );
+
+  if (!existsSync(webConfigPath)) return "";
+
+  try {
+    const xml = readFileSync(webConfigPath, "utf8");
+    const tag = xml.match(/<add\b(?=[^>]*\bname="myConnectionString")[^>]*>/i)?.[0];
+    const connectionString = tag?.match(/\bconnectionString="([^"]*)"/i)?.[1];
+    return connectionString
+      ? `${decodeXmlAttribute(connectionString)};TrustServerCertificate=True;Encrypt=False`
+      : "";
+  } catch {
+    return "";
+  }
+}
+
 export async function getLiveCrmPool(region: CrmRegionKey) {
   const database = getDatabaseName(region);
   const key: PoolKey = `${region}:${database}`;
@@ -92,7 +132,14 @@ export async function getLiveCrmPool(region: CrmRegionKey) {
   const existing = pools.xiphiasCrmSqlPools.get(key);
   if (existing) return existing;
 
-  const poolPromise = new sql.ConnectionPool(getSqlConfig(region)).connect();
+  // The production website and legacy CRM are deployed side-by-side. Prefer
+  // the CRM's own connection string for India when it is available so both
+  // applications write to the same database. Other environments continue to
+  // use the explicit XIPHIAS_CRM_SQL_* variables.
+  const legacyConnectionString = region === "india" ? getLegacyIndiaConnectionString() : "";
+  const poolPromise = legacyConnectionString
+    ? new sql.ConnectionPool(legacyConnectionString).connect()
+    : new sql.ConnectionPool(getSqlConfig(region)).connect();
   pools.xiphiasCrmSqlPools.set(key, poolPromise);
   return poolPromise;
 }

@@ -25,6 +25,7 @@ import {
 
 import type { Vertical } from "@/lib/content/types";
 import type { XiaIntelligenceData } from "@/lib/xia-intelligence";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 import {
   evidenceLabels,
   highSkillCompletion,
@@ -539,6 +540,9 @@ export default function XiaIntelligenceClient({
             routeMatches={activeRouteMatches}
             highSkillMatches={highSkillMatches}
             readiness={readiness}
+            contact={contact}
+            setContact={setContact}
+            targetCountryLocked={targetCountryLocked}
           />
         )}
 
@@ -953,6 +957,9 @@ function PremiumReportPanel({
   routeMatches,
   highSkillMatches,
   readiness,
+  contact,
+  setContact,
+  targetCountryLocked,
 }: {
   engine: Engine;
   routeInput: RouteIntelligenceInput;
@@ -960,6 +967,9 @@ function PremiumReportPanel({
   routeMatches: ReturnType<typeof scoreProgrammeRoutes>;
   highSkillMatches: ReturnType<typeof scoreHighSkillRoutes>;
   readiness: { percent: number; evidenceCount: number };
+  contact: ContactInput;
+  setContact: (value: ContactInput | ((prev: ContactInput) => ContactInput)) => void;
+  targetCountryLocked?: HighSkillInput["targetCountry"];
 }) {
   const highSkillMode = engine === "high-skill";
   const topHighSkill = highSkillMatches[0];
@@ -978,6 +988,105 @@ function PremiumReportPanel({
     ? ["Resume signal review", "Visa route comparison", "Evidence gap map", "Improvement plan", "Advisor notes"]
     : ["Route comparison", "Country fit", "Document checklist", "Risk review", "Advisor notes"];
 
+  const productType =
+    engine === "high-skill"
+      ? targetCountryLocked === "usa"
+        ? "us_visa_report"
+        : "deep_analysis_report"
+      : engine === "documents"
+        ? "docs_report"
+        : "route_report";
+  const price = getProductConfig(productType)?.priceInr ?? 0;
+  const priceLabel = price ? `₹${price.toLocaleString("en-IN")}` : "";
+  const [checkout, setCheckout] = useState<{ loading: boolean; error: string | null }>({
+    loading: false,
+    error: null,
+  });
+
+  const startCheckout = async () => {
+    if (!contact.name.trim() || !contact.email.trim()) {
+      setCheckout({ loading: false, error: "Please add your name and email to continue." });
+      return;
+    }
+
+    setCheckout({ loading: true, error: null });
+    const answers: Record<string, unknown> = highSkillMode
+      ? {
+          targetCountry: highSkillInput.targetCountry,
+          goal: highSkillInput.goal,
+          field: highSkillInput.field,
+          role: highSkillInput.role,
+          age: highSkillInput.age,
+          education: highSkillInput.education,
+          yearsExperience: highSkillInput.yearsExperience,
+          languageScore: highSkillInput.languageScore,
+          citationCount: highSkillInput.citationCount,
+          publicationCount: highSkillInput.publicationCount,
+          patentCount: highSkillInput.patentCount,
+          profileSummary: highSkillInput.profileSummary,
+        }
+      : {
+          destination: routeInput.destination,
+          goal: routeInput.goal,
+          track: routeInput.track,
+          profile: routeInput.profile,
+          budget: routeInput.budget,
+          timeline: routeInput.timeline,
+          family: routeInput.family,
+          presence: routeInput.presence,
+          priority: routeInput.priority,
+          notes: routeInput.notes,
+        };
+
+    if (highSkillMode) {
+      for (const [key, value] of Object.entries(highSkillInput.evidence)) {
+        answers[`evidence_${key}`] = value;
+      }
+    }
+
+    const country = highSkillMode
+      ? formatTargetCountry(highSkillInput.targetCountry)
+      : routeInput.destination;
+    const program = highSkillMode ? topHighSkill?.title : topRoute?.title;
+    const track = highSkillMode
+      ? "skilled"
+      : routeInput.track === "all"
+        ? undefined
+        : routeInput.track;
+
+    try {
+      const response = await fetch("/api/payments/jiopay/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: contact.name,
+          email: contact.email,
+          phone: contact.phone,
+          amountInr: price,
+          productType,
+          productName: reportTitle,
+          track,
+          country,
+          program,
+          page: typeof window !== "undefined" ? window.location.pathname : "/xia-intelligence",
+          consent: contact.consent,
+          answers,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (result?.ok && result.checkoutUrl) {
+        window.location.href = result.checkoutUrl as string;
+        return;
+      }
+      setCheckout({
+        loading: false,
+        error: result?.error || "Could not start checkout. Please try again.",
+      });
+    } catch {
+      setCheckout({ loading: false, error: "Could not start checkout. Please try again." });
+    }
+  };
+
   return (
     <section className="mx-auto mt-6 max-w-screen-xl overflow-hidden rounded-xl border border-[#d8ad1f]/55 bg-[#061936] text-white shadow-cause-shadow">
       <div className="relative grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr]">
@@ -988,7 +1097,11 @@ function PremiumReportPanel({
               <FileText className="size-4" />
               Personalised report
             </span>
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/75">Coming soon</span>
+            {priceLabel && (
+              <span className="rounded-full bg-[#d8ad1f] px-3 py-1 text-xs font-extrabold text-[#061936]">
+                {priceLabel}
+              </span>
+            )}
           </div>
           <h3 className="mt-5 max-w-2xl text-3xl font-semibold leading-tight text-white md:text-4xl">{reportTitle}</h3>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/74">
@@ -1020,13 +1133,15 @@ function PremiumReportPanel({
         <div className="relative rounded-xl border border-white/12 bg-white/7 p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">Coming soon</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">Secure checkout</p>
               <h4 className="mt-2 text-xl font-semibold text-white">Personalised PDF + advisor direction</h4>
             </div>
-            <div className="rounded-xl bg-[#d8ad1f] px-4 py-3 text-center text-[#061936]">
-              <p className="text-xs font-semibold uppercase">Secure</p>
-              <p className="text-xl font-semibold">Gateway</p>
-            </div>
+            {priceLabel && (
+              <div className="rounded-xl bg-[#d8ad1f] px-4 py-3 text-center text-[#061936]">
+                <p className="text-[10px] font-semibold uppercase">Report</p>
+                <p className="text-xl font-extrabold leading-none">{priceLabel}</p>
+              </div>
+            )}
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -1038,17 +1153,46 @@ function PremiumReportPanel({
             ))}
           </div>
 
+          <div className="mt-5 grid gap-2 sm:grid-cols-3">
+            <input
+              value={contact.name}
+              onChange={(event) => setContact((previous) => ({ ...previous, name: event.target.value }))}
+              placeholder="Name"
+              autoComplete="name"
+              className="h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-medium text-white outline-none transition placeholder:text-white/45 focus:border-[#d8ad1f]"
+            />
+            <input
+              value={contact.email}
+              onChange={(event) => setContact((previous) => ({ ...previous, email: event.target.value }))}
+              placeholder="Email"
+              type="email"
+              autoComplete="email"
+              className="h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-medium text-white outline-none transition placeholder:text-white/45 focus:border-[#d8ad1f]"
+            />
+            <input
+              value={contact.phone}
+              onChange={(event) => setContact((previous) => ({ ...previous, phone: event.target.value }))}
+              placeholder="Phone / WhatsApp"
+              type="tel"
+              autoComplete="tel"
+              className="h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-medium text-white outline-none transition placeholder:text-white/45 focus:border-[#d8ad1f]"
+            />
+          </div>
+
           <button
             type="button"
-            disabled
-            aria-disabled="true"
-            className="mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-[#d8ad1f] px-4 py-3 text-sm font-semibold text-[#061936] opacity-75"
+            onClick={startCheckout}
+            disabled={checkout.loading}
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d8ad1f] px-4 py-3 text-sm font-semibold text-[#061936] transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Personalised report coming soon
+            {checkout.loading
+              ? "Starting secure checkout..."
+              : `Get my report${priceLabel ? ` · ${priceLabel}` : ""}`}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
+          {checkout.error && <p className="mt-3 text-xs font-semibold text-amber-300">{checkout.error}</p>}
           <p className="mt-3 text-xs leading-5 text-white/58">
-            Secure payment setup is in progress. XIPHIAS will enable the personalised report flow after the gateway is connected.
+            Secure payment via JioPay. Payment confirmation is recorded against your report request.
           </p>
         </div>
       </div>

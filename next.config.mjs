@@ -3,6 +3,11 @@
 const nextConfig = {
   pageExtensions: ["ts", "tsx"],
   outputFileTracingIncludes: { "*": ["./content/**/*"] },
+  // Keep production builds within this Windows server's available memory.
+  // Unbounded minification workers can stall after consuming close to 1 GB.
+  experimental: {
+    cpus: 2,
+  },
 
   images: {
     // WebP only: ~2-3x faster to decode than AVIF on low-power / CPU-throttled
@@ -239,4 +244,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-
