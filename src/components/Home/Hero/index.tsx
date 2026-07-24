@@ -57,8 +57,8 @@ export default function Hero() {
     "relative flex flex-1 min-w-0 items-center gap-2.5 px-4 py-3.5",
     "transition-colors duration-150 cursor-text",
     /* subtle separator — only a thin right line on desktop */
-    "sm:[&:not(:last-of-type)]:border-r sm:[&:not(:last-of-type)]:border-white/10",
-    "border-b border-white/10 sm:border-b-0",
+    "sm:[&:not(:last-of-type)]:border-r sm:[&:not(:last-of-type)]:border-slate-200",
+    "border-b border-slate-200 sm:border-b-0",
     /* gold bottom accent that slides in on focus — our custom indicator */
     "after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2px] after:rounded-full",
     "after:bg-secondary after:scale-x-0 focus-within:after:scale-x-100",
@@ -141,21 +141,29 @@ export default function Hero() {
         <div className="mt-10 w-16 border-t border-white/20" />
 
         {/* ── Quick Contact Form ── */}
-        <div className="mt-8 w-full max-w-3xl">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-white/45">
-            Get a free consultation
-          </p>
+        <div className="mt-8 w-full max-w-4xl rounded-[1.35rem] border border-white/80 bg-white p-3 text-left shadow-[0_24px_70px_rgba(0,0,0,0.35)] sm:p-4">
+          <div className="mb-3 flex flex-col gap-1 px-1 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">
+                Contact us first
+              </p>
+              <p className="mt-1 text-lg font-black leading-tight text-slate-950 sm:text-xl">
+                Get a free consultation from a XIPHIAS advisor
+              </p>
+            </div>
+            <p className="text-xs font-bold text-slate-500">Name, email and phone are enough to start.</p>
+          </div>
 
           {status === "done" ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-secondary/40 bg-secondary/10 px-8 py-6">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-8 py-6">
               <CheckCircle2 className="h-10 w-10 text-secondary" />
-              <p className="text-[15px] font-semibold text-white">Thank you! We&apos;ll reach out within 24 hours.</p>
+              <p className="text-[15px] font-semibold text-slate-950">Thank you! We&apos;ll reach out within 24 hours.</p>
             </div>
           ) : (
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="flex flex-col overflow-hidden rounded-2xl border border-secondary/40 bg-white/[0.08] shadow-[0_4px_32px_rgba(225,185,35,0.15),0_8px_40px_rgba(0,0,0,0.35)] sm:flex-row"
+              className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:flex-row"
             >
               {/* Name field */}
               <label className={fieldCls}>
@@ -164,7 +172,7 @@ export default function Hero() {
                   required name="name" type="text" autoComplete="name"
                   placeholder="Full Name"
                   value={form.name} onChange={handleChange}
-                  className="flex-1 min-w-0 bg-transparent text-[14px] text-white placeholder-white/40"
+                  className="flex-1 min-w-0 bg-transparent text-[14px] font-semibold text-slate-950 placeholder-slate-400"
                   style={inputStyle}
                 />
               </label>
@@ -176,7 +184,7 @@ export default function Hero() {
                   required name="email" type="email" autoComplete="email"
                   placeholder="Email Address"
                   value={form.email} onChange={handleChange}
-                  className="flex-1 min-w-0 bg-transparent text-[14px] text-white placeholder-white/40"
+                  className="flex-1 min-w-0 bg-transparent text-[14px] font-semibold text-slate-950 placeholder-slate-400"
                   style={inputStyle}
                 />
               </label>
@@ -188,7 +196,7 @@ export default function Hero() {
                   required name="phone" type="tel" autoComplete="tel"
                   placeholder="Phone Number"
                   value={form.phone} onChange={handleChange}
-                  className="flex-1 min-w-0 bg-transparent text-[14px] text-white placeholder-white/40"
+                  className="flex-1 min-w-0 bg-transparent text-[14px] font-semibold text-slate-950 placeholder-slate-400"
                   style={inputStyle}
                 />
               </label>
@@ -197,7 +205,7 @@ export default function Hero() {
               <button
                 type="submit"
                 disabled={status === "sending"}
-                className="group/btn shrink-0 relative inline-flex items-center justify-center gap-2 overflow-hidden bg-secondary px-6 py-3.5 text-[13.5px] font-bold text-primary transition-colors hover:bg-[#f0cb3b] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                className="group/btn shrink-0 relative inline-flex items-center justify-center gap-2 overflow-hidden bg-secondary px-6 py-3.5 text-[13.5px] font-black text-primary transition-colors hover:bg-[#f0cb3b] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 {/* Shimmer sweep on hover */}
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover/btn:translate-x-full transition-transform duration-500 ease-in-out" />
@@ -216,7 +224,7 @@ export default function Hero() {
           {/* Trust signals */}
           <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
             {TRUST.map((t) => (
-              <span key={t} className="flex items-center gap-1.5 text-[12px] text-white/50">
+              <span key={t} className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-500">
                 <CheckCircle2 className="h-3.5 w-3.5 text-secondary/80 shrink-0" />
                 {t}
               </span>

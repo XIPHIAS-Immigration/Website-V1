@@ -75,8 +75,8 @@ export type ContentAdminItem = {
   seoDescription: string;
   url: string;
   wordCount: number;
-  visibility: "public" | "hidden";
-  status: "ready" | "needs-review" | "hidden";
+  visibility: "public" | "draft" | "hidden";
+  status: "ready" | "needs-review" | "draft" | "hidden";
 };
 
 export type SaveContentAdminInput = {
@@ -311,9 +311,17 @@ function isHiddenFrontmatter(data: Record<string, unknown>) {
   return (
     data.draft === true ||
     data.hidden === true ||
+    coerceString(data.visibility).toLowerCase() === "draft" ||
     coerceString(data.visibility).toLowerCase() === "hidden" ||
+    coerceString(data.status).toLowerCase() === "draft" ||
     coerceString(data.status).toLowerCase() === "hidden"
   );
+}
+
+function normalizeVisibility(value: unknown): "public" | "draft" | "hidden" {
+  const visibility = coerceString(value).toLowerCase();
+  if (visibility === "draft" || visibility === "hidden") return visibility;
+  return "public";
 }
 
 function normalizeHeroTitlePlacement(value: unknown): "overlay" | "below" | "both" {
@@ -351,7 +359,15 @@ function itemFromFile(kind: ContentAdminKind, filePath: string, source: string):
   );
 
   const wordCount = countWords(parsed.content);
-  const visibility = isHiddenFrontmatter(data) ? "hidden" : "public";
+  const visibility = normalizeVisibility(
+    data.hidden === true ||
+      coerceString(data.visibility).toLowerCase() === "hidden" ||
+      coerceString(data.status).toLowerCase() === "hidden"
+      ? "hidden"
+      : data.draft === true
+      ? "draft"
+      : data.visibility || data.status,
+  );
 
   return {
     kind,
@@ -374,7 +390,14 @@ function itemFromFile(kind: ContentAdminKind, filePath: string, source: string):
     url: getUrl(kind, slug),
     wordCount,
     visibility,
-    status: visibility === "hidden" ? "hidden" : title && summary && parsed.content.trim() ? "ready" : "needs-review",
+    status:
+      visibility === "hidden"
+        ? "hidden"
+        : visibility === "draft"
+        ? "draft"
+        : title && summary && parsed.content.trim()
+        ? "ready"
+        : "needs-review",
   };
 }
 
@@ -479,7 +502,7 @@ export async function saveContentAdminItem(input: SaveContentAdminInput) {
     `## Overview\n\nWrite the full ${KIND_CONFIG[kind].label.toLowerCase()} content here.\n`;
 
   const summary = coerceString(input.summary) || previewFromBody(body);
-  const visibility = coerceString(input.visibility).toLowerCase() === "hidden" ? "hidden" : "public";
+  const visibility = normalizeVisibility(input.visibility);
   const frontmatter = compactFrontmatter({
     title,
     slug,
@@ -487,8 +510,9 @@ export async function saveContentAdminItem(input: SaveContentAdminInput) {
     updated: normalizeDate(input.updated) || today,
     summary,
     visibility,
-    status: visibility === "hidden" ? "hidden" : "published",
-    draft: visibility === "hidden" ? true : undefined,
+    status: visibility === "public" ? "published" : visibility,
+    draft: visibility === "draft" ? true : undefined,
+    hidden: visibility === "hidden" ? true : undefined,
     hero: coerceString(input.hero),
     heroAlt: coerceString(input.heroAlt) || title,
     heroTitlePlacement: normalizeHeroTitlePlacement(input.heroTitlePlacement),

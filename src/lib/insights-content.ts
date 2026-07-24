@@ -110,7 +110,9 @@ function isHiddenInsight(data: Record<string, unknown>) {
   return (
     data.draft === true ||
     (data as any).hidden === true ||
+    coerceString((data as any).visibility)?.toLowerCase() === "draft" ||
     coerceString((data as any).visibility)?.toLowerCase() === "hidden" ||
+    coerceString((data as any).status)?.toLowerCase() === "draft" ||
     coerceString((data as any).status)?.toLowerCase() === "hidden"
   );
 }

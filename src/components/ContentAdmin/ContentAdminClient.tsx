@@ -27,8 +27,8 @@ type ContentItem = {
   seoDescription: string;
   url: string;
   wordCount: number;
-  visibility: "public" | "hidden";
-  status: "ready" | "needs-review" | "hidden";
+  visibility: "public" | "draft" | "hidden";
+  status: "ready" | "needs-review" | "draft" | "hidden";
 };
 
 type FormState = {
@@ -50,7 +50,7 @@ type FormState = {
   programs: string;
   seoTitle: string;
   seoDescription: string;
-  visibility: "public" | "hidden";
+  visibility: "public" | "draft" | "hidden";
 };
 
 type Props = {
@@ -112,8 +112,8 @@ function stripMdxToText(value: string) {
     .replace(/^<!--\s*CMS:[\s\S]*?-->\s*$/gm, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/^##\s+(.+)$/gm, "<!-- CMS: SECTION START -->\n$1\n<!-- CMS: SECTION END -->")
     .replace(/^###\s+(.+)$/gm, "<!-- CMS: SUBHEADING START -->\n$1\n<!-- CMS: SUBHEADING END -->")
+    .replace(/^##\s+(.+)$/gm, "<!-- CMS: SECTION START -->\n$1\n<!-- CMS: SECTION END -->")
     .replace(/^\s*[-*]\s+/gm, "- ")
     .replace(/^\s*\d+\.\s+/gm, "")
     .replace(/[>`*_{}]/g, "")
@@ -246,6 +246,187 @@ function scoreForm(form: FormState) {
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
+function visibilityLabel(visibility: FormState["visibility"]) {
+  if (visibility === "draft") return "Draft";
+  if (visibility === "hidden") return "Hidden";
+  return "Public";
+}
+
+function previewBlocks(value: string) {
+  return textToMdx(value)
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+}
+
+function renderPreviewInline(value: string) {
+  const parts: React.ReactNode[] = [];
+  const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = linkPattern.exec(value))) {
+    if (match.index > lastIndex) parts.push(value.slice(lastIndex, match.index));
+    parts.push(
+      <a
+        key={`${match[1]}-${match.index}`}
+        href={match[2]}
+        target={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "_blank"}
+        rel={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "noopener noreferrer"}
+        className="font-bold text-blue-700 underline underline-offset-4"
+      >
+        {match[1]}
+      </a>,
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < value.length) parts.push(value.slice(lastIndex));
+  return parts.length ? parts : value;
+}
+
+function ContentDraftPreview({
+  form,
+  refreshedAt,
+  onRefresh,
+}: {
+  form: FormState;
+  refreshedAt: Date;
+  onRefresh: () => void;
+}) {
+  const blocks = previewBlocks(form.contentText);
+  const showOverlayTitle = form.heroTitlePlacement === "overlay" || form.heroTitlePlacement === "both";
+  const showBelowTitle = form.heroTitlePlacement === "below" || form.heroTitlePlacement === "both";
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-black">Live preview</h2>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            Updated {refreshedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+        >
+          Refresh preview
+        </button>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+        <div className="relative h-44 bg-slate-200">
+          {form.hero ? (
+            <img src={form.hero} alt={form.heroAlt || ""} className="h-full w-full object-cover" loading="lazy" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm font-bold text-slate-500">Hero preview</div>
+          )}
+          {showOverlayTitle ? (
+            <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-black/25 to-transparent p-4">
+              <div>
+                <p className="text-xl font-black leading-tight text-white">{form.title || "Untitled draft"}</p>
+                {form.summary ? <p className="mt-1 line-clamp-2 text-xs font-semibold text-white/85">{form.summary}</p> : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="space-y-4 p-4">
+          {showBelowTitle ? (
+            <div>
+              <p className="text-2xl font-black leading-tight text-slate-950">{form.title || "Untitled draft"}</p>
+              {form.summary ? <p className="mt-2 text-sm leading-6 text-slate-600">{form.summary}</p> : null}
+            </div>
+          ) : null}
+
+          <div className="rounded-lg bg-white p-4 text-sm leading-7 text-slate-700">
+            {blocks.length ? (
+              blocks.slice(0, 8).map((block, index) => {
+                if (block.startsWith("## ")) {
+                  return (
+                    <h3 key={index} className="mt-3 first:mt-0 text-lg font-black text-slate-950">
+                      {block.replace(/^##\s+/, "")}
+                    </h3>
+                  );
+                }
+                if (block.startsWith("### ")) {
+                  return (
+                    <h4 key={index} className="mt-3 first:mt-0 text-base font-black text-slate-900">
+                      {block.replace(/^###\s+/, "")}
+                    </h4>
+                  );
+                }
+                if (block.startsWith(">")) {
+                  return (
+                    <blockquote key={index} className="border-l-4 border-blue-200 pl-3 font-semibold text-slate-700">
+                      {block.replace(/^>\s*/, "")}
+                    </blockquote>
+                  );
+                }
+                if (/^[-*]\s+/m.test(block)) {
+                  return (
+                    <ul key={index} className="list-disc space-y-1 pl-5">
+                      {block
+                        .split("\n")
+                        .filter((line) => /^[-*]\s+/.test(line.trim()))
+                        .map((line) => (
+                          <li key={line}>{renderPreviewInline(line.replace(/^[-*]\s+/, ""))}</li>
+                        ))}
+                    </ul>
+                  );
+                }
+                if (/^\d+\.\s+/m.test(block)) {
+                  return (
+                    <ol key={index} className="list-decimal space-y-1 pl-5">
+                      {block
+                        .split("\n")
+                        .filter((line) => /^\d+\.\s+/.test(line.trim()))
+                        .map((line) => (
+                          <li key={line}>{renderPreviewInline(line.replace(/^\d+\.\s+/, ""))}</li>
+                        ))}
+                    </ol>
+                  );
+                }
+                if (block.includes("<ButtonLink")) {
+                  return (
+                    <span key={index} className="inline-flex rounded-full bg-blue-700 px-4 py-2 text-xs font-black text-white">
+                      Button link
+                    </span>
+                  );
+                }
+                if (block.includes("<Callout")) {
+                  return (
+                    <div key={index} className="rounded-lg border border-blue-100 bg-blue-50 p-3 font-semibold text-blue-950">
+                      Advisor callout
+                    </div>
+                  );
+                }
+                return <p key={index}>{renderPreviewInline(block)}</p>;
+              })
+            ) : (
+              <p className="font-semibold text-slate-400">Start typing to preview the article body.</p>
+            )}
+            {blocks.length > 8 ? <p className="mt-3 text-xs font-black text-slate-400">Preview clipped after 8 blocks.</p> : null}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full bg-slate-200 px-2.5 py-1 text-[11px] font-black uppercase text-slate-600">
+              {visibilityLabel(form.visibility)}
+            </span>
+            {csvToArray(form.tags).slice(0, 4).map((tag) => (
+              <span key={tag} className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-black text-blue-700">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ContentAdminClient({
   initialItems,
   isAuthenticated,
@@ -263,6 +444,8 @@ export default function ContentAdminClient({
   const [uploading, setUploading] = React.useState(false);
   const [showStudioPassword, setShowStudioPassword] = React.useState(false);
   const [loggedOut, setLoggedOut] = React.useState(false);
+  const [previewSnapshot, setPreviewSnapshot] = React.useState<FormState>(() => emptyForm("blog"));
+  const [previewUpdatedAt, setPreviewUpdatedAt] = React.useState(() => new Date());
   const contentRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const score = scoreForm(form);
@@ -283,8 +466,21 @@ export default function ContentAdminClient({
     setLoggedOut(new URLSearchParams(window.location.search).get("loggedOut") === "1");
   }, []);
 
+  React.useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setPreviewSnapshot(form);
+      setPreviewUpdatedAt(new Date());
+    }, 350);
+    return () => window.clearTimeout(timeout);
+  }, [form]);
+
   const updateForm = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const refreshPreview = () => {
+    setPreviewSnapshot(form);
+    setPreviewUpdatedAt(new Date());
   };
 
   const insertContent = (snippet: string, selectText?: string) => {
@@ -358,14 +554,20 @@ export default function ContentAdminClient({
 
   const openNew = (kind: ContentKind) => {
     setActiveKind(kind);
-    setForm(emptyForm(kind));
+    const nextForm = emptyForm(kind);
+    setForm(nextForm);
+    setPreviewSnapshot(nextForm);
+    setPreviewUpdatedAt(new Date());
     setMessage(null);
     setView("editor");
   };
 
   const openExisting = (item: ContentItem) => {
     setActiveKind(item.kind);
-    setForm(formFromItem(item));
+    const nextForm = formFromItem(item);
+    setForm(nextForm);
+    setPreviewSnapshot(nextForm);
+    setPreviewUpdatedAt(new Date());
     setMessage(null);
     setView("editor");
   };
@@ -785,10 +987,12 @@ export default function ContentAdminClient({
                     className={`w-fit rounded-full px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.08em] ${
                       item.visibility === "hidden"
                         ? "bg-amber-50 text-amber-800 ring-1 ring-amber-200"
+                        : item.visibility === "draft"
+                        ? "bg-blue-50 text-blue-700 ring-1 ring-blue-200"
                         : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
                     }`}
                   >
-                    {item.visibility}
+                    {visibilityLabel(item.visibility)}
                   </span>
                   <span className="text-xs font-semibold text-slate-600">{item.updated || item.date || "-"}</span>
                   <span className="text-xs font-semibold text-slate-600">{item.wordCount}</span>
@@ -867,6 +1071,7 @@ export default function ContentAdminClient({
                   onChange={(event) => updateForm("visibility", event.target.value as FormState["visibility"])}
                 >
                   <option value="public">Public</option>
+                  <option value="draft">Draft</option>
                   <option value="hidden">Hidden</option>
                 </select>
               </label>
@@ -917,7 +1122,7 @@ export default function ContentAdminClient({
                       url: "",
                       wordCount: wordCount(form.contentText),
                       visibility: form.visibility,
-                      status: form.visibility === "hidden" ? "hidden" : "ready",
+                      status: form.visibility === "hidden" ? "hidden" : form.visibility === "draft" ? "draft" : "ready",
                     })
                   }
                   className="h-12 rounded-xl border border-red-200 px-4 text-sm font-black text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -1213,6 +1418,8 @@ export default function ContentAdminClient({
                 Controls where the article title and excerpt appear on the public detail page.
               </p>
             </div>
+
+            <ContentDraftPreview form={previewSnapshot} refreshedAt={previewUpdatedAt} onRefresh={refreshPreview} />
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-black">Classification</h2>

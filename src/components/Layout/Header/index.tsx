@@ -309,6 +309,13 @@ export default function Header() {
                   XIA Intelligence
                 </Link>
 
+                <Link
+                  href="/contact"
+                  className="hidden lg:inline-flex items-center rounded-xl bg-white px-3.5 py-1.5 text-sm font-black text-primary shadow-sm transition-colors duration-150 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shrink-0"
+                >
+                  Contact Us
+                </Link>
+
                 {/* Personal booking — avatar button + hover card */}
                 <div className="group relative hidden lg:inline-flex shrink-0">
                   <Link
@@ -431,6 +438,13 @@ export default function Header() {
               </div>
 
               <div className="mt-3 grid gap-2">
+                <Link
+                  href="/contact"
+                  onClick={() => setDrawerOpen(false)}
+                  className="inline-flex items-center justify-center rounded-xl bg-secondary px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Contact Us
+                </Link>
                 <Link
                   href="/personal-booking"
                   onClick={() => setDrawerOpen(false)}

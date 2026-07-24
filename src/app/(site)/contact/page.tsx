@@ -124,7 +124,16 @@ export default function ContactPage() {
         <div className="flex flex-col md:flex-row gap-4 items-stretch">
          
 
-          {/* Right: contact options */}
+          {/* Contact form */}
+          <div className="md:flex-1 bg-none">
+            <LeadTabs
+              id="enquiry"
+              emailTo={CONTACT.email}
+              phoneFallback={CONTACT.phonePrimary}
+            />
+          </div>
+
+          {/* Contact options */}
           <div className="md:flex-[0.9] flex-1 flex">
             {/* keep sticky behavior inside, doesn't affect equal height */}
             <aside className="lg:sticky lg:top-4 flex-1">
@@ -139,14 +148,6 @@ export default function ContactPage() {
                 className="h-full"
               />
             </aside>
-          </div>
-           {/* Left: contact form */}
-           <div className="md:flex-1 bg-none">
-            <LeadTabs
-              id="enquiry"
-              emailTo={CONTACT.email}
-              phoneFallback={CONTACT.phonePrimary}
-            />
           </div>
         </div>
 

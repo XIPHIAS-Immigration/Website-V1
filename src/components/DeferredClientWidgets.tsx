@@ -73,7 +73,7 @@ export default function DeferredClientWidgets({ gaId }: Props) {
     <>
       <ScrollToTop />
       <ChatWidget />
-      {engagementReady ? <QuickEnquiryPopup /> : null}
+      <QuickEnquiryPopup />
       {engagementReady ? <GlobalBrochureGate /> : null}
       <CookieConsentManager />
       <VisitorAnalyticsTracker />
