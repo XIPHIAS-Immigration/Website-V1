@@ -2,6 +2,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ["ts", "tsx"],
+  poweredByHeader: false,
+  compress: true,
   outputFileTracingIncludes: { "*": ["./content/**/*"] },
   // Keep production builds within this Windows server's available memory.
   // Unbounded minification workers can stall after consuming close to 1 GB.
@@ -26,6 +28,25 @@ const nextConfig = {
       { protocol: "https", hostname: "drive.google.com" },
       { protocol: "https", hostname: "dl.dropboxusercontent.com" },
     ],
+  },
+
+  async headers() {
+    const noIndexHeaders = [
+      {
+        key: "X-Robots-Tag",
+        value: "noindex, nofollow, noarchive",
+      },
+    ];
+
+    return [
+      { source: "/content-admin/:path*", headers: noIndexHeaders },
+      { source: "/crm/:path*", headers: noIndexHeaders },
+      { source: "/x-hub/:path*", headers: noIndexHeaders },
+      { source: "/api/:path*", headers: noIndexHeaders },
+      { source: "/payment/:path*", headers: noIndexHeaders },
+      { source: "/registration", headers: noIndexHeaders },
+      { source: "/:path*/thank-you", headers: noIndexHeaders },
+    ];
   },
 
   async redirects() {
@@ -62,6 +83,7 @@ const nextConfig = {
 
       // Newsroom
       { source: "/newsroom", destination: "/news", permanent: true },
+      { source: "/event", destination: "/events", permanent: true },
 
       // Legacy misc html pages
       { source: "/Contact-us.html", destination: "/contact", permanent: true },
@@ -146,7 +168,7 @@ const nextConfig = {
       { source: "/canada-skilled-migration", destination: "/skilled/canada", permanent: true },
       { source: "/canada-skilled-immigration-consultants.html", destination: "/skilled/canada", permanent: true },
       { source: "/canada-immigration.php", destination: "/skilled/canada", permanent: true },
-      { source: "/canada-family-sponsorship-class-visa.html", destination: "/", permanent: true },
+      { source: "/canada-family-sponsorship-class-visa.html", destination: "/skilled/canada", permanent: true },
 
       // Skilled misc legacy
       { source: "/europe-visa-work-permit.html", destination: "/skilled", permanent: true },
@@ -182,9 +204,6 @@ const nextConfig = {
       // ---- Added from Top internally-linked pages report ----
       { source: "/termsnconditions.html", destination: "/terms", permanent: true },
       { source: "/cookie-policy.html", destination: "/cookies", permanent: true },
-
-      // Fix this one (you currently send it to "/")
-      { source: "/canada-family-sponsorship-class-visa.html", destination: "/skilled/canada", permanent: true },
 
       { source: "/uk-innovator-visa.html", destination: "/corporate/united-kingdom", permanent: true },
       { source: "/uk-training-and-hr-services.html", destination: "/corporate/united-kingdom", permanent: true },
@@ -234,6 +253,23 @@ const nextConfig = {
       { source: "/blog/Most-Powerful-Passports-in-2023.png", destination: "/images/blogs/powerful-passport.webp", permanent: true },
       { source: "/blog/Digital-Nomad-Visa-1024x576.png", destination: "/images/blogs/digital-nomad-visa.webp", permanent: true },
       { source: "/blog/real-estate-investments-2022.jpg", destination: "/images/blogs/real-estate-investments.webp", permanent: true },
+
+      // Consolidate accidental duplicate articles onto one canonical URL.
+      {
+        source: "/blog/real-estate-investments-residency-citizenship-2022",
+        destination: "/articles/eb1-visa-rules-relaxed-indian-techies-self-sponsor-green-card-2024",
+        permanent: true,
+      },
+      {
+        source: "/blog/eb5-visa-for-indians-2026",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/usa-l1-visa-2025-process-requirements",
+        destination: "/blog/usa-l1-visa-2025-process-requirements-duration",
+        permanent: true,
+      },
 
     ];
   },

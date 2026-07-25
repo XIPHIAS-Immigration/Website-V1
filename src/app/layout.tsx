@@ -39,10 +39,7 @@ export const metadata: Metadata = {
   // ✅ Correct manifest link (Next serves src/app/manifest.ts as /manifest.webmanifest)
   manifest: "/manifest.webmanifest",
 
-  title: {
-    default: "XIPHIAS Immigration – Residency, Citizenship & Global Mobility",
-    template: "%s | XIPHIAS Immigration",
-  },
+  title: "XIPHIAS Immigration – Residency, Citizenship & Global Mobility",
   description:
     "Trusted advisors for Residency by Investment, Citizenship by Investment, Skilled Immigration, and Corporate Mobility across 25+ countries.",
 
@@ -61,13 +58,6 @@ export const metadata: Metadata = {
   },
 
   formatDetection: { telephone: false, email: false, address: false },
-
-  // ✅ IMPORTANT:
-  // Do NOT set canonical: "/" globally in layout.
-  // Each page should set its own canonical (or omit and let Google decide).
-  alternates: {
-    languages: { en: "/", "en-IN": "/" },
-  },
 
   openGraph: {
     title: "XIPHIAS Immigration",
@@ -191,11 +181,7 @@ const websiteJsonLd = {
   url: SITE,
   name: "XIPHIAS Immigration",
   publisher: { "@id": `${SITE}/#organization` },
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${SITE}/search?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
-  },
+  inLanguage: "en-IN",
 };
 
 export default function RootLayout({

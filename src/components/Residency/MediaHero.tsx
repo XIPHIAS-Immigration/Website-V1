@@ -44,6 +44,7 @@ export default function MediaHero({
   muted = true,
   loop = true,
   startAt = 0,
+  titleElement = "h1",
 }: {
   title: string;
   subtitle?: string;
@@ -56,6 +57,7 @@ export default function MediaHero({
   muted?: boolean;
   loop?: boolean;
   startAt?: number; // seconds to start from (YouTube + HTML5)
+  titleElement?: "h1" | "div";
 }) {
   const shouldRenderImage = Boolean(imageSrc);
   const shouldRenderVideo = !shouldRenderImage && Boolean(videoSrc);
@@ -129,7 +131,15 @@ export default function MediaHero({
       <div className="absolute inset-0 hidden md:flex items-end">
         <div className="p-6 md:p-10">
           <div className="max-w-3xl text-white">
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight">{title}</h1>
+            {titleElement === "h1" ? (
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight">
+                {title}
+              </h1>
+            ) : (
+              <div className="text-3xl md:text-4xl font-bold leading-tight">
+                {title}
+              </div>
+            )}
             {subtitle && <p className="mt-2 text-white/90">{subtitle}</p>}
             {!!actions.length && (
               <div className="mt-6 flex flex-wrap items-end gap-3 sm:gap-4">

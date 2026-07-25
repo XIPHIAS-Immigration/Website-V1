@@ -24,8 +24,13 @@ const CONTENT_DIRS = RAW_CONTENT_DIRS.filter((p) => fs.existsSync(p));
 // Keep this aligned with /app/robots.ts block list
 const BLOCKLIST: Array<string | RegExp> = [
   /^\/api(\/|$)/,
+  /^\/content-admin(\/|$)/,
+  /^\/crm(\/|$)/,
+  /^\/x-hub(\/|$)/,
   /^\/search(\/|$)/,
-  /^\/thank-you(\/|$)/,
+  /^\/booking$/,
+  /^\/event$/,
+  /(^|\/)thank-you(\/|$)/,
   /^\/login(\/|$)/,
   /^\/profile(\/|$)/,
   /^\/admin(\/|$)/,
@@ -33,6 +38,11 @@ const BLOCKLIST: Array<string | RegExp> = [
   /^\/preview(\/|$)/,
   /^\/draft(\/|$)/,
   /^\/private(\/|$)/,
+  /^\/payment(\/|$)/,
+  /^\/registration(\/|$)/,
+  /^\/report-advisor-workflow(\/|$)/,
+  /^\/australia-assesment-report(\/|$)/,
+  /^\/canada-assesent-report(\/|$)/,
 ];
 
 /* ------------------------------ utils ----------------------------------- */
@@ -111,9 +121,14 @@ function contentPathToRoute(file: string): string | null {
 }
 
 function parseMaybeDate(v: unknown): Date | null {
-  if (typeof v !== "string") return null;
-  const t = Date.parse(v);
+  if (v instanceof Date && !Number.isNaN(v.getTime())) return v;
+  if (typeof v !== "string" && typeof v !== "number") return null;
+  const t = new Date(v).getTime();
   return Number.isNaN(t) ? null : new Date(t);
+}
+
+function frontmatterFlag(value: unknown): boolean {
+  return value === true || String(value).trim().toLowerCase() === "true";
 }
 
 /** Infer changefreq & priority from route depth */
@@ -167,13 +182,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
         const { data } = matter(raw) as { data: Record<string, any> };
 
         // Skip drafts / noindex from frontmatter
-        if (data?.draft === true || data?.noindex === true) continue;
+        const visibility = String(data?.visibility || "").toLowerCase();
+        const status = String(data?.status || "").toLowerCase();
+        if (
+          frontmatterFlag(data?.draft) ||
+          frontmatterFlag(data?.hidden) ||
+          frontmatterFlag(data?.noindex) ||
+          status === "draft" ||
+          status === "hidden" ||
+          visibility === "draft" ||
+          visibility === "hidden"
+        ) {
+          continue;
+        }
 
         const route = contentPathToRoute(file);
         if (!route || isBlocked(route)) continue;
 
         const lastmod =
           parseMaybeDate(data?.updatedAt) ||
+          parseMaybeDate(data?.updated) ||
+          parseMaybeDate(data?.lastModified) ||
           parseMaybeDate(data?.date) ||
           fs.statSync(file).mtime;
 

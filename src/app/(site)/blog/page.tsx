@@ -1,53 +1,34 @@
 // src/app/(site)/blog/page.tsx
 import Link from "next/link";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getAllInsights } from "@/lib/insights-content";
+import { listingMetadata, pageNumber } from "@/lib/seo/listing-metadata";
 import nextDynamic from "next/dynamic";
 
 const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
 
-// SEO metadata for the blog listing page
-export const metadata: Metadata = {
-  title: "Blog – Immigration Stories & Updates | XIPHIAS Immigration",
-  description:
-    "Read our latest blog posts on immigration stories, expert tips and program updates. Stay informed with XIPHIAS Immigration.",
-  alternates: { canonical: "/blog" },
-  robots: { index: true, follow: true },
-  openGraph: {
-    title: "Blog – Immigration Stories & Updates",
-    description:
-      "Read our latest blog posts on immigration stories, expert tips and program updates. Stay informed with XIPHIAS Immigration.",
-    url: "/blog",
-    siteName: "XIPHIAS Immigration",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: "/xiphias-immigration.png",
-        width: 1200,
-        height: 630,
-        alt: "Blog – Immigration Stories & Updates – XIPHIAS Immigration",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Blog – Immigration Stories & Updates",
-    description:
-      "Read our latest blog posts on immigration stories, expert tips and program updates. Stay informed with XIPHIAS Immigration.",
-    images: ["/xiphias-immigration.png"],
-  },
-};
-
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 // Compatible typing: supports either plain object or Promise (varies by Next versions/tooling)
 type SearchParams = Record<string, string | string[] | undefined>;
 type PageProps = {
   searchParams?: SearchParams | Promise<SearchParams>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const sp = await Promise.resolve(searchParams ?? {});
+  return listingMetadata({
+    path: "/blog",
+    title: "Blog - Immigration Stories & Updates",
+    description:
+      "Read our latest blog posts on immigration stories, expert tips and program updates. Stay informed with XIPHIAS Immigration.",
+    page: pageNumber(sp.page),
+  });
+}
 
 const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
 
@@ -63,6 +44,7 @@ export default async function BlogListPage({ searchParams }: PageProps) {
   });
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (total > 0 && requestedPage > totalPages) notFound();
   const page = Math.min(requestedPage, totalPages);
 
   const startIdx = total === 0 ? 0 : (page - 1) * pageSize + 1;

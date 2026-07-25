@@ -59,7 +59,6 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  console.log("If this log is present I am in correct codebase")
   return (
     <>
       <Hero />

@@ -14,6 +14,7 @@ export type InsightMeta = {
   title: string;
   summary?: string;
   author?: string;
+  noindex?: boolean;
 
   /** Always normalized to arrays */
   country?: string[];

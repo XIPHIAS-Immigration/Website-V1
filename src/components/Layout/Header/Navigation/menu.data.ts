@@ -521,7 +521,7 @@ export const headerMenu: HeaderItem[] = [
       { label: 'Blog',                href: '/blog' },
       { label: 'Insights',            href: '/insights' },
       { label: 'Articles',            href: '/articles' },
-      { label: 'Events',              href: '/event' },
+      { label: 'Events',              href: '/events' },
       { label: 'Gallery',             href: '/gallery' },
       { label: 'Careers',             href: '/careers' },
       { label: 'Partner With Us',     href: '/partner-with-us' },

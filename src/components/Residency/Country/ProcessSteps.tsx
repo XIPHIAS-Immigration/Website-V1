@@ -175,7 +175,9 @@ export default function ProcessSteps({
                   className="mt-2 text-[16px] sm:text-[18px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100"
                   itemProp="name"
                 >
-                  <span className="sr-only">Step {n}: </span>
+                  {!new RegExp(`^step\\s+${n}\\b`, "i").test(step.title) ? (
+                    <span className="sr-only">Step {n}: </span>
+                  ) : null}
                   {step.title}
                 </h4>
 
@@ -298,7 +300,6 @@ function normalize(
   outcome?: string;
 } {
   if (typeof s === "string") {
-    // If only a string, infer a title to avoid empty headings.
     return {
       title: `Step ${index + 1}`,
       description: s,

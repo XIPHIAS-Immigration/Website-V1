@@ -1,43 +1,13 @@
 // app/(site)/media/page.tsx
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getAllInsights } from "@/lib/insights-content";
 // Dynamically import the media list to reduce the initial bundle size and improve performance.
 import nextDynamic from "next/dynamic";
 const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
 
 import type { Metadata } from "next";
-
-// SEO metadata for the media listing page
-export const metadata: Metadata = {
-  title: "Media – Videos & Interviews | XIPHIAS Immigration",
-  description:
-    "Watch our latest interviews, webinars and media appearances covering investment migration, residency and citizenship programs.",
-  alternates: { canonical: "/media" },
-  openGraph: {
-    title: "Media – Videos & Interviews",
-    description:
-      "Watch our latest interviews, webinars and media appearances covering investment migration, residency and citizenship programs.",
-    url: "https://www.xiphiasimmigration.com/media",
-    siteName: "XIPHIAS Immigration",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: "/xiphias-immigration.png",
-        width: 1200,
-        height: 630,
-        alt: "Media – Videos & Interviews – XIPHIAS Immigration",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Media – Videos & Interviews",
-    description:
-      "Watch our latest interviews, webinars and media appearances covering investment migration, residency and citizenship programs.",
-    images: ["/xiphias-immigration.png"],
-  },
-};
+import { listingMetadata, pageNumber } from "@/lib/seo/listing-metadata";
 
 export const revalidate = 86400;
 
@@ -45,6 +15,19 @@ export const revalidate = 86400;
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  return listingMetadata({
+    path: "/media",
+    title: "Media - Videos & Interviews",
+    description:
+      "Watch our latest interviews, webinars and media appearances covering investment migration, residency and citizenship programs.",
+    page: pageNumber(sp.page),
+  });
+}
 
 const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
 
@@ -60,6 +43,7 @@ export default async function MediaListPage({ searchParams }: PageProps) {
   });
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (total > 0 && page > totalPages) notFound();
   const startIdx = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const endIdx = Math.min(total, page * pageSize);
 

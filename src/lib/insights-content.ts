@@ -128,6 +128,28 @@ function readingTimeMins(text: string) {
   return Math.max(1, Math.ceil(words / 200));
 }
 
+function summaryFromSource(source: string, maxLength = 158) {
+  const plain = source
+    .replace(/^import\s+.*$/gm, " ")
+    .replace(/^export\s+.*$/gm, " ")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/<FAQSection[\s\S]*?\/>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, " ")
+    .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/[*_`>#|~]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!plain) return undefined;
+  if (plain.length <= maxLength) return plain;
+
+  const shortened = plain.slice(0, maxLength + 1);
+  const boundary = shortened.lastIndexOf(" ");
+  return `${shortened.slice(0, boundary > 100 ? boundary : maxLength).trim()}.`;
+}
+
 function slugify(text: string, existing: Set<string>) {
   const base = text
     .toLowerCase()
@@ -256,13 +278,16 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     coerceString(raw.data.summary) ||
     coerceString((raw.data as any).excerpt) ||
     coerceString((raw.data as any).description) ||
+    coerceString((raw.data as any).metaDescription) ||
+    coerceString((raw.data as any).meta_description) ||
     coerceString((raw.data as any).subtitle) ||
-    undefined;
+    summaryFromSource(raw.source);
 
   // Support string or { name: string }
   const author =
     coerceString(raw.data.author) ??
-    coerceString((raw.data as any).author?.name);
+    coerceString((raw.data as any).author?.name) ??
+    "XIPHIAS Immigration";
 
   const country =
     normalizeArray(raw.data.country) ??
@@ -321,6 +346,9 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     title,
     summary,
     author,
+    noindex:
+      raw.data.noindex === true ||
+      coerceString(raw.data.noindex)?.toLowerCase() === "true",
     country: country && country.length ? country : undefined,
     program: program && program.length ? program : undefined,
     tags,

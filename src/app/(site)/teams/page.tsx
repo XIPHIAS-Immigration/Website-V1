@@ -3,7 +3,6 @@
 // ==============================================
 "use client";
 import React from "react";
-import Head from "next/head";
 import Link from "next/link";
 import { ORG, LEADERSHIP, ADVISORS, TEAM, EVENTS } from "@/components/Team/team";
 import { Hero } from "@/components/Team/Hero";
@@ -31,16 +30,6 @@ const orgJsonLd = {
 export default function TeamPage(){
   return (
     <>
-      <Head>
-        <title>Leadership & Team – {ORG.name}</title>
-        <meta name="description" content="Meet the leadership and team powering customer-obsessed execution. Lightweight UX, transparent delivery, and measurable outcomes." />
-        <meta name="robots" content="index,follow" />
-        <meta property="og:title" content={`Leadership & Team – ${ORG.name}`} />
-        <meta property="og:description" content="Meet the people behind the work." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`${ORG.url}/team`} />
-        <meta property="og:image" content={`${ORG.url}${ORG.logo}`} />
-      </Head>
       <JsonLd data={orgJsonLd} />
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

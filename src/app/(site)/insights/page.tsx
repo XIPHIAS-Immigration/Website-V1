@@ -1,55 +1,51 @@
 // src/app/(site)/insights/page.tsx
 import Link from "next/link";
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
 // Dynamically import the insights list and filters bar to reduce initial bundle size and improve performance.
 import nextDynamic from "next/dynamic";
 const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
 const FiltersBar = nextDynamic(() => import("@/components/Insights/FiltersBar"));
 
 import type { Metadata } from "next";
-
-// SEO metadata for the insights listing page
-export const metadata: Metadata = {
-  title: "Insights – Articles, News, Media & Blog Updates | XIPHIAS Immigration",
-  description:
-    "Explore our latest insights: articles, news, media, and blog updates covering residency, citizenship and investment migration programs",
-  alternates: { canonical: "/insights" },
-  openGraph: {
-    title: "Insights – Articles, News, Media & Blog Updates",
-    description:
-      "Explore our latest insights: articles, news, media, and blog updates covering residency, citizenship and investment migration programs",
-    url: "https://www.xiphiasimmigration.com/insights",
-    siteName: "XIPHIAS Immigration",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: "/xiphias-immigration.png",
-        width: 1200,
-        height: 630,
-        alt: "Insights – Articles, News, Media & Blog Updates – XIPHIAS Immigration",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Insights – Articles, News, Media & Blog Updates",
-    description:
-      "Explore our latest insights: articles, news, media, and blog updates covering residency, citizenship and investment migration programs.",
-    images: ["/xiphias-immigration.png"],
-  },
-};
+import { listingMetadata, pageNumber } from "@/lib/seo/listing-metadata";
 import { getAllInsights, getInsightsFacets } from "@/lib/insights-content";
 import type { InsightKind } from "@/types/insights";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 // In Next 15, dynamic APIs like searchParams are Promises
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  const metadata = listingMetadata({
+    path: "/insights",
+    title: "Insights - Articles, News, Media & Blog Updates",
+    description:
+      "Explore our latest insights, articles, news, media, and blog updates covering residency, citizenship and investment migration programs.",
+    page: pageNumber(sp.page),
+  });
+  const isFiltered = Boolean(
+    first(sp.q) ||
+      first(sp.kind) ||
+      first(sp.country) ||
+      first(sp.program) ||
+      first(sp.tag),
+  );
+
+  if (!isFiltered) return metadata;
+  return {
+    ...metadata,
+    alternates: { canonical: "/insights" },
+    robots: { index: false, follow: true },
+  };
+}
 
 const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
 
@@ -72,6 +68,7 @@ export default async function InsightsPage({ searchParams }: PageProps) {
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (total > 0 && page > totalPages) notFound();
   const startIdx = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const endIdx = Math.min(total, page * pageSize);
 

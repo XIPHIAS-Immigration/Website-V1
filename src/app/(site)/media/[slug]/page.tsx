@@ -6,8 +6,12 @@ import nextDynamic from "next/dynamic";
 const InsightDetailView = nextDynamic(() => import("@/components/Insights/InsightDetailView"));
 const InsightJsonLd = nextDynamic(() => import("@/components/SEO/InsightJsonLd"));
 import { getInsightBySlug } from "@/lib/insights-content";
+import {
+  insightMetadata,
+  missingInsightMetadata,
+} from "@/lib/seo/insight-metadata";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 
 // Next 15: params is a Promise
 type PageProps = { params: Promise<{ slug: string }> };
@@ -15,38 +19,9 @@ type PageProps = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params; // ✅ await
   const record = await getInsightBySlug("media", slug);
-  if (!record) return { title: "Not Found" };
+  if (!record) return missingInsightMetadata();
 
-  const description = record.summary || `Media: ${record.title}`;
-  return {
-    title: record.title,
-    description,
-    alternates: { canonical: record.url },
-    openGraph: {
-      title: record.title,
-      description,
-      type: "video.other",
-      url: record.url,
-      siteName: "XIPHIAS Immigration",
-      locale: "en_US",
-      images: record.hero
-        ? [
-            {
-              url: record.hero,
-              width: 1200,
-              height: 630,
-              alt: `${record.title} – XIPHIAS Immigration`,
-            },
-          ]
-        : undefined,
-    },
-    twitter: {
-      card: record.hero ? "summary_large_image" : "summary",
-      title: record.title,
-      description,
-      images: record.hero ? [record.hero] : undefined,
-    },
-  };
+  return insightMetadata(record);
 }
 
 export default async function Page({ params }: PageProps) {

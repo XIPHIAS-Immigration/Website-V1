@@ -29,7 +29,7 @@ const RESOURCES = Object.freeze([
   { label: "X-Hub", href: "/x-hub" },
   { label: "Guides & Resources", href: "/guide" },
   { label: "Insights", href: "/insights" },
-  { label: "Events", href: "/event" },
+  { label: "Events", href: "/events" },
   { label: "Awards & Recognition", href: "/awards" },
   { label: 'Partner With Us', href: '/partner-with-us' },
   { label: 'Reviews', href: '/reviews' },
