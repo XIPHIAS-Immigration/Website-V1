@@ -9,13 +9,23 @@ function normalizeHosts(value: string | null): string[] {
 
   return value
     .split(",")
-    .map((host) => host.trim().toLowerCase().replace(/:\d+$/, ""))
+    .map((host) =>
+      host
+        .trim()
+        .replace(/^host=/i, "")
+        .replace(/^["']|["']$/g, "")
+        .replace(/^https?:\/\//i, "")
+        .replace(/:\d+$/, "")
+        .replace(/\.$/, "")
+        .toLowerCase(),
+    )
     .filter(Boolean);
 }
 
 export function proxy(request: NextRequest) {
   const requestHosts = [
     ...normalizeHosts(request.headers.get("x-forwarded-host")),
+    ...normalizeHosts(request.headers.get("x-original-host")),
     ...normalizeHosts(request.headers.get("host")),
     request.nextUrl.hostname.toLowerCase(),
   ];
