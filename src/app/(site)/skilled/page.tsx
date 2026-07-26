@@ -20,12 +20,12 @@ const SkilledExploreGrid = nextDynamic(() => import("@/components/Skilled/Skille
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Skilled Migration & PR Services by XIPHIAS Immigration",
+  title: "Skilled Immigration Consultants in India | XIPHIAS",
   description:
-    "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
+    "Skilled immigration consultants in India for Canada, Australia, Europe and the UK. Compare PR, work permit and employer-sponsored pathways.",
   alternates: { canonical: "/skilled" },
   openGraph: {
-    title: "Skilled Migration & PR Services by XIPHIAS Immigration",
+    title: "Skilled Immigration Consultants in India | XIPHIAS",
     description:
       "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
     url: "https://www.xiphiasimmigration.com/skilled",
@@ -37,13 +37,13 @@ export const metadata: Metadata = {
         url: "/xiphias-immigration.png",
         width: 1200,
         height: 630,
-        alt: "Skilled Migration & PR Services by XIPHIAS Immigration",
+        alt: "Skilled immigration consultants in India",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Skilled Migration & PR Services by XIPHIAS Immigration",
+    title: "Skilled Immigration Consultants in India | XIPHIAS",
     description:
       "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
     images: ["/xiphias-immigration.png"],
@@ -79,8 +79,8 @@ export default function SkilledPage() {
   const webPageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "Skilled Migration & PR Services by XIPHIAS Immigration",
-    url: "https://yourdomain.com/skilled",
+    name: "Skilled Immigration Consultants in India | XIPHIAS",
+    url: "https://www.xiphiasimmigration.com/skilled",
     description:
       "Move abroad with confidence through skilled migration pathways. Get expert assistance for Canada, Australia, Europe, and other leading destinations.",
   };
@@ -91,7 +91,7 @@ export default function SkilledPage() {
     itemListElement: countries.map((c, idx) => ({
       "@type": "ListItem",
       position: idx + 1,
-      url: `https://yourdomain.com/skilled/${c.countrySlug}`,
+      url: `https://www.xiphiasimmigration.com/skilled/${c.countrySlug}`,
       name: c.title || c.country,
     })),
   };

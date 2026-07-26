@@ -7,15 +7,22 @@ const DEFAULT_IMAGE = "/xiphias-immigration.png";
 
 export function insightMetadata(record: InsightMeta): Metadata {
   const description =
+    record.seoDescription ||
     record.summary ||
     `Read ${record.title} from XIPHIAS Immigration's global mobility experts.`;
-  const canonical = record.url;
+  const canonical = record.canonical || record.url;
   const image = record.hero || DEFAULT_IMAGE;
   const author = record.author || SITE_NAME;
+  const pageTitle = record.seoTitle || record.title;
+  const metadataTitle = record.seoTitle
+    ? record.seoTitle
+    : /xiphias/i.test(pageTitle)
+      ? pageTitle
+      : `${pageTitle} | ${SITE_NAME}`;
   const openGraph: Metadata["openGraph"] =
     record.kind === "media"
       ? {
-          title: record.title,
+          title: pageTitle,
           description,
           type: "video.other",
           url: canonical,
@@ -31,7 +38,7 @@ export function insightMetadata(record: InsightMeta): Metadata {
           ],
         }
       : {
-          title: record.title,
+          title: pageTitle,
           description,
           type: "article",
           url: canonical,
@@ -52,7 +59,7 @@ export function insightMetadata(record: InsightMeta): Metadata {
         };
 
   return {
-    title: { absolute: `${record.title} | ${SITE_NAME}` },
+    title: { absolute: metadataTitle },
     description,
     keywords: record.tags?.length ? record.tags : undefined,
     authors: [{ name: author }],
@@ -73,7 +80,7 @@ export function insightMetadata(record: InsightMeta): Metadata {
     openGraph,
     twitter: {
       card: "summary_large_image",
-      title: record.title,
+      title: pageTitle,
       description,
       images: [image],
     },

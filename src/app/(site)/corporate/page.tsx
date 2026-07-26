@@ -17,12 +17,12 @@ import { JsonLd } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Business & Corporate Immigration Services by XIPHIAS Immigration",
+  title: "Corporate Immigration Consultants in India | XIPHIAS",
   description:
-    "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",
+    "Corporate immigration consultants in India for work permits, intra-company transfers, business visas and global workforce mobility.",
   alternates: { canonical: "/corporate" },
   openGraph: {
-    title: "Business & Corporate Immigration Services by XIPHIAS Immigration",
+    title: "Corporate Immigration Consultants in India | XIPHIAS",
     description:
       "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",
     url: "https://www.xiphiasimmigration.com/corporate",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Business & Corporate Immigration Services by XIPHIAS Immigration",
+    title: "Corporate Immigration Consultants in India | XIPHIAS",
     description:
       "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",
     images: ["/xiphias-immigration.png"],
@@ -63,7 +63,7 @@ export default function CorporatePage() {
   const webPageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "Business & Corporate Immigration Services by XIPHIAS Immigration",
+    name: "Corporate Immigration Consultants in India | XIPHIAS",
     url: "https://www.xiphiasimmigration.com/corporate",
     description:
       "Support your global workforce with business immigration, work permits, and relocation services tailored for growing organizations.",

@@ -19,12 +19,12 @@ import { JsonLd } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
+  title: "Citizenship by Investment Consultants | XIPHIAS",
   description:
-    "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",
+    "Citizenship by investment consultants for eligible families and investors. Compare government-approved routes, costs, timelines and due diligence.",
   alternates: { canonical: "/citizenship" },
   openGraph: {
-    title: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
+    title: "Citizenship by Investment Consultants | XIPHIAS",
     description:
       "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",
     url: "https://www.xiphiasimmigration.com/citizenship",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
+    title: "Citizenship by Investment Consultants | XIPHIAS",
     description:
       "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",
     images: ["/xiphias-immigration.png"],
@@ -77,7 +77,7 @@ export default function CitizenshipPage() {
   const webPageLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "Citizenship by Investment & Second Passport | XIPHIAS Immigration",
+    name: "Citizenship by Investment Consultants | XIPHIAS",
     url: "https://www.xiphiasimmigration.com/citizenship",
     description:
       "Unlock global mobility through trusted citizenship by investment programs. XIPHIAS offers expert guidance from consultation to approval.",

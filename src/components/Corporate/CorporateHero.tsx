@@ -26,8 +26,8 @@ type Props = {
 };
 
 export default function CorporateHero({
-  title = "Corporate Setup & Employment Visas",
-  subtitle = "Form your company, enable sponsorship, and secure residence/work authorization — compare free zones, mainland routes, and investor/entrepreneur options.",
+  title = "Corporate Immigration Consultants in India",
+  subtitle = "Plan work permits, intra-company transfers, business visas and global workforce mobility across key international markets.",
   primaryHref = "/personal-booking",
   primaryText = "Speak to an Advisor",
   secondaryHref = "/insights",

@@ -16,12 +16,12 @@ const OurOffer = nextDynamic(() => import("@/components/Citizenship/OurOffer"));
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Golden Visa & Residency by Investment | XIPHIAS Immigration",
+  title: "Investment Migration Consultants in India | XIPHIAS",
   description:
-    "Compare the world's leading Golden Visa and residency by investment programs. Get expert advice and start your residency journey with XIPHIAS today.",
+    "Investment migration consultants in India for Golden Visa and residency by investment programmes. Compare routes, costs, timelines and eligibility.",
   alternates: { canonical: "/residency" },
   openGraph: {
-    title: "Golden Visa & Residency by Investment | XIPHIAS Immigration",
+    title: "Investment Migration Consultants in India | XIPHIAS",
     description:
       "Compare the world's leading Golden Visa and residency by investment programs. Get expert advice and start your residency journey with XIPHIAS today.",
     url: "https://www.xiphiasimmigration.com/residency",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Golden Visa & Residency by Investment | XIPHIAS Immigration",
+    title: "Investment Migration Consultants in India | XIPHIAS",
     description:
       "Compare the world's leading Golden Visa and residency by investment programs. Get expert advice and start your residency journey with XIPHIAS today.",
     images: ["/xiphias-immigration.png"],

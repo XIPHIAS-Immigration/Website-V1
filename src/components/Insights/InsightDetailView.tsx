@@ -25,6 +25,48 @@ function formatDateUTC(input?: string) {
   }).format(d);
 }
 
+function relatedServiceLinks(record: InsightRecord) {
+  const searchable = [
+    record.title,
+    record.summary,
+    record.primaryKeyword,
+    record.contentCluster,
+    ...(record.country || []),
+    ...(record.program || []),
+    ...(record.tags || []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  const links: Array<{ href: string; label: string }> = [];
+  const add = (href: string, label: string) => {
+    if (!links.some((item) => item.href === href)) links.push({ href, label });
+  };
+
+  if (/\bcanada|express entry|canada pr|provincial nominee|\bpnp\b/.test(searchable)) {
+    add("/skilled/canada", "Canada immigration consultants in India");
+  }
+  if (/\beb-?5\b|united states|\busa\b|us investor/.test(searchable)) {
+    add("/residency/usa", "US EB-5 visa consultants in India");
+  }
+  if (/citizenship|second passport|caribbean/.test(searchable)) {
+    add("/citizenship", "Citizenship by investment consulting");
+  }
+  if (/golden visa|residency by investment|investment migration|investor visa/.test(searchable)) {
+    add("/residency", "Investment migration and Golden Visa consulting");
+  }
+  if (/corporate|intra-company|business visa|employer|work permit/.test(searchable)) {
+    add("/corporate", "Corporate immigration services");
+  }
+  if (/skilled|talent|permanent residence|\bpr\b|express entry/.test(searchable)) {
+    add("/skilled", "Skilled immigration and PR services");
+  }
+
+  add("/", "Immigration consultants in India");
+  return links.slice(0, 3);
+}
+
 const IconPen = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"
@@ -86,6 +128,7 @@ export default async function InsightDetailView({
   const countries = record.country ?? [];
   const programs = record.program ?? [];
   const tags = record.tags ?? [];
+  const serviceLinks = relatedServiceLinks(record);
 
   return (
     <>
@@ -256,6 +299,75 @@ export default async function InsightDetailView({
             >
               {record.content}
             </Prose>
+
+            <nav aria-labelledby="related-services-heading" className="mt-10 border-t border-zinc-200 pt-6 dark:border-white/10">
+              <h2 id="related-services-heading" className="text-lg font-bold text-black dark:text-white">
+                Related immigration services
+              </h2>
+              <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                {serviceLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className="font-semibold text-primary underline underline-offset-4 dark:text-secondary"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {(record.reviewer || record.lastReviewed || record.officialSources?.length) && (
+              <section
+                aria-labelledby="content-review-heading"
+                className="mt-10 border-y border-zinc-200 py-6 dark:border-white/10"
+              >
+                <h2 id="content-review-heading" className="text-lg font-bold text-black dark:text-white">
+                  Content review and sources
+                </h2>
+                <div className="mt-3 grid gap-4 text-sm sm:grid-cols-2">
+                  <div className="leading-6 text-zinc-700 dark:text-zinc-300">
+                    {record.reviewer ? (
+                      <p>
+                        Reviewed by <strong>{record.reviewer}</strong>
+                        {record.lastReviewed ? ` on ${formatDateUTC(record.lastReviewed)}` : ""}.
+                      </p>
+                    ) : record.lastReviewed ? (
+                      <p>Last reviewed on {formatDateUTC(record.lastReviewed)}.</p>
+                    ) : null}
+                    <p className="mt-2">
+                      Programme rules can change. Confirm current requirements with the relevant
+                      authority before making an application or investment decision.
+                    </p>
+                  </div>
+                  {record.officialSources?.length ? (
+                    <ul className="space-y-2">
+                      {record.officialSources.map((source) => {
+                        let label = source;
+                        try {
+                          label = new URL(source).hostname.replace(/^www\./, "");
+                        } catch {
+                          // Keep the supplied label for internal or non-URL references.
+                        }
+                        return (
+                          <li key={source}>
+                            <a
+                              href={source}
+                              target={source.startsWith("http") ? "_blank" : undefined}
+                              rel={source.startsWith("http") ? "noopener noreferrer" : undefined}
+                              className="font-semibold text-primary underline underline-offset-4 dark:text-secondary"
+                            >
+                              {label}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : null}
+                </div>
+              </section>
+            )}
 
             {/* META LINKS */}
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">

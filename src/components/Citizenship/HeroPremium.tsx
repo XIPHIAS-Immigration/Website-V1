@@ -19,8 +19,8 @@ type Props = {
 };
 
 export default function HeroPremium({
-  title = "Second Citizenship. First-class Advisory.",
-  subtitle = "Concierge guidance across donation and real-estate routes. Transparent costs, rigorous compliance, and end-to-end execution.",
+  title = "Citizenship by Investment Consultants",
+  subtitle = "Compare eligible government-approved contribution and real-estate routes with transparent costs, due diligence and end-to-end support.",
   primaryHref = "/contact",
   primaryText = "Book a Free Consultation",
   secondaryHref = "/images/residency/xiphias-corporate-mobility.pdf",

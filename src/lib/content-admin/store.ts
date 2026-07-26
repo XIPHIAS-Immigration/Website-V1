@@ -73,6 +73,14 @@ export type ContentAdminItem = {
   programs: string[];
   seoTitle: string;
   seoDescription: string;
+  primaryKeyword: string;
+  searchIntent: string;
+  contentCluster: string;
+  reviewer: string;
+  lastReviewed: string;
+  officialSources: string[];
+  canonical: string;
+  noindex: boolean;
   url: string;
   wordCount: number;
   visibility: "public" | "draft" | "hidden";
@@ -98,6 +106,14 @@ export type SaveContentAdminInput = {
   programs?: string[] | string;
   seoTitle?: string;
   seoDescription?: string;
+  primaryKeyword?: string;
+  searchIntent?: string;
+  contentCluster?: string;
+  reviewer?: string;
+  lastReviewed?: string;
+  officialSources?: string[] | string;
+  canonical?: string;
+  noindex?: boolean;
   visibility?: string;
 };
 
@@ -283,6 +299,18 @@ function coerceArray(value: unknown): string[] {
     .filter(Boolean);
 }
 
+function coerceSourceUrls(value: unknown): string[] {
+  if (!Array.isArray(value)) return coerceArray(value);
+  return value
+    .map((item) => {
+      if (item && typeof item === "object" && "url" in item) {
+        return coerceString((item as { url?: unknown }).url);
+      }
+      return coerceString(item);
+    })
+    .filter(Boolean);
+}
+
 function firstString(...values: unknown[]) {
   for (const value of values) {
     const next = coerceString(value);
@@ -387,6 +415,14 @@ function itemFromFile(kind: ContentAdminKind, filePath: string, source: string):
     programs: coerceArray(data.programs || data.program),
     seoTitle: firstString(data.seoTitle, data.metaTitle, title),
     seoDescription: firstString(data.seoDescription, data.metaDescription, summary),
+    primaryKeyword: firstString(data.primaryKeyword, data.targetKeyword),
+    searchIntent: firstString(data.searchIntent),
+    contentCluster: firstString(data.contentCluster, data.topicCluster),
+    reviewer: firstString(data.reviewedBy, data.reviewer),
+    lastReviewed: normalizeDate(data.lastReviewed),
+    officialSources: coerceSourceUrls(data.officialSources),
+    canonical: firstString(data.canonical),
+    noindex: data.noindex === true || coerceString(data.noindex).toLowerCase() === "true",
     url: getUrl(kind, slug),
     wordCount,
     visibility,
@@ -522,6 +558,14 @@ export async function saveContentAdminItem(input: SaveContentAdminInput) {
     author: coerceString(input.author) || "XIPHIAS Immigration",
     seoTitle: coerceString(input.seoTitle),
     seoDescription: coerceString(input.seoDescription),
+    primaryKeyword: coerceString(input.primaryKeyword),
+    searchIntent: coerceString(input.searchIntent),
+    contentCluster: coerceString(input.contentCluster),
+    reviewedBy: coerceString(input.reviewer),
+    lastReviewed: normalizeDate(input.lastReviewed),
+    officialSources: coerceSourceUrls(input.officialSources),
+    canonical: coerceString(input.canonical),
+    noindex: input.noindex === true ? true : undefined,
   });
 
   const file = matter.stringify(`${body.trim()}\n`, frontmatter);

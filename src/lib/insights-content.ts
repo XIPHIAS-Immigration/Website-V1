@@ -100,6 +100,20 @@ function normalizeArray(val?: unknown): string[] | undefined {
     .filter(Boolean);
 }
 
+function normalizeSourceUrls(val?: unknown): string[] | undefined {
+  if (val == null) return undefined;
+  const values = Array.isArray(val) ? val : [val];
+  const urls = values
+    .map((value) => {
+      if (value && typeof value === "object" && "url" in value) {
+        return coerceString((value as { url?: unknown }).url);
+      }
+      return coerceString(value);
+    })
+    .filter((value): value is string => Boolean(value));
+  return urls.length ? urls : undefined;
+}
+
 function coerceString(val?: unknown): string | undefined {
   if (val == null) return undefined;
   const s = String(val).trim();
@@ -339,6 +353,7 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
 
   const url = toUrl(raw.kind, raw.slug);
   const readingTime = readingTimeMins(raw.source);
+  const canonical = coerceString((raw.data as any).canonical);
 
   return {
     kind: raw.kind,
@@ -346,6 +361,28 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     title,
     summary,
     author,
+    reviewer:
+      coerceString((raw.data as any).reviewedBy) ||
+      coerceString((raw.data as any).reviewer),
+    lastReviewed: coerceString((raw.data as any).lastReviewed),
+    seoTitle:
+      coerceString((raw.data as any).seoTitle) ||
+      coerceString((raw.data as any).metaTitle),
+    seoDescription:
+      coerceString((raw.data as any).seoDescription) ||
+      coerceString((raw.data as any).metaDescription),
+    primaryKeyword:
+      coerceString((raw.data as any).primaryKeyword) ||
+      coerceString((raw.data as any).targetKeyword),
+    searchIntent: coerceString((raw.data as any).searchIntent),
+    contentCluster:
+      coerceString((raw.data as any).contentCluster) ||
+      coerceString((raw.data as any).topicCluster),
+    officialSources: normalizeSourceUrls((raw.data as any).officialSources),
+    canonical:
+      canonical && (canonical.startsWith("/") || canonical.startsWith("https://www.xiphiasimmigration.com"))
+        ? canonical
+        : undefined,
     noindex:
       raw.data.noindex === true ||
       coerceString(raw.data.noindex)?.toLowerCase() === "true",

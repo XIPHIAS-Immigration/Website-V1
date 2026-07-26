@@ -31,18 +31,31 @@ const XiaSection = dynamic(() => import("@/components/Home/XiaSection"));
 
 // Defers hydration/JS of below-the-fold sections until they near the viewport.
 import DeferOnView from "@/components/util/DeferOnView";
+import ImmigrationConsultantsOverview from "@/components/Home/ImmigrationConsultantsOverview";
+import { JsonLd } from "@/lib/seo";
 
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Best Immigration Consultants in India - XIPHIAS Immigration",
+  title: "Best Immigration Consultants in India | XIPHIAS",
   description:
-    "Xiphias Immigration offers expert residency, citizenship, corporate, and skilled migration services worldwide with 17+ years of experience",
+    "Immigration consultants in India for Canada PR, US EB-5, skilled migration, investment residency, citizenship and corporate mobility. Serving clients since 2009.",
   alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    title: "Best Immigration Consultants in India – XIPHIAS Immigration",
+    title: "Best Immigration Consultants in India | XIPHIAS",
     description:
-      "Leading consultants for residency, citizenship, and skilled migration. Build your global future with XIPHIAS",
+      "Immigration consultants for Canada PR, US EB-5, skilled migration, investment residency, citizenship and corporate mobility.",
     url: "https://www.xiphiasimmigration.com",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -51,17 +64,50 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Immigration Consultants in India – XIPHIAS Immigration",
+    title: "Best Immigration Consultants in India | XIPHIAS",
     description:
-      "Build your global future with XIPHIAS Immigration — experts in residency, citizenship, and migration",
+      "Immigration consultants for Canada PR, US EB-5, skilled migration, investment residency, citizenship and corporate mobility.",
     images: ["/xiphias-immigration.png"],
   },
 };
 
 export default function Home() {
+  const homeJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://www.xiphiasimmigration.com/#webpage",
+        url: "https://www.xiphiasimmigration.com",
+        name: "Best Immigration Consultants in India | XIPHIAS",
+        description:
+          "Immigration consultants in India for skilled migration, residency, citizenship, investment and corporate mobility.",
+        isPartOf: { "@id": "https://www.xiphiasimmigration.com/#website" },
+        about: { "@id": "https://www.xiphiasimmigration.com/#organization" },
+        inLanguage: "en-IN",
+      },
+      {
+        "@type": "Service",
+        "@id": "https://www.xiphiasimmigration.com/#immigration-consulting",
+        name: "Immigration consulting services in India",
+        serviceType: "Immigration consulting and global mobility advisory",
+        provider: { "@id": "https://www.xiphiasimmigration.com/#organization" },
+        areaServed: { "@type": "Country", name: "India" },
+        audience: [
+          { "@type": "Audience", audienceType: "Skilled professionals" },
+          { "@type": "Audience", audienceType: "Investors and families" },
+          { "@type": "Audience", audienceType: "Employers and global mobility teams" },
+        ],
+        url: "https://www.xiphiasimmigration.com",
+      },
+    ],
+  };
+
   return (
     <>
+      <JsonLd id="home-service-jsonld" data={homeJsonLd} />
       <Hero />
+      <ImmigrationConsultantsOverview />
       {/* min-heights match measured mobile section heights so deferred mounting
           doesn't shift layout (keeps CLS ~0). */}
       <DeferOnView minHeight="1330px"><WhyChooseUs /></DeferOnView>

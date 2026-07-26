@@ -34,17 +34,7 @@ export default function robots(): MetadataRoute.Robots {
           "/draft",
           "/private",
 
-          // Common duplicate param patterns
-          "/*?*utm_*",
-          "/*?*gclid=*",
-          "/*?*fbclid=*",
-          "/*?*msclkid=*",
-          "/*?*igshid=*",
-          "/*?*ref=*",
-          "/*?*source=*",
-          "/*?*campaign=*",
-
-          // add into disallow array
+          // Infrastructure paths
           "/cdn-cgi/",
           "/*%7C*",
 

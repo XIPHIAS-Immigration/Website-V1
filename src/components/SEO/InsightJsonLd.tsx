@@ -33,7 +33,8 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
           ? "VideoObject"
           : "Article";
 
-  const pageUrl = toAbsoluteUrl(record.url) ?? `${base}${record.url.startsWith("/") ? "" : "/"}${record.url}`;
+  const canonicalPath = record.canonical || record.url;
+  const pageUrl = toAbsoluteUrl(canonicalPath) ?? `${base}${canonicalPath.startsWith("/") ? "" : "/"}${canonicalPath}`;
   const heroUrl = toAbsoluteUrl(record.hero);
   const posterUrl = toAbsoluteUrl((record as any).heroPoster);
   const videoUrl = toAbsoluteUrl((record as any).heroVideo);
@@ -57,6 +58,9 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
         ? { "@type": "Organization", "@id": `${base}/#organization` }
         : { "@type": "Person", name: record.author }
       : { "@type": "Organization", "@id": `${base}/#organization` },
+    reviewedBy: record.reviewer
+      ? { "@type": "Person", name: record.reviewer }
+      : undefined,
     publisher: {
       "@type": "Organization",
       "@id": `${base}/#organization`,
@@ -75,6 +79,7 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
     isAccessibleForFree: true,
     isPartOf: { "@id": `${base}/#website` },
     inLanguage: "en-IN",
+    citation: record.officialSources?.length ? record.officialSources : undefined,
   };
 
   // Images (Article/News/Blog)

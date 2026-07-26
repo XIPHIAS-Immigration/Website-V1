@@ -90,9 +90,9 @@ const nextConfig = {
       { source: "/contact-us.html", destination: "/contact", permanent: true },
       { source: "/blog.html", destination: "/blog", permanent: true },
       { source: "/leadership.html", destination: "/about", permanent: true },
-      { source: "/immigration-consultants-in-india.html", destination: "/about", permanent: true },
-      { source: "/immigration-consultants-in-bangalore.html", destination: "/contact", permanent: true },
-      { source: "/visa-consultants-in-india.html", destination: "/contact", permanent: true },
+      { source: "/immigration-consultants-in-india.html", destination: "/", permanent: true },
+      { source: "/immigration-consultants-in-bangalore.html", destination: "/about/locations", permanent: true },
+      { source: "/visa-consultants-in-india.html", destination: "/", permanent: true },
       { source: "/branch-office.html", destination: "/contact", permanent: true },
       { source: "/apply-online.html", destination: "/eligibility", permanent: true },
       { source: "/index.html", destination: "/", permanent: true },
@@ -268,6 +268,16 @@ const nextConfig = {
       {
         source: "/blog/usa-l1-visa-2025-process-requirements",
         destination: "/blog/usa-l1-visa-2025-process-requirements-duration",
+        permanent: true,
+      },
+      {
+        source: "/articles/end-of-eb5-visa-gold-card-impact-indian-investors-2025",
+        destination: "/residency/usa",
+        permanent: true,
+      },
+      {
+        source: "/articles/end-of-eb5-visa-us-gold-card-impact-2025",
+        destination: "/residency/usa",
         permanent: true,
       },
 

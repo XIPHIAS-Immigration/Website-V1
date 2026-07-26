@@ -25,6 +25,14 @@ type ContentItem = {
   programs: string[];
   seoTitle: string;
   seoDescription: string;
+  primaryKeyword?: string;
+  searchIntent?: string;
+  contentCluster?: string;
+  reviewer?: string;
+  lastReviewed?: string;
+  officialSources?: string[];
+  canonical?: string;
+  noindex?: boolean;
   url: string;
   wordCount: number;
   visibility: "public" | "draft" | "hidden";
@@ -50,6 +58,14 @@ type FormState = {
   programs: string;
   seoTitle: string;
   seoDescription: string;
+  primaryKeyword: string;
+  searchIntent: string;
+  contentCluster: string;
+  reviewer: string;
+  lastReviewed: string;
+  officialSources: string;
+  canonical: string;
+  noindex: boolean;
   visibility: "public" | "draft" | "hidden";
 };
 
@@ -98,6 +114,13 @@ function slugify(value: string) {
 function csvToArray(value: string) {
   return value
     .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function linesToArray(value: string) {
+  return value
+    .split(/\r?\n/)
     .map((item) => item.trim())
     .filter(Boolean);
 }
@@ -201,6 +224,14 @@ function emptyForm(kind: ContentKind): FormState {
     programs: "",
     seoTitle: "",
     seoDescription: "",
+    primaryKeyword: "",
+    searchIntent: "informational",
+    contentCluster: "",
+    reviewer: "XIPHIAS Immigration Editorial Team",
+    lastReviewed: date,
+    officialSources: "",
+    canonical: "",
+    noindex: false,
     visibility: "public",
   };
 }
@@ -225,6 +256,14 @@ function formFromItem(item: ContentItem): FormState {
     programs: item.programs.join(", "),
     seoTitle: item.seoTitle,
     seoDescription: item.seoDescription,
+    primaryKeyword: item.primaryKeyword || "",
+    searchIntent: item.searchIntent || "informational",
+    contentCluster: item.contentCluster || "",
+    reviewer: item.reviewer || "XIPHIAS Immigration Editorial Team",
+    lastReviewed: item.lastReviewed || item.updated || today(),
+    officialSources: (item.officialSources || []).join("\n"),
+    canonical: item.canonical || "",
+    noindex: item.noindex === true,
     visibility: item.visibility,
   };
 }
@@ -241,6 +280,9 @@ function scoreForm(form: FormState) {
     (form.seoTitle || form.title).trim().length <= 60,
     (form.seoDescription || form.summary).trim().length <= 160,
     csvToArray(form.tags).length >= 2,
+    Boolean(form.primaryKeyword.trim()),
+    Boolean(form.reviewer.trim()),
+    linesToArray(form.officialSources).length >= 1,
     Boolean(form.date),
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
@@ -637,6 +679,7 @@ export default function ContentAdminClient({
         tags: csvToArray(form.tags),
         countries: csvToArray(form.countries),
         programs: csvToArray(form.programs),
+        officialSources: linesToArray(form.officialSources),
         // always stamp updated to today on every save
         updated: today(),
       };
@@ -1170,6 +1213,14 @@ export default function ContentAdminClient({
                       programs: csvToArray(form.programs),
                       seoTitle: form.seoTitle,
                       seoDescription: form.seoDescription,
+                      primaryKeyword: form.primaryKeyword,
+                      searchIntent: form.searchIntent,
+                      contentCluster: form.contentCluster,
+                      reviewer: form.reviewer,
+                      lastReviewed: form.lastReviewed,
+                      officialSources: linesToArray(form.officialSources),
+                      canonical: form.canonical,
+                      noindex: form.noindex,
                       url: "",
                       wordCount: wordCount(form.contentText),
                       visibility: form.visibility,
@@ -1530,6 +1581,31 @@ export default function ContentAdminClient({
                   />
                 </div>
               </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-black" htmlFor="reviewer">
+                    Expert reviewer
+                  </label>
+                  <input
+                    id="reviewer"
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                    value={form.reviewer}
+                    onChange={(event) => updateForm("reviewer", event.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-black" htmlFor="last-reviewed">
+                    Last reviewed
+                  </label>
+                  <input
+                    id="last-reviewed"
+                    type="date"
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                    value={form.lastReviewed}
+                    onChange={(event) => updateForm("lastReviewed", event.target.value)}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -1569,6 +1645,84 @@ export default function ContentAdminClient({
                 onChange={(event) => updateForm("seoDescription", event.target.value)}
               />
               <p className="mt-1 text-xs text-slate-500">{(form.seoDescription || form.summary).length} of 160 characters used</p>
+
+              <div className="mt-5 border-t border-slate-200 pt-5">
+                <label className="block text-sm font-black" htmlFor="primary-keyword">
+                  Primary search query
+                </label>
+                <input
+                  id="primary-keyword"
+                  className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                  placeholder="e.g., Canada immigration consultants in India"
+                  value={form.primaryKeyword}
+                  onChange={(event) => updateForm("primaryKeyword", event.target.value)}
+                />
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-black" htmlFor="search-intent">
+                      Search intent
+                    </label>
+                    <select
+                      id="search-intent"
+                      className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                      value={form.searchIntent}
+                      onChange={(event) => updateForm("searchIntent", event.target.value)}
+                    >
+                      <option value="informational">Informational</option>
+                      <option value="commercial">Commercial</option>
+                      <option value="transactional">Transactional</option>
+                      <option value="news">News / update</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-black" htmlFor="content-cluster">
+                      Topic cluster
+                    </label>
+                    <input
+                      id="content-cluster"
+                      className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                      placeholder="e.g., Canada PR"
+                      value={form.contentCluster}
+                      onChange={(event) => updateForm("contentCluster", event.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <label className="mt-4 block text-sm font-black" htmlFor="canonical-url">
+                  Canonical URL override
+                </label>
+                <input
+                  id="canonical-url"
+                  className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                  placeholder="Leave blank to use this post's URL"
+                  value={form.canonical}
+                  onChange={(event) => updateForm("canonical", event.target.value)}
+                />
+
+                <label className="mt-4 block text-sm font-black" htmlFor="official-sources">
+                  Official source URLs
+                </label>
+                <textarea
+                  id="official-sources"
+                  className="mt-2 min-h-28 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                  placeholder={"https://www.canada.ca/...\nhttps://www.uscis.gov/..."}
+                  value={form.officialSources}
+                  onChange={(event) => updateForm("officialSources", event.target.value)}
+                />
+                <p className="mt-1 text-xs text-slate-500">One government or primary-source URL per line.</p>
+
+                <label className="mt-4 flex items-center gap-3 text-sm font-bold" htmlFor="content-noindex">
+                  <input
+                    id="content-noindex"
+                    type="checkbox"
+                    className="size-4 rounded border-slate-300 text-blue-700 focus:ring-blue-600"
+                    checked={form.noindex}
+                    onChange={(event) => updateForm("noindex", event.target.checked)}
+                  />
+                  Exclude this public page from search results
+                </label>
+              </div>
             </div>
           </aside>
         </div>
