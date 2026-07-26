@@ -281,6 +281,219 @@ const nextConfig = {
         permanent: true,
       },
 
+      // Retire stale or overlapping immigration posts in favour of current
+      // cornerstone pages. Their source files are hidden from the sitemap.
+      {
+        source: "/blog/canada-immigration-guide",
+        destination: "/skilled/canada",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-provincial-nominee-program",
+        destination: "/skilled/canada/provincial-nominee-program",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-provincial-nominee-program-pnp",
+        destination: "/skilled/canada/provincial-nominee-program",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-investment-immigration-guide",
+        destination: "/residency/canada",
+        permanent: true,
+      },
+      {
+        source: "/blog/current-news-of-canada-immigration-process-in-2022",
+        destination: "/blog/canada-immigration-changes-july-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-immigration-levels-plan-2023-2025",
+        destination: "/news/canada-immigration-plan-2026-2028",
+        permanent: true,
+      },
+      {
+        source: "/blog/express-entry-draws-2022-all-program-july",
+        destination: "/blog/express-entry-latest-draw-crs-scores",
+        permanent: true,
+      },
+      {
+        source: "/blog/express-entry-pnp-545-crs-753-may-2022",
+        destination: "/blog/express-entry-latest-draw-crs-scores",
+        permanent: true,
+      },
+      {
+        source: "/blog/express-entry-pnp-919-crs-785-apr-2022",
+        destination: "/blog/express-entry-latest-draw-crs-scores",
+        permanent: true,
+      },
+      {
+        source: "/blog/express-entry-pnp-draw-787-crs-782-apr-2022",
+        destination: "/blog/express-entry-latest-draw-crs-scores",
+        permanent: true,
+      },
+      {
+        source: "/blog/top-pathways-to-immigrate-to-canada-in-2022",
+        destination: "/skilled/canada",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-immigration-plans-2021-2023",
+        destination: "/news/canada-immigration-plan-2026-2028",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-immigration-budget-2022",
+        destination: "/news/canada-immigration-plan-2026-2028",
+        permanent: true,
+      },
+      {
+        source: "/blog/choose-canadian-immigration-consultant-2022",
+        destination: "/blog/how-to-choose-best-immigration-company",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-immigration-during-covid-19",
+        destination: "/skilled/canada",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-pr-from-india-2023",
+        destination: "/skilled/canada",
+        permanent: true,
+      },
+      {
+        source: "/blog/canada-startup-visa-guide-2025",
+        destination: "/blog/canada-start-up-visa-2026-guide",
+        permanent: true,
+      },
+      {
+        source: "/articles/canada-startup-visa-2025-guide",
+        destination: "/blog/canada-start-up-visa-2026-guide",
+        permanent: true,
+      },
+      {
+        source: "/blog/us-eb-5-permanent-residency-program",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/eb5-immigrant-investor-2022",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/eb5-direct-investment-benefits",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/us-eb5-direct-investment-benefits",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/what-makes-the-us-eb-5-visa-so-great",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/us-eb-5-visa-get-us-green-card-citizenship-and-more",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/impending-changes-to-the-proposed-eb-5-visa-regulations",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/understanding-the-dynamics-of-eb-5",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/eb5-invest-run-business-relocate-usa",
+        destination: "/blog/eb-5-visa-for-indians-2026",
+        permanent: true,
+      },
+      {
+        source: "/blog/right-investment-migration-programme-guide",
+        destination: "/blog/choose-right-investment-migration-program",
+        permanent: true,
+      },
+      {
+        source: "/blog/citizenship-by-investment-guide",
+        destination: "/citizenship",
+        permanent: true,
+      },
+      {
+        source: "/blog/us-immigration-raids-impact-indians-visa-applicants",
+        destination: "/articles/impact-of-us-immigration-raids-on-indians-2025",
+        permanent: true,
+      },
+      {
+        source: "/blog/grenada-cbi-benefits-india",
+        destination: "/citizenship/grenada",
+        permanent: true,
+      },
+      {
+        source: "/blog/grenada-citizenship-investment-2025",
+        destination: "/citizenship/grenada",
+        permanent: true,
+      },
+      {
+        source: "/blog/grenada-citizenship-investment-india",
+        destination: "/citizenship/grenada",
+        permanent: true,
+      },
+      {
+        source: "/blog/grenada-cbi-real-estate-vs-donation",
+        destination: "/citizenship/grenada",
+        permanent: true,
+      },
+      {
+        source: "/articles/grenada-citizenship-by-investment-2024",
+        destination: "/citizenship/grenada",
+        permanent: true,
+      },
+      {
+        source: "/blog/german-citizenship-by-investment-and-germany-business-visa",
+        destination: "/skilled/germany",
+        permanent: true,
+      },
+      {
+        source: "/blog/australia-pr-skilled-migration-2021",
+        destination: "/articles/australia-pr-process-complete-guide",
+        permanent: true,
+      },
+      {
+        source: "/blog/australia-migration-opportunities-2022",
+        destination: "/articles/australia-pr-process-complete-guide",
+        permanent: true,
+      },
+      {
+        source: "/blog/points-based-immigration-canada-australia-uk-2022",
+        destination: "/skilled",
+        permanent: true,
+      },
+      {
+        source: "/blog/australia-skilled-migration",
+        destination: "/articles/australia-pr-process-complete-guide",
+        permanent: true,
+      },
+      {
+        source: "/blog/australia-global-talent-visa-2022-changes",
+        destination: "/skilled/australia/global-talent-visa-858",
+        permanent: true,
+      },
+      {
+        source: "/blog/australia-business-visa-categories",
+        destination: "/skilled/australia",
+        permanent: true,
+      },
+
     ];
   },
 

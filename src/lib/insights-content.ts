@@ -114,6 +114,40 @@ function normalizeSourceUrls(val?: unknown): string[] | undefined {
   return urls.length ? urls : undefined;
 }
 
+function isOfficialSourceHost(hostname: string) {
+  const host = hostname.toLowerCase().replace(/^www\./, "");
+  return (
+    host === "canada.ca" ||
+    host.endsWith(".canada.ca") ||
+    host === "europa.eu" ||
+    host.endsWith(".europa.eu") ||
+    host === "u.ae" ||
+    host.endsWith(".u.ae") ||
+    host === "gov.uk" ||
+    host.endsWith(".gov.uk") ||
+    host === "travel.state.gov" ||
+    host.endsWith(".gov") ||
+    /(^|\.)gov\.[a-z]{2,3}(?:\.[a-z]{2})?$/.test(host)
+  );
+}
+
+function officialSourceUrlsFromContent(source: string): string[] | undefined {
+  const urls = source.match(/https?:\/\/[^\s<>()\]"']+/gi) ?? [];
+  const official = new Set<string>();
+
+  for (const candidate of urls) {
+    const cleaned = candidate.replace(/[.,;:!?]+$/, "");
+    try {
+      const url = new URL(cleaned);
+      if (isOfficialSourceHost(url.hostname)) official.add(url.toString());
+    } catch {
+      // Ignore malformed legacy links. MDX compilation reports them separately.
+    }
+  }
+
+  return official.size ? Array.from(official) : undefined;
+}
+
 function coerceString(val?: unknown): string | undefined {
   if (val == null) return undefined;
   const s = String(val).trim();
@@ -378,7 +412,9 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     contentCluster:
       coerceString((raw.data as any).contentCluster) ||
       coerceString((raw.data as any).topicCluster),
-    officialSources: normalizeSourceUrls((raw.data as any).officialSources),
+    officialSources:
+      normalizeSourceUrls((raw.data as any).officialSources) ||
+      officialSourceUrlsFromContent(raw.source),
     canonical:
       canonical && (canonical.startsWith("/") || canonical.startsWith("https://www.xiphiasimmigration.com"))
         ? canonical

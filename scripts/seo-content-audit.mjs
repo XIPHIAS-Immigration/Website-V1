@@ -8,6 +8,7 @@ const ROOT = process.cwd();
 const NOW = new Date();
 const OUTPUT_DIR = path.join(ROOT, "reports");
 const KINDS = ["blog", "articles", "news", "media"];
+const SITE_NAME = "XIPHIAS Immigration";
 const STOP_WORDS = new Set([
   "a", "an", "and", "are", "as", "at", "best", "by", "for", "from", "guide",
   "how", "in", "is", "of", "on", "the", "to", "visa", "what", "why", "with",
@@ -68,6 +69,49 @@ function sourceUrls(value) {
     .filter(Boolean);
 }
 
+function isOfficialSourceHost(hostname) {
+  const host = hostname.toLowerCase().replace(/^www\./, "");
+  return host === "canada.ca" || host.endsWith(".canada.ca") ||
+    host === "europa.eu" || host.endsWith(".europa.eu") ||
+    host === "u.ae" || host.endsWith(".u.ae") ||
+    host === "gov.uk" || host.endsWith(".gov.uk") ||
+    host === "travel.state.gov" || host.endsWith(".gov") ||
+    /(^|\.)gov\.[a-z]{2,3}(?:\.[a-z]{2})?$/.test(host);
+}
+
+function officialUrlsFromContent(source) {
+  const matches = source.match(/https?:\/\/[^\s<>()\]"']+/gi) || [];
+  const official = new Set();
+  for (const match of matches) {
+    try {
+      const url = new URL(match.replace(/[.,;:!?]+$/, ""));
+      if (isOfficialSourceHost(url.hostname)) official.add(url.toString());
+    } catch {
+      // Malformed legacy links are handled by the build and link checks.
+    }
+  }
+  return [...official];
+}
+
+function compactText(value, maxLength) {
+  const normalized = text(value).replace(/\s+/g, " ");
+  if (normalized.length <= maxLength) return normalized;
+  const candidate = normalized.slice(0, maxLength + 1);
+  const boundary = candidate.lastIndexOf(" ");
+  const end = boundary >= Math.floor(maxLength * 0.7) ? boundary : maxLength;
+  return candidate.slice(0, end).replace(/[,:;.!?\s]+$/, "").trim();
+}
+
+function effectiveSeoTitle(data, title) {
+  const explicit = text(data.seoTitle || data.metaTitle);
+  if (explicit) return compactText(explicit, 60);
+
+  const base = title;
+  if (/xiphias/i.test(base)) return compactText(base, 60);
+  const branded = `${base} | ${SITE_NAME}`;
+  return branded.length <= 60 ? branded : compactText(base, 60);
+}
+
 function groupBy(items, keyFor) {
   const groups = new Map();
   for (const item of items) {
@@ -95,11 +139,17 @@ const pages = files.map((file) => {
   const body = plainBody(parsed.content);
   const words = body ? body.split(/\s+/).length : 0;
   const title = text(data.title) || slug;
-  const summary = text(data.seoDescription || data.metaDescription || data.summary || data.description);
-  const seoTitle = text(data.seoTitle || data.metaTitle || title);
+  const rawSummary = text(data.seoDescription || data.metaDescription || data.summary || data.description);
+  const summary = compactText(rawSummary, 158);
+  const seoTitle = effectiveSeoTitle(data, title);
   const updated = text(data.lastReviewed || data.updated || data.lastmod || data.date);
   const monthsOld = ageMonths(updated);
-  const officialSources = sourceUrls(data.officialSources);
+  const officialSources = [
+    ...new Set([
+      ...sourceUrls(data.officialSources),
+      ...officialUrlsFromContent(parsed.content),
+    ]),
+  ];
   const primaryKeyword = text(data.primaryKeyword || data.targetKeyword);
   const issues = [];
 
