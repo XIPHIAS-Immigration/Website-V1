@@ -1,5 +1,6 @@
 // tailwind.config.ts
 import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
 
 // make TS happy about the theme resolver used in typography extension
 type ThemeResolver = (path: string) => string;
@@ -170,7 +171,7 @@ const config: Config = {
       }),
     },
   },
-  plugins: [require("@tailwindcss/typography")],
+  plugins: [typography],
 };
 
 export default config;

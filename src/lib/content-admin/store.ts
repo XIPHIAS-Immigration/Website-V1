@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import fg from "fast-glob";
 import matter from "gray-matter";
+import { editorTextToMdx } from "@/lib/content-admin/content-format";
 
 export type ContentAdminKind = "blog" | "articles" | "news";
 
@@ -534,7 +535,7 @@ export async function saveContentAdminItem(input: SaveContentAdminInput) {
 
   const today = new Date().toISOString().slice(0, 10);
   const body =
-    coerceString(input.body) ||
+    editorTextToMdx(coerceString(input.body)) ||
     `## Overview\n\nWrite the full ${KIND_CONFIG[kind].label.toLowerCase()} content here.\n`;
 
   const summary = coerceString(input.summary) || previewFromBody(body);

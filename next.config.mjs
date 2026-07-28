@@ -143,6 +143,7 @@ const nextConfig = {
 
       // Residency legacy
       { source: "/malta-citizenship-by-investment.html", destination: "/residency/malta", permanent: true },
+      { source: "/blog/malta-residence-permit-residency-citizenship", destination: "/residency/malta", permanent: true },
       { source: "/greece-golden-visa-investment-immigration.html", destination: "/residency/greece", permanent: true },
       { source: "/greece-golden-visa.html", destination: "/residency/greece", permanent: true },
       { source: "/portugal-golden-visa-investment-immigration.html", destination: "/residency/portugal", permanent: true },
@@ -151,6 +152,7 @@ const nextConfig = {
       { source: "/canada-immigration-visa.html", destination: "/skilled/canada/provincial-nominee-program", permanent: true },
       { source: "/usa-business-investor-visa.html", destination: "/residency/usa", permanent: true },
       { source: "/usa-investor-visa-eb5.html", destination: "/residency/usa", permanent: true },
+      { source: "/usa-immigration.html", destination: "/residency/usa", permanent: true },
       { source: "/us-employment-based-resident-visa.html", destination: "/skilled/usa", permanent: true },
       { source: "/us-employment-based-visa.html", destination: "/corporate/usa/l1-corporate-transfer-visa", permanent: true },
       { source: "/canada/start-up-visa", destination: "/residency/canada/canada-start-up-visa", permanent: true },

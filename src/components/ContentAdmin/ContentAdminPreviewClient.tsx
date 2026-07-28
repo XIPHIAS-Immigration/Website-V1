@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import MediaHero from "@/components/Insights/MediaHero";
 import { Prose } from "@/components/ui/Prose";
+import { editorTextToMdx } from "@/lib/content-admin/content-format";
 
 type PreviewDraft = {
   kind?: "blog" | "articles" | "news";
@@ -65,23 +66,32 @@ function formatDateUTC(input?: string) {
 
 function renderInline(value: string) {
   const parts: React.ReactNode[] = [];
-  const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const inlinePattern =
+    /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|<u>([^<\n]+)<\/u>|\*([^*\n]+)\*|_([^_\n]+)_/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = linkPattern.exec(value))) {
+  while ((match = inlinePattern.exec(value))) {
     if (match.index > lastIndex) parts.push(value.slice(lastIndex, match.index));
-    const href = match[2];
-    parts.push(
-      <a
-        key={`${href}-${match.index}`}
-        href={href}
-        target={href.startsWith("/") || href.startsWith("#") ? undefined : "_blank"}
-        rel={href.startsWith("/") || href.startsWith("#") ? undefined : "noopener noreferrer"}
-      >
-        {match[1]}
-      </a>,
-    );
+    if (match[1] && match[2]) {
+      const href = match[2];
+      parts.push(
+        <a
+          key={`link-${match.index}`}
+          href={href}
+          target={href.startsWith("/") || href.startsWith("#") ? undefined : "_blank"}
+          rel={href.startsWith("/") || href.startsWith("#") ? undefined : "noopener noreferrer"}
+        >
+          {match[1]}
+        </a>,
+      );
+    } else if (match[3] || match[4]) {
+      parts.push(<strong key={`strong-${match.index}`}>{match[3] || match[4]}</strong>);
+    } else if (match[5]) {
+      parts.push(<u key={`underline-${match.index}`}>{match[5]}</u>);
+    } else {
+      parts.push(<em key={`em-${match.index}`}>{match[6] || match[7]}</em>);
+    }
     lastIndex = match.index + match[0].length;
   }
 
@@ -157,17 +167,30 @@ function renderBlock(block: string, index: number, headings: Heading[]) {
   }
 
   if (block.includes("<ButtonLink")) {
+    const button = /<ButtonLink\s+href=["']([^"']+)["']>([\s\S]*?)<\/ButtonLink>/.exec(block);
+    const href = button?.[1] || "/contact";
+    const label = button?.[2]?.trim() || "Button link";
     return (
       <p key={index}>
-        <Link href="/contact" className="inline-flex rounded-full bg-black px-5 py-3 text-sm font-semibold text-white">
-          Button link preview
+        <Link href={href} className="inline-flex rounded-full bg-black px-5 py-3 text-sm font-semibold text-white">
+          {label}
         </Link>
       </p>
     );
   }
 
   if (block.includes("<Callout")) {
-    return <blockquote key={index}>Advisor callout preview</blockquote>;
+    const title = /\btitle=["']([^"']+)["']/.exec(block)?.[1];
+    const body = block
+      .replace(/^<Callout[^>]*>\s*/i, "")
+      .replace(/\s*<\/Callout>$/i, "")
+      .trim();
+    return (
+      <blockquote key={index}>
+        {title ? <strong>{title}: </strong> : null}
+        {renderInline(body)}
+      </blockquote>
+    );
   }
 
   return <p key={index}>{renderInline(block)}</p>;
@@ -213,7 +236,7 @@ export default function ContentAdminPreviewClient() {
 
   const kind = draft.kind || "blog";
   const title = draft.title || "Untitled draft";
-  const body = draft.body || draft.contentText || "";
+  const body = editorTextToMdx(draft.body || draft.contentText || "");
   const blocks = body
     .split(/\n{2,}/)
     .map((block) => block.trim())

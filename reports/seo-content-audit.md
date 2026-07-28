@@ -1,16 +1,16 @@
 # SEO Content Audit
 
-Generated: 2026-07-26T06:05:19.319Z
+Generated: 2026-07-26T11:48:31.013Z
 
 ## Summary
 
 - totalFiles: 417
-- publishedPages: 370
-- hiddenPages: 47
+- publishedPages: 369
+- hiddenPages: 48
 - thinPublishedPages: 103
-- stalePublishedPages: 158
-- missingOfficialSources: 349
-- missingPrimaryQuery: 360
+- stalePublishedPages: 157
+- missingOfficialSources: 348
+- missingPrimaryQuery: 359
 - exactDuplicateGroups: 0
 - topicCollisionGroups: 0
 

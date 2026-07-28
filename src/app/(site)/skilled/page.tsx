@@ -102,7 +102,7 @@ export default function SkilledPage() {
     itemListElement: top5.map((p, idx) => ({
       "@type": "ListItem",
       position: idx + 1,
-      url: `https://yourdomain.com/skilled/${p.countrySlug}/${p.programSlug}`,
+      url: `https://www.xiphiasimmigration.com/skilled/${p.countrySlug}/${p.programSlug}`,
       name: p.title,
     })),
   };

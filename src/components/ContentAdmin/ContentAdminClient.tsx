@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { User, Lock, Eye, EyeOff, AlertCircle, FileText, Newspaper, Bell } from "lucide-react";
 import AuthenticatedPageGuard from "@/components/Security/AuthenticatedPageGuard";
+import { editorTextToMdx, mdxToEditorText } from "@/lib/content-admin/content-format";
 
 type ContentKind = "blog" | "articles" | "news";
 
@@ -76,6 +77,13 @@ type Props = {
   username?: string;
 };
 
+type LinkEditorState = {
+  label: string;
+  url: string;
+  selectionStart: number;
+  selectionEnd: number;
+};
+
 const KINDS: Array<{ kind: ContentKind; label: string; singular: string; description: string }> = [
   {
     kind: "blog",
@@ -129,75 +137,6 @@ function wordCount(value: string) {
   return value.split(/\s+/).filter(Boolean).length;
 }
 
-function stripMdxToText(value: string) {
-  return value
-    .replace(/^---[\s\S]*?---\s*/g, "")
-    .replace(/^<!--\s*CMS:[\s\S]*?-->\s*$/gm, "")
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/^###\s+(.+)$/gm, "<!-- CMS: SUBHEADING START -->\n$1\n<!-- CMS: SUBHEADING END -->")
-    .replace(/^##\s+(.+)$/gm, "<!-- CMS: SECTION START -->\n$1\n<!-- CMS: SECTION END -->")
-    .replace(/^\s*[-*]\s+/gm, "- ")
-    .replace(/^\s*\d+\.\s+/gm, "")
-    .replace(/[>`*_{}]/g, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-function isHeadingCandidate(line: string) {
-  const trimmed = line.trim();
-  if (!trimmed || /^[-*]\s+/.test(trimmed) || /^\d+[.)]\s+/.test(trimmed)) return false;
-  if (trimmed.length > 80) return false;
-  if (trimmed.split(/\s+/).length > 10) return false;
-  return /:$/.test(trimmed) || !/[.!?]$/.test(trimmed);
-}
-
-function textToMdx(value: string) {
-  const normalized = value
-    .replace(/\r\n/g, "\n")
-    .replace(/^<!--\s*CMS:\s*SECTION START\s*-->\s*$/gim, "")
-    .replace(/^<!--\s*CMS:\s*SECTION END\s*-->\s*$/gim, "")
-    .replace(/^<!--\s*CMS:\s*SUBHEADING START\s*-->\s*$/gim, "")
-    .replace(/^<!--\s*CMS:\s*SUBHEADING END\s*-->\s*$/gim, "")
-    .replace(/^<!--\s*CMS:\s*(?:QUOTE|CALLOUT|LIST|LINK|BUTTON) (?:START|END)\s*-->\s*$/gim, "")
-    .replace(/^<!--\s*CMS:\s*[^>]+-->\s*$/gim, "")
-    .trim();
-  if (!normalized) return "";
-
-  return normalized
-    .split(/\n{2,}/)
-    .map((block) => {
-      if (/<\/?[A-Z][A-Za-z0-9]*(\s|>)/.test(block)) return block.trim();
-      const lines = block
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean);
-      if (!lines.length) return "";
-
-      if (lines.length === 1) {
-        const line = lines[0];
-        if (/^<\/?[A-Z][A-Za-z0-9]*(\s|>)/.test(line)) return line;
-        if (/^#{1,6}\s+/.test(line) || /^[-*]\s+/.test(line) || /^\d+\.\s+/.test(line)) return line;
-        if (/\[[^\]]+\]\([^)]+\)/.test(line) || /[*_]{1,2}[^*_]+[*_]{1,2}/.test(line)) return line;
-        if (isHeadingCandidate(line)) return `## ${line.replace(/:$/, "")}`;
-        return line;
-      }
-
-      if (lines.every((line) => /^[-*]\s+/.test(line))) return lines.join("\n");
-      if (lines.every((line) => /^\d+[.)]\s+/.test(line))) {
-        return lines.map((line) => line.replace(/^(\d+)[.)]\s+/, "$1. ")).join("\n");
-      }
-
-      if (isHeadingCandidate(lines[0])) {
-        return [`## ${lines[0].replace(/:$/, "")}`, "", lines.slice(1).join(" ")].join("\n");
-      }
-
-      return lines.join(" ");
-    })
-    .filter(Boolean)
-    .join("\n\n");
-}
-
 function kindMeta(kind: ContentKind) {
   return KINDS.find((item) => item.kind === kind) ?? KINDS[0];
 }
@@ -244,7 +183,7 @@ function formFromItem(item: ContentItem): FormState {
     title: item.title,
     slug: item.slug,
     summary: item.summary,
-    contentText: stripMdxToText(item.body),
+    contentText: mdxToEditorText(item.body),
     author: item.author,
     date: item.date || today(),
     updated: item.updated || today(),
@@ -295,7 +234,7 @@ function visibilityLabel(visibility: FormState["visibility"]) {
 }
 
 function previewBlocks(value: string) {
-  return textToMdx(value)
+  return editorTextToMdx(value)
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean);
@@ -303,23 +242,32 @@ function previewBlocks(value: string) {
 
 function renderPreviewInline(value: string) {
   const parts: React.ReactNode[] = [];
-  const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const inlinePattern =
+    /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|<u>([^<\n]+)<\/u>|\*([^*\n]+)\*|_([^_\n]+)_/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = linkPattern.exec(value))) {
+  while ((match = inlinePattern.exec(value))) {
     if (match.index > lastIndex) parts.push(value.slice(lastIndex, match.index));
-    parts.push(
-      <a
-        key={`${match[1]}-${match.index}`}
-        href={match[2]}
-        target={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "_blank"}
-        rel={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "noopener noreferrer"}
-        className="font-bold text-blue-700 underline underline-offset-4"
-      >
-        {match[1]}
-      </a>,
-    );
+    if (match[1] && match[2]) {
+      parts.push(
+        <a
+          key={`link-${match.index}`}
+          href={match[2]}
+          target={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "_blank"}
+          rel={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "noopener noreferrer"}
+          className="font-bold text-blue-700 underline underline-offset-4"
+        >
+          {match[1]}
+        </a>,
+      );
+    } else if (match[3] || match[4]) {
+      parts.push(<strong key={`strong-${match.index}`}>{match[3] || match[4]}</strong>);
+    } else if (match[5]) {
+      parts.push(<u key={`underline-${match.index}`}>{match[5]}</u>);
+    } else {
+      parts.push(<em key={`em-${match.index}`}>{match[6] || match[7]}</em>);
+    }
     lastIndex = match.index + match[0].length;
   }
 
@@ -489,6 +437,8 @@ export default function ContentAdminClient({
   const [loggedOut, setLoggedOut] = React.useState(false);
   const [previewSnapshot, setPreviewSnapshot] = React.useState<FormState>(() => emptyForm("blog"));
   const [previewUpdatedAt, setPreviewUpdatedAt] = React.useState(() => new Date());
+  const [linkEditor, setLinkEditor] = React.useState<LinkEditorState | null>(null);
+  const previewStorageKey = `xiphias-content-preview-${React.useId().replace(/:/g, "")}`;
   const contentRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const score = scoreForm(form);
@@ -526,21 +476,19 @@ export default function ContentAdminClient({
     setPreviewUpdatedAt(new Date());
   };
 
-  const openFullDraftPreview = () => {
+  const prepareFullDraftPreview = () => {
     const snapshot = {
       ...form,
       slug: form.slug || slugify(form.title),
       updated: today(),
-      body: textToMdx(form.contentText),
+      body: editorTextToMdx(form.contentText),
       tags: csvToArray(form.tags),
       countries: csvToArray(form.countries),
       programs: csvToArray(form.programs),
     };
-    const key = `xiphias-content-preview-${Date.now()}`;
-    window.localStorage.setItem(key, JSON.stringify(snapshot));
+    window.localStorage.setItem(previewStorageKey, JSON.stringify(snapshot));
     setPreviewSnapshot(form);
     setPreviewUpdatedAt(new Date());
-    window.open(`/content-admin/preview?draft=${encodeURIComponent(key)}`, "_blank", "noopener,noreferrer");
   };
 
   const insertContent = (snippet: string, selectText?: string) => {
@@ -562,21 +510,53 @@ export default function ContentAdminClient({
     });
   };
 
-  const insertLink = () => {
+  const openLinkEditor = () => {
     const textarea = contentRef.current;
-    const selected = textarea
-      ? form.contentText.slice(textarea.selectionStart ?? 0, textarea.selectionEnd ?? 0).trim()
-      : "";
-    const label = window.prompt("Text to display for the link", selected || "Link text");
-    if (!label) return;
-    const url = window.prompt("Paste the link URL. Use /contact for internal links.", "/contact");
-    if (!url) return;
-    const cleanUrl = url.trim();
-    if (!/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(cleanUrl)) {
+    const selectionStart = textarea?.selectionStart ?? form.contentText.length;
+    const selectionEnd = textarea?.selectionEnd ?? selectionStart;
+    const selected = form.contentText.slice(selectionStart, selectionEnd).trim();
+    setLinkEditor({
+      label: selected || "Link text",
+      url: "/contact",
+      selectionStart,
+      selectionEnd,
+    });
+    setMessage(null);
+  };
+
+  const applyLink = () => {
+    if (!linkEditor) return;
+    const label = linkEditor.label.trim();
+    const cleanUrl = linkEditor.url.trim();
+    if (!label) {
+      setMessage("Add text for the link.");
+      return;
+    }
+    if (!/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(cleanUrl) || /\s/.test(cleanUrl)) {
       setMessage("Use a full URL, an internal path starting with /, #anchor, mailto:, or tel:.");
       return;
     }
-    insertContent(`<!-- CMS: LINK START -->\n[${label.trim()}](${cleanUrl})\n<!-- CMS: LINK END -->`, selected || "Link text");
+    const safeLabel = label.replace(/\\/g, "\\\\").replace(/]/g, "\\]");
+    const snippet = `<!-- CMS: LINK START -->\n[${safeLabel}](${cleanUrl})\n<!-- CMS: LINK END -->`;
+    setForm((current) => {
+      const start = Math.min(linkEditor.selectionStart, current.contentText.length);
+      const end = Math.min(Math.max(linkEditor.selectionEnd, start), current.contentText.length);
+      const before = current.contentText.slice(0, start);
+      const after = current.contentText.slice(end);
+      const prefix = before && !before.endsWith("\n") ? "\n\n" : "";
+      const suffix = after && !after.startsWith("\n") ? "\n\n" : "";
+      const replacement = `${prefix}${snippet}${suffix}`;
+      requestAnimationFrame(() => {
+        const textarea = contentRef.current;
+        if (!textarea) return;
+        textarea.focus();
+        const cursor = start + replacement.length;
+        textarea.setSelectionRange(cursor, cursor);
+      });
+      return { ...current, contentText: `${before}${replacement}${after}` };
+    });
+    setLinkEditor(null);
+    setMessage(null);
   };
 
   const handleDelete = async (item: ContentItem) => {
@@ -675,7 +655,7 @@ export default function ContentAdminClient({
         summary: form.summary.slice(0, 200),
         seoTitle: (form.seoTitle || form.title).slice(0, 60),
         seoDescription: (form.seoDescription || form.summary).slice(0, 160),
-        body: textToMdx(form.contentText),
+        body: editorTextToMdx(form.contentText),
         tags: csvToArray(form.tags),
         countries: csvToArray(form.countries),
         programs: csvToArray(form.programs),
@@ -1183,13 +1163,15 @@ export default function ContentAdminClient({
                   {busy ? "Saving..." : "Save draft"}
                 </button>
               ) : null}
-              <button
-                type="button"
-                onClick={openFullDraftPreview}
-                className="h-12 rounded-xl border border-slate-300 px-5 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+              <a
+                href={`/content-admin/preview?draft=${encodeURIComponent(previewStorageKey)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={prepareFullDraftPreview}
+                className="inline-flex h-12 items-center rounded-xl border border-slate-300 px-5 text-sm font-black text-slate-800 transition hover:bg-slate-50"
               >
                 Preview full page
-              </button>
+              </a>
               {form.originalSlug ? (
                 <button
                   type="button"
@@ -1430,7 +1412,8 @@ export default function ContentAdminClient({
                     ))}
                     <button
                       type="button"
-                      onClick={insertLink}
+                      onClick={openLinkEditor}
+                      aria-expanded={Boolean(linkEditor)}
                       className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
                     >
                       Link
@@ -1447,6 +1430,53 @@ export default function ContentAdminClient({
                       Button
                     </button>
                   </div>
+                  {linkEditor ? (
+                    <div className="mt-3 grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[1fr_1.4fr_auto] sm:items-end">
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-link-label">
+                        Link text
+                        <input
+                          id="content-link-label"
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={linkEditor.label}
+                          onChange={(event) =>
+                            setLinkEditor((current) =>
+                              current ? { ...current, label: event.target.value } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-link-url">
+                        Link URL
+                        <input
+                          id="content-link-url"
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={linkEditor.url}
+                          placeholder="/contact or https://example.com"
+                          onChange={(event) =>
+                            setLinkEditor((current) =>
+                              current ? { ...current, url: event.target.value } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={applyLink}
+                          className="h-10 rounded-lg bg-blue-700 px-4 text-xs font-black text-white transition hover:bg-blue-800"
+                        >
+                          Insert link
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLinkEditor(null)}
+                          className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
               <textarea
@@ -1460,7 +1490,7 @@ export default function ContentAdminClient({
               <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
                 <span>{wordCount(form.contentText)} words</span>
                 <span>CMS start/end tags mark editable blocks and are removed when published.</span>
-                <span>Standalone section titles become headings.</span>
+                <span>Only Section and Subheading tags create headings; untagged text stays body text.</span>
               </div>
             </div>
           </div>

@@ -151,10 +151,10 @@ const orgJsonLd = {
   logo: `${SITE}/images/logo/xiphias-immigration.png`,
   image: `${SITE}/xiphias-immigration.png`,
   sameAs: [
-    "https://www.linkedin.com/company/xiphias-immigration/",
-    "https://www.facebook.com/xiphias",
-    "https://www.instagram.com/xiphias",
-    "https://twitter.com/xiphiasimmig",
+    "https://www.linkedin.com/company/xiphias-immigration-pvt-limited",
+    "https://www.facebook.com/xiphiasimmigration",
+    "https://www.instagram.com/xiphias.immigration/",
+    "https://x.com/XiphiasInfo",
   ],
   areaServed: "Worldwide",
   address: {

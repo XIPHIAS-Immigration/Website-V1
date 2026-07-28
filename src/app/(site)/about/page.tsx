@@ -61,8 +61,8 @@ const orgJsonLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/images/logo/xiphias-immigration.png`,
   sameAs: [
-    "https://www.linkedin.com/company/xiphias-immigration/",
-    "https://twitter.com/xiphiasimmig",
+    "https://www.linkedin.com/company/xiphias-immigration-pvt-limited",
+    "https://x.com/XiphiasInfo",
   ],
   description:
     "Global immigration consultancy for Residency, Citizenship, Corporate Mobility and Skilled Migration.",

@@ -475,7 +475,7 @@ export default async function ProgramPage(
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: (meta as any).title ?? params.program,
-      url: `https://yourdomain.com${baseFromCategory("skilled")}/${params.country}/${params.program}`,
+      url: `https://www.xiphiasimmigration.com${baseFromCategory("skilled")}/${params.country}/${params.program}`,
       mainEntity: howToLdData ? { "@id": "#application-howto" } : undefined,
     };
 

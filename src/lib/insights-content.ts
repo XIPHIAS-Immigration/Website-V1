@@ -33,7 +33,7 @@ import type {
 
 const INSIGHT_KINDS: InsightKind[] = ["articles", "news", "media", "blog"];
 const DEV = process.env.NODE_ENV !== "production";
-const RUNTIME_CACHE_MS = Number(process.env.XIPHIAS_INSIGHTS_CACHE_MS || 5000);
+const RUNTIME_CACHE_MS = Number(process.env.XIPHIAS_INSIGHTS_CACHE_MS || 300000);
 
 // Safety caps (no UI changes; just prevents edge-case abuse)
 const MAX_PAGE_SIZE = 50;
@@ -443,19 +443,38 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
 
 let _cache: { metas: InsightMeta[]; raw: RawDoc[]; loadedAt: number } | null =
   null;
+let _cachePromise: Promise<{
+  metas: InsightMeta[];
+  raw: RawDoc[];
+  loadedAt: number;
+}> | null = null;
 
 export async function invalidateInsightsCache() {
   _cache = null;
+  _cachePromise = null;
 }
 
 async function ensureCache() {
   if (!DEV && _cache && Date.now() - _cache.loadedAt < RUNTIME_CACHE_MS) return _cache; // brief reuse in prod
 
-  const raw = await loadRawDocs();
-  const metas = raw.map(metaFromRaw).sort(sortByDateDesc);
-  const next = { metas, raw, loadedAt: Date.now() };
-  if (!DEV) _cache = next;
-  return next;
+  if (!DEV && _cachePromise) return _cachePromise;
+
+  const load = async () => {
+    const raw = await loadRawDocs();
+    const metas = raw.map(metaFromRaw).sort(sortByDateDesc);
+    const next = { metas, raw, loadedAt: Date.now() };
+    if (!DEV) _cache = next;
+    return next;
+  };
+
+  if (DEV) return load();
+
+  _cachePromise = load();
+  try {
+    return await _cachePromise;
+  } finally {
+    _cachePromise = null;
+  }
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */
