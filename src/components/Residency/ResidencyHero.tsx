@@ -19,8 +19,8 @@ type Props = {
 };
 
 export default function HeroPremium({
-  title = "Discover Your Ideal Residency by Investment",
-  subtitle = "Concierge guidance across donation and real-estate routes. Transparent costs, rigorous compliance, and end-to-end execution.",
+  title = "Investment Migration Consultants in India",
+  subtitle = "Compare Golden Visa and residency by investment routes with transparent eligibility, cost and due-diligence guidance.",
   primaryHref = "/contact",
   primaryText = "Book a Free Consultation",
   secondaryHref = "/images/residency/xiphias-corporate-mobility.pdf",

@@ -13,6 +13,10 @@ function toAbsoluteUrl(input?: string) {
   return `${base}/${s}`;
 }
 
+function safeJsonStringify(data: unknown) {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
 /**
  * Outputs JSON-LD for Article / NewsArticle / BlogPosting / VideoObject depending on kind.
  * Uses absolute URLs to avoid schema warnings.
@@ -29,7 +33,8 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
           ? "VideoObject"
           : "Article";
 
-  const pageUrl = toAbsoluteUrl(record.url) ?? `${base}${record.url.startsWith("/") ? "" : "/"}${record.url}`;
+  const canonicalPath = record.canonical || record.url;
+  const pageUrl = toAbsoluteUrl(canonicalPath) ?? `${base}${canonicalPath.startsWith("/") ? "" : "/"}${canonicalPath}`;
   const heroUrl = toAbsoluteUrl(record.hero);
   const posterUrl = toAbsoluteUrl((record as any).heroPoster);
   const videoUrl = toAbsoluteUrl((record as any).heroVideo);
@@ -49,10 +54,16 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
       "@id": pageUrl,
     },
     author: record.author
-      ? { "@type": "Person", name: record.author }
+      ? record.author === "XIPHIAS Immigration"
+        ? { "@type": "Organization", "@id": `${base}/#organization` }
+        : { "@type": "Person", name: record.author }
+      : { "@type": "Organization", "@id": `${base}/#organization` },
+    reviewedBy: record.reviewer
+      ? { "@type": "Person", name: record.reviewer }
       : undefined,
     publisher: {
       "@type": "Organization",
+      "@id": `${base}/#organization`,
       name: "XIPHIAS Immigration Private Limited",
       logo: {
         "@type": "ImageObject",
@@ -60,7 +71,15 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
       },
     },
     keywords: Array.isArray(record.tags) && record.tags.length ? record.tags.join(", ") : undefined,
-    inLanguage: "en",
+    articleSection: record.kind,
+    about: [...(record.country || []), ...(record.program || [])].map((name) => ({
+      "@type": "Thing",
+      name,
+    })),
+    isAccessibleForFree: true,
+    isPartOf: { "@id": `${base}/#website` },
+    inLanguage: "en-IN",
+    citation: record.officialSources?.length ? record.officialSources : undefined,
   };
 
   // Images (Article/News/Blog)
@@ -87,11 +106,45 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
     if (data[k] === undefined) delete data[k];
   }
 
+  const sectionName =
+    record.kind === "articles"
+      ? "Articles"
+      : record.kind.charAt(0).toUpperCase() + record.kind.slice(1);
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: base,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: sectionName,
+        item: `${base}/${record.kind}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: record.title,
+        item: pageUrl,
+      },
+    ],
+  };
+
   return (
-    <script
-      type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonStringify(data) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonStringify(breadcrumbs) }}
+      />
+    </>
   );
 }

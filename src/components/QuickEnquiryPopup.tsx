@@ -9,8 +9,8 @@ const DISMISS_UNTIL_KEY = "xiphias_quick_enquiry_dismissed_until";
 const SUBMITTED_UNTIL_KEY = "xiphias_quick_enquiry_submitted_until";
 const SESSION_SHOWN_KEY = "xiphias_quick_enquiry_shown_session";
 
-const SHOW_DELAY_MS = 25_000;
-const SHOW_SCROLL_RATIO = 0.35;
+const SHOW_DELAY_MS = 4_500;
+const SHOW_SCROLL_RATIO = 0.12;
 const DISMISS_HIDE_DAYS = 7;
 const SUBMIT_HIDE_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;

@@ -3,7 +3,8 @@ import "server-only";
 import { getJiopayOrder, updateJiopayOrder, type JiopayOrder } from "@/lib/payments/jiopay-store";
 import { getProductConfig, type ProductConfig } from "@/lib/payments/product-catalog";
 import { sendPlatformEmail, getPlatformRecipient } from "@/lib/platform/email";
-import { generateReportPdf } from "@/lib/payments/report-router";
+import { ensurePaidReportArtifact, reportDownloadUrl } from "@/lib/payments/report-delivery";
+import { finalizeCrmJiopayPayment } from "@/lib/payments/crm-jiopay";
 
 export type FulfillmentStatus =
   | "missing_order"
@@ -13,12 +14,18 @@ export type FulfillmentStatus =
   | "report_failed"
   | "registration_delegated"
   | "registration_skipped"
-  | "custom_noted";
+  | "custom_noted"
+  | "crm_finalized"
+  | "crm_failed";
 
 export type FulfillmentResult = {
   status: FulfillmentStatus;
   detail?: string;
   mail?: unknown;
+};
+
+const fulfillmentState = globalThis as typeof globalThis & {
+  xiphiasJiopayFulfillmentJobs?: Map<string, Promise<FulfillmentResult>>;
 };
 
 function escapeHtml(value: unknown) {
@@ -36,6 +43,8 @@ function reportDeliveryEmailHtml(args: {
   country?: string;
   program?: string;
   reference: string;
+  amountInr: number;
+  downloadUrl: string;
 }) {
   return `
     <div style="margin:0;padding:24px;background:#eef3f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#071a3a;">
@@ -52,8 +61,13 @@ function reportDeliveryEmailHtml(args: {
             <tr><td style="padding:10px;font-weight:800;">Report</td><td style="padding:10px;">${escapeHtml(args.productName)}</td></tr>
             <tr><td style="padding:10px;font-weight:800;">Country focus</td><td style="padding:10px;">${escapeHtml(args.country || "Advisor shortlist")}</td></tr>
             <tr><td style="padding:10px;font-weight:800;">Programme</td><td style="padding:10px;">${escapeHtml(args.program || "Personalised recommendation")}</td></tr>
+            <tr><td style="padding:10px;font-weight:800;">Amount paid</td><td style="padding:10px;">INR ${escapeHtml(args.amountInr.toLocaleString("en-IN"))}</td></tr>
             <tr><td style="padding:10px;font-weight:800;">Payment reference</td><td style="padding:10px;">${escapeHtml(args.reference)}</td></tr>
           </table>
+          <p style="margin:22px 0 0;text-align:center;">
+            <a href="${escapeHtml(args.downloadUrl)}" style="display:inline-block;border-radius:9px;background:#1f5fbc;color:#fff;text-decoration:none;font-weight:800;padding:13px 22px;">Download your PDF report</a>
+          </p>
+          <p style="margin:12px 0 0;text-align:center;color:#536277;font-size:12px;line-height:1.6;">The secure download link is valid for seven days. The PDF is also attached to this email.</p>
           <p style="margin:20px 0 0;color:#536277;font-size:13px;line-height:1.7;">This report is an advisor-prepared planning document. Final eligibility, documentation, fees and timelines must be verified by the XIPHIAS team before filing or investment action.</p>
         </div>
       </div>
@@ -74,10 +88,44 @@ function reportDeliveryEmailHtml(args: {
  */
 export async function fulfillJiopayOrder(
   merchantTxnNo: string,
-  opts: { siteUrl: string },
+  opts: { siteUrl: string; gatewayPayload?: Record<string, unknown> },
+): Promise<FulfillmentResult> {
+  if (!fulfillmentState.xiphiasJiopayFulfillmentJobs) {
+    fulfillmentState.xiphiasJiopayFulfillmentJobs = new Map();
+  }
+  const running = fulfillmentState.xiphiasJiopayFulfillmentJobs.get(merchantTxnNo);
+  if (running) return running;
+
+  const job = fulfillJiopayOrderOnce(merchantTxnNo, opts);
+  fulfillmentState.xiphiasJiopayFulfillmentJobs.set(merchantTxnNo, job);
+  try {
+    return await job;
+  } finally {
+    fulfillmentState.xiphiasJiopayFulfillmentJobs.delete(merchantTxnNo);
+  }
+}
+
+async function fulfillJiopayOrderOnce(
+  merchantTxnNo: string,
+  opts: { siteUrl: string; gatewayPayload?: Record<string, unknown> },
 ): Promise<FulfillmentResult> {
   const order = getJiopayOrder(merchantTxnNo);
   if (!order) return { status: "missing_order" };
+
+  if (order.crmPayment) {
+    try {
+      await finalizeCrmJiopayPayment(merchantTxnNo, opts.gatewayPayload || {});
+      return { status: "crm_finalized" };
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "CRM payment finalization failed.";
+      updateJiopayOrder(merchantTxnNo, {}, {
+        type: "crm_payment_finalize_failed",
+        at: new Date().toISOString(),
+        data: { error: detail },
+      });
+      return { status: "crm_failed", detail };
+    }
+  }
 
   const product = getProductConfig(order.productType);
   if (!product) return { status: "unknown_product", detail: order.productType };
@@ -88,18 +136,23 @@ export async function fulfillJiopayOrder(
   );
   if (alreadyFulfilled) return { status: "already_fulfilled" };
 
-  if (product.fulfillment === "report") return fulfillReport(order, product);
+  if (product.fulfillment === "report") return fulfillReport(order, product, opts);
   if (product.fulfillment === "registration") return fulfillRegistration(order, opts);
   return fulfillCustom(order);
 }
 
-async function fulfillReport(order: JiopayOrder, product: ProductConfig): Promise<FulfillmentResult> {
+async function fulfillReport(
+  order: JiopayOrder,
+  product: ProductConfig,
+  opts: { siteUrl: string },
+): Promise<FulfillmentResult> {
   if (!product.reportKind) {
     return { status: "report_failed", detail: "No report template configured for this product." };
   }
   try {
-    const pdf = await generateReportPdf(product.reportKind, order);
+    const pdf = await ensurePaidReportArtifact(order, product);
     const filename = `XIPHIAS_${product.fileSlug}_${order.merchantTxnNo}.pdf`;
+    const downloadUrl = reportDownloadUrl(opts.siteUrl, order.merchantTxnNo);
 
     const mail = await sendPlatformEmail({
       to: order.customer.email,
@@ -111,9 +164,18 @@ async function fulfillReport(order: JiopayOrder, product: ProductConfig): Promis
         country: order.country,
         program: order.program,
         reference: order.merchantTxnNo,
+        amountInr: order.amountInr,
+        downloadUrl,
       }),
       attachments: [{ filename, content: pdf, contentType: "application/pdf" }],
     });
+    if (mail.status !== "sent") {
+      throw new Error(
+        mail.status === "failed"
+          ? `PDF email delivery failed: ${mail.reason}`
+          : `PDF email delivery skipped: ${mail.reason}`,
+      );
+    }
 
     // Best-effort staff notification — never blocks or fails the customer delivery.
     await sendPlatformEmail({

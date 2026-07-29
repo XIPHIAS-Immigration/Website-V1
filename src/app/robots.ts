@@ -1,10 +1,10 @@
 ﻿// src/app/robots.ts
 import type { MetadataRoute } from "next";
-
-// ✅ Keep robots consistent with your canonical domain (www)
-const HOST = "https://www.xiphiasimmigration.com";
+import { getSiteUrl } from "@/lib/seo/site";
 
 export default function robots(): MetadataRoute.Robots {
+  const host = getSiteUrl();
+
   return {
     rules: [
       {
@@ -13,36 +13,35 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           // Internal or system
           "/api/",
+          "/content-admin",
+          "/crm",
+          "/x-hub",
           "/search",
           "/thank-you",
+          "/*/thank-you",
           "/login",
           "/profile",
           "/admin",
           "/dashboard",
+          "/payment",
+          "/registration",
+          "/report-advisor-workflow",
+          "/australia-assesment-report",
+          "/canada-assesent-report",
 
           // Draft/preview routes
           "/preview",
           "/draft",
           "/private",
 
-          // Common duplicate param patterns
-          "/*?*utm_*",
-          "/*?*gclid=*",
-          "/*?*fbclid=*",
-          "/*?*msclkid=*",
-          "/*?*igshid=*",
-          "/*?*ref=*",
-          "/*?*source=*",
-          "/*?*campaign=*",
-
-          // add into disallow array
+          // Infrastructure paths
           "/cdn-cgi/",
           "/*%7C*",
 
         ],
       },
     ],
-    sitemap: `${HOST}/sitemap.xml`,
-    host: HOST,
+    sitemap: `${host}/sitemap.xml`,
+    host,
   };
 }

@@ -182,7 +182,9 @@ export default async function CountryPage(props: {
 
   return (
     <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 pb-2 text-black">
-      <h1 className="sr-only">Skilled migration in {countryName}</h1>
+      <h1 className="sr-only">
+        {(meta as any).seo?.title ?? (meta as any).title ?? `Skilled migration in ${countryName}`}
+      </h1>
 
       <JsonLd
         data={breadcrumbLd([
@@ -199,6 +201,7 @@ export default async function CountryPage(props: {
           poster={poster}
           imageSrc={heroImage}
           actions={heroActions}
+          titleElement="div"
         />
       </section>
 

@@ -1,7 +1,20 @@
 import "server-only";
 
+import { existsSync } from "node:fs";
 import puppeteer from "puppeteer";
 import { REPORT_CSS } from "./theme";
+
+function browserExecutablePath(): string | undefined {
+  const configured = process.env.PUPPETEER_EXECUTABLE_PATH?.trim();
+  const candidates = [
+    configured,
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+    "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  ].filter((value): value is string => Boolean(value));
+  return candidates.find((candidate) => existsSync(candidate));
+}
 
 function wrapReportHtml(title: string, bodyHtml: string): string {
   return `<!doctype html>
@@ -53,6 +66,7 @@ export async function renderReportPdf(opts: { title: string; bodyHtml: string })
 
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath: browserExecutablePath(),
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   try {

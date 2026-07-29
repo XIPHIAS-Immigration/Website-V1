@@ -14,6 +14,16 @@ export type InsightMeta = {
   title: string;
   summary?: string;
   author?: string;
+  reviewer?: string;
+  lastReviewed?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  primaryKeyword?: string;
+  searchIntent?: string;
+  contentCluster?: string;
+  officialSources?: string[];
+  canonical?: string;
+  noindex?: boolean;
 
   /** Always normalized to arrays */
   country?: string[];
@@ -23,6 +33,7 @@ export type InsightMeta = {
   /** Card/list image and generic fallback */
   hero?: string;
   heroAlt?: string;
+  heroTitlePlacement?: "overlay" | "below" | "both";
 
   /** Detail page video hero (optional). If present, use in MediaHero. */
   heroVideo?: string;

@@ -37,6 +37,7 @@ export async function DELETE(request: Request) {
     const basePath = deleted.kind === "blog" ? "/blog" : `/${deleted.kind}`;
     revalidatePath(basePath);
     revalidatePath(`${basePath}/${deleted.slug}`);
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ ok: true, deleted });
   } catch (error) {
@@ -61,6 +62,7 @@ export async function POST(request: Request) {
       const basePath = item.kind === "blog" ? "/blog" : `/${item.kind}`;
       revalidatePath(basePath);
       revalidatePath(item.url);
+      revalidatePath("/sitemap.xml");
     }
 
     return NextResponse.json({ ok: true, item });

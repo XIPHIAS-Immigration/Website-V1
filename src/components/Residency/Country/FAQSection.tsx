@@ -68,10 +68,7 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
 
           return (
             <div key={panelId} className="px-3 sm:px-4">
-              <h3 className="sr-only" id={`${panelId}-title`}>
-                Question {i + 1}
-              </h3>
-              <h4>
+              <h3>
                 <button
                   id={buttonId}
                   aria-expanded={isOpen}
@@ -92,7 +89,7 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
                     <Chevron className="h-4 w-4" />
                   </span>
                 </button>
-              </h4>
+              </h3>
 
               <div
                 id={panelId}

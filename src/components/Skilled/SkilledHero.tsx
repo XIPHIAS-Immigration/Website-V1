@@ -26,8 +26,8 @@ type Props = {
 };
 
 export default function SkilledHero({
-  title = "Discover Skilled Migration & Work Permits",
-  subtitle = "Points-tested PR, employer sponsorships, and priority talent visas across top destinations.",
+  title = "Skilled Immigration Consultants in India",
+  subtitle = "Compare points-tested PR, employer sponsorship and priority talent pathways across Canada, Australia, Europe and the UK.",
   primaryHref = "/contact",
   primaryText = "Book a Free Consultation",
   secondaryHref = "/images/residency/xiphias-corporate-mobility.pdf",

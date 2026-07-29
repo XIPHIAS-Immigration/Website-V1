@@ -183,6 +183,7 @@ export default async function CountryPage(props: {
           poster={poster}
           imageSrc={heroImage}
           actions={heroActions}
+          titleElement="div"
         />
       </section>
 

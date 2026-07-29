@@ -4,6 +4,12 @@ import React from "react";
 import Image from "next/image";
 import { User, Lock, Eye, EyeOff, AlertCircle, FileText, Newspaper, Bell } from "lucide-react";
 import AuthenticatedPageGuard from "@/components/Security/AuthenticatedPageGuard";
+import {
+  createMarkdownTable,
+  editorTextToMdx,
+  mdxToEditorText,
+  parseMarkdownTable,
+} from "@/lib/content-admin/content-format";
 
 type ContentKind = "blog" | "articles" | "news";
 
@@ -19,15 +25,24 @@ type ContentItem = {
   updated: string;
   hero: string;
   heroAlt: string;
+  heroTitlePlacement?: "overlay" | "below" | "both";
   tags: string[];
   countries: string[];
   programs: string[];
   seoTitle: string;
   seoDescription: string;
+  primaryKeyword?: string;
+  searchIntent?: string;
+  contentCluster?: string;
+  reviewer?: string;
+  lastReviewed?: string;
+  officialSources?: string[];
+  canonical?: string;
+  noindex?: boolean;
   url: string;
   wordCount: number;
-  visibility: "public" | "hidden";
-  status: "ready" | "needs-review" | "hidden";
+  visibility: "public" | "draft" | "hidden";
+  status: "ready" | "needs-review" | "draft" | "hidden";
 };
 
 type FormState = {
@@ -43,12 +58,21 @@ type FormState = {
   updated: string;
   hero: string;
   heroAlt: string;
+  heroTitlePlacement: "overlay" | "below" | "both";
   tags: string;
   countries: string;
   programs: string;
   seoTitle: string;
   seoDescription: string;
-  visibility: "public" | "hidden";
+  primaryKeyword: string;
+  searchIntent: string;
+  contentCluster: string;
+  reviewer: string;
+  lastReviewed: string;
+  officialSources: string;
+  canonical: string;
+  noindex: boolean;
+  visibility: "public" | "draft" | "hidden";
 };
 
 type Props = {
@@ -56,6 +80,18 @@ type Props = {
   isAuthenticated: boolean;
   configReady: boolean;
   username?: string;
+};
+
+type LinkEditorState = {
+  label: string;
+  url: string;
+  selectionStart: number;
+  selectionEnd: number;
+};
+
+type TableEditorState = {
+  columns: number;
+  rows: number;
 };
 
 const KINDS: Array<{ kind: ContentKind; label: string; singular: string; description: string }> = [
@@ -100,67 +136,15 @@ function csvToArray(value: string) {
     .filter(Boolean);
 }
 
+function linesToArray(value: string) {
+  return value
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function wordCount(value: string) {
   return value.split(/\s+/).filter(Boolean).length;
-}
-
-function stripMdxToText(value: string) {
-  return value
-    .replace(/^---[\s\S]*?---\s*/g, "")
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^\s*[-*]\s+/gm, "- ")
-    .replace(/^\s*\d+\.\s+/gm, "")
-    .replace(/[>`*_{}[\]]/g, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-function isHeadingCandidate(line: string) {
-  const trimmed = line.trim();
-  if (!trimmed || /^[-*]\s+/.test(trimmed) || /^\d+[.)]\s+/.test(trimmed)) return false;
-  if (trimmed.length > 80) return false;
-  if (trimmed.split(/\s+/).length > 10) return false;
-  return /:$/.test(trimmed) || !/[.!?]$/.test(trimmed);
-}
-
-function textToMdx(value: string) {
-  const normalized = value.replace(/\r\n/g, "\n").trim();
-  if (!normalized) return "";
-
-  return normalized
-    .split(/\n{2,}/)
-    .map((block) => {
-      if (/<\/?[A-Z][A-Za-z0-9]*(\s|>)/.test(block)) return block.trim();
-      const lines = block
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean);
-      if (!lines.length) return "";
-
-      if (lines.length === 1) {
-        const line = lines[0];
-        if (/^<\/?[A-Z][A-Za-z0-9]*(\s|>)/.test(line)) return line;
-        if (/^#{1,6}\s+/.test(line) || /^[-*]\s+/.test(line) || /^\d+\.\s+/.test(line)) return line;
-        if (isHeadingCandidate(line)) return `## ${line.replace(/:$/, "")}`;
-        return line;
-      }
-
-      if (lines.every((line) => /^[-*]\s+/.test(line))) return lines.join("\n");
-      if (lines.every((line) => /^\d+[.)]\s+/.test(line))) {
-        return lines.map((line) => line.replace(/^(\d+)[.)]\s+/, "$1. ")).join("\n");
-      }
-
-      if (isHeadingCandidate(lines[0])) {
-        return [`## ${lines[0].replace(/:$/, "")}`, "", lines.slice(1).join(" ")].join("\n");
-      }
-
-      return lines.join(" ");
-    })
-    .filter(Boolean)
-    .join("\n\n");
 }
 
 function kindMeta(kind: ContentKind) {
@@ -177,17 +161,26 @@ function emptyForm(kind: ContentKind): FormState {
     title: "",
     slug: "",
     summary: "",
-    contentText: `Overview\n\nWrite the ${label} in normal text. Use short paragraphs. If you add a short heading on its own line, the system will format it as a section heading.\n\nKey points\n\n- First point\n- Second point\n- Third point\n\nHow XIPHIAS can help\n\n`,
+    contentText: `<!-- CMS: SECTION START -->\nOverview\n\nWrite the ${label} in normal text. Use short paragraphs inside the section markers so the beginning and end are clear.\n<!-- CMS: SECTION END -->\n\n<!-- CMS: LIST START -->\nKey points\n\n- First point\n- Second point\n- Third point\n<!-- CMS: LIST END -->\n\n<!-- CMS: SECTION START -->\nHow XIPHIAS can help\n\nAdd the next section text here.\n<!-- CMS: SECTION END -->\n`,
     author: "XIPHIAS Immigration",
     date,
     updated: date,
     hero: "",
     heroAlt: "",
+    heroTitlePlacement: "overlay",
     tags: "",
     countries: "",
     programs: "",
     seoTitle: "",
     seoDescription: "",
+    primaryKeyword: "",
+    searchIntent: "informational",
+    contentCluster: "",
+    reviewer: "XIPHIAS Immigration Editorial Team",
+    lastReviewed: date,
+    officialSources: "",
+    canonical: "",
+    noindex: false,
     visibility: "public",
   };
 }
@@ -200,17 +193,26 @@ function formFromItem(item: ContentItem): FormState {
     title: item.title,
     slug: item.slug,
     summary: item.summary,
-    contentText: stripMdxToText(item.body),
+    contentText: mdxToEditorText(item.body),
     author: item.author,
     date: item.date || today(),
     updated: item.updated || today(),
     hero: item.hero,
     heroAlt: item.heroAlt,
+    heroTitlePlacement: item.heroTitlePlacement || "overlay",
     tags: item.tags.join(", "),
     countries: item.countries.join(", "),
     programs: item.programs.join(", "),
     seoTitle: item.seoTitle,
     seoDescription: item.seoDescription,
+    primaryKeyword: item.primaryKeyword || "",
+    searchIntent: item.searchIntent || "informational",
+    contentCluster: item.contentCluster || "",
+    reviewer: item.reviewer || "XIPHIAS Immigration Editorial Team",
+    lastReviewed: item.lastReviewed || item.updated || today(),
+    officialSources: (item.officialSources || []).join("\n"),
+    canonical: item.canonical || "",
+    noindex: item.noindex === true,
     visibility: item.visibility,
   };
 }
@@ -227,9 +229,232 @@ function scoreForm(form: FormState) {
     (form.seoTitle || form.title).trim().length <= 60,
     (form.seoDescription || form.summary).trim().length <= 160,
     csvToArray(form.tags).length >= 2,
+    Boolean(form.primaryKeyword.trim()),
+    Boolean(form.reviewer.trim()),
+    linesToArray(form.officialSources).length >= 1,
     Boolean(form.date),
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+}
+
+function visibilityLabel(visibility: FormState["visibility"]) {
+  if (visibility === "draft") return "Draft";
+  if (visibility === "hidden") return "Hidden";
+  return "Public";
+}
+
+function previewBlocks(value: string) {
+  return editorTextToMdx(value)
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+}
+
+function renderPreviewInline(value: string) {
+  const parts: React.ReactNode[] = [];
+  const inlinePattern =
+    /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|<u>([^<\n]+)<\/u>|\*([^*\n]+)\*|_([^_\n]+)_/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = inlinePattern.exec(value))) {
+    if (match.index > lastIndex) parts.push(value.slice(lastIndex, match.index));
+    if (match[1] && match[2]) {
+      parts.push(
+        <a
+          key={`link-${match.index}`}
+          href={match[2]}
+          target={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "_blank"}
+          rel={match[2].startsWith("/") || match[2].startsWith("#") ? undefined : "noopener noreferrer"}
+          className="font-bold text-blue-700 underline underline-offset-4"
+        >
+          {match[1]}
+        </a>,
+      );
+    } else if (match[3] || match[4]) {
+      parts.push(<strong key={`strong-${match.index}`}>{match[3] || match[4]}</strong>);
+    } else if (match[5]) {
+      parts.push(<u key={`underline-${match.index}`}>{match[5]}</u>);
+    } else {
+      parts.push(<em key={`em-${match.index}`}>{match[6] || match[7]}</em>);
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < value.length) parts.push(value.slice(lastIndex));
+  return parts.length ? parts : value;
+}
+
+function ContentDraftPreview({
+  form,
+  refreshedAt,
+  onRefresh,
+}: {
+  form: FormState;
+  refreshedAt: Date;
+  onRefresh: () => void;
+}) {
+  const blocks = previewBlocks(form.contentText);
+  const showOverlayTitle = form.heroTitlePlacement === "overlay" || form.heroTitlePlacement === "both";
+  const showBelowTitle = form.heroTitlePlacement === "below" || form.heroTitlePlacement === "both";
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-black">Draft preview</h2>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            Unsaved editor view. Updated{" "}
+            {refreshedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+        >
+          Refresh draft
+        </button>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+        <div className="relative h-44 bg-slate-200">
+          {form.hero ? (
+            <img src={form.hero} alt={form.heroAlt || ""} className="h-full w-full object-contain" loading="lazy" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm font-bold text-slate-500">Hero preview</div>
+          )}
+          {showOverlayTitle ? (
+            <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-black/25 to-transparent p-4">
+              <div>
+                <p className="text-xl font-black leading-tight text-white">{form.title || "Untitled draft"}</p>
+                {form.summary ? <p className="mt-1 line-clamp-2 text-xs font-semibold text-white/85">{form.summary}</p> : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="space-y-4 p-4">
+          {showBelowTitle ? (
+            <div>
+              <p className="text-2xl font-black leading-tight text-slate-950">{form.title || "Untitled draft"}</p>
+              {form.summary ? <p className="mt-2 text-sm leading-6 text-slate-600">{form.summary}</p> : null}
+            </div>
+          ) : null}
+
+          <div className="rounded-lg bg-white p-4 text-sm leading-7 text-slate-700">
+            {blocks.length ? (
+              blocks.slice(0, 8).map((block, index) => {
+                const table = parseMarkdownTable(block);
+                if (block.startsWith("## ")) {
+                  return (
+                    <h3 key={index} className="mt-3 first:mt-0 text-lg font-black text-slate-950">
+                      {block.replace(/^##\s+/, "")}
+                    </h3>
+                  );
+                }
+                if (block.startsWith("### ")) {
+                  return (
+                    <h4 key={index} className="mt-3 first:mt-0 text-base font-black text-slate-900">
+                      {block.replace(/^###\s+/, "")}
+                    </h4>
+                  );
+                }
+                if (block.startsWith(">")) {
+                  return (
+                    <blockquote key={index} className="border-l-4 border-blue-200 pl-3 font-semibold text-slate-700">
+                      {block.replace(/^>\s*/, "")}
+                    </blockquote>
+                  );
+                }
+                if (table) {
+                  return (
+                    <div key={index} className="overflow-x-auto rounded-lg border border-slate-200">
+                      <table className="min-w-full border-collapse text-left text-xs">
+                        <thead className="bg-slate-100 text-slate-950">
+                          <tr>
+                            {table.headers.map((header, cellIndex) => (
+                              <th key={`${header}-${cellIndex}`} className="border-b border-slate-200 px-3 py-2 font-black">
+                                {renderPreviewInline(header)}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {table.rows.map((row, rowIndex) => (
+                            <tr key={rowIndex} className="border-b border-slate-100 last:border-0">
+                              {row.map((cell, cellIndex) => (
+                                <td key={cellIndex} className="px-3 py-2 align-top">
+                                  {renderPreviewInline(cell)}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                }
+                if (/^[-*]\s+/m.test(block)) {
+                  return (
+                    <ul key={index} className="list-disc space-y-1 pl-5">
+                      {block
+                        .split("\n")
+                        .filter((line) => /^[-*]\s+/.test(line.trim()))
+                        .map((line) => (
+                          <li key={line}>{renderPreviewInline(line.replace(/^[-*]\s+/, ""))}</li>
+                        ))}
+                    </ul>
+                  );
+                }
+                if (/^\d+\.\s+/m.test(block)) {
+                  return (
+                    <ol key={index} className="list-decimal space-y-1 pl-5">
+                      {block
+                        .split("\n")
+                        .filter((line) => /^\d+\.\s+/.test(line.trim()))
+                        .map((line) => (
+                          <li key={line}>{renderPreviewInline(line.replace(/^\d+\.\s+/, ""))}</li>
+                        ))}
+                    </ol>
+                  );
+                }
+                if (block.includes("<ButtonLink")) {
+                  return (
+                    <span key={index} className="inline-flex rounded-full bg-blue-700 px-4 py-2 text-xs font-black text-white">
+                      Button link
+                    </span>
+                  );
+                }
+                if (block.includes("<Callout")) {
+                  return (
+                    <div key={index} className="rounded-lg border border-blue-100 bg-blue-50 p-3 font-semibold text-blue-950">
+                      Advisor callout
+                    </div>
+                  );
+                }
+                return <p key={index}>{renderPreviewInline(block)}</p>;
+              })
+            ) : (
+              <p className="font-semibold text-slate-400">Start typing to preview the article body.</p>
+            )}
+            {blocks.length > 8 ? <p className="mt-3 text-xs font-black text-slate-400">Draft preview clipped after 8 blocks.</p> : null}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full bg-slate-200 px-2.5 py-1 text-[11px] font-black uppercase text-slate-600">
+              {visibilityLabel(form.visibility)}
+            </span>
+            {csvToArray(form.tags).slice(0, 4).map((tag) => (
+              <span key={tag} className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-black text-blue-700">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function ContentAdminClient({
@@ -249,6 +474,11 @@ export default function ContentAdminClient({
   const [uploading, setUploading] = React.useState(false);
   const [showStudioPassword, setShowStudioPassword] = React.useState(false);
   const [loggedOut, setLoggedOut] = React.useState(false);
+  const [previewSnapshot, setPreviewSnapshot] = React.useState<FormState>(() => emptyForm("blog"));
+  const [previewUpdatedAt, setPreviewUpdatedAt] = React.useState(() => new Date());
+  const [linkEditor, setLinkEditor] = React.useState<LinkEditorState | null>(null);
+  const [tableEditor, setTableEditor] = React.useState<TableEditorState | null>(null);
+  const previewStorageKey = `xiphias-content-preview-${React.useId().replace(/:/g, "")}`;
   const contentRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const score = scoreForm(form);
@@ -269,8 +499,36 @@ export default function ContentAdminClient({
     setLoggedOut(new URLSearchParams(window.location.search).get("loggedOut") === "1");
   }, []);
 
+  React.useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setPreviewSnapshot(form);
+      setPreviewUpdatedAt(new Date());
+    }, 350);
+    return () => window.clearTimeout(timeout);
+  }, [form]);
+
   const updateForm = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const refreshPreview = () => {
+    setPreviewSnapshot(form);
+    setPreviewUpdatedAt(new Date());
+  };
+
+  const prepareFullDraftPreview = () => {
+    const snapshot = {
+      ...form,
+      slug: form.slug || slugify(form.title),
+      updated: today(),
+      body: editorTextToMdx(form.contentText),
+      tags: csvToArray(form.tags),
+      countries: csvToArray(form.countries),
+      programs: csvToArray(form.programs),
+    };
+    window.localStorage.setItem(previewStorageKey, JSON.stringify(snapshot));
+    setPreviewSnapshot(form);
+    setPreviewUpdatedAt(new Date());
   };
 
   const insertContent = (snippet: string, selectText?: string) => {
@@ -290,6 +548,63 @@ export default function ContentAdminClient({
       });
       return { ...current, contentText: next };
     });
+  };
+
+  const openLinkEditor = () => {
+    const textarea = contentRef.current;
+    const selectionStart = textarea?.selectionStart ?? form.contentText.length;
+    const selectionEnd = textarea?.selectionEnd ?? selectionStart;
+    const selected = form.contentText.slice(selectionStart, selectionEnd).trim();
+    setLinkEditor({
+      label: selected || "Link text",
+      url: "/contact",
+      selectionStart,
+      selectionEnd,
+    });
+    setTableEditor(null);
+    setMessage(null);
+  };
+
+  const applyLink = () => {
+    if (!linkEditor) return;
+    const label = linkEditor.label.trim();
+    const cleanUrl = linkEditor.url.trim();
+    if (!label) {
+      setMessage("Add text for the link.");
+      return;
+    }
+    if (!/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(cleanUrl) || /\s/.test(cleanUrl)) {
+      setMessage("Use a full URL, an internal path starting with /, #anchor, mailto:, or tel:.");
+      return;
+    }
+    const safeLabel = label.replace(/\\/g, "\\\\").replace(/]/g, "\\]");
+    const snippet = `<!-- CMS: LINK START -->\n[${safeLabel}](${cleanUrl})\n<!-- CMS: LINK END -->`;
+    setForm((current) => {
+      const start = Math.min(linkEditor.selectionStart, current.contentText.length);
+      const end = Math.min(Math.max(linkEditor.selectionEnd, start), current.contentText.length);
+      const before = current.contentText.slice(0, start);
+      const after = current.contentText.slice(end);
+      const prefix = before && !before.endsWith("\n") ? "\n\n" : "";
+      const suffix = after && !after.startsWith("\n") ? "\n\n" : "";
+      const replacement = `${prefix}${snippet}${suffix}`;
+      requestAnimationFrame(() => {
+        const textarea = contentRef.current;
+        if (!textarea) return;
+        textarea.focus();
+        const cursor = start + replacement.length;
+        textarea.setSelectionRange(cursor, cursor);
+      });
+      return { ...current, contentText: `${before}${replacement}${after}` };
+    });
+    setLinkEditor(null);
+    setMessage(null);
+  };
+
+  const applyTable = () => {
+    if (!tableEditor) return;
+    insertContent(`\n\n${createMarkdownTable(tableEditor.columns, tableEditor.rows)}\n\n`);
+    setTableEditor(null);
+    setMessage(null);
   };
 
   const handleDelete = async (item: ContentItem) => {
@@ -327,14 +642,24 @@ export default function ContentAdminClient({
 
   const openNew = (kind: ContentKind) => {
     setActiveKind(kind);
-    setForm(emptyForm(kind));
+    const nextForm = emptyForm(kind);
+    setForm(nextForm);
+    setPreviewSnapshot(nextForm);
+    setPreviewUpdatedAt(new Date());
+    setLinkEditor(null);
+    setTableEditor(null);
     setMessage(null);
     setView("editor");
   };
 
   const openExisting = (item: ContentItem) => {
     setActiveKind(item.kind);
-    setForm(formFromItem(item));
+    const nextForm = formFromItem(item);
+    setForm(nextForm);
+    setPreviewSnapshot(nextForm);
+    setPreviewUpdatedAt(new Date());
+    setLinkEditor(null);
+    setTableEditor(null);
     setMessage(null);
     setView("editor");
   };
@@ -368,23 +693,25 @@ export default function ContentAdminClient({
     window.location.replace("/content-admin?loggedOut=1");
   };
 
-  const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const saveForm = async (forcedVisibility?: FormState["visibility"]) => {
     setBusy(true);
     setMessage(null);
 
     try {
+      const visibility = forcedVisibility || form.visibility;
       const payload = {
         ...form,
+        visibility,
         title: form.title.slice(0, 60),
         slug: form.slug || slugify(form.title),
         summary: form.summary.slice(0, 200),
         seoTitle: (form.seoTitle || form.title).slice(0, 60),
         seoDescription: (form.seoDescription || form.summary).slice(0, 160),
-        body: textToMdx(form.contentText),
+        body: editorTextToMdx(form.contentText),
         tags: csvToArray(form.tags),
         countries: csvToArray(form.countries),
         programs: csvToArray(form.programs),
+        officialSources: linesToArray(form.officialSources),
         // always stamp updated to today on every save
         updated: today(),
       };
@@ -399,12 +726,21 @@ export default function ContentAdminClient({
 
       await refreshItems();
       setForm(formFromItem(data.item));
-      setMessage("Saved. Your text was converted into MDX and the content cache was refreshed.");
+      setMessage(
+        visibility === "draft"
+          ? "Draft saved. It is not posted publicly."
+          : "Saved. Your text was converted into MDX and the content cache was refreshed.",
+      );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to save content.");
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await saveForm();
   };
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -754,10 +1090,12 @@ export default function ContentAdminClient({
                     className={`w-fit rounded-full px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.08em] ${
                       item.visibility === "hidden"
                         ? "bg-amber-50 text-amber-800 ring-1 ring-amber-200"
+                        : item.visibility === "draft"
+                        ? "bg-blue-50 text-blue-700 ring-1 ring-blue-200"
                         : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
                     }`}
                   >
-                    {item.visibility}
+                    {visibilityLabel(item.visibility)}
                   </span>
                   <span className="text-xs font-semibold text-slate-600">{item.updated || item.date || "-"}</span>
                   <span className="text-xs font-semibold text-slate-600">{item.wordCount}</span>
@@ -836,6 +1174,7 @@ export default function ContentAdminClient({
                   onChange={(event) => updateForm("visibility", event.target.value as FormState["visibility"])}
                 >
                   <option value="public">Public</option>
+                  <option value="draft">Draft</option>
                   <option value="hidden">Hidden</option>
                 </select>
               </label>
@@ -858,8 +1197,33 @@ export default function ContentAdminClient({
                 disabled={busy}
                 className="h-12 rounded-xl bg-blue-700 px-6 text-sm font-black text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {busy ? "Saving..." : "Save content"}
+                {busy
+                  ? "Saving..."
+                  : form.visibility === "public"
+                  ? "Publish content"
+                  : form.visibility === "hidden"
+                  ? "Save hidden"
+                  : "Save draft"}
               </button>
+              {form.visibility !== "draft" ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void saveForm("draft")}
+                  className="h-12 rounded-xl border border-amber-200 bg-amber-50 px-5 text-sm font-black text-amber-800 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {busy ? "Saving..." : "Save draft"}
+                </button>
+              ) : null}
+              <a
+                href={`/content-admin/preview?draft=${encodeURIComponent(previewStorageKey)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={prepareFullDraftPreview}
+                className="inline-flex h-12 items-center rounded-xl border border-slate-300 px-5 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+              >
+                Preview full page
+              </a>
               {form.originalSlug ? (
                 <button
                   type="button"
@@ -877,15 +1241,24 @@ export default function ContentAdminClient({
                       updated: form.updated,
                       hero: form.hero,
                       heroAlt: form.heroAlt,
+                      heroTitlePlacement: form.heroTitlePlacement,
                       tags: csvToArray(form.tags),
                       countries: csvToArray(form.countries),
                       programs: csvToArray(form.programs),
                       seoTitle: form.seoTitle,
                       seoDescription: form.seoDescription,
+                      primaryKeyword: form.primaryKeyword,
+                      searchIntent: form.searchIntent,
+                      contentCluster: form.contentCluster,
+                      reviewer: form.reviewer,
+                      lastReviewed: form.lastReviewed,
+                      officialSources: linesToArray(form.officialSources),
+                      canonical: form.canonical,
+                      noindex: form.noindex,
                       url: "",
                       wordCount: wordCount(form.contentText),
                       visibility: form.visibility,
-                      status: form.visibility === "hidden" ? "hidden" : "ready",
+                      status: form.visibility === "hidden" ? "hidden" : form.visibility === "draft" ? "draft" : "ready",
                     })
                   }
                   className="h-12 rounded-xl border border-red-200 px-4 text-sm font-black text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -1031,39 +1404,195 @@ export default function ContentAdminClient({
               <label className="block text-sm font-black" htmlFor="content-body">
                 Content
               </label>
-              <div className="mt-3 flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
-                {[
-                  ["Title", "\n\n## Section title\n\n"],
-                  ["Subtitle", "\n\n### Subsection title\n\n"],
-                  ["Bullet list", "\n\n- First point\n- Second point\n- Third point\n\n"],
-                  ["Numbered", "\n\n1. First step\n2. Second step\n3. Third step\n\n"],
-                  ["Quote", "\n\n> Add a client-friendly insight or quoted note here.\n\n"],
-                  ["Callout", "\n\n<Callout tone=\"info\" title=\"Advisor note\">\nAdd the important advisory note here.\n</Callout>\n\n"],
-                  ["Button", "\n\n<ButtonLink href=\"/contact\">Book a consultation</ButtonLink>\n\n"],
-                ].map(([label, snippet]) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => insertContent(snippet)}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
-                  >
-                    {label}
-                  </button>
-                ))}
-                {[
-                  ["B", "**selected text**", "selected text"],
-                  ["I", "*selected text*", "selected text"],
-                  ["U", "<u>selected text</u>", "selected text"],
-                ].map(([label, snippet, selected]) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => insertContent(snippet, selected)}
-                    className="flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div className="mt-3 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div>
+                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">Structure blocks</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      [
+                        "Section",
+                        "\n\n<!-- CMS: SECTION START -->\nSection title\n\nWrite this section here.\n<!-- CMS: SECTION END -->\n\n",
+                      ],
+                      [
+                        "Subheading",
+                        "\n\n<!-- CMS: SUBHEADING START -->\n### Subsection title\n<!-- CMS: SUBHEADING END -->\n\n",
+                      ],
+                      [
+                        "Bullets",
+                        "\n\n<!-- CMS: LIST START -->\n- First point\n- Second point\n- Third point\n<!-- CMS: LIST END -->\n\n",
+                      ],
+                      [
+                        "Numbered",
+                        "\n\n<!-- CMS: LIST START -->\n1. First step\n2. Second step\n3. Third step\n<!-- CMS: LIST END -->\n\n",
+                      ],
+                      [
+                        "Quote",
+                        "\n\n<!-- CMS: QUOTE START -->\n> Add a client-friendly insight or quoted note here.\n<!-- CMS: QUOTE END -->\n\n",
+                      ],
+                      [
+                        "Callout",
+                        "\n\n<!-- CMS: CALLOUT START -->\n<Callout tone=\"info\" title=\"Advisor note\">\nAdd the important advisory note here.\n</Callout>\n<!-- CMS: CALLOUT END -->\n\n",
+                      ],
+                    ].map(([label, snippet]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => insertContent(snippet)}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLinkEditor(null);
+                        setTableEditor((current) => current || { columns: 3, rows: 3 });
+                      }}
+                      aria-expanded={Boolean(tableEditor)}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                    >
+                      Table
+                    </button>
+                  </div>
+                  {tableEditor ? (
+                    <div className="mt-3 grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[140px_140px_auto] sm:items-end">
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-table-columns">
+                        Columns
+                        <input
+                          id="content-table-columns"
+                          type="number"
+                          min={2}
+                          max={8}
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={tableEditor.columns}
+                          onChange={(event) =>
+                            setTableEditor((current) =>
+                              current ? { ...current, columns: Number(event.target.value) } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-table-rows">
+                        Data rows
+                        <input
+                          id="content-table-rows"
+                          type="number"
+                          min={1}
+                          max={20}
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={tableEditor.rows}
+                          onChange={(event) =>
+                            setTableEditor((current) =>
+                              current ? { ...current, rows: Number(event.target.value) } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={applyTable}
+                          className="h-10 rounded-lg bg-blue-700 px-4 text-xs font-black text-white transition hover:bg-blue-800"
+                        >
+                          Insert table
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTableEditor(null)}
+                          className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="border-t border-slate-200 pt-3">
+                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">Inline and actions</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      ["B", "**selected text**", "selected text"],
+                      ["I", "*selected text*", "selected text"],
+                      ["U", "<u>selected text</u>", "selected text"],
+                    ].map(([label, snippet, selected]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => insertContent(snippet, selected)}
+                        className="flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={openLinkEditor}
+                      aria-expanded={Boolean(linkEditor)}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                    >
+                      Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        insertContent(
+                          "\n\n<!-- CMS: BUTTON START -->\n<ButtonLink href=\"/contact\">Book a consultation</ButtonLink>\n<!-- CMS: BUTTON END -->\n\n",
+                        )
+                      }
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                    >
+                      Button
+                    </button>
+                  </div>
+                  {linkEditor ? (
+                    <div className="mt-3 grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[1fr_1.4fr_auto] sm:items-end">
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-link-label">
+                        Link text
+                        <input
+                          id="content-link-label"
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={linkEditor.label}
+                          onChange={(event) =>
+                            setLinkEditor((current) =>
+                              current ? { ...current, label: event.target.value } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-link-url">
+                        Link URL
+                        <input
+                          id="content-link-url"
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={linkEditor.url}
+                          placeholder="/contact or https://example.com"
+                          onChange={(event) =>
+                            setLinkEditor((current) =>
+                              current ? { ...current, url: event.target.value } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={applyLink}
+                          className="h-10 rounded-lg bg-blue-700 px-4 text-xs font-black text-white transition hover:bg-blue-800"
+                        >
+                          Insert link
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLinkEditor(null)}
+                          className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
               </div>
               <textarea
                 id="content-body"
@@ -1075,8 +1604,8 @@ export default function ContentAdminClient({
               />
               <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
                 <span>{wordCount(form.contentText)} words</span>
-                <span>Short standalone lines become section headings.</span>
-                <span>Lines starting with - stay as bullet points.</span>
+                <span>CMS start/end tags mark editable blocks and are removed when published.</span>
+                <span>Only Section and Subheading tags create headings; untagged text stays body text.</span>
               </div>
             </div>
           </div>
@@ -1086,7 +1615,7 @@ export default function ContentAdminClient({
               <h2 className="text-lg font-black">Hero image</h2>
               <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                 {form.hero ? (
-                  <img src={form.hero} alt={form.heroAlt || ""} className="h-52 w-full object-cover" loading="lazy" />
+                  <img src={form.hero} alt={form.heroAlt || ""} className="h-52 w-full object-contain" loading="lazy" />
                 ) : (
                   <div className="flex h-52 items-center justify-center text-sm font-bold text-slate-500">
                     No image attached
@@ -1117,7 +1646,27 @@ export default function ContentAdminClient({
                 onChange={(event) => updateForm("heroAlt", event.target.value)}
               />
               <p className="mt-1 text-xs text-slate-500">{form.heroAlt.length} of 140 characters used</p>
+              <label className="mt-4 block text-sm font-black" htmlFor="hero-title-placement">
+                Title placement
+              </label>
+              <select
+                id="hero-title-placement"
+                className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                value={form.heroTitlePlacement}
+                onChange={(event) =>
+                  updateForm("heroTitlePlacement", event.target.value as FormState["heroTitlePlacement"])
+                }
+              >
+                <option value="overlay">On image</option>
+                <option value="below">Below image</option>
+                <option value="both">Both</option>
+              </select>
+              <p className="mt-1 text-xs text-slate-500">
+                Controls where the article title and excerpt appear on the public detail page.
+              </p>
             </div>
+
+            <ContentDraftPreview form={previewSnapshot} refreshedAt={previewUpdatedAt} onRefresh={refreshPreview} />
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-black">Classification</h2>
@@ -1177,6 +1726,31 @@ export default function ContentAdminClient({
                   />
                 </div>
               </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-black" htmlFor="reviewer">
+                    Expert reviewer
+                  </label>
+                  <input
+                    id="reviewer"
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                    value={form.reviewer}
+                    onChange={(event) => updateForm("reviewer", event.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-black" htmlFor="last-reviewed">
+                    Last reviewed
+                  </label>
+                  <input
+                    id="last-reviewed"
+                    type="date"
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                    value={form.lastReviewed}
+                    onChange={(event) => updateForm("lastReviewed", event.target.value)}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -1216,6 +1790,84 @@ export default function ContentAdminClient({
                 onChange={(event) => updateForm("seoDescription", event.target.value)}
               />
               <p className="mt-1 text-xs text-slate-500">{(form.seoDescription || form.summary).length} of 160 characters used</p>
+
+              <div className="mt-5 border-t border-slate-200 pt-5">
+                <label className="block text-sm font-black" htmlFor="primary-keyword">
+                  Primary search query
+                </label>
+                <input
+                  id="primary-keyword"
+                  className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                  placeholder="e.g., Canada immigration consultants in India"
+                  value={form.primaryKeyword}
+                  onChange={(event) => updateForm("primaryKeyword", event.target.value)}
+                />
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-black" htmlFor="search-intent">
+                      Search intent
+                    </label>
+                    <select
+                      id="search-intent"
+                      className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                      value={form.searchIntent}
+                      onChange={(event) => updateForm("searchIntent", event.target.value)}
+                    >
+                      <option value="informational">Informational</option>
+                      <option value="commercial">Commercial</option>
+                      <option value="transactional">Transactional</option>
+                      <option value="news">News / update</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-black" htmlFor="content-cluster">
+                      Topic cluster
+                    </label>
+                    <input
+                      id="content-cluster"
+                      className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                      placeholder="e.g., Canada PR"
+                      value={form.contentCluster}
+                      onChange={(event) => updateForm("contentCluster", event.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <label className="mt-4 block text-sm font-black" htmlFor="canonical-url">
+                  Canonical URL override
+                </label>
+                <input
+                  id="canonical-url"
+                  className="mt-2 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                  placeholder="Leave blank to use this post's URL"
+                  value={form.canonical}
+                  onChange={(event) => updateForm("canonical", event.target.value)}
+                />
+
+                <label className="mt-4 block text-sm font-black" htmlFor="official-sources">
+                  Official source URLs
+                </label>
+                <textarea
+                  id="official-sources"
+                  className="mt-2 min-h-28 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                  placeholder={"https://www.canada.ca/...\nhttps://www.uscis.gov/..."}
+                  value={form.officialSources}
+                  onChange={(event) => updateForm("officialSources", event.target.value)}
+                />
+                <p className="mt-1 text-xs text-slate-500">One government or primary-source URL per line.</p>
+
+                <label className="mt-4 flex items-center gap-3 text-sm font-bold" htmlFor="content-noindex">
+                  <input
+                    id="content-noindex"
+                    type="checkbox"
+                    className="size-4 rounded border-slate-300 text-blue-700 focus:ring-blue-600"
+                    checked={form.noindex}
+                    onChange={(event) => updateForm("noindex", event.target.checked)}
+                  />
+                  Exclude this public page from search results
+                </label>
+              </div>
             </div>
           </aside>
         </div>

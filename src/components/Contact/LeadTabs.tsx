@@ -24,7 +24,10 @@ export default function LeadTabs({
         className=" py-4  md:py-5 flex-1 flex flex-col bg-none"
         id={id ? `${id}-contact-form` : undefined}
       >
-        <ContactForm />
+        <ContactForm
+          heading="Start your consultation request"
+          subheading="Share your contact details and the route you are considering. The advisory team will respond within one business day."
+        />
       </div>
     </SectionCard>
   );

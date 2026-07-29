@@ -27,6 +27,12 @@ export type JiopayOrder = {
   country?: string;
   program?: string;
   answers?: Record<string, unknown>;
+  crmPayment?: {
+    paymentType: "invoice" | "receipt";
+    sourceId: number;
+    clientId: number;
+    returnUrl: string;
+  };
   status: JiopayOrderStatus;
   checkoutUrl?: string;
   lastResponseCode?: string;
@@ -122,4 +128,3 @@ export function updateJiopayOrder(
   writeStore(store);
   return order;
 }
-

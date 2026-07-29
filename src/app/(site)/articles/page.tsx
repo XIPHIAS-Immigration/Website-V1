@@ -1,56 +1,34 @@
 // src/app/(site)/articles/page.tsx
 import Link from "next/link";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getAllInsights } from "@/lib/insights-content";
+import { listingMetadata, pageNumber } from "@/lib/seo/listing-metadata";
 import nextDynamic from "next/dynamic";
 
 const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
 
-const SITE_URL = "https://www.xiphiasimmigration.com";
-const OG_IMAGE = "/xiphias-immigration.png";
-
-// SEO metadata for the articles listing page
-export const metadata: Metadata = {
-  title: "Articles – Immigration Insights & Updates | XIPHIAS Immigration",
-  description:
-    "Stay informed with the latest articles on investment migration, residency and citizenship programs. Browse our expert insights and updates.",
-  alternates: { canonical: "/articles" },
-  robots: { index: true, follow: true },
-  openGraph: {
-    title: "Articles – Immigration Insights & Updates",
-    description:
-      "Stay informed with the latest articles on investment migration, residency and citizenship programs. Browse our expert insights and updates.",
-    url: `${SITE_URL}/articles`,
-    siteName: "XIPHIAS Immigration",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: `${SITE_URL}${OG_IMAGE}`,
-        width: 1200,
-        height: 630,
-        alt: "Articles – Immigration Insights & Updates – XIPHIAS Immigration",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Articles – Immigration Insights & Updates",
-    description:
-      "Stay informed with the latest articles on investment migration, residency and citizenship programs. Browse our expert insights and updates.",
-    images: [`${SITE_URL}${OG_IMAGE}`],
-  },
-};
-
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 // Compatible typing: supports either plain object or Promise (varies by Next versions/tooling)
 type SearchParams = Record<string, string | string[] | undefined>;
 type PageProps = {
   searchParams?: SearchParams | Promise<SearchParams>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const sp = await Promise.resolve(searchParams ?? {});
+  return listingMetadata({
+    path: "/articles",
+    title: "Articles - Immigration Insights & Updates",
+    description:
+      "Stay informed with the latest articles on investment migration, residency and citizenship programs. Browse our expert insights and updates.",
+    page: pageNumber(sp.page),
+  });
+}
 
 const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
 
@@ -67,6 +45,7 @@ export default async function ArticlesListPage({ searchParams }: PageProps) {
   });
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (total > 0 && page > totalPages) notFound();
   const safePage = Math.min(page, totalPages);
 
   const startIdx = total === 0 ? 0 : (safePage - 1) * pageSize + 1;

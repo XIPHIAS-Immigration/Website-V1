@@ -29,7 +29,7 @@ const RESOURCES = Object.freeze([
   { label: "X-Hub", href: "/x-hub" },
   { label: "Guides & Resources", href: "/guide" },
   { label: "Insights", href: "/insights" },
-  { label: "Events", href: "/event" },
+  { label: "Events", href: "/events" },
   { label: "Awards & Recognition", href: "/awards" },
   { label: 'Partner With Us', href: '/partner-with-us' },
   { label: 'Reviews', href: '/reviews' },
@@ -50,6 +50,7 @@ const COMPANY = [
 const LEGAL = [
   { label: "Terms & Conditions", href: "/terms" },
   { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Editorial Policy", href: "/about/editorial-policy" },
   { label: "Refund Policy", href: "/refunds" },
   { label: "Anti-fraud Notice", href: "/anti-fraud" },
   { label: "Cookies Policy", href: "/cookies" },
@@ -255,34 +256,6 @@ export default function Footer() {
     }
   };
   
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://www.xiphiasimmigration.com#org",
-        name: "XIPHIAS Immigration",
-        url: "https://www.xiphiasimmigration.com",
-        logo: "https://www.xiphiasimmigration.com/images/logo/xiphias-immigration.png",
-        sameAs: SOCIALS.map(s => s.href),
-        contactPoint: [
-          { "@type": "ContactPoint", contactType: "sales", email: "immigration@xiphias.in" },
-          { "@type": "ContactPoint", contactType: "support", email: "immigration@xiphias.in" },
-        ],
-        aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "1200" },
-      },
-      {
-        "@type": "WebSite",
-        name: "XIPHIAS Immigration",
-        url: "https://www.xiphiasimmigration.com",
-        potentialAction: {
-          "@type": "SubscribeAction",
-          target: "https://www.xiphiasimmigration.com/api/newsletter/subscribe",
-        },
-      },
-    ],
-  } as const;
-
   return (
     <footer role="contentinfo" aria-label="Site footer" className="relative text-white">
       {/* Background */}
@@ -774,8 +747,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* JSON-LD */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     </footer>
   );
 }

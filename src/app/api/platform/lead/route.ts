@@ -130,13 +130,13 @@ export async function POST(req: NextRequest) {
             ["Country",    lead.country],
           ])}
           <div style="margin:28px 0;text-align:center;">
-            <a href="https://xiphiasimmigration.com/eligibility"
+            <a href="https://www.xiphiasimmigration.com/eligibility"
                style="display:inline-block;background:#e1b923;color:#0b2a6b;font-weight:700;font-size:14px;padding:13px 28px;border-radius:999px;text-decoration:none;">
               Check Your Eligibility →
             </a>
           </div>
           <p style="font-size:12px;color:#9ca3af;line-height:1.5;border-top:1px solid #f3f4f6;padding-top:16px;margin:0;">
-            XIPHIAS Immigration Consultancy &bull; India&apos;s Most Trusted Global Mobility Partner<br/>
+            XIPHIAS Immigration Consultancy &bull; Global Mobility Advisory Since 2009<br/>
             <a href="https://www.xiphiasimmigration.com" style="color:#1c57b4;">xiphiasimmigration.com</a>
             &nbsp;&bull;&nbsp;
             <a href="mailto:immigration@xiphias.in" style="color:#1c57b4;">immigration@xiphias.in</a>

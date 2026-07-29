@@ -155,7 +155,7 @@ export default function ContactForm({
       className={[
         "relative w-full max-w-xl mx-auto",
         "rounded-2xl bg-white dark:bg-neutral-950",
-        "ring-1 ring-neutral-200 dark:ring-neutral-800 shadow-sm",
+        "ring-1 ring-blue-100 dark:ring-neutral-800 shadow-[0_18px_55px_rgba(15,58,138,0.14)]",
         "p-4 sm:p-6",
         className,
       ].join(" ")}
@@ -165,17 +165,17 @@ export default function ContactForm({
 
       {/* header */}
       <header className="relative">
-        <div className="inline-flex items-center gap-2 text-[12px] text-primary">
+        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-2.5 py-1 text-[12px] font-black text-primary ring-1 ring-blue-100 dark:bg-blue-950/30 dark:ring-blue-900">
           <span className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-          <span className="font-semibold">Get in touch</span>
+          <span>Priority enquiry</span>
         </div>
         <h2
           id={titleId}
-          className="mt-1.5 text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+          className="mt-2 text-xl font-black leading-tight text-neutral-900 dark:text-neutral-50 sm:text-2xl"
         >
           {title}
         </h2>
-        <p className="mt-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1.5 text-sm font-semibold leading-6 text-neutral-600 dark:text-neutral-400">
           {desc}
         </p>
       </header>
@@ -288,7 +288,7 @@ export default function ContactForm({
                 <span>Sending…</span>
               </>
             ) : isFull ? (
-              "Send message"
+              "Submit enquiry"
             ) : (
               "Request callback"
             )}

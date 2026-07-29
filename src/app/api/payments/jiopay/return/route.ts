@@ -10,6 +10,9 @@ import {
 } from "@/lib/payments/jiopay";
 import { getJiopayOrder, updateJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getPlatformRepository } from "@/lib/platform/repository";
+import { createReportDownloadGrant } from "@/lib/payments/report-delivery";
+import { recordJiopayPurchaseInCrm } from "@/lib/crm/save-payment";
+import { fulfillJiopayOrder } from "@/lib/payments/fulfillment";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,12 +48,17 @@ async function handleReturn(req: NextRequest) {
   let verified = false;
   const merchantTxnNo = extractJiopayMerchantTxnNo(payload);
   let status = "pending";
+  let downloadGrant: ReturnType<typeof createReportDownloadGrant> | null = null;
+  const initialOrder = merchantTxnNo ? getJiopayOrder(merchantTxnNo) : null;
 
   try {
     const config = getJiopayConfig(req);
     verified = verifyJiopaySecureHash(payload, config.secretKey);
     if (verified && isJiopaySuccess(payload)) status = "success";
     else if (verified && Object.keys(payload).length) status = "failed";
+    if (verified && status === "success" && merchantTxnNo && !initialOrder?.crmPayment) {
+      downloadGrant = createReportDownloadGrant(merchantTxnNo);
+    }
   } catch {
     status = "pending";
   }
@@ -58,8 +66,12 @@ async function handleReturn(req: NextRequest) {
   if (merchantTxnNo) {
     const existingOrder = getJiopayOrder(merchantTxnNo);
     const orderStatus =
-      existingOrder?.status === "paid" || existingOrder?.status === "provisioned"
+      existingOrder?.status === "paid" ||
+      existingOrder?.status === "provisioned" ||
+      existingOrder?.status === "report_sent"
         ? existingOrder.status
+        : verified && status === "success"
+          ? "paid"
         : status === "failed"
           ? "failed"
           : "returned";
@@ -68,6 +80,14 @@ async function handleReturn(req: NextRequest) {
     redirectUrl.searchParams.set("status", status);
     redirectUrl.searchParams.set("verified", verified ? "1" : "0");
     redirectUrl.searchParams.set("order", merchantTxnNo);
+    if (downloadGrant) {
+      redirectUrl.searchParams.set("expires", String(downloadGrant.expires));
+      redirectUrl.searchParams.set("token", downloadGrant.token);
+    }
+    if (existingOrder?.crmPayment) {
+      redirectUrl.searchParams.set("crm", "1");
+      redirectUrl.searchParams.set("back", existingOrder.crmPayment.returnUrl);
+    }
 
     updateJiopayOrder(
       merchantTxnNo,
@@ -99,12 +119,53 @@ async function handleReturn(req: NextRequest) {
         providerMessageId: merchantTxnNo,
       });
     }
+
+    // The signed browser return is a delivery fallback if the S2S webhook is
+    // delayed or a gateway retry is exhausted. Both CRM persistence and
+    // fulfillment are idempotent, and the fulfillment lock prevents duplicate
+    // emails when return + webhook arrive together.
+    if (verified && status === "success" && existingOrder) {
+      try {
+        const crmRecord = await recordJiopayPurchaseInCrm(existingOrder, payload);
+        updateJiopayOrder(merchantTxnNo, {}, {
+          type: crmRecord.status === "inserted" ? "crm_payment_recorded" : "crm_payment_exists",
+          at: new Date().toISOString(),
+          data: {
+            source: "browser_return",
+            crmOnlinePaymentId: crmRecord.id,
+            crmClientId: crmRecord.clientId,
+          },
+        });
+      } catch (error) {
+        updateJiopayOrder(merchantTxnNo, {}, {
+          type: "crm_payment_failed",
+          at: new Date().toISOString(),
+          data: {
+            source: "browser_return",
+            error: error instanceof Error ? error.message : "CRM payment recording failed.",
+          },
+        });
+      }
+
+      await fulfillJiopayOrder(merchantTxnNo, {
+        siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || req.nextUrl.origin,
+        gatewayPayload: payload,
+      });
+    }
   }
 
   const redirectUrl = new URL("/payment/jiopay/return", req.nextUrl.origin);
   redirectUrl.searchParams.set("status", status);
   redirectUrl.searchParams.set("verified", verified ? "1" : "0");
   if (merchantTxnNo) redirectUrl.searchParams.set("order", merchantTxnNo);
+  if (initialOrder?.crmPayment) {
+    redirectUrl.searchParams.set("crm", "1");
+    redirectUrl.searchParams.set("back", initialOrder.crmPayment.returnUrl);
+  }
+  if (downloadGrant) {
+    redirectUrl.searchParams.set("expires", String(downloadGrant.expires));
+    redirectUrl.searchParams.set("token", downloadGrant.token);
+  }
   return NextResponse.redirect(redirectUrl, 303);
 }
 

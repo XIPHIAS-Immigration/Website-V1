@@ -1,54 +1,31 @@
-"use client";
-
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 type Props = {
   children: ReactNode;
-  /** Reserved height before the section mounts — keeps layout stable (no CLS). */
+  /** Estimated off-screen height used to keep layout stable. */
   minHeight?: string;
-  /** How far ahead of the viewport to start mounting. */
+  /** Kept for compatibility with older call sites. */
   rootMargin?: string;
   className?: string;
 };
 
 /**
- * Mounts its children only when the placeholder nears the viewport, so heavy
- * below-the-fold client sections don't hydrate (or load their JS) on initial
- * page load. Drastically cuts Total Blocking Time / speeds up first paint on
- * slow mobile. A reserved min-height avoids layout shift; once shown it stays.
+ * Keeps children in the server HTML while letting the browser skip layout and
+ * paint work for off-screen sections until they approach the viewport.
  */
 export default function DeferOnView({
   children,
   minHeight = "560px",
-  rootMargin = "700px",
   className,
 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(false);
-
-  useEffect(() => {
-    if (shown) return;
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") {
-      setShown(true);
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setShown(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [shown, rootMargin]);
+  const style: CSSProperties = {
+    contentVisibility: "auto",
+    containIntrinsicSize: `auto ${minHeight}`,
+  };
 
   return (
-    <div ref={ref} className={className} style={shown ? undefined : { minHeight }}>
-      {shown ? children : null}
+    <div className={className} style={style}>
+      {children}
     </div>
   );
 }

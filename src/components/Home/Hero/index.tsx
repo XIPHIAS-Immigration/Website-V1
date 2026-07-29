@@ -12,7 +12,7 @@ const STATS = [
   { value: "17+",  label: "Years of Excellence" },
   { value: "50+",  label: "Countries Covered" },
   { value: "10K+", label: "Families Relocated" },
-  { value: "98%",  label: "Visa Success Rate" },
+  { value: "4",  label: "Advisory Pathways" },
 ];
 
 const TRUST = [
@@ -41,12 +41,22 @@ export default function Hero() {
           email: form.email,
           phone: form.phone,
           source: "website",
-          page: "hero",
+          page: `${window.location.pathname}${window.location.search}`,
+          referrer: document.referrer,
           consent: true,
+          tags: [
+            "hero",
+            new URLSearchParams(window.location.search).get("utm_source"),
+            new URLSearchParams(window.location.search).get("utm_campaign"),
+          ].filter(Boolean),
         }),
       });
       if (!res.ok) throw new Error("Request failed");
       setStatus("done");
+      window.gtag?.("event", "generate_lead", {
+        form_name: "homepage_hero",
+        page_location: window.location.href,
+      });
     } catch {
       setStatus("idle");
     }
@@ -102,7 +112,7 @@ export default function Hero() {
         {/* Eyebrow badge */}
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[13px] font-medium text-white/90 backdrop-blur-sm">
           <ShieldCheck className="h-3.5 w-3.5 text-secondary shrink-0" />
-          India&apos;s Most Trusted Immigration Consultancy
+          Immigration Consultants in India Since 2009
         </div>
 
         {/* Headline */}
@@ -111,7 +121,7 @@ export default function Hero() {
           className="mx-auto max-w-4xl font-bold leading-[1.1] tracking-tight text-white"
           style={{ fontSize: "clamp(2.2rem, 5.5vw, 4.25rem)" }}
         >
-          Your Gateway to Global{" "}
+          Immigration Consultants in India for Global{" "}
           <span className="relative whitespace-nowrap text-secondary">
             Residency
             <svg aria-hidden className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 8" fill="none" preserveAspectRatio="none">
@@ -123,8 +133,8 @@ export default function Hero() {
 
         {/* Subheadline */}
         <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
-          Expert advisory across Residency by Investment, Citizenship by Investment,
-          Skilled Migration &amp; Corporate Mobility — 50+ countries, one trusted partner.
+          Explore Canada PR, US EB-5, skilled migration, residency and citizenship
+          by investment, plus corporate mobility across 50+ countries.
         </p>
 
         {/* Stats strip */}

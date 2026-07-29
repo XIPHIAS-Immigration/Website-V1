@@ -33,7 +33,7 @@ import type {
 
 const INSIGHT_KINDS: InsightKind[] = ["articles", "news", "media", "blog"];
 const DEV = process.env.NODE_ENV !== "production";
-const RUNTIME_CACHE_MS = Number(process.env.XIPHIAS_INSIGHTS_CACHE_MS || 5000);
+const RUNTIME_CACHE_MS = Number(process.env.XIPHIAS_INSIGHTS_CACHE_MS || 300000);
 
 // Safety caps (no UI changes; just prevents edge-case abuse)
 const MAX_PAGE_SIZE = 50;
@@ -100,6 +100,54 @@ function normalizeArray(val?: unknown): string[] | undefined {
     .filter(Boolean);
 }
 
+function normalizeSourceUrls(val?: unknown): string[] | undefined {
+  if (val == null) return undefined;
+  const values = Array.isArray(val) ? val : [val];
+  const urls = values
+    .map((value) => {
+      if (value && typeof value === "object" && "url" in value) {
+        return coerceString((value as { url?: unknown }).url);
+      }
+      return coerceString(value);
+    })
+    .filter((value): value is string => Boolean(value));
+  return urls.length ? urls : undefined;
+}
+
+function isOfficialSourceHost(hostname: string) {
+  const host = hostname.toLowerCase().replace(/^www\./, "");
+  return (
+    host === "canada.ca" ||
+    host.endsWith(".canada.ca") ||
+    host === "europa.eu" ||
+    host.endsWith(".europa.eu") ||
+    host === "u.ae" ||
+    host.endsWith(".u.ae") ||
+    host === "gov.uk" ||
+    host.endsWith(".gov.uk") ||
+    host === "travel.state.gov" ||
+    host.endsWith(".gov") ||
+    /(^|\.)gov\.[a-z]{2,3}(?:\.[a-z]{2})?$/.test(host)
+  );
+}
+
+function officialSourceUrlsFromContent(source: string): string[] | undefined {
+  const urls = source.match(/https?:\/\/[^\s<>()\]"']+/gi) ?? [];
+  const official = new Set<string>();
+
+  for (const candidate of urls) {
+    const cleaned = candidate.replace(/[.,;:!?]+$/, "");
+    try {
+      const url = new URL(cleaned);
+      if (isOfficialSourceHost(url.hostname)) official.add(url.toString());
+    } catch {
+      // Ignore malformed legacy links. MDX compilation reports them separately.
+    }
+  }
+
+  return official.size ? Array.from(official) : undefined;
+}
+
 function coerceString(val?: unknown): string | undefined {
   if (val == null) return undefined;
   const s = String(val).trim();
@@ -110,14 +158,44 @@ function isHiddenInsight(data: Record<string, unknown>) {
   return (
     data.draft === true ||
     (data as any).hidden === true ||
+    coerceString((data as any).visibility)?.toLowerCase() === "draft" ||
     coerceString((data as any).visibility)?.toLowerCase() === "hidden" ||
+    coerceString((data as any).status)?.toLowerCase() === "draft" ||
     coerceString((data as any).status)?.toLowerCase() === "hidden"
   );
+}
+
+function normalizeHeroTitlePlacement(value: unknown): "overlay" | "below" | "both" {
+  const placement = coerceString(value)?.toLowerCase();
+  if (placement === "below" || placement === "both") return placement;
+  return "overlay";
 }
 
 function readingTimeMins(text: string) {
   const words = (text || "").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
+}
+
+function summaryFromSource(source: string, maxLength = 158) {
+  const plain = source
+    .replace(/^import\s+.*$/gm, " ")
+    .replace(/^export\s+.*$/gm, " ")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/<FAQSection[\s\S]*?\/>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, " ")
+    .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/[*_`>#|~]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!plain) return undefined;
+  if (plain.length <= maxLength) return plain;
+
+  const shortened = plain.slice(0, maxLength + 1);
+  const boundary = shortened.lastIndexOf(" ");
+  return `${shortened.slice(0, boundary > 100 ? boundary : maxLength).trim()}.`;
 }
 
 function slugify(text: string, existing: Set<string>) {
@@ -248,13 +326,16 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     coerceString(raw.data.summary) ||
     coerceString((raw.data as any).excerpt) ||
     coerceString((raw.data as any).description) ||
+    coerceString((raw.data as any).metaDescription) ||
+    coerceString((raw.data as any).meta_description) ||
     coerceString((raw.data as any).subtitle) ||
-    undefined;
+    summaryFromSource(raw.source);
 
   // Support string or { name: string }
   const author =
     coerceString(raw.data.author) ??
-    coerceString((raw.data as any).author?.name);
+    coerceString((raw.data as any).author?.name) ??
+    "XIPHIAS Immigration";
 
   const country =
     normalizeArray(raw.data.country) ??
@@ -284,6 +365,9 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     coerceString((raw.data as any).heroAlt) ||
     coerceString((raw.data as any).imageAlt) ||
     title;
+  const heroTitlePlacement = normalizeHeroTitlePlacement(
+    (raw.data as any).heroTitlePlacement,
+  );
 
   // Detail hero video/poster (optional)
   const heroVideo =
@@ -303,6 +387,7 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
 
   const url = toUrl(raw.kind, raw.slug);
   const readingTime = readingTimeMins(raw.source);
+  const canonical = coerceString((raw.data as any).canonical);
 
   return {
     kind: raw.kind,
@@ -310,11 +395,39 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     title,
     summary,
     author,
+    reviewer:
+      coerceString((raw.data as any).reviewedBy) ||
+      coerceString((raw.data as any).reviewer),
+    lastReviewed: coerceString((raw.data as any).lastReviewed),
+    seoTitle:
+      coerceString((raw.data as any).seoTitle) ||
+      coerceString((raw.data as any).metaTitle),
+    seoDescription:
+      coerceString((raw.data as any).seoDescription) ||
+      coerceString((raw.data as any).metaDescription),
+    primaryKeyword:
+      coerceString((raw.data as any).primaryKeyword) ||
+      coerceString((raw.data as any).targetKeyword),
+    searchIntent: coerceString((raw.data as any).searchIntent),
+    contentCluster:
+      coerceString((raw.data as any).contentCluster) ||
+      coerceString((raw.data as any).topicCluster),
+    officialSources:
+      normalizeSourceUrls((raw.data as any).officialSources) ||
+      officialSourceUrlsFromContent(raw.source),
+    canonical:
+      canonical && (canonical.startsWith("/") || canonical.startsWith("https://www.xiphiasimmigration.com"))
+        ? canonical
+        : undefined,
+    noindex:
+      raw.data.noindex === true ||
+      coerceString(raw.data.noindex)?.toLowerCase() === "true",
     country: country && country.length ? country : undefined,
     program: program && program.length ? program : undefined,
     tags,
     hero: hero || undefined,
     heroAlt,
+    heroTitlePlacement,
     heroVideo,
     heroPoster,
     date,
@@ -330,19 +443,38 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
 
 let _cache: { metas: InsightMeta[]; raw: RawDoc[]; loadedAt: number } | null =
   null;
+let _cachePromise: Promise<{
+  metas: InsightMeta[];
+  raw: RawDoc[];
+  loadedAt: number;
+}> | null = null;
 
 export async function invalidateInsightsCache() {
   _cache = null;
+  _cachePromise = null;
 }
 
 async function ensureCache() {
   if (!DEV && _cache && Date.now() - _cache.loadedAt < RUNTIME_CACHE_MS) return _cache; // brief reuse in prod
 
-  const raw = await loadRawDocs();
-  const metas = raw.map(metaFromRaw).sort(sortByDateDesc);
-  const next = { metas, raw, loadedAt: Date.now() };
-  if (!DEV) _cache = next;
-  return next;
+  if (!DEV && _cachePromise) return _cachePromise;
+
+  const load = async () => {
+    const raw = await loadRawDocs();
+    const metas = raw.map(metaFromRaw).sort(sortByDateDesc);
+    const next = { metas, raw, loadedAt: Date.now() };
+    if (!DEV) _cache = next;
+    return next;
+  };
+
+  if (DEV) return load();
+
+  _cachePromise = load();
+  try {
+    return await _cachePromise;
+  } finally {
+    _cachePromise = null;
+  }
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */

@@ -1,52 +1,34 @@
 // app/(site)/news/page.tsx
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getAllInsights } from "@/lib/insights-content";
 // Dynamically import the news list to reduce the initial bundle size and improve performance.
 import nextDynamic from "next/dynamic";
 const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
 
 import type { Metadata } from "next";
-
-// SEO metadata for the news listing page
-export const metadata: Metadata = {
-  title: "News – Immigration News & Updates | XIPHIAS Immigration",
-  description:
-    "Get the latest news and updates on immigration policies, programs and industry trends from XIPHIAS Immigration.",
-  alternates: { canonical: "/news" },
-  openGraph: {
-    title: "News – Immigration News & Updates",
-    description:
-      "Get the latest news and updates on immigration policies, programs and industry trends from XIPHIAS Immigration.",
-    url: "https://www.xiphiasimmigration.com/news",
-    siteName: "XIPHIAS Immigration",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: "/xiphias-immigration.png",
-        width: 1200,
-        height: 630,
-        alt: "News – Immigration News & Updates – XIPHIAS Immigration",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "News – Immigration News & Updates",
-    description:
-      "Get the latest news and updates on immigration policies, programs and industry trends from XIPHIAS Immigration.",
-    images: ["/xiphias-immigration.png"],
-  },
-};
+import { listingMetadata, pageNumber } from "@/lib/seo/listing-metadata";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 // Next 15: searchParams is a Promise and values can be string | string[]
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  return listingMetadata({
+    path: "/news",
+    title: "News - Immigration News & Updates",
+    description:
+      "Get the latest news and updates on immigration policies, programs and industry trends from XIPHIAS Immigration.",
+    page: pageNumber(sp.page),
+  });
+}
 
 const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
 
@@ -70,6 +52,7 @@ export default async function NewsListPage({ searchParams }: PageProps) {
   });
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (total > 0 && requestedPage > totalPages) notFound();
   const page = Math.min(requestedPage, totalPages);
 
   // If someone hits /news?page=9999, show last page instead of empty/weird ranges

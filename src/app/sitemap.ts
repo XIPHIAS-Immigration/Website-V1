@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { getSiteUrl } from "../lib/seo/site";
+import { listContentAdminRuntimeSources } from "@/lib/content-admin/store";
 
 export const runtime = "nodejs";
 // regenerate periodically (good for content sites)
@@ -24,8 +25,13 @@ const CONTENT_DIRS = RAW_CONTENT_DIRS.filter((p) => fs.existsSync(p));
 // Keep this aligned with /app/robots.ts block list
 const BLOCKLIST: Array<string | RegExp> = [
   /^\/api(\/|$)/,
+  /^\/content-admin(\/|$)/,
+  /^\/crm(\/|$)/,
+  /^\/x-hub(\/|$)/,
   /^\/search(\/|$)/,
-  /^\/thank-you(\/|$)/,
+  /^\/booking$/,
+  /^\/event$/,
+  /(^|\/)thank-you(\/|$)/,
   /^\/login(\/|$)/,
   /^\/profile(\/|$)/,
   /^\/admin(\/|$)/,
@@ -33,6 +39,11 @@ const BLOCKLIST: Array<string | RegExp> = [
   /^\/preview(\/|$)/,
   /^\/draft(\/|$)/,
   /^\/private(\/|$)/,
+  /^\/payment(\/|$)/,
+  /^\/registration(\/|$)/,
+  /^\/report-advisor-workflow(\/|$)/,
+  /^\/australia-assesment-report(\/|$)/,
+  /^\/canada-assesent-report(\/|$)/,
 ];
 
 /* ------------------------------ utils ----------------------------------- */
@@ -111,9 +122,14 @@ function contentPathToRoute(file: string): string | null {
 }
 
 function parseMaybeDate(v: unknown): Date | null {
-  if (typeof v !== "string") return null;
-  const t = Date.parse(v);
+  if (v instanceof Date && !Number.isNaN(v.getTime())) return v;
+  if (typeof v !== "string" && typeof v !== "number") return null;
+  const t = new Date(v).getTime();
   return Number.isNaN(t) ? null : new Date(t);
+}
+
+function frontmatterFlag(value: unknown): boolean {
+  return value === true || String(value).trim().toLowerCase() === "true";
 }
 
 /** Infer changefreq & priority from route depth */
@@ -131,7 +147,7 @@ function seoHintsFor(route: string): {
 
 /* -------------------------------- main ---------------------------------- */
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl().replace(/\/+$/, ""); // no trailing slash
   const urls: MetadataRoute.Sitemap = [];
 
@@ -167,13 +183,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
         const { data } = matter(raw) as { data: Record<string, any> };
 
         // Skip drafts / noindex from frontmatter
-        if (data?.draft === true || data?.noindex === true) continue;
+        const visibility = String(data?.visibility || "").toLowerCase();
+        const status = String(data?.status || "").toLowerCase();
+        if (
+          frontmatterFlag(data?.draft) ||
+          frontmatterFlag(data?.hidden) ||
+          frontmatterFlag(data?.noindex) ||
+          status === "draft" ||
+          status === "hidden" ||
+          visibility === "draft" ||
+          visibility === "hidden"
+        ) {
+          continue;
+        }
 
         const route = contentPathToRoute(file);
         if (!route || isBlocked(route)) continue;
 
         const lastmod =
           parseMaybeDate(data?.updatedAt) ||
+          parseMaybeDate(data?.updated) ||
+          parseMaybeDate(data?.lastModified) ||
           parseMaybeDate(data?.date) ||
           fs.statSync(file).mtime;
 
@@ -192,7 +222,47 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  // 3) Ensure homepage exists
+  // 3) Include content created in the production CMS runtime store.
+  // These posts may not exist under /content on disk, but they are public routes
+  // and need the same sitemap treatment as repository MDX.
+  const runtimeDocs = await listContentAdminRuntimeSources();
+  for (const doc of runtimeDocs) {
+    try {
+      const { data } = matter(doc.source) as { data: Record<string, any> };
+      const visibility = String(data?.visibility || "").toLowerCase();
+      const status = String(data?.status || "").toLowerCase();
+      if (
+        frontmatterFlag(data?.draft) ||
+        frontmatterFlag(data?.hidden) ||
+        frontmatterFlag(data?.noindex) ||
+        status === "draft" ||
+        status === "hidden" ||
+        visibility === "draft" ||
+        visibility === "hidden"
+      ) {
+        continue;
+      }
+
+      const route = `/${doc.kind}/${doc.slug}`;
+      if (isBlocked(route)) continue;
+      const lastmod =
+        parseMaybeDate(data?.lastReviewed) ||
+        parseMaybeDate(data?.updated) ||
+        parseMaybeDate(data?.date) ||
+        new Date();
+      const { changeFrequency, priority } = seoHintsFor(route);
+      urls.push({
+        url: `${base}${route}`,
+        lastModified: lastmod,
+        changeFrequency,
+        priority,
+      });
+    } catch {
+      // Ignore malformed runtime records; the CMS will flag them for review.
+    }
+  }
+
+  // 4) Ensure homepage exists
   if (!urls.some((u) => u.url === base || u.url === `${base}/`)) {
     urls.push({
       url: base,
@@ -202,7 +272,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   }
 
-  // 4) Deduplicate by URL and sort (homepage first, then lexicographically)
+  // 5) Deduplicate by URL and sort (homepage first, then lexicographically)
   const seen = new Set<string>();
   const deduped = urls.filter((u) => {
     if (seen.has(u.url)) return false;

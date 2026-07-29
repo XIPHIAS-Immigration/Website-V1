@@ -31,18 +31,31 @@ const XiaSection = dynamic(() => import("@/components/Home/XiaSection"));
 
 // Defers hydration/JS of below-the-fold sections until they near the viewport.
 import DeferOnView from "@/components/util/DeferOnView";
+import ImmigrationConsultantsOverview from "@/components/Home/ImmigrationConsultantsOverview";
+import { JsonLd } from "@/lib/seo";
 
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Best Immigration Consultants in India - XIPHIAS Immigration",
+  title: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
   description:
-    "Xiphias Immigration offers expert residency, citizenship, corporate, and skilled migration services worldwide with 17+ years of experience",
+    "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
   alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    title: "Best Immigration Consultants in India – XIPHIAS Immigration",
+    title: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
     description:
-      "Leading consultants for residency, citizenship, and skilled migration. Build your global future with XIPHIAS",
+      "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
     url: "https://www.xiphiasimmigration.com",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -51,18 +64,50 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Immigration Consultants in India – XIPHIAS Immigration",
+    title: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
     description:
-      "Build your global future with XIPHIAS Immigration — experts in residency, citizenship, and migration",
+      "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
     images: ["/xiphias-immigration.png"],
   },
 };
 
 export default function Home() {
-  console.log("If this log is present I am in correct codebase")
+  const homeJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://www.xiphiasimmigration.com/#webpage",
+        url: "https://www.xiphiasimmigration.com",
+        name: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
+        description:
+          "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
+        isPartOf: { "@id": "https://www.xiphiasimmigration.com/#website" },
+        about: { "@id": "https://www.xiphiasimmigration.com/#organization" },
+        inLanguage: "en-IN",
+      },
+      {
+        "@type": "Service",
+        "@id": "https://www.xiphiasimmigration.com/#immigration-consulting",
+        name: "Immigration consulting services in India",
+        serviceType: "Immigration consulting and global mobility advisory",
+        provider: { "@id": "https://www.xiphiasimmigration.com/#organization" },
+        areaServed: { "@type": "Country", name: "India" },
+        audience: [
+          { "@type": "Audience", audienceType: "Skilled professionals" },
+          { "@type": "Audience", audienceType: "Investors and families" },
+          { "@type": "Audience", audienceType: "Employers and global mobility teams" },
+        ],
+        url: "https://www.xiphiasimmigration.com",
+      },
+    ],
+  };
+
   return (
     <>
+      <JsonLd id="home-service-jsonld" data={homeJsonLd} />
       <Hero />
+      <ImmigrationConsultantsOverview />
       {/* min-heights match measured mobile section heights so deferred mounting
           doesn't shift layout (keeps CLS ~0). */}
       <DeferOnView minHeight="1330px"><WhyChooseUs /></DeferOnView>

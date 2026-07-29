@@ -38,8 +38,7 @@ function orgJsonLd() {
     url: SITE,
     logo: `${SITE}/favicon.ico`,
     sameAs: [
-      "https://www.linkedin.com/company/xiphias-immigration/",
-      // add other socials if you want
+      "https://www.linkedin.com/company/xiphias-immigration-pvt-limited",
     ],
   });
 }
