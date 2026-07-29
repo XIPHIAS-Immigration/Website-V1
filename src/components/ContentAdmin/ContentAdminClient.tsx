@@ -4,7 +4,12 @@ import React from "react";
 import Image from "next/image";
 import { User, Lock, Eye, EyeOff, AlertCircle, FileText, Newspaper, Bell } from "lucide-react";
 import AuthenticatedPageGuard from "@/components/Security/AuthenticatedPageGuard";
-import { editorTextToMdx, mdxToEditorText } from "@/lib/content-admin/content-format";
+import {
+  createMarkdownTable,
+  editorTextToMdx,
+  mdxToEditorText,
+  parseMarkdownTable,
+} from "@/lib/content-admin/content-format";
 
 type ContentKind = "blog" | "articles" | "news";
 
@@ -82,6 +87,11 @@ type LinkEditorState = {
   url: string;
   selectionStart: number;
   selectionEnd: number;
+};
+
+type TableEditorState = {
+  columns: number;
+  rows: number;
 };
 
 const KINDS: Array<{ kind: ContentKind; label: string; singular: string; description: string }> = [
@@ -310,7 +320,7 @@ function ContentDraftPreview({
       <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
         <div className="relative h-44 bg-slate-200">
           {form.hero ? (
-            <img src={form.hero} alt={form.heroAlt || ""} className="h-full w-full object-cover" loading="lazy" />
+            <img src={form.hero} alt={form.heroAlt || ""} className="h-full w-full object-contain" loading="lazy" />
           ) : (
             <div className="flex h-full items-center justify-center text-sm font-bold text-slate-500">Hero preview</div>
           )}
@@ -335,6 +345,7 @@ function ContentDraftPreview({
           <div className="rounded-lg bg-white p-4 text-sm leading-7 text-slate-700">
             {blocks.length ? (
               blocks.slice(0, 8).map((block, index) => {
+                const table = parseMarkdownTable(block);
                 if (block.startsWith("## ")) {
                   return (
                     <h3 key={index} className="mt-3 first:mt-0 text-lg font-black text-slate-950">
@@ -354,6 +365,34 @@ function ContentDraftPreview({
                     <blockquote key={index} className="border-l-4 border-blue-200 pl-3 font-semibold text-slate-700">
                       {block.replace(/^>\s*/, "")}
                     </blockquote>
+                  );
+                }
+                if (table) {
+                  return (
+                    <div key={index} className="overflow-x-auto rounded-lg border border-slate-200">
+                      <table className="min-w-full border-collapse text-left text-xs">
+                        <thead className="bg-slate-100 text-slate-950">
+                          <tr>
+                            {table.headers.map((header, cellIndex) => (
+                              <th key={`${header}-${cellIndex}`} className="border-b border-slate-200 px-3 py-2 font-black">
+                                {renderPreviewInline(header)}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {table.rows.map((row, rowIndex) => (
+                            <tr key={rowIndex} className="border-b border-slate-100 last:border-0">
+                              {row.map((cell, cellIndex) => (
+                                <td key={cellIndex} className="px-3 py-2 align-top">
+                                  {renderPreviewInline(cell)}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   );
                 }
                 if (/^[-*]\s+/m.test(block)) {
@@ -438,6 +477,7 @@ export default function ContentAdminClient({
   const [previewSnapshot, setPreviewSnapshot] = React.useState<FormState>(() => emptyForm("blog"));
   const [previewUpdatedAt, setPreviewUpdatedAt] = React.useState(() => new Date());
   const [linkEditor, setLinkEditor] = React.useState<LinkEditorState | null>(null);
+  const [tableEditor, setTableEditor] = React.useState<TableEditorState | null>(null);
   const previewStorageKey = `xiphias-content-preview-${React.useId().replace(/:/g, "")}`;
   const contentRef = React.useRef<HTMLTextAreaElement | null>(null);
 
@@ -521,6 +561,7 @@ export default function ContentAdminClient({
       selectionStart,
       selectionEnd,
     });
+    setTableEditor(null);
     setMessage(null);
   };
 
@@ -556,6 +597,13 @@ export default function ContentAdminClient({
       return { ...current, contentText: `${before}${replacement}${after}` };
     });
     setLinkEditor(null);
+    setMessage(null);
+  };
+
+  const applyTable = () => {
+    if (!tableEditor) return;
+    insertContent(`\n\n${createMarkdownTable(tableEditor.columns, tableEditor.rows)}\n\n`);
+    setTableEditor(null);
     setMessage(null);
   };
 
@@ -598,6 +646,8 @@ export default function ContentAdminClient({
     setForm(nextForm);
     setPreviewSnapshot(nextForm);
     setPreviewUpdatedAt(new Date());
+    setLinkEditor(null);
+    setTableEditor(null);
     setMessage(null);
     setView("editor");
   };
@@ -608,6 +658,8 @@ export default function ContentAdminClient({
     setForm(nextForm);
     setPreviewSnapshot(nextForm);
     setPreviewUpdatedAt(new Date());
+    setLinkEditor(null);
+    setTableEditor(null);
     setMessage(null);
     setView("editor");
   };
@@ -1391,7 +1443,70 @@ export default function ContentAdminClient({
                         {label}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLinkEditor(null);
+                        setTableEditor((current) => current || { columns: 3, rows: 3 });
+                      }}
+                      aria-expanded={Boolean(tableEditor)}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:text-blue-700"
+                    >
+                      Table
+                    </button>
                   </div>
+                  {tableEditor ? (
+                    <div className="mt-3 grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[140px_140px_auto] sm:items-end">
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-table-columns">
+                        Columns
+                        <input
+                          id="content-table-columns"
+                          type="number"
+                          min={2}
+                          max={8}
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={tableEditor.columns}
+                          onChange={(event) =>
+                            setTableEditor((current) =>
+                              current ? { ...current, columns: Number(event.target.value) } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <label className="text-xs font-black text-slate-700" htmlFor="content-table-rows">
+                        Data rows
+                        <input
+                          id="content-table-rows"
+                          type="number"
+                          min={1}
+                          max={20}
+                          className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+                          value={tableEditor.rows}
+                          onChange={(event) =>
+                            setTableEditor((current) =>
+                              current ? { ...current, rows: Number(event.target.value) } : current,
+                            )
+                          }
+                        />
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={applyTable}
+                          className="h-10 rounded-lg bg-blue-700 px-4 text-xs font-black text-white transition hover:bg-blue-800"
+                        >
+                          Insert table
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTableEditor(null)}
+                          className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="border-t border-slate-200 pt-3">
                   <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">Inline and actions</p>
@@ -1500,7 +1615,7 @@ export default function ContentAdminClient({
               <h2 className="text-lg font-black">Hero image</h2>
               <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                 {form.hero ? (
-                  <img src={form.hero} alt={form.heroAlt || ""} className="h-52 w-full object-cover" loading="lazy" />
+                  <img src={form.hero} alt={form.heroAlt || ""} className="h-52 w-full object-contain" loading="lazy" />
                 ) : (
                   <div className="flex h-52 items-center justify-center text-sm font-bold text-slate-500">
                     No image attached

@@ -73,6 +73,7 @@ export default function MediaHero({
   videoSrc,
   poster,
   imageSrc,
+  imageAlt,
   actions = [],
 }: {
   title: string;
@@ -81,6 +82,7 @@ export default function MediaHero({
   videoSrc?: string;
   poster?: string;
   imageSrc?: string;
+  imageAlt?: string;
   actions?: Action[];
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -249,19 +251,21 @@ export default function MediaHero({
           ref={containerRef}
           tabIndex={0}
           onKeyDown={onKeyDown}
-          className="
-            group relative w-full aspect-video md:aspect-[16/7] overflow-hidden rounded-2xl md:rounded-3xl
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60
-          "
+          className={[
+            "group relative w-full overflow-hidden rounded-2xl md:rounded-3xl",
+            hasImage ? "bg-black/[0.03] dark:bg-white/[0.05]" : "aspect-video md:aspect-[16/7]",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60",
+          ].join(" ")}
         >
           {hasImage ? (
             <Image
               src={imageSrc!}
-              alt={title}
-              fill
+              alt={imageAlt || title}
+              width={1600}
+              height={900}
               priority
               sizes="(min-width: 1024px) 1024px, 100vw"
-              className="object-cover"
+              className="block h-auto w-full object-contain"
             />
           ) : hasVideo ? (
             <>

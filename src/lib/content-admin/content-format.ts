@@ -6,6 +6,7 @@ export const CMS_BLOCK_TYPES = [
   "CALLOUT",
   "LINK",
   "BUTTON",
+  "TABLE",
 ] as const;
 
 export type CmsBlockType = (typeof CMS_BLOCK_TYPES)[number];
@@ -18,12 +19,68 @@ type EditorSegment = {
 };
 
 const CMS_MARKER_PATTERN =
-  /(?:<!--|&lt;!--)\s*CMS\s*:?\s*(SECTION|SUBHEADING|LIST|QUOTE|CALLOUT|LINK|BUTTON)\s+(START|END)\s*(?:-->|--&gt;)/gi;
+  /(?:<!--|&lt;!--)\s*CMS\s*:?\s*(SECTION|SUBHEADING|LIST|QUOTE|CALLOUT|LINK|BUTTON|TABLE)\s+(START|END)\s*(?:-->|--&gt;)/gi;
 const CANONICAL_MARKER_PATTERN =
-  /^<!-- CMS: (SECTION|SUBHEADING|LIST|QUOTE|CALLOUT|LINK|BUTTON) (START|END) -->$/i;
+  /^<!-- CMS: (SECTION|SUBHEADING|LIST|QUOTE|CALLOUT|LINK|BUTTON|TABLE) (START|END) -->$/i;
+
+export type MarkdownTable = {
+  headers: string[];
+  rows: string[][];
+};
 
 function normalizeLineEndings(value: string) {
   return value.replace(/\r\n?/g, "\n");
+}
+
+function splitTableRow(line: string) {
+  const trimmed = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+  return trimmed.split("|").map((cell) => cell.trim());
+}
+
+function isTableDelimiter(line: string) {
+  const cells = splitTableRow(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+}
+
+export function parseMarkdownTable(value: string): MarkdownTable | null {
+  const lines = normalizeLineEndings(value)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (lines.length < 2 || !lines[0].includes("|") || !isTableDelimiter(lines[1])) {
+    return null;
+  }
+
+  const headers = splitTableRow(lines[0]);
+  if (headers.length < 2) return null;
+
+  const rows = lines.slice(2).filter((line) => line.includes("|")).map(splitTableRow);
+  return {
+    headers,
+    rows: rows.map((row) => headers.map((_, index) => row[index] || "")),
+  };
+}
+
+export function createMarkdownTable(columnCount = 3, rowCount = 3) {
+  const requestedColumns = Number.isFinite(columnCount) ? Math.round(columnCount) : 3;
+  const requestedRows = Number.isFinite(rowCount) ? Math.round(rowCount) : 3;
+  const columns = Math.min(8, Math.max(2, requestedColumns));
+  const rows = Math.min(20, Math.max(1, requestedRows));
+  const header = `| ${Array.from({ length: columns }, (_, index) => `Column ${index + 1}`).join(" | ")} |`;
+  const delimiter = `| ${Array.from({ length: columns }, () => "---").join(" | ")} |`;
+  const body = Array.from(
+    { length: rows },
+    (_, rowIndex) =>
+      `| ${Array.from({ length: columns }, (_, columnIndex) => `Row ${rowIndex + 1}, column ${columnIndex + 1}`).join(" | ")} |`,
+  );
+
+  return [
+    "<!-- CMS: TABLE START -->",
+    header,
+    delimiter,
+    ...body,
+    "<!-- CMS: TABLE END -->",
+  ].join("\n");
 }
 
 function fenceToken(line: string) {
@@ -173,9 +230,11 @@ export function mdxToEditorText(value: string) {
   const body = normalizeLineEndings(value).replace(/^---\n[\s\S]*?\n---\s*/, "");
   const cleanBody = stripCmsMarkers(body);
   const output: string[] = [];
+  const lines = cleanBody.split("\n");
   let activeFence: string | null = null;
 
-  for (const line of cleanBody.split("\n")) {
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    const line = lines[lineIndex];
     const fence = fenceToken(line);
     if (activeFence) {
       output.push(line);
@@ -188,6 +247,18 @@ export function mdxToEditorText(value: string) {
     if (fence) {
       activeFence = fence;
       output.push(line);
+      continue;
+    }
+
+    if (line.includes("|") && lineIndex + 1 < lines.length && isTableDelimiter(lines[lineIndex + 1])) {
+      const tableLines = [line, lines[lineIndex + 1]];
+      lineIndex += 2;
+      while (lineIndex < lines.length && lines[lineIndex].trim() && lines[lineIndex].includes("|")) {
+        tableLines.push(lines[lineIndex]);
+        lineIndex += 1;
+      }
+      lineIndex -= 1;
+      output.push("<!-- CMS: TABLE START -->", ...tableLines, "<!-- CMS: TABLE END -->");
       continue;
     }
 

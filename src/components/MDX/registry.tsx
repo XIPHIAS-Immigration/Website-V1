@@ -8,6 +8,7 @@ import Callout from "@/components/MDX/Callout";
 import { Steps, Step } from "@/components/MDX/Steps";
 import Video from "@/components/MDX/Video";
 import Iframe from "@/components/MDX/Iframe";
+import ResponsiveTable from "@/components/MDX/ResponsiveTable";
 import FAQSection from "@/components/Insights/FAQSection";
 
 const mdxComponents = {
@@ -19,6 +20,7 @@ const mdxComponents = {
   Step,
   Video,
   iframe: Iframe,
+  table: ResponsiveTable,
   FAQSection,
 } satisfies MDXComponents;
 

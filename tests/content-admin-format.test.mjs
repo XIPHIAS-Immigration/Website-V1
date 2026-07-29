@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  createMarkdownTable,
   editorTextToMdx,
   mdxToEditorText,
+  parseMarkdownTable,
   stripCmsMarkers,
 } from "../src/lib/content-admin/content-format.ts";
 
@@ -43,7 +45,14 @@ Important advice.
 
 <!-- CMS: BUTTON START -->
 <ButtonLink href="/contact">Book a consultation</ButtonLink>
-<!-- CMS: BUTTON END -->`;
+<!-- CMS: BUTTON END -->
+
+<!-- CMS: TABLE START -->
+| Route | Timeline | Status |
+| --- | --- | --- |
+| Skilled visa | 6 months | Open |
+| Investor visa | 4 months | Review |
+<!-- CMS: TABLE END -->`;
 
 test("converts every editor toolbar block without leaking CMS tags", () => {
   const result = editorTextToMdx(allToolbarBlocks);
@@ -57,6 +66,8 @@ test("converts every editor toolbar block without leaking CMS tags", () => {
   assert.match(result, /\[Contact XIPHIAS\]\(\/contact\)/);
   assert.match(result, /<Callout tone="info" title="Advisor note">/);
   assert.match(result, /<ButtonLink href="\/contact">Book a consultation<\/ButtonLink>/);
+  assert.match(result, /\| Route \| Timeline \| Status \|/);
+  assert.match(result, /\| Skilled visa \| 6 months \| Open \|/);
   assert.match(result, /\*\*bold\*\*/);
   assert.match(result, /\*italic\*/);
   assert.match(result, /<u>underlined<\/u>/);
@@ -109,14 +120,43 @@ Paragraph with **bold**, *italic*, [a link](/contact), and ![alt](/images/exampl
 
 <Callout tone="warning" title="Check">
 Keep this component content.
-</Callout>`;
+</Callout>
+
+| Country | Route |
+| --- | --- |
+| Canada | Express Entry |
+| Australia | Skilled migration |`;
 
   const editor = mdxToEditorText(source);
   const saved = editorTextToMdx(editor);
 
   assert.match(editor, /CMS: SECTION START/);
   assert.match(editor, /CMS: SUBHEADING START/);
+  assert.match(editor, /CMS: TABLE START/);
   assert.equal(saved, source);
+});
+
+test("creates bounded tables and parses their cells for previews", () => {
+  const generated = createMarkdownTable(99, 0);
+  const clean = editorTextToMdx(generated);
+  const parsed = parseMarkdownTable(clean);
+
+  assert.ok(parsed);
+  assert.equal(parsed.headers.length, 8);
+  assert.equal(parsed.rows.length, 1);
+  assert.equal(parsed.headers[0], "Column 1");
+  assert.equal(parsed.rows[0][7], "Row 1, column 8");
+  assert.doesNotMatch(clean, /CMS: TABLE/);
+
+  const fallback = parseMarkdownTable(editorTextToMdx(createMarkdownTable(Number.NaN, Infinity)));
+  assert.ok(fallback);
+  assert.equal(fallback.headers.length, 3);
+  assert.equal(fallback.rows.length, 3);
+});
+
+test("does not mistake normal pipe-separated prose for a table", () => {
+  assert.equal(parseMarkdownTable("Canada | Australia"), null);
+  assert.equal(parseMarkdownTable("| Country | Route |\n| not-a-divider | text |"), null);
 });
 
 test("stripCmsMarkers preserves content while removing only real editor tags", () => {

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import MediaHero from "@/components/Insights/MediaHero";
 import { Prose } from "@/components/ui/Prose";
-import { editorTextToMdx } from "@/lib/content-admin/content-format";
+import { editorTextToMdx, parseMarkdownTable } from "@/lib/content-admin/content-format";
 
 type PreviewDraft = {
   kind?: "blog" | "articles" | "news";
@@ -119,6 +119,8 @@ function extractHeadings(blocks: string[]) {
 }
 
 function renderBlock(block: string, index: number, headings: Heading[]) {
+  const table = parseMarkdownTable(block);
+
   if (/^##\s+/.test(block) || /^###\s+/.test(block)) {
     const text = block.replace(/^#{2,3}\s+/, "");
     const heading = headings.find((item) => item.text === text);
@@ -133,6 +135,31 @@ function renderBlock(block: string, index: number, headings: Heading[]) {
       <h2 key={index} id={heading?.id}>
         {text}
       </h2>
+    );
+  }
+
+  if (table) {
+    return (
+      <div key={index} className="my-6 w-full overflow-x-auto rounded-lg border border-black/10">
+        <table className="m-0 min-w-full border-collapse text-left">
+          <thead>
+            <tr>
+              {table.headers.map((header, cellIndex) => (
+                <th key={`${header}-${cellIndex}`}>{renderInline(header)}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {table.rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex}>{renderInline(cell)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   }
 
@@ -267,6 +294,7 @@ export default function ContentAdminPreviewClient() {
           subtitle={draft.summary || undefined}
           titlePlacement={draft.heroTitlePlacement || "overlay"}
           imageSrc={draft.hero || undefined}
+          imageAlt={draft.heroAlt || undefined}
           actions={[
             { href: "/personal-booking", label: "Book a Paid Consultation", variant: "primary" },
             { href: "/contact", label: "Contact Us", variant: "ghost" },

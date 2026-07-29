@@ -145,6 +145,7 @@ export default async function InsightDetailView({
           videoSrc={record.heroVideo || undefined}
           poster={record.heroPoster ?? record.hero ?? undefined}
           imageSrc={record.hero || undefined}
+          imageAlt={record.heroAlt || undefined}
           actions={[
             {
               href: "/personal-booking",
