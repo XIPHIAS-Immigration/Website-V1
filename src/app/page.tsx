@@ -37,9 +37,9 @@ import { JsonLd } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Best Immigration Consultants in India | XIPHIAS",
+  title: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
   description:
-    "Immigration consultants in India for Canada PR, US EB-5, skilled migration, investment residency, citizenship and corporate mobility. Serving clients since 2009.",
+    "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
   alternates: { canonical: "/" },
   robots: {
     index: true,
@@ -53,9 +53,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Best Immigration Consultants in India | XIPHIAS",
+    title: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
     description:
-      "Immigration consultants for Canada PR, US EB-5, skilled migration, investment residency, citizenship and corporate mobility.",
+      "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
     url: "https://www.xiphiasimmigration.com",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -64,9 +64,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Immigration Consultants in India | XIPHIAS",
+    title: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
     description:
-      "Immigration consultants for Canada PR, US EB-5, skilled migration, investment residency, citizenship and corporate mobility.",
+      "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
     images: ["/xiphias-immigration.png"],
   },
 };
@@ -79,9 +79,9 @@ export default function Home() {
         "@type": "WebPage",
         "@id": "https://www.xiphiasimmigration.com/#webpage",
         url: "https://www.xiphiasimmigration.com",
-        name: "Best Immigration Consultants in India | XIPHIAS",
+        name: "Top Immigration Consultants for Residency, Citizenship & Skilled Migration",
         description:
-          "Immigration consultants in India for skilled migration, residency, citizenship, investment and corporate mobility.",
+          "Planning to move abroad? XIPHIAS provides trusted immigration solutions for Canada PR, Australia PR, Golden Visa, Residency, Citizenship, and Skilled",
         isPartOf: { "@id": "https://www.xiphiasimmigration.com/#website" },
         about: { "@id": "https://www.xiphiasimmigration.com/#organization" },
         inLanguage: "en-IN",
