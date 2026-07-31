@@ -2,6 +2,7 @@
 import nodemailer from "nodemailer";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
 
@@ -53,6 +54,22 @@ export async function POST(req: Request) {
     const referrer = normalizeText(body?.referrer, 240);
     const consent = Boolean(body?.consent);
     const botTrap = normalizeText(body?.websiteField, 80);
+
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name: partnerName,
+        email: partnerEmail,
+        phone: partnerPhone,
+        message: partnershipGoal,
+        honeypot: botTrap || body?.company || body?.hp,
+        turnstileToken: body?.turnstileToken || body?.["cf-turnstile-response"],
+        startedAt: body?.startedAt,
+        extra: [companyName, partnerType, website, marketsServed, targetProgram],
+      },
+      { endpoint: "partner-with-us", ipLimit: 10, contactLimit: 4 },
+    );
+    if (securityResponse) return securityResponse;
 
     if (botTrap) {
       return NextResponse.json({ ok: true });

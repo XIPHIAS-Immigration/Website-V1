@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import nodemailer from "nodemailer";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -51,6 +52,24 @@ export async function POST(req: NextRequest) {
     }
 
     const resume = form.get("resume");
+
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name,
+        email,
+        phone,
+        message,
+        honeypot: company,
+        turnstileToken:
+          String(form.get("turnstileToken") ?? "") ||
+          String(form.get("cf-turnstile-response") ?? ""),
+        startedAt: form.get("startedAt"),
+        extra: [role, linkedinRaw],
+      },
+      { endpoint: "career-application", ipLimit: 10, contactLimit: 3 },
+    );
+    if (securityResponse) return securityResponse;
 
     if (!name || !email || !phone) {
       return NextResponse.json(

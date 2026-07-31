@@ -18,6 +18,12 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getCurrentPortalUser();
+  if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  if (!["admin", "staff", "b2g"].includes(user.role)) {
+    return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const organizationName = normalizeText(body.organizationName, 160);
   const contactName = normalizeText(body.contactName, 120);

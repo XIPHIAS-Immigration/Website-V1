@@ -6,6 +6,7 @@ import { sendPlatformEmail, getPlatformRecipient, keyValueHtml } from "@/lib/pla
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import type { LeadSource } from "@/lib/platform/types";
 import { isTrack } from "@/lib/eligibility/types";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +20,22 @@ export async function POST(req: NextRequest) {
   const phone = normalizePhone(body.phone);
   const source = SOURCES.has(body.source) ? (body.source as LeadSource) : "website";
   const track = isTrack(body.track) ? body.track : undefined;
+
+  const securityResponse = await protectPublicLead(
+    req,
+    {
+      name,
+      email,
+      phone,
+      message: body.message,
+      honeypot: body.company || body.websiteField || body.hp || body.honeypot,
+      turnstileToken: body.turnstileToken || body["cf-turnstile-response"],
+      startedAt: body.startedAt,
+      extra: [body.country, body.program, body.page],
+    },
+    { endpoint: "platform-lead", ipLimit: 10, contactLimit: 4 },
+  );
+  if (securityResponse) return securityResponse;
 
   if (!name || (!email && !phone)) {
     return NextResponse.json(

@@ -23,6 +23,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const user = await getCurrentPortalUser();
+  if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  if (!["admin", "staff", "partner"].includes(user.role)) {
+    return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const partnerName = normalizeText(body.partnerName, 120) || user?.name || "";
   const contactEmail = normalizeEmail(body.contactEmail) || user?.email || "";

@@ -7,6 +7,7 @@ import { sendLeadAlert } from "@/lib/platform/whatsapp";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import { sendPlatformEmail, keyValueHtml } from "@/lib/platform/email";
 import { findWorkPermitCountry } from "@/lib/work-permits";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,6 +59,23 @@ export async function POST(req: NextRequest) {
   const page = field(form, "page", 240) || "/work-permits";
   const consent = parseBoolean(field(form, "consent", 20));
   const resume = form.get("resume");
+
+  const securityResponse = await protectPublicLead(
+    req,
+    {
+      name,
+      email,
+      phone,
+      message: notes,
+      honeypot: field(form, "company", 100) || field(form, "websiteField", 100),
+      turnstileToken:
+        field(form, "turnstileToken", 2_048) || field(form, "cf-turnstile-response", 2_048),
+      startedAt: field(form, "startedAt", 40),
+      extra: [countryName, permitType, currentRole, experience],
+    },
+    { endpoint: "work-permit", ipLimit: 10, contactLimit: 3 },
+  );
+  if (securityResponse) return securityResponse;
 
   if (!name || !email || !phone || !country || !permitType) {
     return NextResponse.json(

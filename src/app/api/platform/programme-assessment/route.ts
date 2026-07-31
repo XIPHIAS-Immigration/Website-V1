@@ -4,6 +4,7 @@ import { isTrack } from "@/lib/eligibility/types";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText, parseBoolean } from "@/lib/platform/sanitize";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -163,6 +164,28 @@ export async function POST(request: NextRequest) {
     best?.country,
     best?.title,
   ].filter(Boolean) as string[];
+
+  if (eventMode === "lead" && hasContact) {
+    const securityContact = contact as Record<string, unknown>;
+    const securityResponse = await protectPublicLead(
+      request,
+      {
+        name,
+        email,
+        phone,
+        message,
+        honeypot:
+          securityContact.company ||
+          securityContact.websiteField ||
+          securityContact.hp ||
+          securityContact.honeypot,
+        startedAt: securityContact.startedAt || body.startedAt,
+        extra: interests,
+      },
+      { endpoint: "programme-assessment-lead", ipLimit: 8, contactLimit: 3 },
+    );
+    if (securityResponse) return securityResponse;
+  }
 
   const event = await captureVisitorEvent(
     {

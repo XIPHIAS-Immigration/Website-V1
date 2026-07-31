@@ -4,6 +4,7 @@ import { generateConversationalSummary } from "@/lib/platform/conversation-model
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { normalizeEmail, normalizePhone, normalizeText, parseBoolean } from "@/lib/platform/sanitize";
 import { isTrack } from "@/lib/eligibility/types";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +31,21 @@ export async function POST(req: NextRequest) {
   const phone = normalizePhone(body.phone);
 
   if (name && (email || phone)) {
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name,
+        email,
+        phone,
+        message,
+        honeypot: body.company || body.websiteField || body.hp || body.honeypot,
+        startedAt: body.startedAt,
+        extra: [body.country, ...(Array.isArray(body.goals) ? body.goals : [])],
+      },
+      { endpoint: "xia-chat-lead", ipLimit: 12, contactLimit: 4 },
+    );
+    if (securityResponse) return securityResponse;
+
     lead = getPlatformRepository().createLead({
       source: "chat",
       name,

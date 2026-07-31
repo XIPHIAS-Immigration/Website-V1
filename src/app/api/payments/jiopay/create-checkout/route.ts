@@ -13,6 +13,7 @@ import { isTrack, type Track } from "@/lib/eligibility/types";
 import { getCurrentPortalUser } from "@/lib/platform/auth";
 import { resolveCheckoutPrice } from "@/lib/payments/product-catalog";
 import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,6 +57,21 @@ export async function POST(req: NextRequest) {
   const email = normalizeEmail(body.email);
   const phone = normalizePhone(body.phone);
   const consent = parseBoolean(body.consent);
+
+  const securityResponse = await protectPublicLead(
+    req,
+    {
+      name,
+      email,
+      phone,
+      message: body.productName,
+      honeypot: body.company || body.websiteField || body.hp || body.honeypot,
+      startedAt: body.startedAt,
+      extra: [body.productType, body.track, body.country, body.program],
+    },
+    { endpoint: "jiopay-checkout", ipLimit: 5, contactLimit: 3 },
+  );
+  if (securityResponse) return securityResponse;
 
   if (!name || !email) {
     return NextResponse.json(

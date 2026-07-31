@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 /**
  * API route to handle brochure download leads.
@@ -22,6 +23,21 @@ export async function POST(req: Request) {
     const safePhone = String(phone || "").trim();
     const safeEmail = String(email || "").trim();
     const safeBrochure = String(brochure || "").trim();
+
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name: safeName,
+        email: safeEmail,
+        phone: safePhone,
+        message: safeBrochure,
+        honeypot: body?.company || body?.websiteField || body?.hp,
+        turnstileToken: body?.turnstileToken || body?.["cf-turnstile-response"],
+        startedAt: body?.startedAt,
+      },
+      { endpoint: "brochure-lead", ipLimit: 15, contactLimit: 4 },
+    );
+    if (securityResponse) return securityResponse;
 
     if (!safeName || !safePhone) {
       return NextResponse.json(

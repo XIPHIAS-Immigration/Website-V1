@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 // ✅ This route never throws to the frontend (always 200).
 // ✅ If Email/WhatsApp envs are missing, it SKIPS those sends.
@@ -24,6 +25,22 @@ export async function POST(req: NextRequest) {
     const page = String(body?.page ?? "");
     const referrer = String(body?.referrer ?? "");
     const consent = String(body?.consent ?? "");
+
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name,
+        email,
+        phone,
+        message,
+        honeypot: body?.company || body?.websiteField || body?.hp,
+        turnstileToken: body?.turnstileToken || body?.["cf-turnstile-response"],
+        startedAt: body?.startedAt,
+        extra: [variant, page, referrer],
+      },
+      { endpoint: "contact", requireTurnstile: true, ipLimit: 15, contactLimit: 4 },
+    );
+    if (securityResponse) return securityResponse;
 
     // Basic guard (still returns 200, just skips)
     if (!name || !phone) {
@@ -158,4 +175,3 @@ function escapeHtml(s: string) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
-

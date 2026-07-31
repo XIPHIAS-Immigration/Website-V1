@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Loader from "@/components/Common/Loader";
+import TurnstileField from "@/components/Security/TurnstileField";
 import { FiMail, FiUser, FiPhone, FiMessageSquare } from "react-icons/fi";
 
 type Props = {
@@ -33,6 +34,8 @@ export default function ContactForm({
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [msgLen, setMsgLen] = useState(defaults?.message?.length ?? 0);
+  const [turnstileReset, setTurnstileReset] = useState(0);
+  const startedAtRef = useRef(Date.now());
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
 
@@ -99,6 +102,7 @@ export default function ContactForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
+          startedAt: startedAtRef.current,
           country:
             (formRef.current?.elements.namedItem("country") as HTMLInputElement)
               ?.value || "",
@@ -125,6 +129,8 @@ export default function ContactForm({
       );
 
       f.reset();
+      startedAtRef.current = Date.now();
+      setTurnstileReset((value) => value + 1);
       setTouched({});
       setMsgLen(0);
       if (onSuccess) {
@@ -268,6 +274,8 @@ export default function ContactForm({
             I agree to be contacted about my inquiry. We never sell your data.
           </label>
         )}
+
+        <TurnstileField resetSignal={turnstileReset} />
 
         <div className="md:col-span-2">
           <button

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { crmSql, getLiveCrmPool, isLiveCrmConfigured } from "@/lib/crm/live-sql";
+import { protectCrmMirror } from "@/lib/security/public-lead-security";
 
 // tbl_Enquiry.ENT_DATE is varchar(50), not a date column.
 // Existing rows look like: 11-Nov-2025 09:35 AM  -- match that exactly.
@@ -40,6 +41,14 @@ export async function saveLeadToCrm(lead: Record<string, any>): Promise<void> {
 
   // tbl_Enquiry has no NOT NULL on NAME/EMAIL, but a row with neither is useless.
   if (!name && !email) return;
+
+  // Final safety boundary: even if a future public route forgets its request
+  // guard, obvious spam and rapid duplicate leads do not enter legacy CRM.
+  const security = protectCrmMirror(lead);
+  if (!security.ok) {
+    console.warn("[x-hub] CRM mirror blocked:", lead?.id, security.reason);
+    return;
+  }
 
   // ENQUIRY is the only free-text column, so fold the context into it.
   // This is what your staff will read in the CRM Enquiry list.

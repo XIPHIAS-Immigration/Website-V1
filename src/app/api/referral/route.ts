@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export async function POST(req: Request) {
   console.log("📨 API /api/referral hit");
@@ -25,6 +26,22 @@ export async function POST(req: Request) {
       page,
       referrerUrl,
     } = body || {};
+
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name: friendName,
+        email: friendEmail,
+        phone: friendPhone,
+        message: notes,
+        honeypot: body?.company || body?.websiteField || body?.hp,
+        turnstileToken: body?.turnstileToken || body?.["cf-turnstile-response"],
+        startedAt: body?.startedAt,
+        extra: [referrerName, referrerEmail, friendCountry],
+      },
+      { endpoint: "referral", ipLimit: 10, contactLimit: 4 },
+    );
+    if (securityResponse) return securityResponse;
 
     if (!referrerName || !referrerEmail || !friendName || !friendEmail) {
       return NextResponse.json(

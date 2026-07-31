@@ -83,9 +83,18 @@ async function buildDetailedReportAttachment(args: {
 }) {
   if (!args.answers) return null;
   try {
+    const reportSecret =
+      process.env.XIPHIAS_INTERNAL_REPORT_SECRET || process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET || "";
+    if (!reportSecret) {
+      console.warn("[registration] Detailed report secret is not configured.");
+      return null;
+    }
     const response = await fetch(absoluteUrl("/api/eligibility/report"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-xiphias-report-secret": reportSecret,
+      },
       body: JSON.stringify({
         name: args.name,
         email: args.email,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import type { Track, AnswerMap, Program } from "@/lib/eligibility/types";
 import { getEligibilityAdvisory } from "@/lib/platform/eligibility-advisor";
 import { getPlatformRepository } from "@/lib/platform/repository";
@@ -6,8 +7,15 @@ import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage, type RGB } from "pdf-lib";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
+
+function safeEqualSecret(leftValue: string, rightValue: string) {
+  const left = Buffer.from(leftValue);
+  const right = Buffer.from(rightValue);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
 
 const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigration";
 const REPORT_TITLE = "Assessment Preview Report";
@@ -1076,7 +1084,7 @@ function drawCoverPage(
 }
 
 export async function POST(req: NextRequest) {
-  const { name, email, phone, track, answers, reportType, full } = (await req.json()) as {
+  const body = (await req.json()) as {
     name: string;
     email?: string;
     phone?: string;
@@ -1084,13 +1092,43 @@ export async function POST(req: NextRequest) {
     answers: AnswerMap;
     reportType?: "preview" | "detailed";
     full?: boolean;
+    company?: string;
+    websiteField?: string;
+    hp?: string;
+    honeypot?: string;
+    startedAt?: number;
   };
+  const { name, email, phone, track, answers, reportType, full } = body;
 
   if (!name || !track || !answers) {
     return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
   }
 
   const detailed = reportType === "detailed" || full === true;
+  if (detailed) {
+    const configuredSecret =
+      process.env.XIPHIAS_INTERNAL_REPORT_SECRET || process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET || "";
+    const suppliedSecret = req.headers.get("x-xiphias-report-secret") || "";
+    if (!configuredSecret || !suppliedSecret || !safeEqualSecret(suppliedSecret, configuredSecret)) {
+      return NextResponse.json({ ok: false, error: "Unauthorized detailed report request." }, { status: 401 });
+    }
+  } else {
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name,
+        email,
+        phone,
+        message: JSON.stringify(answers),
+        honeypot: body.company || body.websiteField || body.hp || body.honeypot,
+        startedAt: body.startedAt,
+        extra: [track],
+      },
+      { endpoint: "eligibility-report-preview", ipLimit: 6, contactLimit: 3 },
+    );
+    if (securityResponse) return securityResponse;
+  }
+
   const result = getEligibilityAdvisory(track, answers);
   const initialProgram = result.programs?.[0];
   const country = result.countryFocus || initialProgram?.country;

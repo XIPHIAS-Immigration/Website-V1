@@ -7,6 +7,7 @@ import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
 import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
 import type { Track } from "@/lib/eligibility/types";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -144,6 +145,22 @@ export async function POST(req: NextRequest) {
     const track = String(body.track || "");
     const answers = safeAnswers(body.answers);
     const honeypot = sanitizeStr(body.honeypot || body.website || "");
+
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name,
+        email,
+        phone,
+        message: JSON.stringify(answers),
+        honeypot,
+        turnstileToken: body.turnstileToken || body["cf-turnstile-response"],
+        startedAt: body.startedAt,
+        extra: [track],
+      },
+      { endpoint: "eligibility-submit", ipLimit: 15, contactLimit: 4 },
+    );
+    if (securityResponse) return securityResponse;
 
     if (!name || name.length < 2) {
       return NextResponse.json({ ok: false, error: "Please provide your full name." }, { status: 400 });

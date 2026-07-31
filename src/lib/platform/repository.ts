@@ -379,6 +379,13 @@ class PlatformRepositoryImpl {
     return message;
   }
 
+  hasConversationProviderMessageId(providerMessageId: string) {
+    const needle = providerMessageId.trim();
+    return Boolean(
+      needle && this.state.conversations.some((message) => message.providerMessageId === needle),
+    );
+  }
+
   createCase(input: CreateCaseInput) {
     const createdAt = input.createdAt ?? nowIso();
     const migrationCase: MigrationCase = {

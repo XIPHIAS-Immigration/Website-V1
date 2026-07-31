@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
+import { protectPublicLead } from "@/lib/security/public-lead-security";
 
 // If you want to be explicit:
 export const runtime = "nodejs";
@@ -341,6 +342,22 @@ export async function POST(req: NextRequest) {
     const email = rawEmail?.toLowerCase();
     const source = sanitizeSource(body?.source || "footer");
     const honeypot = normalizeSingleLine(body?.hp, 80);
+
+    const securityResponse = await protectPublicLead(
+      req,
+      {
+        name: email?.split("@")[0],
+        email,
+        message: `Newsletter subscription from ${source}`,
+        honeypot,
+        turnstileToken:
+          (body as Record<string, unknown>)?.turnstileToken ||
+          (body as Record<string, unknown>)?.["cf-turnstile-response"],
+        startedAt: (body as Record<string, unknown>)?.startedAt,
+      },
+      { endpoint: "newsletter", ipLimit: 8, contactLimit: 2, duplicateWindowMs: 24 * 60 * 60 * 1000 },
+    );
+    if (securityResponse) return securityResponse;
 
     if (isValidBotRequest(req, honeypot)) {
       return NextResponse.json(
