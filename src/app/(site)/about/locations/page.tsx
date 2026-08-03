@@ -28,7 +28,7 @@ const OFFICES = [
     flag: '🇮🇳',
     hours: 'Mon–Sat, 9:30–18:30',
     phone: '+91 9021335577',
-    phoneAlt: '+91 08049768088',
+    phoneAlt: '+91 8049768088',
     maps: 'https://maps.google.com/?q=JK+Nirmala+Arcade+Plot+780+80+Feet+Road+4th+Block+Koramangala+Bengaluru+560034',
   },
   {

@@ -159,7 +159,7 @@ export async function POST(req: Request) {
           <div style="text-align:center;font-size:13px;color:#666;">
             <p style="margin:4px 0;"><strong>XIPHIAS Immigration Pvt. Ltd</strong></p>
             <p style="margin:4px 0;">1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block,<br> Koramangala, Bengaluru, Karnataka 560034</p>
-            <p style="margin:4px 0;">+91-80-67601000 / 9021335577 / +91 08049768088</p>
+            <p style="margin:4px 0;">+91-80-67601000 / 9021335577 / +91 8049768088</p>
             <p style="margin:4px 0;"><a href="mailto:immigration@xiphias.in" style="color:#004fa3;">immigration@xiphias.in</a> | <a href="https://www.xiphiasimmigration.com" style="color:#004fa3;">www.xiphiasimmigration.com</a></p>
             <div style="margin-top:10px;">
               <a href="https://play.google.com/store/apps/details?id=com.xiphiasimmigration.app.android" target="_blank" style="margin-right:10px;">

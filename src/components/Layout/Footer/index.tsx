@@ -286,7 +286,7 @@ export default function Footer() {
               <div className="flex flex-wrap gap-2 md:justify-end">
                 {[
                   { href: "tel:+919021335577", icon: "mdi:phone", label: "+91 9021335577" },
-                  { href: "tel:+918049768088", icon: "mdi:phone-classic", label: "+91 08049768088" },
+                  { href: "tel:+918049768088", icon: "mdi:phone-classic", label: "+91 8049768088" },
                   { href: "https://wa.me/919021335577", icon: "mdi:whatsapp", label: "WhatsApp", ext: true },
                   { href: "mailto:immigration@xiphias.in", icon: "mdi:email-outline", label: "Email" },
                 ].map(({ href, icon, label, ext }) => (

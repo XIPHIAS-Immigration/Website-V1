@@ -4,7 +4,7 @@ const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigratio
 const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_PDF_WEBSITE || "www.xiphiasimmigration.com";
 const COMPANY_EMAIL = process.env.NEXT_PUBLIC_PDF_EMAIL || "immigration@xiphias.in";
 const COMPANY_PHONE =
-  process.env.NEXT_PUBLIC_PDF_PHONE || "+91 9021335577 / +91 08049768088";
+  process.env.NEXT_PUBLIC_PDF_PHONE || "+91 9021335577 / +91 8049768088";
 const COMPANY_ADDRESS =
   process.env.NEXT_PUBLIC_PDF_ADDRESS ||
   "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru, Karnataka 560034";

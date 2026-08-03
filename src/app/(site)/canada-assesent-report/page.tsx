@@ -899,7 +899,7 @@ function buildReportHtml(args: {
                                     +91 9021335577
                                   </a>{" / "}
                                   <a href="tel:+918049768088" style="color:#FFFFFF;text-decoration:underline;">
-                                    +91 08049768088
+                                    +91 8049768088
                                   </a>
                                 </div>
 

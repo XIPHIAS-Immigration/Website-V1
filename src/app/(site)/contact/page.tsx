@@ -77,7 +77,7 @@ const CONTACT = {
   headline: "Talk to an Immigration Expert",
   sub: "Fast, discreet, compliant. Choose the channel you prefer.",
   phonePrimary: "+91 9021335577",
-  phoneAlt: "+91 08049768088",
+  phoneAlt: "+91 8049768088",
   email: "immigration@xiphias.in",
   whatsapp: "+91 7406006061",
   address: [

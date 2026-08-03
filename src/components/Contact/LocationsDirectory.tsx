@@ -155,7 +155,7 @@ export default function LocationsDirectory({
         "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala",
         "Bengaluru - 560034",
       ],
-      phones: ["+91 9021335577", "+91 08049768088"],
+      phones: ["+91 9021335577", "+91 8049768088"],
       email: "immigration@xiphias.in",
       mapQuery:
         "JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru 560034",

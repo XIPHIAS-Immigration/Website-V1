@@ -69,7 +69,7 @@ const orgJsonLd = {
   contactPoint: [
     {
       "@type": "ContactPoint",
-      telephone: ["+91 9021335577", "+91 08049768088"],
+      telephone: ["+91 9021335577", "+91 8049768088"],
       contactType: "sales",
       areaServed: "Worldwide",
       availableLanguage: ["en"],

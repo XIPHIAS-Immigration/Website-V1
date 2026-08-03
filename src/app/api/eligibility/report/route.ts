@@ -29,7 +29,7 @@ const FOOTER_ADDRESS =
   "1st Floor, JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru, Karnataka 560034";
 const FOOTER_EMAIL = process.env.NEXT_PUBLIC_PDF_EMAIL || "immigration@xiphias.in";
 const FOOTER_PHONE =
-  process.env.NEXT_PUBLIC_PDF_PHONE || "+91 9021335577 / +91 08049768088";
+  process.env.NEXT_PUBLIC_PDF_PHONE || "+91 9021335577 / +91 8049768088";
 const FOOTER_WEBSITE = process.env.NEXT_PUBLIC_PDF_WEBSITE || "www.xiphiasimmigration.com";
 
 const A4: [number, number] = [595.28, 841.89];
