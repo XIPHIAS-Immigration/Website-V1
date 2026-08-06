@@ -4,12 +4,16 @@ import React from "react";
 import { usePathname } from "next/navigation";
 
 import ContactForm from "@/components/ContactForm";
+import {
+  COOKIE_CONSENT_EVENT,
+  readCookieConsent,
+} from "@/lib/cookies/consent";
 
 const DISMISS_UNTIL_KEY = "xiphias_quick_enquiry_dismissed_until";
 const SUBMITTED_UNTIL_KEY = "xiphias_quick_enquiry_submitted_until";
 const SESSION_SHOWN_KEY = "xiphias_quick_enquiry_shown_session";
 
-const SHOW_DELAY_MS = 4_500;
+const SHOW_DELAY_MS = 2_500;
 const SHOW_SCROLL_RATIO = 0.12;
 const DISMISS_HIDE_DAYS = 7;
 const SUBMIT_HIDE_DAYS = 30;
@@ -20,6 +24,11 @@ function shouldSkipPath(pathname: string) {
   if (p.startsWith("/contact")) return true;
   if (p === "/eligibility" || p.startsWith("/eligibility/")) return true;
   if (p.includes("eligibility-check")) return true;
+  if (p.startsWith("/deep-analysis")) return true;
+  if (p.startsWith("/route-intelligence")) return true;
+  if (p.startsWith("/xia-intelligence")) return true;
+  if (p.startsWith("/programme-explorer")) return true;
+  if (p.startsWith("/payment") || p.startsWith("/registration")) return true;
   return false;
 }
 
@@ -50,6 +59,7 @@ export default function QuickEnquiryPopup() {
   const [pendingOpen, setPendingOpen] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isBrochureGateOpen, setIsBrochureGateOpen] = React.useState(false);
+  const [isCookiePromptOpen, setIsCookiePromptOpen] = React.useState(false);
 
   const closeBtnRef = React.useRef<HTMLButtonElement | null>(null);
   const skipRoute = shouldSkipPath(pathname);
@@ -67,6 +77,16 @@ export default function QuickEnquiryPopup() {
   const handleSubmitSuccess = React.useCallback(() => {
     closeWithSuppression(SUBMITTED_UNTIL_KEY, SUBMIT_HIDE_DAYS);
   }, [closeWithSuppression]);
+
+  React.useEffect(() => {
+    const syncCookiePrompt = () => {
+      setIsCookiePromptOpen(!readCookieConsent());
+    };
+
+    syncCookiePrompt();
+    window.addEventListener(COOKIE_CONSENT_EVENT, syncCookiePrompt);
+    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, syncCookiePrompt);
+  }, []);
 
   React.useEffect(() => {
     const onChatState = (event: Event) => {
@@ -111,7 +131,11 @@ export default function QuickEnquiryPopup() {
       shownThisSession = false;
     }
 
-    if (shownThisSession || now < dismissedUntil || now < submittedUntil) {
+    const alwaysPromptOnHomepage = pathname === "/";
+    if (
+      !alwaysPromptOnHomepage &&
+      (shownThisSession || now < dismissedUntil || now < submittedUntil)
+    ) {
       return;
     }
 
@@ -149,18 +173,18 @@ export default function QuickEnquiryPopup() {
 
   React.useEffect(() => {
     if (!pendingOpen || skipRoute) return;
-    if (isChatOpen || isBrochureGateOpen) return;
+    if (isChatOpen || isBrochureGateOpen || isCookiePromptOpen) return;
     setOpen(true);
     setPendingOpen(false);
-  }, [pendingOpen, skipRoute, isChatOpen, isBrochureGateOpen]);
+  }, [pendingOpen, skipRoute, isChatOpen, isBrochureGateOpen, isCookiePromptOpen]);
 
   React.useEffect(() => {
     if (!open) return;
-    if (isChatOpen || isBrochureGateOpen) {
+    if (isChatOpen || isBrochureGateOpen || isCookiePromptOpen) {
       setOpen(false);
       setPendingOpen(true);
     }
-  }, [open, isChatOpen, isBrochureGateOpen]);
+  }, [open, isChatOpen, isBrochureGateOpen, isCookiePromptOpen]);
 
   React.useEffect(() => {
     if (!open) return;

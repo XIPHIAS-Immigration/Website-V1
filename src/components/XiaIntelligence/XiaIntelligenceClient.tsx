@@ -44,6 +44,9 @@ type HighSkillMatch = ReturnType<typeof scoreHighSkillRoutes>[number];
 type XiaIntelligenceClientProps = {
   data: XiaIntelligenceData;
   initialEngine?: Engine;
+  initialRouteInput?: Partial<RouteIntelligenceInput>;
+  initialHighSkillInput?: Partial<HighSkillInput>;
+  journeySource?: string;
   lockedEngine?: boolean;
   targetCountryLocked?: HighSkillInput["targetCountry"];
   title?: string;
@@ -264,16 +267,30 @@ function XiaHelpPanel() {
 export default function XiaIntelligenceClient({
   data,
   initialEngine = "route",
+  initialRouteInput,
+  initialHighSkillInput,
+  journeySource,
   lockedEngine = false,
   targetCountryLocked,
   title,
   subtitle,
 }: XiaIntelligenceClientProps) {
   const [engine, setEngine] = useState<Engine>(initialEngine);
-  const [routeInput, setRouteInput] = useState<RouteIntelligenceInput>(defaultRouteInput);
+  const [routeInput, setRouteInput] = useState<RouteIntelligenceInput>(() => ({
+    ...defaultRouteInput,
+    ...initialRouteInput,
+  }));
   const [highSkillInput, setHighSkillInput] = useState<HighSkillInput>(() => ({
     ...defaultHighSkillInput,
-    targetCountry: targetCountryLocked || defaultHighSkillInput.targetCountry,
+    ...initialHighSkillInput,
+    evidence: {
+      ...defaultHighSkillInput.evidence,
+      ...initialHighSkillInput?.evidence,
+    },
+    targetCountry:
+      targetCountryLocked ||
+      initialHighSkillInput?.targetCountry ||
+      defaultHighSkillInput.targetCountry,
   }));
   const [contact, setContact] = useState<ContactInput>({ name: "", email: "", phone: "", consent: true });
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -370,6 +387,7 @@ export default function XiaIntelligenceClient({
           contact,
           visitorId,
           sessionId,
+          journeySource,
           path: "/xia-intelligence",
           referrer: document.referrer,
         }),

@@ -1,105 +1,112 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, FileText, Route, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  FileCheck2,
+  FileText,
+  LockKeyhole,
+  ShieldCheck,
+} from "lucide-react";
 
-const steps = [
-  {
-    title: "Route fit",
-    copy: "Compare destination, timeline, budget, family, and physical presence preferences.",
-    icon: Route,
-  },
-  {
-    title: "Evidence review",
-    copy: "Add skills, education, work history, funds, CV notes, and document signals.",
-    icon: FileText,
-  },
-  {
-    title: "Advisor handoff",
-    copy: "Save the assessment into X-Hub so the XIPHIAS team can review it.",
-    icon: ShieldCheck,
-  },
+const REPORT_CONTENT = [
+  "Best-fit immigration route comparison",
+  "Profile strengths and evidence gaps",
+  "Document readiness checklist",
+  "Indicative cost and timeline",
+  "Risk flags requiring advisor review",
+  "A prioritised action plan",
 ];
+
+const REPORT_PAGES = [
+  { number: "01", title: "Route direction", accent: "bg-[#1553af]", bars: ["w-full", "w-4/5", "w-3/5"] },
+  { number: "02", title: "Evidence map", accent: "bg-[#d8ad1f]", bars: ["w-11/12", "w-2/3", "w-5/6"] },
+  { number: "03", title: "Action plan", accent: "bg-emerald-600", bars: ["w-3/4", "w-full", "w-1/2"] },
+] as const;
 
 export default function XiaIntelligencePreview() {
   return (
-    <section aria-labelledby="xia-home-heading" className="py-10 sm:py-14">
-      <div className="container mx-auto lg:max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-6 rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5 sm:p-7 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/30 dark:text-blue-200 dark:ring-blue-900/50">
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              XIA Intelligence by XIPHIAS
-            </span>
+    <section aria-labelledby="premium-report-heading" className="border-b border-slate-200 bg-slate-50 py-14 text-slate-950 sm:py-16 lg:py-20">
+      <div className="mx-auto grid max-w-screen-2xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-center lg:px-8">
+        <div>
+          <p className="inline-flex items-center gap-2 text-xs font-bold uppercase text-[#1553af]">
+            <FileCheck2 className="size-4" aria-hidden="true" />
+            From exploration to a clear decision
+          </p>
+          <h2 id="premium-report-heading" className="mt-4 max-w-2xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+            See the direction for free. Unlock the detail when it is useful.
+          </h2>
+          <p className="mt-5 max-w-xl text-base leading-7 text-slate-600">
+            XIA first creates an indicative assessment from your answers. The premium report expands that preview into an advisor-ready plan you can review, share, and act on.
+          </p>
 
-            <h2
-              id="xia-home-heading"
-              className="mt-3 max-w-3xl text-3xl font-bold tracking-tight text-zinc-950 dark:text-white sm:text-4xl md:text-5xl"
+          <ul className="mt-7 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+            {REPORT_CONTENT.map((item) => (
+              <li key={item} className="flex items-start gap-2.5 text-sm font-semibold leading-6 text-slate-700">
+                <Check className="mt-1 size-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link href="/deep-analysis" className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#1553af] px-5 text-sm font-bold text-white transition hover:bg-[#0d438f]">
+              Start Deep Analysis
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+            <a
+              href="/samples/xiphias-premium-report-sample.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-slate-800 transition hover:border-[#1553af] hover:text-[#1553af]"
             >
-              Start with a guided route assessment before choosing a programme.
-            </h2>
-
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              XIA helps visitors shortlist immigration directions from XIPHIAS programme knowledge,
-              then keeps the result ready for advisor review and X-Hub follow-up.
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/xia-intelligence"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow ring-1 ring-blue-700/20 transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-              >
-                Open XIA Intelligence
-                <ArrowRight className="h-5 w-5" aria-hidden="true" />
-              </Link>
-              <Link
-                href="/route-intelligence"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 font-semibold text-blue-700 ring-1 ring-blue-300 transition hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:bg-white/5 dark:text-blue-200 dark:ring-blue-800/60 dark:hover:bg-blue-950/20"
-              >
-                Try quick route check
-              </Link>
-            </div>
+              View sample PDF
+              <FileText className="size-4" aria-hidden="true" />
+            </a>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-black/20">
-            <div className="xia-home-line" aria-hidden="true" />
-            <div className="relative grid gap-3">
-              {steps.map(({ title, copy, icon: Icon }, index) => (
-                <article
-                  key={title}
-                  className="group flex items-start gap-3 rounded-xl bg-white p-4 ring-1 ring-zinc-200 transition hover:-translate-y-0.5 hover:ring-blue-200 dark:bg-white/5 dark:ring-white/10 dark:hover:ring-blue-800"
-                >
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/30 dark:text-blue-200 dark:ring-blue-900/40">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="flex items-center gap-2 text-sm font-semibold text-zinc-950 dark:text-white">
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">0{index + 1}</span>
-                      {title}
-                    </span>
-                    <span className="mt-1 block text-sm leading-6 text-zinc-700 dark:text-zinc-300">{copy}</span>
-                  </span>
-                </article>
-              ))}
+          <p className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <ShieldCheck className="size-4 text-emerald-600" aria-hidden="true" />
+            Payment is requested only when you choose to unlock the detailed report.
+          </p>
+        </div>
+
+        <div className="relative min-h-[430px] overflow-hidden rounded-lg border border-slate-200 bg-[#071a3a] p-5 sm:p-8" aria-label="Example report sections">
+          <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5 text-white">
+            <div>
+              <p className="text-xs font-bold uppercase text-[#f0c83f]">XIPHIAS premium report</p>
+              <p className="mt-1 text-lg font-bold">Built from your assessment</p>
             </div>
+            <span className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-xs font-semibold text-white/75">
+              <LockKeyhole className="size-4 text-[#f0c83f]" />
+              Personalised
+            </span>
+          </div>
+
+          <div className="mt-7 grid gap-4 sm:grid-cols-3 sm:items-start">
+            {REPORT_PAGES.map((page, index) => (
+              <article key={page.number} className={`min-h-[285px] rounded-md bg-white p-4 text-slate-950 shadow-xl ${index === 1 ? "sm:mt-7" : index === 2 ? "sm:mt-14" : ""}`}>
+                <div className={`h-1.5 w-10 rounded-full ${page.accent}`} />
+                <p className="mt-5 text-[10px] font-bold uppercase text-slate-400">Section {page.number}</p>
+                <h3 className="mt-1 text-base font-bold">{page.title}</h3>
+                <div className="mt-5 space-y-2.5">
+                  {page.bars.map((width, barIndex) => (
+                    <div key={`${width}-${barIndex}`} className={`h-2 rounded-full bg-slate-100 ${width}`} />
+                  ))}
+                </div>
+                <div className="mt-6 border-l-2 border-[#d8ad1f] bg-amber-50 px-3 py-2.5">
+                  <p className="text-[10px] font-bold uppercase text-amber-800">Advisor checkpoint</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-600">Evidence and current programme rules are verified before action.</p>
+                </div>
+                {index > 0 && (
+                  <div className="mt-5 flex items-center gap-2 text-xs font-bold text-slate-400">
+                    <LockKeyhole className="size-3.5" /> Detailed report section
+                  </div>
+                )}
+              </article>
+            ))}
           </div>
         </div>
       </div>
-      <style>{`
-        .xia-home-line {
-          position: absolute;
-          inset: 28px auto 28px 38px;
-          width: 2px;
-          border-radius: 999px;
-          background: linear-gradient(180deg, rgba(28,87,180,0.15), rgba(225,185,35,0.85), rgba(28,87,180,0.15));
-          animation: xiaHomeSignal 2.8s ease-in-out infinite;
-        }
-        @keyframes xiaHomeSignal {
-          0%, 100% { opacity: 0.45; transform: translateY(-8px); }
-          50% { opacity: 1; transform: translateY(8px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .xia-home-line { animation: none; }
-        }
-      `}</style>
     </section>
   );
 }

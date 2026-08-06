@@ -27,7 +27,6 @@ const CorporatePreview = dynamic(
 const AdvisorConsultationCard = dynamic(
   () => import("@/components/Citizenship/AdvisorConsultationCard"),
 );
-const XiaSection = dynamic(() => import("@/components/Home/XiaSection"));
 
 // Defers hydration/JS of below-the-fold sections until they near the viewport.
 import DeferOnView from "@/components/util/DeferOnView";
@@ -107,6 +106,7 @@ export default function Home() {
     <>
       <JsonLd id="home-service-jsonld" data={homeJsonLd} />
       <Hero />
+      <XiaIntelligencePreview />
       <ImmigrationConsultantsOverview />
       {/* min-heights match measured mobile section heights so deferred mounting
           doesn't shift layout (keeps CLS ~0). */}
@@ -115,7 +115,6 @@ export default function Home() {
       <DeferOnView minHeight="1560px"><ResidencyPreview /></DeferOnView>
       <DeferOnView minHeight="1545px"><CorporatePreview /></DeferOnView>
       <DeferOnView minHeight="1585px"><SkilledPreview /></DeferOnView>
-      <DeferOnView minHeight="720px"><XiaSection /></DeferOnView>
       <DeferOnView minHeight="815px"><FAQJourney /></DeferOnView>
 
       <DeferOnView minHeight="1010px">
