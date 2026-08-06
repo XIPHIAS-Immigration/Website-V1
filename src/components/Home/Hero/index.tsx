@@ -151,10 +151,10 @@ export default function Hero() {
             XIA Immigration Intelligence
           </p>
           <h1 id="home-hero-title" className="mt-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-            Find the immigration route that fits your life.
+            Immigration Consultants in India for Global Residency &amp; Citizenship
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/75 sm:text-lg">
-            Answer three simple questions. XIA will open the right assessment, show an initial route direction, and let you decide whether to unlock the detailed report.
+            Explore Canada PR, US EB-5, skilled migration, residency and citizenship by investment, plus corporate mobility across 50+ countries.
           </p>
         </div>
 

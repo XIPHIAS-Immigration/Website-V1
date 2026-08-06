@@ -232,7 +232,7 @@ export default function Header() {
 
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 w-full z-50 overflow-visible pt-5 pb-3 will-change-transform [transform:translateZ(0)]"
+        className="fixed top-0 left-0 right-0 w-full z-50 overflow-visible pt-3 pb-3 will-change-transform [transform:translateZ(0)]"
       >
         {/* Floating card — max-w-screen-2xl centered with side gutters */}
         <div className="mx-auto w-full max-w-screen-2xl px-2 sm:px-4">
