@@ -67,17 +67,21 @@ export default function DeferredClientWidgets({ gaId }: Props) {
     return () => window.clearTimeout(timer);
   }, [isIsolatedRoute, ready]);
 
-  if (isIsolatedRoute || !ready) return null;
+  if (isIsolatedRoute) return null;
 
   return (
     <>
-      <ScrollToTop />
-      <ChatWidget />
       <QuickEnquiryPopup />
-      {engagementReady ? <GlobalBrochureGate /> : null}
       <CookieConsentManager />
-      <VisitorAnalyticsTracker />
-      {gaId ? <CookieAwareGA4 gaId={gaId} /> : null}
+      {ready ? (
+        <>
+          <ScrollToTop />
+          <ChatWidget />
+          {engagementReady ? <GlobalBrochureGate /> : null}
+          <VisitorAnalyticsTracker />
+          {gaId ? <CookieAwareGA4 gaId={gaId} /> : null}
+        </>
+      ) : null}
     </>
   );
 }

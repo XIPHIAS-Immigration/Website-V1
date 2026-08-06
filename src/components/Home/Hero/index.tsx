@@ -1,279 +1,327 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight, ShieldCheck, Sparkles, Users, Globe,
-  CheckCircle2, User, Mail, Phone, FileSearch,
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  BriefcaseBusiness,
+  Check,
+  ChevronRight,
+  CircleHelp,
+  FileSearch,
+  FileText,
+  Globe2,
+  GraduationCap,
+  Landmark,
+  Route,
+  ShieldCheck,
+  Sparkles,
+  UsersRound,
 } from "lucide-react";
 
-const STATS = [
-  { value: "17+",  label: "Years of Excellence" },
-  { value: "50+",  label: "Countries Covered" },
-  { value: "10K+", label: "Families Relocated" },
-  { value: "4",  label: "Advisory Pathways" },
+type GoalId = "career" | "investment" | "citizenship" | "business" | "unsure";
+type DestinationId = "canada" | "usa" | "australia" | "uk" | "europe" | "uae" | "open";
+type ProfileId = "professional" | "investor" | "entrepreneur" | "family" | "researcher" | "student";
+
+type Choice<T extends string> = {
+  id: T;
+  label: string;
+  copy: string;
+  icon: typeof Route;
+};
+
+const GOALS: Choice<GoalId>[] = [
+  { id: "career", label: "Work or settle abroad", copy: "Skilled visas, work routes and permanent residence", icon: GraduationCap },
+  { id: "investment", label: "Invest for residency", copy: "Golden Visa and residency by investment routes", icon: Landmark },
+  { id: "citizenship", label: "Explore citizenship", copy: "Citizenship pathways for you and your family", icon: Globe2 },
+  { id: "business", label: "Start or expand a business", copy: "Founder, entrepreneur and corporate mobility routes", icon: BriefcaseBusiness },
+  { id: "unsure", label: "I am not sure yet", copy: "Let XIA compare the available directions", icon: CircleHelp },
 ];
 
-const TRUST = [
-  "No spam — ever",
-  "Free consultation",
-  "Response within 24 hrs",
+const DESTINATIONS: Choice<DestinationId>[] = [
+  { id: "canada", label: "Canada", copy: "PR, skilled and business routes", icon: Globe2 },
+  { id: "usa", label: "United States", copy: "Talent, investor and work routes", icon: Globe2 },
+  { id: "australia", label: "Australia", copy: "Skilled and permanent pathways", icon: Globe2 },
+  { id: "uk", label: "United Kingdom", copy: "Talent, work and business routes", icon: Globe2 },
+  { id: "europe", label: "Europe", copy: "Residency and investment programmes", icon: Globe2 },
+  { id: "uae", label: "UAE", copy: "Residency, founders and mobility", icon: Globe2 },
+  { id: "open", label: "Open to suggestions", copy: "Compare destinations by overall fit", icon: Route },
 ];
+
+const PROFILES: Choice<ProfileId>[] = [
+  { id: "professional", label: "Skilled professional", copy: "Employment, experience and qualifications", icon: GraduationCap },
+  { id: "researcher", label: "Researcher or specialist", copy: "Research, awards, leadership or exceptional ability", icon: BadgeCheck },
+  { id: "investor", label: "Investor", copy: "Capital-led residency and citizenship options", icon: Landmark },
+  { id: "entrepreneur", label: "Founder or business owner", copy: "Startup, company and expansion pathways", icon: BriefcaseBusiness },
+  { id: "family", label: "Family relocation", copy: "A route that works for the whole family", icon: UsersRound },
+  { id: "student", label: "Student or graduate", copy: "Study-to-work and graduate pathways", icon: FileSearch },
+];
+
+const DESTINATION_LABELS: Record<DestinationId, string> = {
+  canada: "Canada",
+  usa: "United States",
+  australia: "Australia",
+  uk: "United Kingdom",
+  europe: "Europe",
+  uae: "UAE",
+  open: "",
+};
+
+const ROUTE_GOALS: Record<GoalId, string> = {
+  career: "pr",
+  investment: "investment",
+  citizenship: "citizenship",
+  business: "business-setup",
+  unsure: "not-sure",
+};
+
+function resultHref(goal: GoalId, destination: DestinationId, profile: ProfileId) {
+  const useDeepAnalysis =
+    goal === "career" && ["professional", "researcher", "student"].includes(profile);
+  const query = new URLSearchParams({
+    source: "homepage-concierge",
+    profile,
+  });
+
+  const destinationLabel = DESTINATION_LABELS[destination];
+  if (destinationLabel) query.set("destination", destinationLabel);
+
+  if (useDeepAnalysis) {
+    query.set("goal", goal === "career" ? "not-sure" : goal);
+    return `/deep-analysis?${query.toString()}`;
+  }
+
+  query.set("goal", ROUTE_GOALS[goal]);
+  return `/route-intelligence?${query.toString()}`;
+}
+
+function recommendedLabel(goal: GoalId, profile: ProfileId) {
+  if (goal === "career" && ["professional", "researcher", "student"].includes(profile)) {
+    return "Deep Analysis";
+  }
+  return "Route Intelligence";
+}
 
 export default function Hero() {
-  const [form, setForm]     = useState({ name: "", email: "", phone: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
+  const [step, setStep] = useState(0);
+  const [goal, setGoal] = useState<GoalId | null>(null);
+  const [destination, setDestination] = useState<DestinationId | null>(null);
+  const [profile, setProfile] = useState<ProfileId | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const recommendation = useMemo(() => {
+    if (!goal || !destination || !profile) return null;
+    return {
+      href: resultHref(goal, destination, profile),
+      label: recommendedLabel(goal, profile),
+    };
+  }, [destination, goal, profile]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.phone) return;
-    setStatus("sending");
-    try {
-      const res = await fetch("/api/platform/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          source: "website",
-          page: `${window.location.pathname}${window.location.search}`,
-          referrer: document.referrer,
-          consent: true,
-          tags: [
-            "hero",
-            new URLSearchParams(window.location.search).get("utm_source"),
-            new URLSearchParams(window.location.search).get("utm_campaign"),
-          ].filter(Boolean),
-        }),
-      });
-      if (!res.ok) throw new Error("Request failed");
-      setStatus("done");
-      window.gtag?.("event", "generate_lead", {
-        form_name: "homepage_hero",
-        page_location: window.location.href,
-      });
-    } catch {
-      setStatus("idle");
-    }
+  const reset = () => {
+    setGoal(null);
+    setDestination(null);
+    setProfile(null);
+    setStep(0);
   };
 
-  /* Shared class for each input field wrapper (label) */
-  const fieldCls = [
-    "relative flex flex-1 min-w-0 items-center gap-2.5 px-4 py-3.5",
-    "transition-colors duration-150 cursor-text",
-    /* subtle separator — only a thin right line on desktop */
-    "sm:[&:not(:last-of-type)]:border-r sm:[&:not(:last-of-type)]:border-white/10",
-    "border-b border-white/10 sm:border-b-0",
-    /* gold bottom accent that slides in on focus — our custom indicator */
-    "after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2px] after:rounded-full",
-    "after:bg-secondary after:scale-x-0 focus-within:after:scale-x-100",
-    "after:transition-transform after:duration-250 after:ease-out after:origin-center",
-  ].join(" ");
-
-  /* Inline style applied to every <input> — forces outline: none across all browsers */
-  const inputStyle: React.CSSProperties = {
-    outline: "none",
-    boxShadow: "none",
-    WebkitAppearance: "none",
-    WebkitTapHighlightColor: "transparent",
-  };
+  const heading = step === 0 ? "What would you like to achieve?" : step === 1 ? "Where would you like to go?" : "Which profile describes you best?";
+  const choices = step === 0 ? GOALS : step === 1 ? DESTINATIONS : PROFILES;
 
   return (
-    <section
-      id="main-banner"
-      aria-labelledby="home-hero-title"
-      className="relative isolate z-0 overflow-hidden min-h-[100svh] flex flex-col items-center justify-center"
-    >
-      {/* ── Background ── */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
+    <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate overflow-hidden bg-[#071a3a] pt-28 text-white sm:pt-32">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-60">
         <Image
           src="/images/hero/top-immigration-counsultent.webp"
-          alt="Immigration consultants helping clients with global visas"
-          fill priority fetchPriority="high"
-          className="object-cover object-center scale-[1.03]"
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          className="object-cover object-center"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0b2a6b]/90 via-[#0f3a8a]/80 to-[#1c57b4]/75" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(255,255,255,0.04),transparent)]" />
       </div>
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[#071a3a]/75" />
 
-      {/* Ambient glows — desktop only (large blurs are costly to composite on mobile) */}
-      <div className="pointer-events-none absolute -left-32 top-1/4 hidden h-96 w-96 rounded-full bg-secondary/20 blur-[120px] md:block" />
-      <div className="pointer-events-none absolute -right-32 bottom-1/4 hidden h-80 w-80 rounded-full bg-primary/30 blur-[100px] md:block" />
-
-      {/* ── Content ── */}
-      <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6 flex flex-col items-center text-center pt-36 pb-24">
-
-        {/* Eyebrow badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[13px] font-medium text-white/90 backdrop-blur-sm">
-          <ShieldCheck className="h-3.5 w-3.5 text-secondary shrink-0" />
-          Immigration Consultants in India Since 2009
-        </div>
-
-        {/* Headline */}
-        <h1
-          id="home-hero-title"
-          className="mx-auto max-w-4xl font-bold leading-[1.1] tracking-tight text-white"
-          style={{ fontSize: "clamp(2.2rem, 5.5vw, 4.25rem)" }}
-        >
-          Immigration Consultants in India for Global{" "}
-          <span className="relative whitespace-nowrap text-secondary">
-            Residency
-            <svg aria-hidden className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 8" fill="none" preserveAspectRatio="none">
-              <path d="M2 6 C80 2, 220 2, 298 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-            </svg>
-          </span>{" "}
-          &amp; Citizenship
-        </h1>
-
-        {/* Subheadline */}
-        <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
-          Explore Canada PR, US EB-5, skilled migration, residency and citizenship
-          by investment, plus corporate mobility across 50+ countries.
-        </p>
-
-        {/* Stats strip */}
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:justify-center sm:gap-10">
-          {STATS.map(({ value, label }) => (
-            <div key={label} className="flex flex-col items-center">
-              <span className="text-3xl font-extrabold text-secondary leading-none">{value}</span>
-              <span className="mt-1 text-[11px] font-medium uppercase tracking-widest text-white/55">{label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Divider */}
-        <div className="mt-10 w-16 border-t border-white/20" />
-
-        {/* ── Quick Contact Form ── */}
-        <div className="mt-8 w-full max-w-3xl">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-white/45">
-            Get a free consultation
+      <div className="mx-auto max-w-screen-2xl px-4 pb-12 sm:px-6 lg:px-8 lg:pb-16">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="inline-flex items-center gap-2 text-xs font-bold uppercase text-[#f0c83f]">
+            <Sparkles className="size-4" aria-hidden="true" />
+            XIA Immigration Intelligence
           </p>
+          <h1 id="home-hero-title" className="mt-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+            Find the immigration route that fits your life.
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/75 sm:text-lg">
+            Answer three simple questions. XIA will open the right assessment, show an initial route direction, and let you decide whether to unlock the detailed report.
+          </p>
+        </div>
 
-          {status === "done" ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-secondary/40 bg-secondary/10 px-8 py-6">
-              <CheckCircle2 className="h-10 w-10 text-secondary" />
-              <p className="text-[15px] font-semibold text-white">Thank you! We&apos;ll reach out within 24 hours.</p>
-            </div>
-          ) : (
-            <form
-              onSubmit={handleSubmit}
-              noValidate
-              className="flex flex-col overflow-hidden rounded-2xl border border-secondary/40 bg-white/[0.08] shadow-[0_4px_32px_rgba(225,185,35,0.15),0_8px_40px_rgba(0,0,0,0.35)] sm:flex-row"
-            >
-              {/* Name field */}
-              <label className={fieldCls}>
-                <User className="h-4 w-4 text-secondary/60 shrink-0" />
-                <input
-                  required name="name" type="text" autoComplete="name"
-                  placeholder="Full Name"
-                  value={form.name} onChange={handleChange}
-                  className="flex-1 min-w-0 bg-transparent text-[14px] text-white placeholder-white/40"
-                  style={inputStyle}
-                />
-              </label>
-
-              {/* Email field */}
-              <label className={fieldCls}>
-                <Mail className="h-4 w-4 text-secondary/60 shrink-0" />
-                <input
-                  required name="email" type="email" autoComplete="email"
-                  placeholder="Email Address"
-                  value={form.email} onChange={handleChange}
-                  className="flex-1 min-w-0 bg-transparent text-[14px] text-white placeholder-white/40"
-                  style={inputStyle}
-                />
-              </label>
-
-              {/* Phone field */}
-              <label className={fieldCls}>
-                <Phone className="h-4 w-4 text-secondary/60 shrink-0" />
-                <input
-                  required name="phone" type="tel" autoComplete="tel"
-                  placeholder="Phone Number"
-                  value={form.phone} onChange={handleChange}
-                  className="flex-1 min-w-0 bg-transparent text-[14px] text-white placeholder-white/40"
-                  style={inputStyle}
-                />
-              </label>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={status === "sending"}
-                className="group/btn shrink-0 relative inline-flex items-center justify-center gap-2 overflow-hidden bg-secondary px-6 py-3.5 text-[13.5px] font-bold text-primary transition-colors hover:bg-[#f0cb3b] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-              >
-                {/* Shimmer sweep on hover */}
-                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover/btn:translate-x-full transition-transform duration-500 ease-in-out" />
-                {status === "sending" ? (
-                  <span className="h-4 w-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        <div className="mt-8 grid gap-5 lg:grid-cols-[1.18fr_0.82fr] lg:items-stretch">
+          <div className="overflow-hidden rounded-lg border border-white/40 bg-white/[0.82] text-slate-950 shadow-2xl shadow-black/20 backdrop-blur-md">
+            <div className="flex min-h-16 items-center justify-between gap-4 border-b border-slate-200 px-4 py-3 sm:px-6">
+              <div className="flex items-center gap-3">
+                {step > 0 && step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={() => setStep((current) => Math.max(0, current - 1))}
+                    className="inline-flex size-9 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:text-blue-700"
+                    aria-label="Previous question"
+                  >
+                    <ArrowLeft className="size-4" />
+                  </button>
                 ) : (
-                  <>
-                    <span className="relative">Get Free Consultation</span>
-                    <ArrowRight className="relative h-4 w-4 shrink-0 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                  </>
+                  <span className="inline-flex size-9 items-center justify-center rounded-md bg-blue-50 text-[#1553af]">
+                    <Route className="size-4" />
+                  </span>
                 )}
-              </button>
-            </form>
-          )}
+                <div>
+                  <p className="text-xs font-bold uppercase text-[#1553af]">Guided route finder</p>
+                  <p className="text-sm font-semibold text-slate-700">{step < 3 ? `Question ${step + 1} of 3` : "Your starting point"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5" aria-label={`Step ${Math.min(step + 1, 3)} of 3`}>
+                {[0, 1, 2].map((item) => (
+                  <span key={item} className={`h-1.5 w-7 rounded-full ${item <= step ? "bg-[#d8ad1f]" : "bg-slate-200"}`} />
+                ))}
+              </div>
+            </div>
 
-          {/* Trust signals */}
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
-            {TRUST.map((t) => (
-              <span key={t} className="flex items-center gap-1.5 text-[12px] text-white/50">
-                <CheckCircle2 className="h-3.5 w-3.5 text-secondary/80 shrink-0" />
-                {t}
-              </span>
-            ))}
+            <div className="p-4 sm:p-6">
+              {step < 3 ? (
+                <>
+                  <h2 className="text-xl font-bold sm:text-2xl">{heading}</h2>
+                  <p className="mt-1 text-sm text-slate-500">Choose the closest answer. You can change the details inside the assessment.</p>
+                  <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                    {choices.map((choice) => {
+                      const Icon = choice.icon;
+                      return (
+                        <button
+                          key={choice.id}
+                          type="button"
+                          onClick={() => {
+                            if (step === 0) setGoal(choice.id as GoalId);
+                            if (step === 1) setDestination(choice.id as DestinationId);
+                            if (step === 2) setProfile(choice.id as ProfileId);
+                            setStep((current) => current + 1);
+                          }}
+                          className="group flex min-h-20 items-center gap-3 rounded-md border border-slate-200 px-3 py-3 text-left transition hover:border-[#1553af] hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1553af]"
+                        >
+                          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-slate-100 text-[#1553af] group-hover:bg-white">
+                            <Icon className="size-5" aria-hidden="true" />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-sm font-bold text-slate-950">{choice.label}</span>
+                            <span className="mt-0.5 block text-xs leading-5 text-slate-500">{choice.copy}</span>
+                          </span>
+                          <ChevronRight className="ml-auto size-4 shrink-0 text-slate-300 group-hover:text-[#1553af]" aria-hidden="true" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : recommendation ? (
+                <div className="flex min-h-[280px] flex-col justify-center">
+                  <span className="inline-flex size-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                    <Check className="size-6" aria-hidden="true" />
+                  </span>
+                  <p className="mt-5 text-xs font-bold uppercase text-[#1553af]">Recommended starting point</p>
+                  <h2 className="mt-2 text-3xl font-bold">{recommendation.label}</h2>
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
+                    Your answers will be carried into the assessment. Review your preliminary matches first; contact details are requested only when you save or unlock the report.
+                  </p>
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                    <Link
+                      href={recommendation.href}
+                      className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d8ad1f] px-5 text-sm font-bold text-[#071a3a] transition hover:bg-[#efc939]"
+                    >
+                      Start {recommendation.label}
+                      <ArrowRight className="size-4" aria-hidden="true" />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={reset}
+                      className="inline-flex h-12 items-center justify-center rounded-md border border-slate-300 px-5 text-sm font-bold text-slate-700 transition hover:border-[#1553af] hover:text-[#1553af]"
+                    >
+                      Change answers
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 bg-white/55 px-4 py-3 text-xs text-slate-600 sm:px-6">
+              <span className="inline-flex items-center gap-2"><ShieldCheck className="size-4 text-emerald-600" /> No contact details required to begin</span>
+              <span>Indicative guidance. Advisor verification required.</span>
+            </div>
           </div>
+
+          <aside className="flex flex-col overflow-hidden rounded-lg border border-white/30 bg-[#0d2b5f]/[0.82] shadow-xl shadow-black/10 backdrop-blur-md" aria-label="Premium report preview">
+            <div className="border-b border-white/10 px-5 py-4 sm:px-6">
+              <p className="text-xs font-bold uppercase text-[#f0c83f]">Your analysis can become</p>
+              <h2 className="mt-1 text-xl font-bold">A personalised decision report</h2>
+            </div>
+            <div className="grid flex-1 gap-4 p-5 sm:p-6">
+              <div className="rounded-md bg-white/90 p-5 text-slate-950 shadow-lg">
+                <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-[#1553af]">XIPHIAS Intelligence Report</p>
+                    <p className="mt-1 text-lg font-bold">Your recommended pathway</p>
+                  </div>
+                  <FileText className="size-7 text-[#d8ad1f]" aria-hidden="true" />
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {["Route fit", "Risk review", "Next actions"].map((label, index) => (
+                    <div key={label} className="border-l-2 border-[#d8ad1f] pl-2">
+                      <p className="text-[10px] font-semibold text-slate-500">0{index + 1}</p>
+                      <p className="mt-1 text-xs font-bold">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-5 space-y-2">
+                  <div className="h-2 w-full rounded-full bg-slate-100" />
+                  <div className="h-2 w-4/5 rounded-full bg-slate-100" />
+                  <div className="h-2 w-2/3 rounded-full bg-slate-100" />
+                </div>
+              </div>
+
+              <ul className="grid gap-2 text-sm text-white/80 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {["Matched immigration routes", "Evidence and document gaps", "Indicative cost and timeline", "Advisor-ready next actions"].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <Check className="size-4 shrink-0 text-[#f0c83f]" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 px-5 py-4 text-sm font-semibold sm:px-6">
+              <a href="/samples/xiphias-premium-report-sample.pdf" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#f0c83f] hover:text-white">
+                View sample PDF <ArrowRight className="size-4" />
+              </a>
+              <Link href="/xia-intelligence" className="inline-flex items-center gap-2 text-white/80 hover:text-white">
+                Explore all XIA tools <ArrowRight className="size-4" />
+              </Link>
+            </div>
+          </aside>
         </div>
 
-        {/* ── Secondary CTAs ── */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-
-          {/* Check Your Eligibility — primary ghost pill */}
-          <Link
-            href="/eligibility"
-            className="group inline-flex items-center gap-2.5 rounded-full border border-secondary/50 bg-secondary/10 px-6 py-2.5 text-[13.5px] font-semibold text-secondary backdrop-blur-sm hover:bg-secondary hover:text-primary transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
-          >
-            <FileSearch className="h-4 w-4 shrink-0" />
-            Check Your Eligibility
-            <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
-          </Link>
-
-          {/* XIA Intelligence */}
-          <Link
-            href="/xia-intelligence"
-            className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-[13.5px] font-bold text-primary hover:bg-[#f0cb3b] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
-          >
-            <Sparkles className="h-4 w-4 shrink-0" />
-            XIA Intelligence
-          </Link>
-        </div>
+        <nav aria-label="XIA shortcuts" className="mt-5 grid divide-y divide-white/10 border-y border-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {[
+            ["Deep Analysis", "Skills, experience and evidence review", "/deep-analysis"],
+            ["Programme Explorer", "Compare immigration programmes", "/programme-explorer"],
+            ["XIA Intelligence Suite", "Open every assessment tool", "/xia-intelligence"],
+          ].map(([label, copy, href]) => (
+            <Link key={href} href={href} className="group flex items-center justify-between gap-4 px-4 py-4 transition hover:bg-white/5 sm:px-5">
+              <span>
+                <span className="block text-sm font-bold">{label}</span>
+                <span className="mt-1 block text-xs text-white/55">{copy}</span>
+              </span>
+              <ArrowRight className="size-4 shrink-0 text-[#f0c83f] transition-transform group-hover:translate-x-1" />
+            </Link>
+          ))}
+        </nav>
       </div>
-
-      {/* ── Mouse scroll cue ── */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 select-none">
-        <div className="relative flex h-9 w-5 items-start justify-center rounded-full border-2 border-white/35 pt-1.5">
-          <span className="h-1.5 w-1 rounded-full bg-white/60 animate-[scrollDot_1.8s_ease-in-out_infinite]" />
-        </div>
-        <span className="text-[10px] uppercase tracking-[0.2em] text-white/35">Scroll</span>
-      </div>
-
-      <style>{`
-        @keyframes scrollDot {
-          0%   { opacity: 1; transform: translateY(0); }
-          60%  { opacity: 0; transform: translateY(10px); }
-          61%  { opacity: 0; transform: translateY(0); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </section>
   );
 }
