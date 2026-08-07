@@ -44,6 +44,9 @@ const BLOCKLIST: Array<string | RegExp> = [
   /^\/report-advisor-workflow(\/|$)/,
   /^\/australia-assesment-report(\/|$)/,
   /^\/canada-assesent-report(\/|$)/,
+  // Intentional orphan landing page: index through direct Search Console
+  // submission, not through the public sitemap or site navigation.
+  /^\/immigration-consultants-in-india$/,
 ];
 
 /* ------------------------------ utils ----------------------------------- */

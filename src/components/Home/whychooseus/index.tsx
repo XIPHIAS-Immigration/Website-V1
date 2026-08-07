@@ -81,7 +81,7 @@ export default function WhyChooseUs() {
             className="type-section-title mt-3 break-words text-zinc-950 dark:text-white"
           >
             A partner for{" "}
-            <span className="text-blue-600 dark:text-blue-400">global growth</span> — reliable,
+            <span className="text-primary">global growth</span> — reliable,
             compliant, outcome-focused
           </h2>
 
@@ -100,7 +100,7 @@ export default function WhyChooseUs() {
               className="group h-full rounded-2xl bg-white p-5 ring-1 ring-zinc-200 shadow-sm transition hover:shadow-md dark:bg-white/5 dark:ring-white/10"
             >
               <div className="flex items-start gap-3">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/30 dark:text-blue-300 dark:ring-blue-900/40">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 dark:bg-primary/20 dark:text-white dark:ring-primary/40">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
@@ -127,7 +127,7 @@ export default function WhyChooseUs() {
                 key={t}
                 className="flex items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-center ring-1 ring-zinc-200 dark:bg-white/5 dark:ring-white/10"
               >
-                <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-300" aria-hidden="true" />
+                <ShieldCheck className="h-4 w-4 text-primary dark:text-white" aria-hidden="true" />
                 <span className="break-words">{t}</span>
               </li>
             ))}
@@ -138,7 +138,7 @@ export default function WhyChooseUs() {
         <div className="mt-8 flex flex-col items-start gap-3 sm:mt-10 sm:flex-row sm:items-center">
           <Link
             href={BOOKING_ROUTE}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow ring-1 ring-blue-700/20 transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow ring-1 ring-primary/20 transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             Book a Private Consultation
             <ArrowRight className="h-5 w-5" aria-hidden="true" />
@@ -146,7 +146,7 @@ export default function WhyChooseUs() {
 
           <Link
             href="/about"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 font-semibold text-blue-700 ring-1 ring-blue-300 transition hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:bg-white/5 dark:text-blue-200 dark:ring-blue-800/60 dark:hover:bg-blue-950/20"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 font-semibold text-primary ring-1 ring-primary/30 transition hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-white/5 dark:text-white dark:ring-primary/60 dark:hover:bg-primary/20"
           >
             Learn more about us
           </Link>

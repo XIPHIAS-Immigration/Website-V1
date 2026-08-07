@@ -144,8 +144,8 @@ const SOCIALS = [
 // Hover styles per network (kept from your UI)
 const HOVER: Record<string, string> = {
   YouTube: "hover:bg-red-500/15 hover:ring-red-400/40 hover:text-red-300",
-  LinkedIn: "hover:bg-sky-500/15 hover:ring-sky-400/40 hover:text-sky-200",
-  Facebook: "hover:bg-blue-500/15 hover:ring-blue-400/40 hover:text-blue-200",
+  LinkedIn: "hover:bg-white/15 hover:ring-white/40 hover:text-white",
+  Facebook: "hover:bg-white/15 hover:ring-white/40 hover:text-white",
   Instagram: "hover:bg-pink-500/15 hover:ring-pink-400/40 hover:text-pink-200",
   "X (Twitter)": "hover:bg-slate-300/15 hover:ring-slate-300/40 hover:text-slate-100",
 };
