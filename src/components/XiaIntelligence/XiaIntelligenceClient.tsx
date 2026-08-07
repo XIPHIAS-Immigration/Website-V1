@@ -99,11 +99,11 @@ const defaultHighSkillInput: HighSkillInput = {
 
 const routeGoalOptions: Array<{ value: RouteIntelligenceInput["goal"]; label: string }> = [
   { value: "not-sure", label: "Not sure" },
-  { value: "pr", label: "Permanent residency" },
+  { value: "pr", label: "Permanent Residency" },
   { value: "work-visa", label: "Work visa" },
   { value: "citizenship", label: "Citizenship" },
   { value: "investment", label: "Investment route" },
-  { value: "business-setup", label: "Business setup" },
+  { value: "business-setup", label: "Business Setup" },
   { value: "family-migration", label: "Family migration" },
 ];
 
@@ -203,7 +203,7 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-white/35 dark:focus:ring-blue-950 ${props.className || ""}`}
+      className={`h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-white/35 dark:focus:ring-primary/30 ${props.className || ""}`}
     />
   );
 }
@@ -212,7 +212,7 @@ function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-950 ${props.className || ""}`}
+      className={`h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-primary/30 ${props.className || ""}`}
     />
   );
 }
@@ -221,7 +221,7 @@ function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      className={`w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-white/35 dark:focus:ring-blue-950 ${props.className || ""}`}
+      className={`w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-white/35 dark:focus:ring-primary/30 ${props.className || ""}`}
     />
   );
 }
@@ -237,12 +237,12 @@ function XiaHelpPanel() {
   return (
     <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center gap-3">
-        <span className="grid size-10 place-items-center rounded-lg bg-blue-50 text-primary dark:bg-white/10 dark:text-blue-200">
+        <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary dark:bg-white/10 dark:text-white">
           <BrainCircuit className="size-5" />
         </span>
         <div>
-          <h2 className="text-base font-semibold text-midnight_text dark:text-white">XIA help</h2>
-          <p className="text-sm text-slate-500 dark:text-white/70">Choose where you want to go. These links are live.</p>
+          <h2 className="type-card-title text-midnight_text dark:text-white">XIA help</h2>
+          <p className="type-small text-slate-500 dark:text-white/70">Choose where you want to go. These links are live.</p>
         </div>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -254,7 +254,7 @@ function XiaHelpPanel() {
           >
             <span className="flex items-center justify-between gap-3">
               <span className="font-semibold text-midnight_text dark:text-white">{label}</span>
-              <ArrowRight className="size-4 text-primary transition group-hover:translate-x-1 dark:text-blue-200" />
+              <ArrowRight className="size-4 text-primary transition group-hover:translate-x-1 dark:text-white" />
             </span>
             <span className="mt-2 block text-sm leading-6 text-slate-600 dark:text-white/70">{copy}</span>
           </Link>
@@ -400,7 +400,7 @@ export default function XiaIntelligenceClient({
   };
 
   return (
-    <div className="min-h-screen bg-white pt-8 text-slate-950 transition-colors dark:bg-darkmode dark:text-white">
+    <div className="xia-type-system min-h-screen bg-white pt-8 text-slate-950 transition-colors dark:bg-darkmode dark:text-white">
       <section className="container py-10 lg:py-14">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -413,18 +413,18 @@ export default function XiaIntelligenceClient({
           {submitted ? (
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-semibold text-primary dark:text-blue-200">
+                <p className="text-xs font-semibold text-primary dark:text-white">
                   {currentTitle}
                 </p>
-                <h1 className="mt-1 text-xl font-semibold text-midnight_text dark:text-white">{compactSummary}</h1>
+                <h1 className="type-card-title mt-1 text-midnight_text dark:text-white">{compactSummary}</h1>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => setShowHelp((value) => !value)}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-blue-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
                 >
-                  <BrainCircuit className="size-4 text-primary dark:text-blue-200" />
+                  <BrainCircuit className="size-4 text-primary dark:text-white" />
                   XIA help
                 </button>
                 <button
@@ -440,11 +440,11 @@ export default function XiaIntelligenceClient({
           ) : (
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-primary dark:border-blue-900 dark:bg-white/5 dark:text-blue-200">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:border-primary/50 dark:bg-white/5 dark:text-white">
                 <Sparkles className="size-4" />
                 XIA assessment
               </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-midnight_text dark:text-white sm:text-4xl">
+              <h1 className="type-section-title mt-4 text-midnight_text dark:text-white">
                 {currentTitle}
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/85">{currentSubtitle}</p>
@@ -456,9 +456,9 @@ export default function XiaIntelligenceClient({
               <button
                 type="button"
                 onClick={() => setShowHelp((value) => !value)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-blue-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
               >
-                <BrainCircuit className="size-4 text-primary dark:text-blue-200" />
+                <BrainCircuit className="size-4 text-primary dark:text-white" />
                 XIA help
               </button>
             </div>
@@ -488,10 +488,10 @@ export default function XiaIntelligenceClient({
                     className={`flex items-start gap-4 rounded-lg p-4 text-left transition ${
                       active
                         ? "bg-primary text-white shadow-sm"
-                        : "bg-white text-slate-700 hover:bg-blue-50 dark:bg-slate-950 dark:text-white/75 dark:hover:bg-slate-800"
+                        : "bg-white text-slate-700 hover:bg-primary/10 dark:bg-slate-950 dark:text-white/75 dark:hover:bg-slate-800"
                     }`}
                   >
-                    <span className={`grid size-11 shrink-0 place-items-center rounded-lg ${active ? "bg-white/10 text-white" : "bg-blue-50 text-primary dark:bg-white/10 dark:text-blue-200"}`}>
+                    <span className={`grid size-11 shrink-0 place-items-center rounded-lg ${active ? "bg-white/10 text-white" : "bg-primary/10 text-primary dark:bg-white/10 dark:text-white"}`}>
                       <Icon className="size-5" />
                     </span>
                     <span>
@@ -508,7 +508,7 @@ export default function XiaIntelligenceClient({
             <div className="mt-6">
               <Link
                 href="/xia-intelligence"
-                className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-blue-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
               >
                 Open full XIA suite
               </Link>
@@ -568,12 +568,12 @@ export default function XiaIntelligenceClient({
         <section className="mx-auto mt-6 max-w-screen-xl rounded-xl border border-slate-200 bg-white p-5 shadow-cause-shadow dark:border-slate-800 dark:bg-darklight sm:p-7">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-blue-50 text-primary dark:bg-white/10 dark:text-blue-200">
+              <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary dark:bg-white/10 dark:text-white">
                 <Send className="size-5" />
               </span>
               <div>
-                <h3 className="text-lg font-semibold text-midnight_text dark:text-white">Save this assessment into X-Hub</h3>
-                <p className="text-sm text-slate-500 dark:text-white/70">Creates a lead and stores the shortlist for admin follow-up.</p>
+                <h3 className="type-card-title text-midnight_text dark:text-white">Save this assessment into X-Hub</h3>
+                <p className="type-small text-slate-500 dark:text-white/70">Creates a lead and stores the shortlist for admin follow-up.</p>
               </div>
             </div>
             <div className="grid flex-[2] gap-3 md:grid-cols-3">
@@ -623,11 +623,11 @@ function RouteInputs({
       <div className="mt-7 flex items-center gap-3 border-t border-slate-200 pt-6 dark:border-white/10">
         {engine === "investment" ? <Landmark className="size-5 text-[#d8ad1f]" /> : <RouteIcon className="size-5 text-[#d8ad1f]" />}
         <div>
-          <h2 className="text-xl font-semibold text-midnight_text dark:text-white">
+          <h2 className="type-card-title text-midnight_text dark:text-white">
             {engine === "investment" ? "Investment & Residency Evaluator" : "Best Visa / Route Evaluator"}
           </h2>
           <p className="text-sm text-slate-500 dark:text-white/70">
-            {engine === "investment" ? "Investor, golden visa, CBI, RBI and business mobility routes." : "PR, work visa, citizenship, investment, business and family route matching."}
+            {engine === "investment" ? "Investor, Golden Visa, CBI, RBI and Business Mobility routes." : "PR, Work Visa, Citizenship, Investment, Business and Family Route matching."}
           </p>
         </div>
       </div>
@@ -653,7 +653,7 @@ function RouteInputs({
           <SelectInput value={input.profile} onChange={(event) => setInput((prev) => ({ ...prev, profile: event.target.value as RouteIntelligenceInput["profile"] }))}>
             <option value="investor">Investor</option>
             <option value="entrepreneur">Entrepreneur</option>
-            <option value="professional">Skilled professional</option>
+            <option value="professional">Skilled Professional</option>
             <option value="family">Family relocation</option>
             <option value="company">Company mobility</option>
             <option value="remote">Remote worker</option>
@@ -710,7 +710,7 @@ function HighSkillInputs({
         <div className="flex items-center gap-3">
           <GraduationCap className="size-5 text-[#d8ad1f]" />
           <div>
-            <h2 className="text-xl font-semibold text-midnight_text dark:text-white">High-Skill Visa Evaluator</h2>
+            <h2 className="type-card-title text-midnight_text dark:text-white">High-Skill Visa Evaluator</h2>
             <p className="text-sm text-slate-500 dark:text-white/70">Evidence-led review for EB1A, EB2 NIW, O1A, H-1B, L1, Global Talent and PR pathways.</p>
           </div>
         </div>
@@ -733,10 +733,10 @@ function HighSkillInputs({
         <Field label="Goal">
           <SelectInput value={input.goal} onChange={(event) => setInput((prev) => ({ ...prev, goal: event.target.value as HighSkillInput["goal"] }))}>
             <option value="not-sure">Not sure</option>
-            <option value="permanent-residency">Permanent residency</option>
+            <option value="permanent-residency">Permanent Residency</option>
             <option value="temporary-work">Temporary work</option>
             <option value="talent-visa">Talent visa</option>
-            <option value="founder">Founder / business</option>
+            <option value="founder">Founder / Business</option>
           </SelectInput>
         </Field>
         <Field label="Field">
@@ -830,16 +830,16 @@ function DocumentReadiness({ readiness }: { readiness: { percent: number; eviden
       <div className="flex items-center gap-3">
         <ClipboardCheck className="size-5 text-[#d8ad1f]" />
         <div>
-          <h2 className="text-xl font-semibold text-midnight_text dark:text-white">Document & Evidence Readiness</h2>
+          <h2 className="type-card-title text-midnight_text dark:text-white">Document & Evidence Readiness</h2>
           <p className="text-sm text-slate-500 dark:text-white/70">Preparation checklist before report or advisor review.</p>
         </div>
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[260px_1fr]">
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs font-semibold text-primary dark:text-blue-200">Readiness</p>
+          <p className="text-xs font-semibold text-primary dark:text-white">Readiness</p>
           <div className="mt-3 text-4xl font-semibold text-midnight_text dark:text-white">{readiness.percent}%</div>
           <div className="mt-4 h-2 rounded-full bg-slate-200 dark:bg-white/10">
-            <div className="h-full rounded-full bg-gradient-to-r from-[#d8ad1f] to-[#2a63bd]" style={{ width: `${readiness.percent}%` }} />
+            <div className="h-full rounded-full bg-secondary" style={{ width: `${readiness.percent}%` }} />
           </div>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
@@ -860,7 +860,7 @@ function WorkflowPanel() {
       <div className="flex items-center gap-3">
         <FileText className="size-5 text-[#d8ad1f]" />
         <div>
-          <h2 className="text-xl font-semibold text-midnight_text dark:text-white">Report + Advisor Workflow</h2>
+          <h2 className="type-card-title text-midnight_text dark:text-white">Report + Advisor Workflow</h2>
           <p className="text-sm text-slate-500 dark:text-white/70">Preview report, detailed report unlock, advisor review and X-Hub tracking.</p>
         </div>
       </div>
@@ -873,8 +873,8 @@ function WorkflowPanel() {
         ].map(([step, heading, copy]) => (
           <div key={step} className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
             <span className="grid size-8 place-items-center rounded-full bg-secondary text-sm font-semibold text-midnight_text">{step}</span>
-            <h3 className="mt-3 font-semibold text-midnight_text dark:text-white">{heading}</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-white/70">{copy}</p>
+            <h3 className="type-card-title mt-3 text-midnight_text dark:text-white">{heading}</h3>
+            <p className="type-small mt-2 text-slate-600 dark:text-white/70">{copy}</p>
           </div>
         ))}
       </div>
@@ -1106,36 +1106,36 @@ function PremiumReportPanel({
   };
 
   return (
-    <section className="mx-auto mt-6 max-w-screen-xl overflow-hidden rounded-xl border border-[#d8ad1f]/55 bg-[#061936] text-white shadow-cause-shadow">
+    <section className="mx-auto mt-6 max-w-screen-xl overflow-hidden rounded-xl border border-secondary/60 bg-primary text-white shadow-cause-shadow">
       <div className="relative grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-[#d8ad1f]/10 blur-3xl" aria-hidden="true" />
         <div className="relative">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#d8ad1f]/45 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">
+            <span className="type-caption inline-flex items-center gap-2 rounded-full border border-secondary/45 bg-white/5 px-3 py-1 uppercase text-secondary">
               <FileText className="size-4" />
               Personalised report
             </span>
             {priceLabel && (
-              <span className="rounded-full bg-[#d8ad1f] px-3 py-1 text-xs font-extrabold text-[#061936]">
+              <span className="type-caption rounded-full bg-secondary px-3 py-1 text-primary">
                 {priceLabel}
               </span>
             )}
           </div>
-          <h3 className="mt-5 max-w-2xl text-3xl font-semibold leading-tight text-white md:text-4xl">{reportTitle}</h3>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/74">
+          <h3 className="type-section-title mt-5 max-w-2xl text-white">{reportTitle}</h3>
+          <p className="type-small mt-3 max-w-2xl text-white/75">
             A professional XIPHIAS proposal built from the assessment answers, route scoring,
             verified programme content, and advisor review checkpoints.
           </p>
 
-          <div className="mt-6 rounded-xl border border-[#d8ad1f]/35 bg-[#0b244d] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">Recommended pathway</p>
+          <div className="mt-6 rounded-xl border border-secondary/40 bg-black/10 p-5">
+            <p className="type-caption uppercase text-secondary">Recommended pathway</p>
             <div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-center">
               <div className="flex min-w-0 flex-1 items-center gap-4">
-                <span className="grid size-16 shrink-0 place-items-center rounded-full border border-[#d8ad1f]/60 bg-[#061936] text-[#f2c94c] shadow-[0_0_24px_rgba(216,173,31,0.22)]">
+                <span className="grid size-16 shrink-0 place-items-center rounded-full border border-secondary/60 bg-black/15 text-secondary shadow-[0_0_24px_rgba(216,173,31,0.22)]">
                   {highSkillMode ? <GraduationCap className="size-7" /> : <RouteIcon className="size-7" />}
                 </span>
                 <div className="min-w-0">
-                  <h4 className="text-2xl font-semibold leading-tight text-white">{recommendedTitle}</h4>
+                  <h4 className="type-card-title text-white">{recommendedTitle}</h4>
                   <p className="mt-1 text-sm font-medium text-[#f2c94c]">{recommendedCountry}</p>
                 </div>
               </div>
@@ -1151,12 +1151,12 @@ function PremiumReportPanel({
         <div className="relative rounded-xl border border-white/12 bg-white/7 p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">Secure checkout</p>
-              <h4 className="mt-2 text-xl font-semibold text-white">Personalised PDF + advisor direction</h4>
+              <p className="type-caption uppercase text-secondary">Secure checkout</p>
+              <h4 className="type-card-title mt-2 text-white">Personalised PDF + advisor direction</h4>
             </div>
             {priceLabel && (
-              <div className="rounded-xl bg-[#d8ad1f] px-4 py-3 text-center text-[#061936]">
-                <p className="text-[10px] font-semibold uppercase">Report</p>
+              <div className="rounded-xl bg-secondary px-4 py-3 text-center text-primary">
+                <p className="type-caption uppercase">Report</p>
                 <p className="text-xl font-extrabold leading-none">{priceLabel}</p>
               </div>
             )}
@@ -1164,7 +1164,7 @@ function PremiumReportPanel({
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {included.map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-lg border border-white/10 bg-[#0b244d] p-3 text-sm font-semibold text-white/88">
+              <div key={item} className="flex items-center gap-3 rounded-lg border border-white/20 bg-black/10 p-3 text-sm font-semibold text-white/90">
                 <CheckCircle2 className="size-4 shrink-0 text-[#f2c94c]" />
                 {item}
               </div>
@@ -1201,7 +1201,7 @@ function PremiumReportPanel({
             type="button"
             onClick={startCheckout}
             disabled={checkout.loading}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d8ad1f] px-4 py-3 text-sm font-semibold text-[#061936] transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-70"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-3 text-sm font-semibold text-primary transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {checkout.loading
               ? "Starting secure checkout..."
@@ -1217,7 +1217,7 @@ function PremiumReportPanel({
 
       <div className="grid gap-px border-t border-white/10 bg-white/10 lg:grid-cols-5">
         {["Assessment", "Evidence", "Route plan", "Advisor review", "PDF delivery"].map((step, index) => (
-          <div key={step} className="bg-[#061936] px-5 py-4">
+          <div key={step} className="bg-black/10 px-5 py-4">
             <span className="grid size-8 place-items-center rounded-full border border-[#d8ad1f]/60 text-sm font-semibold text-[#f2c94c]">{index + 1}</span>
             <p className="mt-3 text-sm font-semibold text-white">{step}</p>
           </div>
@@ -1227,10 +1227,10 @@ function PremiumReportPanel({
       <div className="grid gap-5 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-2">
         {highSkillMode && (
           <div className="rounded-xl border border-white/12 bg-white/7 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">Resume/profile signals</p>
+            <p className="type-caption uppercase text-secondary">Resume/profile signals</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {profileSignals.skills.map((skill) => (
-                <span key={skill} className="rounded-full bg-[#0b244d] px-3 py-1 text-xs font-semibold text-white/82 ring-1 ring-white/10">
+                <span key={skill} className="rounded-full bg-black/10 px-3 py-1 text-xs font-semibold text-white/85 ring-1 ring-white/20">
                   {skill}
                 </span>
               ))}
@@ -1244,7 +1244,7 @@ function PremiumReportPanel({
 
         {!highSkillMode && (
           <div className="rounded-xl border border-white/12 bg-white/7 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c94c]">Planning summary</p>
+            <p className="type-caption uppercase text-secondary">Planning summary</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <ReportStat label="Capital" value={routePlan.capital} />
               <ReportStat label="Family" value={routeInput.family ? "Included" : "Not selected"} />
@@ -1279,8 +1279,8 @@ function PremiumReportPanel({
 function ReportStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-white/10 bg-white/7 p-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">{label}</p>
-      <p className="mt-1 text-sm font-semibold leading-5 text-white">{value}</p>
+      <p className="type-caption uppercase text-white/60">{label}</p>
+      <p className="type-small mt-1 font-bold text-white">{value}</p>
     </div>
   );
 }
@@ -1318,8 +1318,8 @@ function RouteShortlist({ matches }: { matches: ReturnType<typeof scoreProgramme
   return (
     <section className="mx-auto mt-6 max-w-screen-2xl px-0">
       <div className="mb-4 px-1">
-        <p className="text-xs font-semibold text-primary dark:text-blue-200">Matched routes</p>
-        <h2 className="mt-1 text-2xl font-semibold text-midnight_text dark:text-white">Recommended route directions</h2>
+        <p className="text-xs font-semibold text-primary dark:text-white">Matched Routes</p>
+        <h2 className="type-section-title mt-1 text-midnight_text dark:text-white">Recommended route directions</h2>
       </div>
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {matches.map((match) => (
@@ -1356,8 +1356,8 @@ function HighSkillShortlist({
     <section className="mx-auto mt-6 max-w-screen-2xl px-0">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3 px-1">
         <div>
-          <p className="text-xs font-semibold text-primary dark:text-blue-200">High-skill shortlist</p>
-          <h2 className="mt-1 text-2xl font-semibold text-midnight_text dark:text-white">Recommended visa directions</h2>
+          <p className="text-xs font-semibold text-primary dark:text-white">High-Skill Shortlist</p>
+          <h2 className="type-section-title mt-1 text-midnight_text dark:text-white">Recommended visa directions</h2>
         </div>
         <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-white/10 dark:text-white/70">{completion}% profile depth</span>
       </div>
@@ -1389,18 +1389,18 @@ function ResultHeader({ title, country, label, score }: { title: string; country
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
-        <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-primary dark:bg-white/10 dark:text-blue-200">
+        <span className="type-caption inline-flex rounded-full bg-primary/10 px-3 py-1 text-primary dark:bg-white/10 dark:text-white">
           {label}
         </span>
-        <h3 className="mt-3 text-xl font-semibold leading-tight text-midnight_text dark:text-white">{title}</h3>
+        <h3 className="type-card-title mt-3 text-midnight_text dark:text-white">{title}</h3>
         <div className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-slate-500 dark:text-white/65">
-          <MapPin className="size-4 text-[#1553af] dark:text-[#9fc3ff]" />
+          <MapPin className="size-4 text-primary dark:text-white" />
           {country}
         </div>
       </div>
       <div className="rounded-lg bg-secondary px-3 py-2 text-center text-xl font-semibold text-midnight_text">
         {score}
-        <div className="text-[10px] uppercase tracking-wide">fit</div>
+        <div className="type-caption uppercase">fit</div>
       </div>
     </div>
   );
@@ -1409,7 +1409,7 @@ function ResultHeader({ title, country, label, score }: { title: string; country
 function Metric({ icon: Icon, label, value }: { icon: ComponentType<{ className?: string }>; label: string; value: string }) {
   return (
     <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.06]">
-      <Icon className="mb-2 size-4 text-[#1553af] dark:text-[#d8ad1f]" />
+      <Icon className="mb-2 size-4 text-primary dark:text-[#d8ad1f]" />
       <div className="text-sm font-semibold text-midnight_text dark:text-white">{value}</div>
       <div className="text-xs text-slate-500 dark:text-white/55">{label}</div>
     </div>
@@ -1438,10 +1438,10 @@ function ReasonList({ reasons, warnings }: { reasons: string[]; warnings: string
 function ResultActions({ href }: { href: string }) {
   return (
     <div className="mt-5 flex flex-wrap gap-2">
-      <Link href={href || "/contact"} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:bg-blue-700">
+      <Link href={href || "/contact"} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:brightness-110">
         Open route <ArrowRight className="size-4" />
       </Link>
-      <Link href={BOOKING_ROUTE} className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-blue-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900">
+      <Link href={BOOKING_ROUTE} className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900">
         Advisor review
       </Link>
     </div>

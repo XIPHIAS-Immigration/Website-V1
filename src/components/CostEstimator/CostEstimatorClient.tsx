@@ -67,8 +67,8 @@ function Inner({ programs }: { programs: CostProgram[] }) {
 
   if (!selected || !breakdown) {
     return (
-      <ToolShell eyebrow="XIA · Cost Estimator" title="Family cost estimator" subtitle="No programmes are available right now.">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-white/60">No programmes found.</div>
+      <ToolShell eyebrow="XIA · Cost Estimator" title="Family Cost Estimator" subtitle="No Programmes are available right now.">
+        <div className="rounded-2xl border border-white/10 bg-black/10 p-8 text-white/70">No Programmes found.</div>
       </ToolShell>
     );
   }
@@ -146,7 +146,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         {/* ── Controls ── */}
         <div className="rounded-3xl border border-white/12 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-7">
-          <h2 className="text-[13px] font-bold uppercase tracking-[0.16em] text-[#9cc0ff]">1 · Choose a programme</h2>
+          <h2 className="type-caption uppercase text-white">1 · Choose a Programme</h2>
 
           {/* Track tabs — layoutId active indicator */}
           <div className="mt-3 flex flex-wrap gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
@@ -157,7 +157,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                   key={t.value}
                   type="button"
                   onClick={() => setTrackFilter(t.value)}
-                  className="relative rounded-lg px-3 py-2 text-[13px] font-semibold transition-colors"
+                  className="type-small relative rounded-lg px-3 py-2 font-bold transition-colors"
                 >
                   {active && (
                     <motion.span
@@ -174,23 +174,23 @@ function Inner({ programs }: { programs: CostProgram[] }) {
 
           {/* Programme select */}
           <div className="mt-4">
-            <span className="mb-1.5 block text-[13px] font-medium text-white/70">Programme</span>
+            <span className="type-small mb-1.5 block text-white/80">Programme</span>
             <GlassSelect
               value={selected.id}
               onChange={setSelectedId}
               searchable
               options={filtered.map((p) => ({ value: p.id, label: `${p.country} — ${p.title}` }))}
-              placeholder="Select a programme…"
-              ariaLabel="Select a programme"
+              placeholder="Select a Programme…"
+              ariaLabel="Select a Programme"
             />
           </div>
 
           {/* Dependents stepper */}
           <div className="mt-6">
-            <h2 className="text-[13px] font-bold uppercase tracking-[0.16em] text-[#9cc0ff]">2 · Family size</h2>
+            <h2 className="type-caption uppercase text-white">2 · Family Size</h2>
             <div className="mt-3 flex items-center justify-between rounded-xl border border-white/12 bg-white/[0.03] px-4 py-3">
-              <span className="flex items-center gap-2 text-[14px] text-white/80">
-                <Users className="size-4 text-[#9cc0ff]" /> Dependants (besides you)
+              <span className="type-small flex items-center gap-2 text-white/80">
+                <Users className="size-4 text-secondary" /> Dependants (Besides You)
               </span>
               <div className="flex items-center gap-3">
                 <motion.button
@@ -214,7 +214,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                 </motion.button>
               </div>
             </div>
-            <p className="mt-2 text-[12.5px] text-white/45">
+            <p className="type-caption mt-2 font-normal text-white/50">
               Total applicants:{" "}
               <span className="font-semibold text-white/75 tabular-nums">{breakdown.familySize}</span> (you + {dependents})
             </p>
@@ -222,7 +222,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
 
           <Link
             href={selected.href}
-            className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-semibold text-[#9cc0ff] hover:text-white"
+            className="type-small mt-6 inline-flex items-center gap-2 font-bold text-secondary hover:text-white"
           >
             View the {selected.country} programme page
             <ArrowRight className="size-4" />
@@ -232,7 +232,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
         {/* ── Result ── */}
         <div className="rounded-3xl border border-white/12 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-8">
           {/* Free top-line (instant, no entrance animation on figures) */}
-          <p className="text-[13px] font-bold uppercase tracking-[0.16em] text-[#9cc0ff]">Indicative total</p>
+          <p className="type-caption uppercase text-white">Indicative Total</p>
           <div className="mt-2 flex flex-wrap items-end gap-x-4 gap-y-1">
             <motion.span
               key={breakdown.totalUsd}
@@ -243,13 +243,13 @@ function Inner({ programs }: { programs: CostProgram[] }) {
             >
               {money(breakdown.totalUsd)}
             </motion.span>
-            <span className="pb-1 text-[14px] text-white/55">
+            <span className="type-small pb-1 text-white/60">
               for {breakdown.familySize} {breakdown.familySize === 1 ? "applicant" : "applicants"}
             </span>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-[13.5px] text-white/70">
+          <div className="type-small mt-3 flex flex-wrap items-center gap-2 text-white/70">
             <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-1.5">
-              <CalendarClock className="size-4 text-[#9cc0ff]" /> Timeline: {breakdown.timelineLabel}
+              <CalendarClock className="size-4 text-secondary" /> Timeline: {breakdown.timelineLabel}
             </span>
             <IndicativeChip />
           </div>
@@ -265,7 +265,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                   exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
                   transition={{ duration: 0.22 }}
                 >
-                  <p className="mb-3 text-[14px] text-white/70">
+                  <p className="type-small mb-3 text-white/70">
                     Unlock the full itemized breakdown — government fees, due diligence, dependant add-ons and service
                     fees — by sharing where to send it.
                   </p>
@@ -289,14 +289,14 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.22 }}
                 >
-                  <h3 className="text-[13px] font-bold uppercase tracking-[0.16em] text-[#9cc0ff]">Itemized estimate</h3>
+                  <h3 className="type-caption uppercase text-white">Itemized Estimate</h3>
                   <ul className="mt-3 divide-y divide-white/10 rounded-2xl border border-white/12 bg-white/[0.03]">
                     {breakdown.lineItems.map((item) => (
                       <li key={item.key} className="px-4 py-3.5">
                         <div className="flex items-start justify-between gap-4">
                           <span className="min-w-0">
-                            <span className="block text-[14px] font-semibold text-white">{item.label}</span>
-                            <span className="mt-0.5 block text-[12px] leading-relaxed text-white/50">{item.note}</span>
+                            <span className="type-small block font-bold text-white">{item.label}</span>
+                            <span className="type-caption mt-0.5 block font-normal text-white/50">{item.note}</span>
                           </span>
                           <span className="shrink-0 text-[15px] font-black tabular-nums text-white">
                             {money(item.amountUsd)}
@@ -305,21 +305,21 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                         <MeterBar
                           value={item.amountUsd}
                           max={breakdown.totalUsd}
-                          color="#4f8cff"
+                          color="#e1b923"
                           height="h-1"
                           className="mt-2.5"
                         />
                       </li>
                     ))}
                     <li className="flex items-center justify-between gap-4 rounded-b-2xl bg-[#1c57b4]/20 px-4 py-3.5">
-                      <span className="text-[14px] font-black uppercase tracking-[0.1em] text-[#9cc0ff]">
+                      <span className="text-[14px] font-black uppercase text-white">
                         Estimated total
                       </span>
                       <span className="text-[18px] font-black tabular-nums text-white">{money(breakdown.totalUsd)}</span>
                     </li>
                   </ul>
 
-                  <p className="mt-3 text-[12px] leading-relaxed text-white/45">{COST_DISCLAIMER}</p>
+                  <p className="type-caption mt-3 font-normal text-white/50">{COST_DISCLAIMER}</p>
 
                   {/* Paid PDF + advisor CTA */}
                   <div className="mt-5 flex flex-col gap-3 sm:flex-row">
@@ -328,7 +328,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                       type="button"
                       onClick={startPdf}
                       disabled={pdf.loading}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3.5 text-[14px] font-bold text-[#0a1c44] transition hover:bg-[#f0cb3b] disabled:opacity-60"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3.5 text-[14px] font-bold text-primary transition hover:bg-[#f0cb3b] disabled:opacity-60"
                     >
                       {pdf.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}
                       Download full PDF report

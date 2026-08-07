@@ -931,7 +931,7 @@ function InternalXiaPanel({
         flexDirection: "column",
         background: "#f8fafc",
         color: "#0f172a",
-        fontFamily: "Inter, system-ui, sans-serif",
+        fontFamily: "var(--font-lato), Lato, system-ui, sans-serif",
       }}
     >
       <div

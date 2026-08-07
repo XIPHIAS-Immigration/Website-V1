@@ -35,12 +35,12 @@ export default function ProgramIndexMethodologyPage() {
           <div key={f.key} className="rounded-2xl border border-white/12 bg-white/[0.04] p-6">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[17px] font-black text-white">{f.label}</h2>
-              <span className="rounded-full border border-[#4f8cff]/40 bg-[#4f8cff]/10 px-3 py-1 text-[13px] font-black text-[#9cc0ff] tabular-nums">
+              <span className="rounded-full border border-secondary/50 bg-secondary/10 px-3 py-1 text-[13px] font-black text-secondary tabular-nums">
                 {f.weight}%
               </span>
             </div>
             <MeterBar value={f.weight} max={MAX_WEIGHT} className="mt-3" />
-            <p className="mt-3 text-[13px] font-semibold text-[#9cc0ff]">{f.direction}</p>
+            <p className="mt-3 text-[13px] font-semibold text-white">{f.direction}</p>
             <p className="mt-1.5 text-[13.5px] leading-relaxed text-white/60">{f.description}</p>
           </div>
         ))}

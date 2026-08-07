@@ -32,7 +32,7 @@ const SORTS: { value: SortKey; label: string }[] = [
 
 const TIER_COLOR: Record<ScoredProgram["tier"], string> = {
   Standout: "#10b981",
-  Strong: "#4f8cff",
+  Strong: "#ffffff",
   Balanced: "#e1b923",
   Specialist: "#94a3b8",
 };
@@ -77,7 +77,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
                 key={t.value}
                 type="button"
                 onClick={() => setTrack(t.value)}
-                className="relative rounded-lg px-3 py-2 text-[13px] font-semibold transition-colors"
+                className="type-small relative rounded-lg px-3 py-2 font-bold transition-colors"
               >
                 {active && (
                   <motion.span
@@ -92,7 +92,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
           })}
         </div>
 
-        <div className="inline-flex items-center gap-2 text-[13px] text-white/70">
+        <div className="type-small inline-flex items-center gap-2 text-white/70">
           <span>Sort by</span>
           <GlassSelect
             value={sort}
@@ -105,7 +105,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <p className="text-[12.5px] text-white/45">
+        <p className="type-caption font-normal text-white/50">
           Showing top <span className="font-semibold text-white/75">{view.length}</span> of {totalInScope} — the full
           ranking is in the Index report.
         </p>
@@ -114,7 +114,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
 
       {/* Column header (desktop) */}
       <div
-        className={`mt-4 hidden px-4 pb-1 text-[11px] font-bold uppercase tracking-wide text-white/35 lg:grid lg:items-center lg:gap-4 ${GRID}`}
+        className={`type-caption mt-4 hidden px-4 pb-1 uppercase text-white/40 lg:grid lg:items-center lg:gap-4 ${GRID}`}
       >
         <span>#</span>
         <span>Programme</span>
@@ -141,7 +141,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
                 initial={reduce ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: reduce ? 0 : Math.min(idx * 0.02, 0.18) }}
-                className={`group grid grid-cols-1 gap-3 rounded-2xl border border-white/12 bg-white/[0.04] p-4 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-[#4f8cff]/45 hover:bg-white/[0.06] lg:items-center lg:gap-4 ${GRID}`}
+                className={`group grid grid-cols-1 gap-3 rounded-lg border border-white/20 bg-black/10 p-4 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-secondary/70 hover:bg-black/15 lg:items-center lg:gap-4 ${GRID}`}
               >
                 {/* Rank */}
                 <div className="flex items-center">
@@ -157,14 +157,14 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
                 <div className="min-w-0">
                   <Link
                     href={p.href}
-                    className="text-[15px] font-black text-white underline-offset-4 transition-colors hover:text-[#9cc0ff] hover:underline"
+                    className="type-card-title text-white underline-offset-4 transition-colors hover:text-secondary hover:underline"
                   >
                     {p.title}
                   </Link>
-                  <p className="mt-0.5 text-[12px] text-white/55">
+                  <p className="type-caption mt-0.5 font-normal text-white/60">
                     {p.country} · <span className="capitalize">{p.track}</span>
                   </p>
-                  <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-white/12 bg-white/[0.03] px-2 py-0.5 text-[10.5px] text-white/55">
+                  <span className="type-caption mt-1.5 inline-flex items-center gap-1 rounded-full border border-white/12 bg-white/[0.03] px-2 py-0.5 font-normal text-white/60">
                     Presence: {PRESENCE_LABEL[p.presence]}
                   </span>
                 </div>
@@ -173,7 +173,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
                 <Cell label="Index score">
                   <div className="flex items-baseline gap-2">
                     <span className="text-[18px] font-black tabular-nums text-white">{p.indexScore}</span>
-                    <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: tierColor }}>
+                    <span className="type-caption uppercase" style={{ color: tierColor }}>
                       {p.tier}
                     </span>
                   </div>
@@ -182,26 +182,26 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
 
                 {/* Cost */}
                 <Cell label="Indicative cost">
-                  <span className="text-[14px] font-semibold text-white">
+                  <span className="type-small font-bold text-white">
                     {p.investmentUsd > 0 ? money(p.investmentUsd) : "Fees only"}
                   </span>
                 </Cell>
 
                 {/* Timeline */}
                 <Cell label="Timeline">
-                  <span className="text-[13.5px] text-white/85">{p.timelineLabel}</span>
+                  <span className="type-small text-white/85">{p.timelineLabel}</span>
                 </Cell>
 
                 {/* Passport */}
                 <Cell label="Passport">
-                  {rec ? <ScorePill score={rec.score} /> : <span className="text-[12px] text-white/40">Advisor review</span>}
+                  {rec ? <ScorePill score={rec.score} /> : <span className="type-caption font-normal text-white/40">Advisor review</span>}
                 </Cell>
 
                 {/* Discuss */}
                 <div className="flex lg:justify-end">
                   <Link
                     href={BOOKING_ROUTE}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-secondary/40 bg-secondary/10 px-2.5 py-1.5 text-[12px] font-semibold text-secondary transition hover:bg-secondary/20"
+                    className="type-caption inline-flex items-center gap-1.5 rounded-lg border border-secondary/40 bg-secondary/10 px-2.5 py-1.5 text-secondary transition hover:bg-secondary/20"
                   >
                     <MessageSquare className="size-3.5" /> Discuss
                   </Link>
@@ -219,7 +219,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
 function Cell({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wide text-white/35 lg:hidden">
+      <span className="type-caption mb-0.5 block uppercase text-white/40 lg:hidden">
         {label}
       </span>
       {children}

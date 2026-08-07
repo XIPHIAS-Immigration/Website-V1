@@ -19,42 +19,42 @@ const suiteOptions = [
   {
     href: "/route-intelligence",
     label: "Route Intelligence",
-    copy: "Compare route options by goal, destination, budget, timeline, family needs and physical presence.",
+    copy: "Compare Immigration Routes by Goal, Destination, Budget, Timeline, Family Needs and Physical Presence.",
     icon: Route,
-    glow: "#4f8cff",
+    glow: "#e1b923",
   },
   {
     href: "/deep-analysis",
     label: "Deep Analysis",
-    copy: "Add education, experience, skills, CV notes and evidence markers for a more detailed review.",
+    copy: "Add Education, Experience, Skills, CV Notes and Evidence Markers for a more detailed review.",
     icon: GraduationCap,
-    glow: "#a78bfa",
+    glow: "#e1b923",
   },
   {
     href: "/us-visa-intelligence",
     label: "US Visa Intelligence",
-    copy: "Review US visa directions including EB1A, EB2 NIW, O1A, H-1B, L1, founder and employer routes.",
+    copy: "Review US Visa directions including EB1A, EB2 NIW, O1A, H-1B, L1, Founder and Employer routes.",
     icon: BrainCircuit,
     glow: "#e1b923",
   },
   {
     href: "/cost-estimator",
     label: "Cost Estimator",
-    copy: "Estimate an indicative, family-tailored cost — government fees, due diligence, dependants and timeline.",
+    copy: "Estimate an indicative Family Cost, Government Fees, Due Diligence, Dependants and Timeline.",
     icon: Calculator,
-    glow: "#3cd278",
+    glow: "#e1b923",
   },
   {
     href: "/compare-programs",
     label: "Compare Programs",
-    copy: "Put 2–4 routes side by side on cost, timeline, presence, tax position and passport power gained.",
+    copy: "Put 2–4 Routes side by side on Cost, Timeline, Presence, Tax Position and Passport Power gained.",
     icon: Scale,
-    glow: "#4f8cff",
+    glow: "#e1b923",
   },
   {
     href: "/xiphias-program-index",
     label: "Program Index",
-    copy: "A documented composite benchmark ranking programmes across six weighted factors.",
+    copy: "A documented composite benchmark ranking Programmes across six weighted Factors.",
     icon: Gauge,
     glow: "#e1b923",
   },
@@ -66,33 +66,31 @@ export default function XiaSuiteGatewayClient() {
   const reduce = useReducedMotion();
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#060b1a] via-[#0a1530] to-[#0a1c44] pt-24 text-white">
-      <div className="pointer-events-none absolute -right-24 top-24 h-[28rem] w-[28rem] rounded-full bg-[#4f8cff]/20 blur-[150px]" />
-      <div className="pointer-events-none absolute -left-24 top-1/2 h-96 w-96 rounded-full bg-secondary/12 blur-[150px]" />
+    <main className="xia-type-system relative min-h-screen overflow-hidden bg-primary pt-24 font-sans text-white">
 
       {/* ── Hero ── */}
       <section className="relative mx-auto max-w-screen-2xl bg-transparent px-4 pb-8 pt-8 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#4f8cff]/40 bg-[#4f8cff]/10 px-4 py-1.5 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#9cc0ff]">
+              <span className="type-caption inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-4 py-1.5 uppercase text-secondary">
                 <Sparkles className="size-3.5" /> XIA Intelligence Suite
               </span>
             </Reveal>
 
-            <h1 className="mt-6 text-[clamp(2.2rem,5.4vw,4rem)] font-black leading-[1.04] tracking-tight">
+            <h1 className="type-page-title mt-6">
               <CharReveal text="Choose the assessment you want to run." />
             </h1>
 
             <Reveal delay={0.1}>
-              <p className="mt-5 max-w-xl text-[16px] leading-relaxed text-white/70">
+              <p className="type-body mt-5 max-w-xl text-white/70">
                 Each module asks for the right details and prepares a focused, evidence-led route direction —{" "}
-                <GradientText colors={["#9cc0ff", "#4f8cff", "#e1b923", "#9cc0ff"]}>ready for XIPHIAS advisor review</GradientText>.
+                <GradientText colors={["#ffffff", "#e1b923", "#ffffff"]}>ready for XIPHIAS Advisor Review</GradientText>.
               </p>
             </Reveal>
 
             <Reveal delay={0.18}>
-              <p className="mt-6 inline-flex items-start gap-2.5 rounded-2xl border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-[13.5px] leading-relaxed text-amber-100">
+              <p className="type-small mt-6 inline-flex items-start gap-2.5 rounded-lg border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-amber-100">
                 <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" />
                 An assessment aid — not a final visa decision. Eligibility and filing strategy require advisor review.
               </p>
@@ -113,7 +111,7 @@ export default function XiaSuiteGatewayClient() {
                   transition={{ duration: 28 - i * 6, ease: "linear", repeat: Infinity }}
                 >
                   <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
-                    <span className="flex size-10 items-center justify-center rounded-full border border-white/15 bg-[#0a1530] text-[#9cc0ff] shadow-lg">
+                    <span className="flex size-10 items-center justify-center rounded-full border border-white/20 bg-black/15 text-secondary shadow-lg">
                       <Icon className="size-4" />
                     </span>
                   </span>
@@ -122,22 +120,22 @@ export default function XiaSuiteGatewayClient() {
             })}
 
             <motion.div
-              className="absolute size-[42%] rounded-full bg-[#4f8cff]/30 blur-2xl"
+              className="absolute size-[42%] rounded-full bg-secondary/20 blur-2xl"
               animate={reduce ? undefined : { scale: [1, 1.18, 1], opacity: [0.5, 0.85, 0.5] }}
               transition={{ duration: 3.2, ease: "easeInOut", repeat: Infinity }}
             />
-            <div className="relative flex size-[34%] flex-col items-center justify-center rounded-full bg-gradient-to-br from-[#1c57b4] to-[#0a1c44] shadow-[0_0_60px_rgba(79,140,255,0.5)] ring-1 ring-white/20">
+            <div className="relative flex size-[34%] flex-col items-center justify-center rounded-full bg-black/15 shadow-[0_0_55px_rgba(225,185,35,0.28)] ring-1 ring-white/25">
               <Sparkles className="size-8 text-secondary" />
-              <span className="mt-1 text-[11px] font-black uppercase tracking-[0.2em] text-white/70">XIA</span>
+              <span className="type-caption mt-1 uppercase text-white/70">XIA</span>
             </div>
 
-            <div className="absolute -bottom-2 left-1/2 w-[90%] -translate-x-1/2 rounded-2xl border border-white/12 bg-[#0a1530]/90 px-4 py-3 backdrop-blur-md">
+            <div className="absolute -bottom-2 left-1/2 w-[90%] -translate-x-1/2 rounded-lg border border-white/20 bg-black/15 px-4 py-3 backdrop-blur-md">
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-[#3cd278]" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Engine</span>
+                <span className="type-caption uppercase text-white/50">Engine</span>
               </div>
               <TextType
-                className="mt-1 block text-[13.5px] font-medium text-white/85"
+                className="type-small mt-1 block text-white/85"
                 text={["Reading your profile…", "Scoring eligibility…", "Auditing documents…", "Mapping your routes…"]}
                 speed={42}
               />
@@ -149,7 +147,7 @@ export default function XiaSuiteGatewayClient() {
       {/* ── Module cards ── */}
       <section className="relative mx-auto max-w-screen-2xl bg-transparent px-4 pb-24 pt-8 sm:px-6 lg:px-8">
         <Reveal>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#9cc0ff]">Select a module</p>
+          <p className="type-caption uppercase text-white">Select a Module</p>
         </Reveal>
 
         <Stagger className="mt-6 grid gap-5 md:grid-cols-3">
@@ -160,7 +158,7 @@ export default function XiaSuiteGatewayClient() {
                 <TiltCard className="h-full" max={7}>
                   <Link
                     href={option.href}
-                    className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/12 bg-white/[0.04] p-7 backdrop-blur-sm transition duration-300 hover:border-white/30"
+                    className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-white/25 bg-black/10 p-7 backdrop-blur-sm transition duration-300 hover:border-secondary/70 hover:bg-black/15"
                   >
                     <span
                       className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-0 blur-3xl transition-opacity duration-300 group-hover:opacity-40"
@@ -175,10 +173,10 @@ export default function XiaSuiteGatewayClient() {
                       </span>
                       <span className="text-[40px] font-black leading-none text-white/10">0{index + 1}</span>
                     </span>
-                    <h2 className="mt-6 text-[1.4rem] font-bold text-white">{option.label}</h2>
-                    <p className="mt-2.5 flex-1 text-[14px] leading-relaxed text-white/65">{option.copy}</p>
-                    <span className="mt-6 inline-flex items-center gap-2 text-[14px] font-bold text-white">
-                      Open module
+                    <h2 className="type-card-title mt-6 text-white">{option.label}</h2>
+                    <p className="type-small mt-2.5 flex-1 text-white/65">{option.copy}</p>
+                    <span className="type-small mt-6 inline-flex items-center gap-2 font-bold text-white">
+                      Open Module
                       <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   </Link>
@@ -189,7 +187,7 @@ export default function XiaSuiteGatewayClient() {
         </Stagger>
 
         <Reveal delay={0.1}>
-          <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-[13.5px] leading-relaxed text-white/55">
+          <p className="type-small mt-6 rounded-lg border border-white/10 bg-white/[0.04] px-5 py-4 text-white/60">
             After generation, the input area stays available at the top while your results remain the main focus.
           </p>
         </Reveal>

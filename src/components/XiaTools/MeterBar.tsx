@@ -10,7 +10,7 @@ import { motion, useReducedMotion } from "framer-motion";
 export function MeterBar({
   value,
   max = 100,
-  color = "#4f8cff",
+  color = "#e1b923",
   height = "h-2",
   className = "",
 }: {

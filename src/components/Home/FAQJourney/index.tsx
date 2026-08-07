@@ -123,7 +123,7 @@ export default function FAQSectionXiphas({
             {/* content */}
             <div className="relative">
               <div className="min-w-0">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white break-words">
+                <h2 className="type-section-title text-zinc-950 dark:text-white break-words">
                   {title}
                 </h2>
                 {subtitle && (
@@ -156,7 +156,7 @@ export default function FAQSectionXiphas({
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     onClick={() => onToggle(i)}
-                    className="group flex w-full items-center justify-between gap-3 py-4 sm:py-5 text-left text-[15px] sm:text-base font-semibold rounded-lg hover:bg-zinc-50/80 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 text-zinc-900 dark:text-zinc-100 transition"
+                    className="type-body group flex w-full items-center justify-between gap-3 py-4 text-left font-bold rounded-lg hover:bg-zinc-50/80 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-zinc-900 dark:text-zinc-100 transition sm:py-5"
                   >
                     <span className="pr-2 break-words">{f.q}</span>
                     <Chevron
@@ -178,7 +178,7 @@ export default function FAQSectionXiphas({
                   ].join(" ")}
                 >
                   <div className="overflow-hidden">
-                    <div className="pb-4 sm:pb-5 text-[15px] leading-7 text-zinc-800 dark:text-zinc-200 whitespace-pre-line">
+                    <div className="type-body pb-4 text-zinc-800 dark:text-zinc-200 whitespace-pre-line sm:pb-5">
                       {f.a}
                     </div>
                   </div>

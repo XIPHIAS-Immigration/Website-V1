@@ -161,7 +161,7 @@ export default function ContactForm({
       className={[
         "relative w-full max-w-xl mx-auto",
         "rounded-2xl bg-white dark:bg-neutral-950",
-        "ring-1 ring-blue-100 dark:ring-neutral-800 shadow-[0_18px_55px_rgba(15,58,138,0.14)]",
+        "ring-1 ring-primary/20 dark:ring-neutral-800 shadow-[0_18px_55px_rgba(15,58,138,0.14)]",
         "p-4 sm:p-6",
         className,
       ].join(" ")}
@@ -171,7 +171,7 @@ export default function ContactForm({
 
       {/* header */}
       <header className="relative">
-        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-2.5 py-1 text-[12px] font-black text-primary ring-1 ring-blue-100 dark:bg-blue-950/30 dark:ring-blue-900">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-2.5 py-1 text-[12px] font-black text-primary ring-1 ring-primary/20 dark:bg-primary/20 dark:ring-primary/40">
           <span className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
           <span>Priority enquiry</span>
         </div>

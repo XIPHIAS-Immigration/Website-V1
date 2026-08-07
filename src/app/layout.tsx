@@ -1,6 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
-import { Lato, Inter, Sora } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "next-themes";
@@ -13,21 +13,10 @@ import SiteChrome from "@/components/Layout/SiteChrome";
 // ✅ GA4 components
 
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const sora = Sora({
-  subsets: ["latin"],
-  variable: "--font-sora",
-  display: "swap",
-});
-
 const lato = Lato({
   subsets: ["latin"],
   weight: ["400", "700", "900"],
+  variable: "--font-lato",
   display: "swap",
 });
 
@@ -198,10 +187,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${sora.variable} ${lato.className} scroll-smooth`}
+      className={`${lato.variable} scroll-smooth`}
       suppressHydrationWarning
     >
-      <body className="antialiased">
+      <body className="font-sans antialiased">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-md focus:bg-black focus:text-white focus:px-3 focus:py-2"

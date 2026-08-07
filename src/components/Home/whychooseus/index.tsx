@@ -78,7 +78,7 @@ export default function WhyChooseUs() {
 
           <h2
             id="why-choose-heading"
-            className="mt-3 break-words text-3xl font-bold tracking-tight text-zinc-950 dark:text-white sm:text-4xl md:text-5xl"
+            className="type-section-title mt-3 break-words text-zinc-950 dark:text-white"
           >
             A partner for{" "}
             <span className="text-blue-600 dark:text-blue-400">global growth</span> — reliable,
@@ -104,10 +104,10 @@ export default function WhyChooseUs() {
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold text-zinc-900 dark:text-white break-words">
+                  <h3 className="type-card-title text-zinc-900 dark:text-white break-words">
                     {title}
                   </h3>
-                  <p className="mt-1.5 text-sm text-zinc-700 dark:text-zinc-300 break-words">
+                  <p className="type-small mt-1.5 text-zinc-700 dark:text-zinc-300 break-words">
                     {blurb}
                   </p>
                 </div>

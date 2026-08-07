@@ -69,7 +69,7 @@ export function GlassSelect({
         aria-expanded={open}
         aria-label={ariaLabel}
         onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center justify-between gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3.5 py-2.5 text-left text-[14px] font-medium text-white transition hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4f8cff]/40 ${buttonClassName}`}
+        className={`type-small flex w-full items-center justify-between gap-2 rounded-lg border border-white/25 bg-black/10 px-3.5 py-2.5 text-left text-white transition hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 ${buttonClassName}`}
       >
         <span className="min-w-0 flex-1 truncate">
           {selected ? selected.label : <span className="text-white/40">{placeholder}</span>}
@@ -84,7 +84,7 @@ export function GlassSelect({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-0 z-[60] mt-2 w-full min-w-[13rem] origin-top overflow-hidden rounded-2xl border border-white/15 bg-[#0b1730] shadow-2xl shadow-black/60"
+            className="absolute left-0 z-[60] mt-2 w-full min-w-[13rem] origin-top overflow-hidden rounded-lg border border-white/25 bg-primary shadow-2xl shadow-black/40"
             role="listbox"
           >
             {searchable && (
@@ -96,14 +96,14 @@ export function GlassSelect({
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search…"
-                    className="w-full bg-transparent text-[13px] text-white placeholder-white/35 outline-none"
+                    className="type-small w-full bg-transparent text-white placeholder-white/35 outline-none"
                   />
                 </div>
               </div>
             )}
             <ul data-lenis-prevent className="max-h-64 overflow-y-auto p-1.5 [scrollbar-width:thin]">
               {filtered.length === 0 ? (
-                <li className="px-3 py-2 text-[13px] text-white/40">No matches</li>
+                <li className="type-small px-3 py-2 text-white/40">No matches</li>
               ) : (
                 filtered.map((o) => {
                   const active = o.value === value;
@@ -118,7 +118,7 @@ export function GlassSelect({
                           setOpen(false);
                           setQuery("");
                         }}
-                        className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-[13.5px] transition ${
+                        className={`type-small flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left transition ${
                           active ? "bg-[#1c57b4] text-white" : "text-white/80 hover:bg-white/10"
                         }`}
                       >
@@ -148,8 +148,8 @@ const CURRENCIES: GlassOption[] = [
 export function CurrencyGlassSelect() {
   const { currency, setCurrency } = useCurrency();
   return (
-    <div className="flex items-center gap-2 text-[13px] font-medium text-white/65">
-      <span className="uppercase tracking-wide">Currency</span>
+    <div className="type-small flex items-center gap-2 text-white/65">
+      <span className="uppercase">Currency</span>
       <GlassSelect
         value={currency}
         onChange={(v) => setCurrency(v as "USD" | "INR" | "AED" | "EUR")}

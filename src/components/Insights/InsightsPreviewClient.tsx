@@ -195,7 +195,7 @@ export default function InsightsPreviewClient({
           <div className="relative flex flex-wrap items-center justify-between gap-3">
             <h2
               id="insights-top6-title"
-              className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white break-words"
+              className="type-section-title text-zinc-950 dark:text-white break-words"
             >
               {title}
             </h2>
@@ -245,7 +245,7 @@ export default function InsightsPreviewClient({
             </div>
 
             <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur px-4 sm:px-5 py-4">
-              <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white leading-snug">
+              <h3 className="type-card-title text-slate-900 dark:text-white">
                 {hero.title}
               </h3>
               {hero.excerpt && (
@@ -307,7 +307,7 @@ export default function InsightsPreviewClient({
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300">
+                        <div className="type-caption flex items-center gap-2 font-normal text-slate-600 dark:text-slate-300">
                           <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-2 py-0.5 font-semibold">
                             {kind}
                           </span>
@@ -316,7 +316,7 @@ export default function InsightsPreviewClient({
                             <span>• {typeof time === "number" ? `${time} min read` : time}</span>
                           )}
                         </div>
-                        <h3 className="mt-1 text-[15px] sm:text-base font-semibold text-slate-900 dark:text-white line-clamp-2">
+                        <h3 className="type-card-title mt-1 text-slate-900 dark:text-white line-clamp-2">
                           {title}
                         </h3>
                         <span className="mt-0.5 inline-flex items-center gap-1 text-primary text-xs font-medium">

@@ -166,7 +166,7 @@ export default function AdvisorConsultationCard({
         <div className="relative">
           <h3
             id="advisor-card-title"
-            className="text-[1.3rem] font-black leading-[1.15] text-white sm:text-[1.5rem]"
+            className="type-card-title text-white"
           >
             {title}
           </h3>

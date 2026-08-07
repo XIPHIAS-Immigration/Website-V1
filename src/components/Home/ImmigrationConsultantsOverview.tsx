@@ -45,16 +45,16 @@ export default function ImmigrationConsultantsOverview() {
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
           <div>
-            <p className="text-xs font-bold uppercase text-primary dark:text-secondary">
+            <p className="type-caption uppercase text-primary dark:text-secondary">
               Immigration advisory since 2009
             </p>
             <h2
               id="immigration-consultants-overview"
-              className="mt-3 max-w-2xl text-3xl font-extrabold leading-tight sm:text-4xl"
+              className="type-section-title mt-3 max-w-2xl"
             >
               Immigration consultants in India for global opportunities
             </h2>
-            <div className="mt-5 max-w-2xl space-y-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
+            <div className="type-body mt-5 max-w-2xl space-y-4 text-zinc-700 dark:text-zinc-300">
               <p>
                 XIPHIAS Immigration helps individuals, families, investors and
                 businesses evaluate immigration pathways across more than 50
@@ -95,8 +95,8 @@ export default function ImmigrationConsultantsOverview() {
                   <Icon className="size-5" aria-hidden="true" />
                 </span>
                 <div>
-                  <h3 className="text-lg font-bold">{title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                  <h3 className="type-card-title">{title}</h3>
+                  <p className="type-small mt-1 text-zinc-600 dark:text-zinc-300">
                     {description}
                   </p>
                 </div>

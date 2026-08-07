@@ -303,7 +303,7 @@ export default function Header() {
                 {/* XIA Intelligence — yellow CTA */}
                 <Link
                   href="/xia-intelligence"
-                  className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-secondary px-3.5 py-1.5 text-sm font-bold text-primary hover:bg-[#f0cb3b] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shrink-0"
+                  className="type-small hidden h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-secondary px-3.5 font-bold text-primary transition-colors duration-150 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
                   <Sparkles className="h-4 w-4 shrink-0" />
                   XIA Intelligence
@@ -311,7 +311,7 @@ export default function Header() {
 
                 <Link
                   href="/contact"
-                  className="hidden lg:inline-flex items-center rounded-xl bg-white px-3.5 py-1.5 text-sm font-black text-primary shadow-sm transition-colors duration-150 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shrink-0"
+                  className="type-small hidden h-10 shrink-0 items-center justify-center rounded-lg bg-white px-3.5 font-bold text-primary shadow-sm transition-colors duration-150 hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
                   Contact Us
                 </Link>
@@ -320,7 +320,7 @@ export default function Header() {
                 <div className="group relative hidden lg:inline-flex shrink-0">
                   <Link
                     href="/personal-booking"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 py-1.5 pl-2 pr-3.5 text-sm font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors duration-150"
+                    className="type-small inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 pl-2 pr-3.5 font-bold text-white transition-colors duration-150 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img

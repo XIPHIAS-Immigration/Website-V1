@@ -53,7 +53,7 @@ function PassportCell({ country }: { country: string }) {
     <div>
       <div className="flex items-center gap-2">
         <ScorePill score={rec.score} />
-        <span className="text-[12px] text-white/55">{rec.rank}</span>
+        <span className="type-caption font-normal text-white/60">{rec.rank}</span>
       </div>
       <MeterBar value={rec.score} max={passportIndexStats.topScore} height="h-1.5" className="mt-2" />
       <span className={`mt-2 inline-flex rounded-full border px-2 py-0.5 text-[10.5px] font-black ${bandClass(rec.band)}`}>
@@ -125,7 +125,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
           cells: selected.map((p) => (
             <div>
               <span className="font-semibold text-white">{PRESENCE_LABEL[p.presence]}</span>
-              <span className="mt-0.5 block text-[12px] leading-snug text-white/50">{PRESENCE_DETAIL[p.presence]}</span>
+              <span className="type-caption mt-0.5 block font-normal text-white/50">{PRESENCE_DETAIL[p.presence]}</span>
             </div>
           )),
         },
@@ -153,9 +153,11 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
   return (
     <ToolShell
       eyebrow="XIA · Compare Programs"
-      title="Compare programmes on the numbers that matter."
+      title="Compare Programmes on the Numbers That Matter."
       subtitle="Put 2–4 routes side by side — indicative cost, timeline, physical presence, tax position and the passport power you'd gain."
       actions={<CurrencyGlassSelect />}
+      contactContext="Programme Comparison"
+      contactId="compare-programmes"
     >
       {/* Picker (raised z so its dropdown overlays the comparison table below) */}
       <div className="relative z-30 rounded-3xl border border-white/12 bg-white/[0.04] p-5 backdrop-blur-sm sm:p-6">
@@ -169,7 +171,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.18 }}
-                className="inline-flex items-center gap-2 rounded-full border border-[#4f8cff]/40 bg-[#4f8cff]/10 px-3 py-1.5 text-[13px] font-semibold text-white"
+                className="type-small inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-3 py-1.5 font-bold text-white"
               >
                 {p.country} — {p.title}
                 {selected.length > 1 && (
@@ -190,24 +192,24 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           {selectedIds.length < MAX ? (
             <div className="block w-full sm:max-w-md">
-              <span className="mb-1.5 block text-[12.5px] font-medium text-white/60">Add a programme (up to {MAX})</span>
+              <span className="type-caption mb-1.5 block font-normal text-white/60">Add a Programme (up to {MAX})</span>
               <GlassSelect
                 value=""
                 onChange={add}
                 searchable
                 options={remaining.map((p) => ({ value: p.id, label: `${p.country} — ${p.title}` }))}
-                placeholder="Select a programme…"
-                ariaLabel="Add a programme to compare"
+                placeholder="Select a Programme…"
+                ariaLabel="Add a Programme to compare"
               />
             </div>
           ) : (
-            <p className="text-[13px] text-white/45">Maximum of {MAX} programmes — remove one to add another.</p>
+            <p className="type-small text-white/60">Maximum of {MAX} Programmes — remove one to add another.</p>
           )}
 
           {/* Family size */}
           <div className="flex items-center gap-3 rounded-xl border border-white/12 bg-white/[0.03] px-4 py-2.5">
-            <span className="flex items-center gap-2 text-[13px] text-white/75">
-              <Users className="size-4 text-[#9cc0ff]" /> Dependants
+            <span className="type-small flex items-center gap-2 text-white/75">
+              <Users className="size-4 text-secondary" /> Dependants
             </span>
             <button
               type="button"
@@ -242,8 +244,8 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
         ) : (
           <div className="grid min-h-[200px] place-items-center rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center">
             <div>
-              <Scale className="mx-auto size-7 text-[#9cc0ff]" />
-              <p className="mt-3 text-[15px] text-white/70">Add at least two programmes to compare.</p>
+              <Scale className="mx-auto size-7 text-secondary" />
+              <p className="type-body mt-3 text-white/80">Add at least two Programmes to compare.</p>
             </div>
           </div>
         )}
@@ -260,7 +262,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
         </Link>
         <Link
           href={BOOKING_ROUTE}
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3.5 text-[14px] font-bold text-[#0a1c44] transition hover:bg-[#f0cb3b]"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3.5 text-[14px] font-bold text-primary transition hover:bg-[#f0cb3b]"
         >
           Discuss these routes with an advisor
           <ArrowRight className="size-4" />

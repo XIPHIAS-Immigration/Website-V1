@@ -259,7 +259,7 @@ export default function Footer() {
   return (
     <footer role="contentinfo" aria-label="Site footer" className="relative text-white">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 dark:from-blue-900 dark:via-indigo-800 dark:to-black" />
+      <div className="absolute inset-0 bg-primary" />
 
       <div className="relative container mx-auto px-4 md:px-6 lg:max-w-screen-4xl">
         {/* ===== Conversion Bar ===== */}
@@ -269,7 +269,7 @@ export default function Footer() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <Link
                   href="/eligibility"
-                  className="inline-flex items-center justify-center px-3.5 py-2.5 rounded-md text-sm font-medium bg-white text-blue-700 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                  className="inline-flex items-center justify-center px-3.5 py-2.5 rounded-md text-sm font-medium bg-white text-primary hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
                 >
                   <Icon icon="mdi:clipboard-check-outline" className="h-5 w-5 mr-2" />
                   Free Eligibility Assessment

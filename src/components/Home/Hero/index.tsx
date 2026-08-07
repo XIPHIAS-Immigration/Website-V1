@@ -130,7 +130,7 @@ export default function Hero() {
   const choices = step === 0 ? GOALS : step === 1 ? DESTINATIONS : PROFILES;
 
   return (
-    <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate overflow-hidden bg-[#071a3a] pt-28 text-white sm:pt-32">
+    <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate overflow-hidden bg-primary pt-28 text-white sm:pt-32">
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-60">
         <Image
           src="/images/hero/top-immigration-counsultent.webp"
@@ -142,7 +142,7 @@ export default function Hero() {
           sizes="100vw"
         />
       </div>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[#071a3a]/75" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-primary/75" />
 
       <div className="mx-auto max-w-screen-2xl px-4 pb-12 sm:px-6 lg:px-8 lg:pb-16">
         <div className="mx-auto max-w-4xl text-center">
@@ -150,10 +150,10 @@ export default function Hero() {
             <Sparkles className="size-4" aria-hidden="true" />
             XIA Immigration Intelligence
           </p>
-          <h1 id="home-hero-title" className="mt-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+          <h1 id="home-hero-title" className="type-page-title mt-4">
             Immigration Consultants in India for Global Residency &amp; Citizenship
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/75 sm:text-lg">
+          <p className="type-body mx-auto mt-4 max-w-2xl text-white/75">
             Explore Canada PR, US EB-5, skilled migration, residency and citizenship by investment, plus corporate mobility across 50+ countries.
           </p>
         </div>
@@ -166,18 +166,18 @@ export default function Hero() {
                   <button
                     type="button"
                     onClick={() => setStep((current) => Math.max(0, current - 1))}
-                    className="inline-flex size-9 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:text-blue-700"
+                    className="inline-flex size-9 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition hover:border-primary hover:text-primary"
                     aria-label="Previous question"
                   >
                     <ArrowLeft className="size-4" />
                   </button>
                 ) : (
-                  <span className="inline-flex size-9 items-center justify-center rounded-md bg-blue-50 text-[#1553af]">
+                  <span className="inline-flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
                     <Route className="size-4" />
                   </span>
                 )}
                 <div>
-                  <p className="text-xs font-bold uppercase text-[#1553af]">Guided route finder</p>
+                  <p className="text-xs font-bold uppercase text-primary">Guided route finder</p>
                   <p className="text-sm font-semibold text-slate-700">{step < 3 ? `Question ${step + 1} of 3` : "Your starting point"}</p>
                 </div>
               </div>
@@ -191,8 +191,8 @@ export default function Hero() {
             <div className="p-4 sm:p-6">
               {step < 3 ? (
                 <>
-                  <h2 className="text-xl font-bold sm:text-2xl">{heading}</h2>
-                  <p className="mt-1 text-sm text-slate-500">Choose the closest answer. You can change the details inside the assessment.</p>
+                  <h2 className="type-card-title">{heading}</h2>
+                  <p className="type-small mt-1 text-slate-500">Choose the closest answer. You can change the details inside the assessment.</p>
                   <div className="mt-5 grid gap-2 sm:grid-cols-2">
                     {choices.map((choice) => {
                       const Icon = choice.icon;
@@ -206,16 +206,16 @@ export default function Hero() {
                             if (step === 2) setProfile(choice.id as ProfileId);
                             setStep((current) => current + 1);
                           }}
-                          className="group flex min-h-20 items-center gap-3 rounded-md border border-slate-200 px-3 py-3 text-left transition hover:border-[#1553af] hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1553af]"
+                          className="group flex min-h-20 items-center gap-3 rounded-md border border-slate-200 px-3 py-3 text-left transition hover:border-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
-                          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-slate-100 text-[#1553af] group-hover:bg-white">
+                          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-slate-100 text-primary group-hover:bg-white">
                             <Icon className="size-5" aria-hidden="true" />
                           </span>
                           <span className="min-w-0">
                             <span className="block text-sm font-bold text-slate-950">{choice.label}</span>
                             <span className="mt-0.5 block text-xs leading-5 text-slate-500">{choice.copy}</span>
                           </span>
-                          <ChevronRight className="ml-auto size-4 shrink-0 text-slate-300 group-hover:text-[#1553af]" aria-hidden="true" />
+                          <ChevronRight className="ml-auto size-4 shrink-0 text-slate-300 group-hover:text-primary" aria-hidden="true" />
                         </button>
                       );
                     })}
@@ -226,15 +226,15 @@ export default function Hero() {
                   <span className="inline-flex size-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
                     <Check className="size-6" aria-hidden="true" />
                   </span>
-                  <p className="mt-5 text-xs font-bold uppercase text-[#1553af]">Recommended starting point</p>
-                  <h2 className="mt-2 text-3xl font-bold">{recommendation.label}</h2>
-                  <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
+                  <p className="mt-5 text-xs font-bold uppercase text-primary">Recommended starting point</p>
+                  <h2 className="type-card-title mt-2">{recommendation.label}</h2>
+                  <p className="type-small mt-3 max-w-xl text-slate-600">
                     Your answers will be carried into the assessment. Review your preliminary matches first; contact details are requested only when you save or unlock the report.
                   </p>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                     <Link
                       href={recommendation.href}
-                      className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d8ad1f] px-5 text-sm font-bold text-[#071a3a] transition hover:bg-[#efc939]"
+                      className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d8ad1f] px-5 text-sm font-bold text-primary transition hover:bg-[#efc939]"
                     >
                       Start {recommendation.label}
                       <ArrowRight className="size-4" aria-hidden="true" />
@@ -242,7 +242,7 @@ export default function Hero() {
                     <button
                       type="button"
                       onClick={reset}
-                      className="inline-flex h-12 items-center justify-center rounded-md border border-slate-300 px-5 text-sm font-bold text-slate-700 transition hover:border-[#1553af] hover:text-[#1553af]"
+                      className="inline-flex h-12 items-center justify-center rounded-md border border-slate-300 px-5 text-sm font-bold text-slate-700 transition hover:border-primary hover:text-primary"
                     >
                       Change answers
                     </button>
@@ -257,16 +257,16 @@ export default function Hero() {
             </div>
           </div>
 
-          <aside className="flex flex-col overflow-hidden rounded-lg border border-white/30 bg-[#0d2b5f]/[0.82] shadow-xl shadow-black/10 backdrop-blur-md" aria-label="Premium report preview">
+          <aside className="flex flex-col overflow-hidden rounded-lg border border-white/30 bg-primary/90 shadow-xl shadow-black/10 backdrop-blur-md" aria-label="Premium report preview">
             <div className="border-b border-white/10 px-5 py-4 sm:px-6">
               <p className="text-xs font-bold uppercase text-[#f0c83f]">Your analysis can become</p>
-              <h2 className="mt-1 text-xl font-bold">A personalised decision report</h2>
+              <h2 className="type-card-title mt-1">A personalised decision report</h2>
             </div>
             <div className="grid flex-1 gap-4 p-5 sm:p-6">
               <div className="rounded-md bg-white/90 p-5 text-slate-950 shadow-lg">
                 <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
                   <div>
-                    <p className="text-[10px] font-bold uppercase text-[#1553af]">XIPHIAS Intelligence Report</p>
+                    <p className="type-caption uppercase text-primary">XIPHIAS Intelligence Report</p>
                     <p className="mt-1 text-lg font-bold">Your recommended pathway</p>
                   </div>
                   <FileText className="size-7 text-[#d8ad1f]" aria-hidden="true" />
@@ -274,7 +274,7 @@ export default function Hero() {
                 <div className="mt-4 grid grid-cols-3 gap-2">
                   {["Route fit", "Risk review", "Next actions"].map((label, index) => (
                     <div key={label} className="border-l-2 border-[#d8ad1f] pl-2">
-                      <p className="text-[10px] font-semibold text-slate-500">0{index + 1}</p>
+                      <p className="type-caption font-normal text-slate-500">0{index + 1}</p>
                       <p className="mt-1 text-xs font-bold">{label}</p>
                     </div>
                   ))}

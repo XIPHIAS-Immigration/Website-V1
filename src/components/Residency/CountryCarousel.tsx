@@ -222,7 +222,7 @@ function FeatureList({
           />
         </Link>
         <div className="flex-1 p-4">
-          <h3 className="text-base font-semibold leading-tight">
+          <h3 className="type-card-title">
             <Link href={href2} className="hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--c-secondary)] rounded">
               {ctry}
             </Link>
@@ -269,7 +269,7 @@ function FeatureList({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold truncate">{ctry}</h3>
+              <h3 className="type-card-title truncate">{ctry}</h3>
               <span className="text-base opacity-0 group-hover:opacity-100 transition">→</span>
             </div>
             <p className="mt-0.5 text-xs leading-5 line-clamp-2">
@@ -317,10 +317,10 @@ function FeatureList({
         {/* content */}
         <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div className="min-w-0">
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--c-primary)] break-words">
+            <h2 className="type-section-title text-[var(--c-primary)] break-words">
               {title}
             </h2>
-            <p className="mt-2 text-base md:text-lg leading-relaxed text-black/80 dark:text-white/80 break-words">
+            <p className="type-body mt-2 text-black/80 dark:text-white/80 break-words">
               {description}
             </p>
           </div>
@@ -357,19 +357,19 @@ function FeatureList({
             </Link>
 
             <div className="px-5 py-4">
-              <h2 className="text-xl font-semibold leading-tight">
+              <h2 className="type-card-title">
                 <Link href={href} className="hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--c-secondary)] rounded">
                   {country}
                 </Link>
               </h2>
-              <p className="mt-2 text-sm leading-7">
+              <p className="type-small mt-2">
                 {truncateWords(summary || `${ctaNoun} pathways in ${country}.`, 36)}
               </p>
 
               {!!introPoints.length && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {introPoints.map((t, i) => (
-                    <span key={i} className="rounded-full border border-[var(--c-border)] px-3 py-1 text-xs font-medium">
+                    <span key={i} className="rounded-full border border-[var(--c-border)] px-3 py-1 text-xs font-medium capitalize">
                       {t}
                     </span>
                   ))}
@@ -445,10 +445,10 @@ function FeatureList({
                   </div>
 
                   <div className="mt-1 flex items-center justify-between">
-                    <p id="country-search-hint" className="text-[11px] tracking-wide opacity-75">
+                    <p id="country-search-hint" className="type-caption font-normal opacity-75">
                       Tip: type a few letters (e.g., “gre” for Grenada).
                     </p>
-                    <div aria-hidden className="hidden sm:flex items-center gap-1 text-[11px] opacity-80">
+                    <div aria-hidden className="type-caption hidden items-center gap-1 font-normal opacity-80 sm:flex">
                       <span className="rounded-md border border-[var(--c-border)] px-1.5 py-[2px]">Ctrl</span>
                       <span>+</span>
                       <span className="rounded-md border border-[var(--c-border)] px-1.5 py-[2px]">K</span>
@@ -607,8 +607,8 @@ export default function CountryCarousel({
       <ThemeVars />
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
         <div className="max-w-2xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold mb-4 tracking-tight">{title}</h2>
-          <p className="text-base md:text-lg mb-6 leading-relaxed">{description}</p>
+          <h2 className="type-section-title mb-4">{title}</h2>
+          <p className="type-body mb-6">{description}</p>
           <Link
             href={ctaHref || derivedBase}
             className="inline-block px-6 py-2.5 rounded-xl border border-[var(--c-border)] bg-[var(--c-card)] hover:bg-[var(--c-primary)] hover:text-[var(--c-invert)] transition text-sm md:text-base font-semibold shadow-sm"
@@ -671,7 +671,7 @@ export default function CountryCarousel({
                 </Link>
 
                 <div className="flex flex-1 flex-col px-4 py-3">
-                  <h3 className="text-base sm:text-lg font-semibold leading-tight">
+                  <h3 className="type-card-title">
                     <Link href={href} className="hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--c-secondary)] rounded">
                       {country}
                     </Link>

@@ -41,7 +41,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        raleway: ["var(--font-raleway)", "system-ui", "sans-serif"],
+        sans: ["var(--font-lato)", "Lato", "system-ui", "sans-serif"],
+        raleway: ["var(--font-lato)", "Lato", "system-ui", "sans-serif"],
       },
       maxWidth: {
         "screen-xl": "75rem",
@@ -81,7 +82,7 @@ const config: Config = {
         primary: "#1c57b4",
         secondary: "#e1b923",
         // Single source of truth for the dark cinematic section background.
-        ink: "#0a1c44",
+        ink: "#1c57b4",
         light_bg: "#ffffff",
         light_text: "#1a1a1a",
         dark_bg: "#121212",

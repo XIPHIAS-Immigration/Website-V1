@@ -64,15 +64,17 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
       title="The XIPHIAS Program Index."
       subtitle="A documented composite benchmark across affordability, speed, presence, family, due-diligence and passport power — orientation only, not a ranking of guaranteed outcomes."
       actions={<CurrencyGlassSelect />}
+      contactContext="Programme Index"
+      contactId="programme-index"
     >
       {/* Static KPI band (instant — Tier-4, no scroll-entrance) */}
       <div className="flex flex-wrap items-center gap-3">
-        <Kpi value={programmes} label="programmes indexed" />
-        <Kpi value={countries} label="countries" />
-        <Kpi value={6} label="scoring factors" />
+        <Kpi value={programmes} label="Programmes Indexed" />
+        <Kpi value={countries} label="Countries" />
+        <Kpi value={6} label="Scoring Factors" />
         <Link
           href="/xiphias-program-index/methodology"
-          className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-4 py-3 text-[13px] font-semibold text-[#9cc0ff] transition hover:border-[#4f8cff] hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-white/25 px-4 py-3 text-[13px] font-semibold text-secondary transition hover:border-secondary hover:text-white"
         >
           <Gauge className="size-4" /> How it&apos;s scored
         </Link>
@@ -90,17 +92,17 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.25 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-6 overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-br from-[#0c2350] to-[#0a1530] p-6 sm:p-8"
+        className="mt-6 overflow-hidden rounded-lg border border-white/25 bg-black/10 p-6 sm:p-8"
       >
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3.5 py-1.5 text-[12px] font-bold uppercase tracking-[0.16em] text-secondary">
+            <span className="type-caption inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3.5 py-1.5 uppercase text-secondary">
               <FileDown className="size-3.5" /> Full Index report
             </span>
-            <h2 className="mt-4 text-[clamp(1.6rem,3.4vw,2.4rem)] font-black leading-tight text-white">
+            <h2 className="type-section-title mt-4 text-white">
               The complete ranking, ready to share.
             </h2>
-            <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-white/65">
+            <p className="type-small mt-3 max-w-md text-white/70">
               Every weighted component score, an advisor-ready summary, and all {programmes} programmes — delivered as a
               polished PDF.
             </p>
@@ -110,7 +112,7 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
                 "Advisor-ready summary & recommended next steps",
                 `All ${programmes} programmes across ${countries} countries`,
               ].map((b) => (
-                <li key={b} className="flex items-center gap-2.5 text-[13.5px] text-white/75">
+                <li key={b} className="type-small flex items-center gap-2.5 text-white/75">
                   <span className="grid size-5 shrink-0 place-items-center rounded-full bg-secondary/15 text-secondary">
                     <Check className="size-3" />
                   </span>
@@ -127,7 +129,7 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Full name"
                 autoComplete="name"
-                className="w-full rounded-xl border border-white/15 bg-[#0a1530] px-3.5 py-3 text-[14px] text-white placeholder-white/35 outline-none focus:border-[#4f8cff]"
+                className="w-full rounded-lg border border-white/25 bg-black/10 px-3.5 py-3 text-[14px] text-white placeholder-white/50 outline-none focus:border-secondary"
               />
               <input
                 value={email}
@@ -135,7 +137,7 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
                 placeholder="Email address"
                 type="email"
                 autoComplete="email"
-                className="w-full rounded-xl border border-white/15 bg-[#0a1530] px-3.5 py-3 text-[14px] text-white placeholder-white/35 outline-none focus:border-[#4f8cff]"
+                className="w-full rounded-lg border border-white/25 bg-black/10 px-3.5 py-3 text-[14px] text-white placeholder-white/50 outline-none focus:border-secondary"
               />
             </div>
             <motion.button
@@ -143,13 +145,13 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
               type="button"
               onClick={startReport}
               disabled={!validReport || report.loading}
-              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3.5 text-[14px] font-bold text-[#0a1c44] transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3.5 text-[14px] font-bold text-primary transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {report.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}
               Download full Index report
             </motion.button>
             {report.error && <p className="mt-2 text-[12.5px] text-rose-300">{report.error}</p>}
-            <p className="mt-3 text-[11.5px] leading-relaxed text-white/40">{INDEX_DISCLAIMER}</p>
+            <p className="type-caption mt-3 font-normal text-white/50">{INDEX_DISCLAIMER}</p>
           </div>
         </div>
       </motion.div>
@@ -159,7 +161,7 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
           href="/compare-programs"
           className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-[13px] font-semibold text-white transition hover:bg-white/10"
         >
-          Compare specific programmes <ArrowRight className="size-4" />
+          Compare Specific Programmes <ArrowRight className="size-4" />
         </Link>
       </div>
     </ToolShell>
@@ -170,7 +172,7 @@ function Kpi({ value, label }: { value: number; label: string }) {
   return (
     <div className="rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3">
       <span className="text-[22px] font-black tabular-nums text-white">{value}</span>
-      <span className="ml-2 text-[12.5px] text-white/55">{label}</span>
+      <span className="type-caption ml-2 font-normal text-white/60">{label}</span>
     </div>
   );
 }
