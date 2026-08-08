@@ -11,9 +11,12 @@ import {
   Globe2,
   Landmark,
   LockKeyhole,
+  MessageSquareQuote,
+  PlayCircle,
   Route,
   SearchCheck,
   Sparkles,
+  Star,
   UserRoundCheck,
 } from "lucide-react";
 
@@ -241,7 +244,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
     <>
       <JsonLd id="immigration-consultants-india-jsonld" data={pageJsonLd} />
 
-      <section className="relative isolate flex min-h-[620px] overflow-hidden bg-primary text-white">
+      <section className="relative isolate flex min-h-[760px] overflow-hidden bg-primary text-white">
         <Image
           src="/images/hero/top-immigration-counsultent.webp"
           alt="Indian family preparing to travel abroad"
@@ -259,13 +262,25 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               Immigration advisory since 2009
             </p>
             <h1 className="type-page-title mt-4 max-w-3xl text-white">
-              Top Immigration Consultants in India for Global Opportunities
+              Top Immigration Consultants in India for Residency, Citizenship and Golden Visa
             </h1>
-            <p className="type-body mt-5 max-w-2xl text-white/85">
-              Eligibility-led advice for individuals, families, investors, entrepreneurs and
-              businesses exploring PR, skilled migration, residency, citizenship and Golden Visa
-              pathways across 50+ countries.
-            </p>
+            <div className="mt-5 max-w-2xl space-y-3 text-white/85">
+              <p className="type-body font-bold">
+                Trusted immigration advisory for individuals, families, investors, entrepreneurs
+                and businesses seeking opportunities across 50+ countries.
+              </p>
+              <p className="type-small">
+                Choosing among the top immigration consultants in India is not simply about finding
+                someone who can prepare forms. You need an immigration consultant who can first
+                determine whether a pathway genuinely suits your profile and then guide you through
+                eligibility, documentation, compliance and submission.
+              </p>
+              <p className="type-small">
+                XIPHIAS Immigration has provided immigration advisory services since 2009. Our work
+                spans skilled migration, permanent residence, corporate mobility, residency by
+                investment and citizenship by investment.
+              </p>
+            </div>
             <div className="mt-7 flex flex-wrap gap-3">
               <a
                 href="#consultation"
@@ -401,6 +416,111 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               Check Your Immigration Options <ArrowRight className="size-4" aria-hidden="true" />
             </a>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-slate-50 py-16 sm:py-20">
+        <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 lg:px-12">
+          <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
+            <div>
+              <p className="type-caption uppercase text-primary">Independent review platforms</p>
+              <h2 className="type-section-title mt-3 text-slate-950">
+                How to Choose the Best Immigration Consultants in India
+              </h2>
+            </div>
+            <p className="type-body max-w-3xl text-slate-600 lg:justify-self-end">
+              Immigration rules are not static. Governments change occupation lists, investment
+              thresholds, quotas, documentation requirements, processing systems and eligibility
+              criteria. Established immigration consultants in India can add value by helping clients
+              interpret current requirements and prepare appropriately, not merely complete paperwork.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            <a
+              href="https://g.page/r/CTH8DQwm1lYnEAE"
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-lg border border-slate-200 bg-white p-6 transition hover:border-primary hover:shadow-sm"
+              aria-label="Read XIPHIAS Immigration reviews on Google"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="type-card-title text-slate-950">Google Reviews</span>
+                <span className="type-caption rounded-full bg-primary/10 px-3 py-1 text-primary">Verified listing</span>
+              </div>
+              <div className="mt-6 flex items-end gap-3">
+                <strong className="text-4xl font-bold leading-none text-slate-950">4.7</strong>
+                <span className="type-small text-slate-500">out of 5</span>
+              </div>
+              <div className="mt-3 flex gap-1 text-[#f0b91f]" aria-label="4.7 out of 5 stars">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Star
+                    key={index}
+                    className={`size-5 fill-current ${index === 4 ? "opacity-70" : ""}`}
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              <p className="type-small mt-4 font-bold text-slate-700">1,347 Google reviews</p>
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary group-hover:underline">
+                Read Google reviews <ArrowRight className="size-4" aria-hidden="true" />
+              </span>
+            </a>
+
+            <a
+              href="https://www.trustpilot.com/review/www.xiphiasimmigration.com"
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-lg border border-slate-200 bg-white p-6 transition hover:border-[#00b67a] hover:shadow-sm"
+              aria-label="Read XIPHIAS Immigration reviews on Trustpilot"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="type-card-title text-slate-950">Trustpilot</span>
+                <span className="type-caption rounded-full bg-[#00b67a]/10 px-3 py-1 text-[#007a52]">Claimed profile</span>
+              </div>
+              <div className="mt-6 flex items-end gap-3">
+                <strong className="text-4xl font-bold leading-none text-slate-950">4.3</strong>
+                <span className="type-small text-slate-500">out of 5</span>
+              </div>
+              <div className="mt-3 flex gap-1 text-[#00b67a]" aria-label="4.3 out of 5 stars">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Star
+                    key={index}
+                    className={`size-5 fill-current ${index === 4 ? "opacity-30" : ""}`}
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              <p className="type-small mt-4 font-bold text-slate-700">12 Trustpilot reviews</p>
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#007a52] group-hover:underline">
+                Read Trustpilot reviews <ArrowRight className="size-4" aria-hidden="true" />
+              </span>
+            </a>
+
+            <Link
+              href="/reviews"
+              className="group rounded-lg border border-slate-200 bg-primary p-6 text-white transition hover:bg-[#174b9b] hover:shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="type-card-title">Client Stories</span>
+                <MessageSquareQuote className="size-6 text-[#f0c83f]" aria-hidden="true" />
+              </div>
+              <p className="type-body mt-6 font-bold">Testimonials, videos and client experiences</p>
+              <p className="type-small mt-3 text-white/70">
+                Explore detailed feedback and video experiences from people who have worked with the
+                XIPHIAS team.
+              </p>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f0c83f] group-hover:text-white">
+                <PlayCircle className="size-4" aria-hidden="true" /> View client reviews
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </span>
+            </Link>
+          </div>
+
+          <p className="type-caption mt-5 text-slate-500">
+            Ratings checked on 8 August 2026. Review scores and counts may change as Google and
+            Trustpilot update their platforms.
+          </p>
         </div>
       </section>
 
