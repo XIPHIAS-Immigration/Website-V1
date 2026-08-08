@@ -19,6 +19,8 @@ import {
   Star,
   UserRoundCheck,
 } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import { SiTrustpilot } from "react-icons/si";
 
 import ContactForm from "@/components/ContactForm";
 import { JsonLd } from "@/lib/seo";
@@ -178,12 +180,12 @@ const audiences = [
 
 const faqs = [
   {
-    question: "Which are the top immigration consultants in India?",
+    question: "What should I expect from a top immigration consultant in India?",
     answer:
       "There is no official government ranking of immigration consultants in India. Compare relevant experience, transparent advice, service specialisation, documented company history, professional credentials where required and the quality of the initial assessment. XIPHIAS Immigration has operated since 2009 across skilled migration, residency, citizenship and corporate mobility.",
   },
   {
-    question: "How do I choose the best immigration consultants in India?",
+    question: "How do I choose the best immigration consultant in India?",
     answer:
       "Verify experience, program expertise, fee transparency, documentation processes, physical presence and whether the consultant avoids guaranteed-approval claims. A good consultation should clarify both suitable options and material risks.",
   },
@@ -270,15 +272,17 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
                 and businesses seeking opportunities across 50+ countries.
               </p>
               <p className="type-small">
-                Choosing among the top immigration consultants in India is not simply about finding
-                someone who can prepare forms. You need an immigration consultant who can first
-                determine whether a pathway genuinely suits your profile and then guide you through
-                eligibility, documentation, compliance and submission.
+                Finding a top immigration consultant in India is not simply about choosing someone
+                who can prepare forms. You need an advisor who can first determine whether a pathway
+                genuinely suits your profile and then guide you through eligibility, documentation,
+                compliance and submission.
               </p>
               <p className="type-small">
                 XIPHIAS Immigration has provided immigration advisory services since 2009. Our work
                 spans skilled migration, permanent residence, corporate mobility, residency by
-                investment and citizenship by investment.
+                investment and citizenship by investment. When comparing
+                the best immigration consultant in India, relevant experience across these pathways
+                is an important test.
               </p>
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
@@ -317,16 +321,16 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
           <div>
             <p className="type-caption uppercase text-primary">Choose with clarity</p>
             <h2 className="type-section-title mt-3 text-slate-950">
-              Looking for the Best Immigration Consultants in India? Start With the Right Questions
+              Looking for the Best Immigration Consultant in India? Start With the Right Questions
             </h2>
             <p className="type-body mt-5 text-slate-600">
-              The important question behind the search is simple: who can you trust with a decision
-              that may affect your career, family, investment or business?
+              A top immigration consultant in India should earn your trust before advising on a
+              decision that may affect your career, family, investment or business.
             </p>
             <div className="mt-7 border-l-4 border-[#f0c83f] bg-primary px-5 py-5 text-white">
               <p className="type-card-title">Advice should come before a sales decision.</p>
               <p className="type-small mt-2 text-white/75">
-                A professional immigration company should first understand your eligibility,
+                The best immigration consultant in India should first understand your eligibility,
                 objectives, budget and risk profile, then explain suitable options and trade-offs.
               </p>
             </div>
@@ -351,8 +355,9 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               Why XIPHIAS Is Among the Established Immigration Consultants in India
             </h2>
             <p className="type-body mt-4 text-slate-600">
-              Experience matters, but useful advice also requires the ability to distinguish between
-              skilled migration, investor mobility, citizenship planning and corporate immigration.
+              A top immigration consultant in India needs experience and the ability to distinguish
+              between skilled migration, investor mobility, citizenship planning and corporate
+              immigration before recommending a route.
             </p>
           </div>
 
@@ -378,8 +383,9 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               </h2>
             </div>
             <p className="type-body max-w-2xl text-slate-600 lg:justify-self-end">
-              A structured consultation compares your profile, destination preferences, program
-              requirements, documentation and application strategy before a route is recommended.
+              A top immigration consultant in India should compare your profile, destination
+              preferences, program requirements, documentation and application strategy before a
+              route is recommended.
             </p>
           </div>
 
@@ -425,7 +431,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
             <div>
               <p className="type-caption uppercase text-primary">Independent review platforms</p>
               <h2 className="type-section-title mt-3 text-slate-950">
-                How to Choose the Best Immigration Consultants in India
+                How to Choose the Best Immigration Consultant in India
               </h2>
             </div>
             <p className="type-body max-w-3xl text-slate-600 lg:justify-self-end">
@@ -445,7 +451,9 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               aria-label="Read XIPHIAS Immigration reviews on Google"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="type-card-title text-slate-950">Google Reviews</span>
+                <span className="flex items-center gap-2.5 type-card-title text-slate-950">
+                  <FcGoogle className="size-7 shrink-0" aria-hidden="true" /> Google Reviews
+                </span>
                 <span className="type-caption rounded-full bg-primary/10 px-3 py-1 text-primary">Verified listing</span>
               </div>
               <div className="mt-6 flex items-end gap-3">
@@ -475,7 +483,10 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               aria-label="Read XIPHIAS Immigration reviews on Trustpilot"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="type-card-title text-slate-950">Trustpilot</span>
+                <span className="flex items-center gap-2.5 type-card-title text-slate-950">
+                  <SiTrustpilot className="size-7 shrink-0 text-[#00b67a]" aria-hidden="true" />
+                  Trustpilot
+                </span>
                 <span className="type-caption rounded-full bg-[#00b67a]/10 px-3 py-1 text-[#007a52]">Claimed profile</span>
               </div>
               <div className="mt-6 flex items-end gap-3">
