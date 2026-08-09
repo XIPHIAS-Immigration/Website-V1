@@ -26,7 +26,7 @@ Image guidance:
 - Prefer clean, premium, bright images over dark stock-style photos.
 - Avoid competitor branding, watermarks, flags as the whole image, and images with unreadable text.
 - Good minimum size: `1600px` wide. Cover images are best at `2400x1600` or wider.
-- Keep a small text file or spreadsheet separately with source URLs and license notes.
+- Keep source URLs and licence notes in `deep-analysis-image-sources.json` for Deep Analysis assets.
 
 The report generator checks this folder first. If a file is missing, it falls back to existing website images.
 

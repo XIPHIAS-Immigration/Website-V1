@@ -1,0 +1,54 @@
+{
+  "verifiedAt": "2026-08-09",
+  "usage": "Deep Analysis paid-report image library",
+  "assets": [
+    {
+      "file": "uk/critical-technology-research-uk-01.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:Office_of_Naval_Research_Global_Visit_to_University_College_London_(5455314).jpg",
+      "creator": "U.S. Navy photo by John Williams",
+      "license": "Public domain",
+      "country": "United Kingdom",
+      "purpose": ["science", "technology", "research", "innovation"]
+    },
+    {
+      "file": "uk/evidence-review-uk-01.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:Office_of_Naval_Research_Global_Visit_to_University_College_London_(5455308).jpg",
+      "creator": "U.S. Navy photo by John Williams",
+      "license": "Public domain",
+      "country": "United Kingdom",
+      "purpose": ["evidence review", "academia", "research collaboration"]
+    },
+    {
+      "file": "usa/technology-leadership-usa-drone.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:NASA_Drone_Supports_Wildland_Fire_Technology_Demonstration_(AFRC2025-0039-05).jpg",
+      "creator": "NASA Armstrong Flight Research Center / NASA / Steve Freeman",
+      "license": "Public domain",
+      "country": "United States",
+      "purpose": ["technology", "engineering", "leadership", "innovation"]
+    },
+    {
+      "file": "usa/critical-technology-research-usa-laboratory.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:Technology_Laboratory_-_GPN-2000-001913.jpg",
+      "creator": "NASA",
+      "license": "Public domain",
+      "country": "United States",
+      "purpose": ["technology", "science", "engineering", "research"]
+    },
+    {
+      "file": "usa/contribution-strategy-usa-satellite.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:Applications_Technology_Satellite_Testing_-_GPN-2000-001264.jpg",
+      "creator": "NASA",
+      "license": "Public domain",
+      "country": "United States",
+      "purpose": ["national contribution", "technology", "science", "innovation"]
+    },
+    {
+      "file": "usa/evidence-review-usa-cleanroom.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:NASA_Technology_Protects_Webb_Telescope_from_Contamination_(18962354558).jpg",
+      "creator": "Chris Gunn / NASA",
+      "license": "Public domain",
+      "country": "United States",
+      "purpose": ["evidence review", "science", "quality control", "research"]
+    }
+  ]
+}

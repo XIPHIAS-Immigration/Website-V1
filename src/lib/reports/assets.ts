@@ -33,24 +33,24 @@ type ImgOpts = { maxPx?: number; quality?: number; minPx?: number };
 // (crisp but still email-friendly); logos stay small transparent PNGs. Falls back to a raw
 // embed if sharp can't process the file.
 async function readDataUri(absPath: string, opts: ImgOpts = {}): Promise<string | null> {
-  const { maxPx = 2560, quality = 82, minPx } = opts;
+  const { maxPx = 3600, quality = 90, minPx } = opts;
   const ext = path.extname(absPath).toLowerCase();
   try {
     if (ext === ".svg") {
       const buf = await fs.readFile(absPath);
       return `data:image/svg+xml;base64,${buf.toString("base64")}`;
     }
-    if (ext === ".png") {
+    const meta = await sharp(absPath).metadata();
+    if (ext === ".png" && meta.hasAlpha) {
       // Keep transparency (logos) — resize + recompress only.
       const out = await sharp(absPath)
-        .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
-        .png({ compressionLevel: 9, palette: true })
+        .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+        .png({ compressionLevel: 9 })
         .toBuffer();
       return `data:image/png;base64,${out.toString("base64")}`;
     }
     // Decide the long-edge target: downscale big sources to maxPx; only enlarge (up to
     // minPx) when explicitly allowed and the source is smaller than the display needs it.
-    const meta = await sharp(absPath).metadata();
     const longEdge = Math.max(meta.width ?? 0, meta.height ?? 0);
     let targetLong = longEdge > 0 ? Math.min(maxPx, longEdge) : maxPx;
     if (minPx && longEdge > 0 && longEdge < minPx) targetLong = minPx;
@@ -186,6 +186,37 @@ async function listDir(relDir: string): Promise<string[]> {
   }
 }
 
+async function listDirBySize(relDir: string): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(path.join(process.cwd(), relDir), { withFileTypes: true });
+    const files = await Promise.all(
+      entries
+        .filter((entry) => entry.isFile() && EXTS.includes(path.extname(entry.name).toLowerCase()))
+        .map(async (entry) => {
+          const rel = `${relDir}/${entry.name}`;
+          try {
+            const stat = await fs.stat(path.join(process.cwd(), rel));
+            return { rel, size: stat.size };
+          } catch {
+            return { rel, size: 0 };
+          }
+        }),
+    );
+    return files.sort((a, b) => b.size - a.size).map((file) => file.rel);
+  } catch {
+    return [];
+  }
+}
+
+async function isLargeEnough(relPath: string, minLongEdge = 1400): Promise<boolean> {
+  try {
+    const meta = await sharp(path.join(process.cwd(), relPath)).metadata();
+    return Math.max(meta.width ?? 0, meta.height ?? 0) >= minLongEdge;
+  } catch {
+    return false;
+  }
+}
+
 function coverRank(p: string): number {
   const f = p.toLowerCase();
   if (/\/cover\.[a-z0-9]+$/.test(f)) return 0;
@@ -202,6 +233,16 @@ function coverRank(p: string): number {
  * Falls back to a generic brand image if nothing matches. Capped to keep PDF size sane.
  */
 export async function loadCountryImages(country?: string): Promise<string[]> {
+  const assets = await loadCountryImageAssets(country);
+  return assets.map((asset) => asset.uri);
+}
+
+export type CountryImageAsset = {
+  source: string;
+  uri: string;
+};
+
+export async function loadCountryImageAssets(country?: string): Promise<CountryImageAsset[]> {
   const reportAssets: string[] = [];
   const track: string[] = [];
   for (const slug of slugCandidates(country)) {
@@ -212,13 +253,23 @@ export async function loadCountryImages(country?: string): Promise<string[]> {
   }
   reportAssets.sort((a, b) => coverRank(a) - coverRank(b));
 
-  const ordered = [...new Set([...reportAssets, ...track])].slice(0, 8);
-  const uris: string[] = [];
-  for (const rel of ordered) {
-    const uri = await readDataUri(path.join(process.cwd(), rel));
-    if (uri) uris.push(uri);
+  const selectedCountry = countrySlug(country);
+  const countrySpecific = [...new Set([...reportAssets, ...track])].filter(
+    (rel) => !(selectedCountry === "australia" && /skilled-australia-xiphias-immigration/i.test(rel)),
+  );
+  const fallback = [...(await listDirBySize("public/images/gallery")).slice(0, 3), "public/images/articles/xiphias-immigration.jpg"];
+  const preferred = countrySpecific.length ? countrySpecific : [...new Set(fallback)];
+  const largeEnough: string[] = [];
+  for (const rel of preferred) {
+    if (await isLargeEnough(rel)) largeEnough.push(rel);
   }
-  if (uris.length) return uris;
-  const fallback = await readDataUri(path.join(process.cwd(), "public/images/articles/xiphias-immigration.jpg"));
-  return fallback ? [fallback] : [];
+  const ordered = (largeEnough.length ? largeEnough : preferred).slice(0, 12);
+  const assets: CountryImageAsset[] = [];
+  for (const rel of ordered) {
+    const uri = await readDataUri(path.join(process.cwd(), rel), { maxPx: 3600, quality: 90, minPx: 1800 });
+    if (uri) assets.push({ source: rel, uri });
+  }
+  if (assets.length) return assets;
+  const fallbackUri = await readDataUri(path.join(process.cwd(), "public/images/articles/xiphias-immigration.jpg"));
+  return fallbackUri ? [{ source: "public/images/articles/xiphias-immigration.jpg", uri: fallbackUri }] : [];
 }

@@ -4,6 +4,7 @@ const nextConfig = {
   pageExtensions: ["ts", "tsx"],
   poweredByHeader: false,
   compress: true,
+  serverExternalPackages: ["pdf-parse", "mammoth"],
   outputFileTracingIncludes: { "*": ["./content/**/*"] },
   // Keep production builds within this Windows server's available memory.
   // Unbounded minification workers can stall after consuming close to 1 GB.

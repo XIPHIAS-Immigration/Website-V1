@@ -171,8 +171,8 @@ export function heroBand(dataUri: string | null | undefined, opts: { eyebrow?: s
   </div>`;
 }
 
-// Editorial two-column page: content on the left, a full-height image panel on the right
-// (so the page is never half-empty). Falls back to a full-width content page if no image.
+// Editorial two-column page: content on the left, natural-ratio media card on the right.
+// Falls back to a full-width content page if no image.
 export function splitPage(opts: {
   header?: string;
   footer?: string;
@@ -187,8 +187,44 @@ export function splitPage(opts: {
     opts.capEyebrow || opts.capTitle
       ? `<div class="aside-cap">${opts.capEyebrow ? `<div class="aside-cap__k">${esc(opts.capEyebrow)}</div>` : ""}${opts.capTitle ? `<div class="aside-cap__v">${esc(opts.capTitle)}</div>` : ""}</div>`
       : "";
-  const body = `<div class="split${opts.wide ? " split--wide" : ""}"><div class="split__main">${opts.content}</div><div class="split__aside"><img src="${opts.imageDataUri}" alt="" />${cap}</div></div>`;
+  const body = `<div class="split${opts.wide ? " split--wide" : ""}"><div class="split__main">${opts.content}</div><div class="split__aside"><img class="split__fit" src="${opts.imageDataUri}" alt="" />${cap}</div></div>`;
   return page({ header: opts.header, body, footer: opts.footer });
+}
+
+// Feature-led editorial page: opening analysis and a natural-ratio image share the top
+// row, while the detailed modules continue at full width underneath. Captions are optional.
+export function featurePage(opts: {
+  header?: string;
+  footer?: string;
+  eyebrow?: string;
+  title: string;
+  desc?: string;
+  content: string;
+  imageDataUri?: string | null;
+  imageAlt?: string;
+  capEyebrow?: string;
+  capTitle?: string;
+  imageSide?: "left" | "right";
+}): string {
+  if (!opts.imageDataUri) {
+    return page({
+      header: opts.header,
+      body: sectionHeader({ eyebrow: opts.eyebrow, title: opts.title, desc: opts.desc }) + opts.content,
+      footer: opts.footer,
+    });
+  }
+  const caption =
+    opts.capEyebrow || opts.capTitle
+      ? `<figcaption>${opts.capEyebrow ? `<span>${esc(opts.capEyebrow)}</span>` : ""}${opts.capTitle ? `<strong>${esc(opts.capTitle)}</strong>` : ""}</figcaption>`
+      : "";
+  const media = `<figure class="feature-media"><img src="${opts.imageDataUri}" alt="${esc(opts.imageAlt ?? "")}" />${caption}</figure>`;
+  const intro = `<div class="feature-intro">${sectionHeader({ eyebrow: opts.eyebrow, title: opts.title, desc: opts.desc })}</div>`;
+  const top = opts.imageSide === "left" ? `${media}${intro}` : `${intro}${media}`;
+  return page({
+    header: opts.header,
+    body: `<div class="feature-page"><div class="feature-top${opts.imageSide === "left" ? " feature-top--reverse" : ""}">${top}</div><div class="feature-body">${opts.content}</div></div>`,
+    footer: opts.footer,
+  });
 }
 
 // Full-bleed image chapter divider page (large number + eyebrow + serif title over a photo).

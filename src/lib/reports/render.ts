@@ -1,6 +1,7 @@
 import "server-only";
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import puppeteer from "puppeteer";
 import { REPORT_CSS } from "./theme";
 
@@ -16,14 +17,33 @@ function browserExecutablePath(): string | undefined {
   return candidates.find((candidate) => existsSync(candidate));
 }
 
-function wrapReportHtml(title: string, bodyHtml: string): string {
+let brandFontCss: string | null = null;
+function embeddedBrandFontCss(): string {
+  if (brandFontCss != null) return brandFontCss;
+  const faces: string[] = [];
+  for (const family of ["Inter", "Sora"] as const) {
+    for (const weight of [400, 600, 700, 800]) {
+      const file = `${family.toLowerCase()}-latin-${weight}-normal.woff2`;
+      try {
+        const data = readFileSync(path.join(process.cwd(), "public", "fonts", "reports", file)).toString("base64");
+        faces.push(`@font-face{font-family:"${family}";font-style:normal;font-weight:${weight};font-display:block;src:url(data:font/woff2;base64,${data}) format("woff2");}`);
+      } catch {
+        // The system-font fallback remains available if deployment omitted a font asset.
+      }
+    }
+  }
+  brandFontCss = faces.join("");
+  return brandFontCss;
+}
+
+function wrapReportHtml(title: string, bodyHtml: string, embedBrandFonts: boolean): string {
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${title}</title>
-  <style>${REPORT_CSS}</style>
+  <style>${embedBrandFonts ? embeddedBrandFontCss() : ""}${REPORT_CSS}</style>
 </head>
 <body>${bodyHtml}</body>
 </html>`;
@@ -60,8 +80,8 @@ export function setRenderPngScale(scale: number): void {
  * Render a full HTML document (a sequence of `.page` sections) to an A4 PDF Buffer
  * using headless Chromium. Shared by every report template.
  */
-export async function renderReportPdf(opts: { title: string; bodyHtml: string }): Promise<Buffer> {
-  const html = wrapReportHtml(opts.title, opts.bodyHtml);
+export async function renderReportPdf(opts: { title: string; bodyHtml: string; embedBrandFonts?: boolean }): Promise<Buffer> {
+  const html = wrapReportHtml(opts.title, opts.bodyHtml, Boolean(opts.embedBrandFonts));
   const pngPage = PNG_PAGE_INDEX;
 
   const browser = await puppeteer.launch({
@@ -90,7 +110,10 @@ export async function renderReportPdf(opts: { title: string; bodyHtml: string })
           heights: els.map((el, i) => ({
             i,
             h: Math.round((el as HTMLElement).getBoundingClientRect().height),
+            scrollH: Math.round((el as HTMLElement).scrollHeight),
             cls: el.className,
+            title: (el.querySelector("h1,h2,.divider__title")?.textContent ?? "").trim(),
+            footer: (el.querySelector(".runfoot")?.textContent ?? "").trim(),
           })),
         };
       });

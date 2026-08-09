@@ -88,12 +88,14 @@ const defaultHighSkillInput: HighSkillInput = {
   age: 30,
   education: "unknown",
   yearsExperience: 5,
+  languageTest: "not-provided",
   languageScore: 0,
   evidence: emptyEvidence,
   citationCount: 0,
   publicationCount: 0,
   patentCount: 0,
   resumeFileName: "",
+  resumeParseStatus: "not-provided",
   profileSummary: "",
 };
 
@@ -704,6 +706,8 @@ function HighSkillInputs({
   completion: number;
   targetCountryLocked?: HighSkillInput["targetCountry"];
 }) {
+  const [resumeMessage, setResumeMessage] = useState("PDF, DOCX, and text CVs are analysed securely.");
+
   return (
     <>
       <div className="mt-7 flex items-center justify-between gap-3 border-t border-slate-200 pt-6 dark:border-white/10">
@@ -755,7 +759,7 @@ function HighSkillInputs({
           <TextInput value={input.role} onChange={(event) => setInput((prev) => ({ ...prev, role: event.target.value }))} placeholder="Founder, engineer, researcher..." />
         </Field>
       </div>
-      <div className="mt-4 grid gap-4 lg:grid-cols-7">
+      <div className="mt-4 grid gap-4 lg:grid-cols-8">
         <TextInput type="number" value={input.age} onChange={(event) => setInput((prev) => ({ ...prev, age: numberInput(event.target.value, 0) }))} placeholder="Age" />
         <SelectInput value={input.education} onChange={(event) => setInput((prev) => ({ ...prev, education: event.target.value as HighSkillInput["education"] }))} className="lg:col-span-2">
           <option value="unknown">Education</option>
@@ -764,45 +768,55 @@ function HighSkillInputs({
           <option value="phd">PhD</option>
         </SelectInput>
         <TextInput type="number" value={input.yearsExperience} onChange={(event) => setInput((prev) => ({ ...prev, yearsExperience: numberInput(event.target.value, 0) }))} placeholder="Years exp." />
-        <TextInput type="number" value={input.languageScore} onChange={(event) => setInput((prev) => ({ ...prev, languageScore: numberInput(event.target.value, 0) }))} placeholder="IELTS/score" />
+        <SelectInput value={input.languageTest} onChange={(event) => setInput((prev) => ({ ...prev, languageTest: event.target.value as HighSkillInput["languageTest"] }))}>
+          <option value="not-provided">Language test</option>
+          <option value="ielts">IELTS</option>
+          <option value="celpip">CELPIP</option>
+          <option value="pte">PTE</option>
+          <option value="toefl">TOEFL</option>
+          <option value="oet">OET</option>
+          <option value="tef">TEF Canada</option>
+          <option value="tcf">TCF Canada</option>
+          <option value="other">Other</option>
+        </SelectInput>
+        <TextInput type="number" value={input.languageScore} onChange={(event) => setInput((prev) => ({ ...prev, languageScore: numberInput(event.target.value, 0) }))} placeholder="Overall score" />
         <TextInput type="number" value={input.publicationCount} onChange={(event) => setInput((prev) => ({ ...prev, publicationCount: numberInput(event.target.value, 0) }))} placeholder="Papers" />
         <TextInput type="number" value={input.citationCount} onChange={(event) => setInput((prev) => ({ ...prev, citationCount: numberInput(event.target.value, 0) }))} placeholder="Citations" />
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_260px]">
         <Field label="CV / evidence highlights">
-          <TextArea rows={4} value={input.profileSummary} onChange={(event) => setInput((prev) => ({ ...prev, profileSummary: event.target.value }))} placeholder="Paste CV/evidence highlights. Text resumes are read locally; PDF/DOCX parsing will be added to the report workflow." />
+          <TextArea rows={4} value={input.profileSummary} onChange={(event) => setInput((prev) => ({ ...prev, profileSummary: event.target.value }))} placeholder="Paste CV or evidence highlights, including achievements, responsibilities, employers, dates, and measurable impact." />
         </Field>
         <label className="flex cursor-pointer flex-col justify-center gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-100">
           <UploadCloud className="size-6" />
-          <span>{input.resumeFileName || "Attach CV name for advisor review"}</span>
-          <span className="text-xs font-semibold opacity-75">TXT/MD resumes are scanned locally.</span>
+          <span>{input.resumeFileName || "Attach CV for analysis"}</span>
+          <span className="text-xs font-semibold opacity-75">{resumeMessage}</span>
           <input
             type="file"
             className="hidden"
-            accept=".txt,.md,.csv,.json,.pdf,.doc,.docx"
+            accept=".txt,.md,.csv,.json,.pdf,.docx"
             onChange={async (event) => {
               const file = event.target.files?.[0];
 
               if (!file) {
-                setInput((prev) => ({ ...prev, resumeFileName: "" }));
+                setInput((prev) => ({ ...prev, resumeFileName: "", resumeParseStatus: "not-provided" }));
+                setResumeMessage("PDF, DOCX, and text CVs are analysed securely.");
                 return;
               }
 
-              const textResume =
-                ["text/plain", "text/markdown", "text/csv", "application/json"].includes(file.type) ||
-                /\.(txt|md|csv|json)$/i.test(file.name);
-
-              if (!textResume) {
-                setInput((prev) => ({ ...prev, resumeFileName: file.name }));
+              setResumeMessage("Analysing CV...");
+              const form = new FormData();
+              form.set("resume", file);
+              const response = await fetch("/api/xia-intelligence/parse-resume", { method: "POST", body: form });
+              const result = (await response.json().catch(() => ({}))) as { ok?: boolean; text?: string; error?: string; characters?: number };
+              if (!response.ok || !result.ok || !result.text) {
+                setInput((prev) => ({ ...prev, resumeFileName: file.name, resumeParseStatus: "needs-review" }));
+                setResumeMessage(result.error || "CV needs advisor review. Paste key details in the text box.");
                 return;
               }
 
-              const resumeText = await file.text().catch(() => "");
-              setInput((prev) => ({
-                ...prev,
-                resumeFileName: file.name,
-                profileSummary: [prev.profileSummary.trim(), resumeText.slice(0, 4000).trim()].filter(Boolean).join("\n\n"),
-              }));
+              setInput((prev) => ({ ...prev, resumeFileName: file.name, resumeParseStatus: "parsed", profileSummary: result.text || prev.profileSummary }));
+              setResumeMessage(`${result.characters?.toLocaleString("en-IN") || result.text.length.toLocaleString("en-IN")} characters analysed.`);
             }}
           />
         </label>
@@ -1037,10 +1051,13 @@ function PremiumReportPanel({
           age: highSkillInput.age,
           education: highSkillInput.education,
           yearsExperience: highSkillInput.yearsExperience,
+          languageTest: highSkillInput.languageTest,
           languageScore: highSkillInput.languageScore,
           citationCount: highSkillInput.citationCount,
           publicationCount: highSkillInput.publicationCount,
           patentCount: highSkillInput.patentCount,
+          resumeFileName: highSkillInput.resumeFileName,
+          resumeParseStatus: highSkillInput.resumeParseStatus,
           profileSummary: highSkillInput.profileSummary,
         }
       : {
@@ -1067,7 +1084,7 @@ function PremiumReportPanel({
       : routeInput.destination;
     const program = highSkillMode ? topHighSkill?.title : topRoute?.title;
     const track = highSkillMode
-      ? "skilled"
+      ? topHighSkill?.dossier?.vertical || "skilled"
       : routeInput.track === "all"
         ? undefined
         : routeInput.track;

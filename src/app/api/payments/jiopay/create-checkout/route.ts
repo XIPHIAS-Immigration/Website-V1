@@ -33,7 +33,7 @@ function safeAnswers(value: unknown) {
   for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
     const cleanKey = key.replace(/[^\w.-]/g, "").slice(0, 64);
     if (!cleanKey) continue;
-    if (typeof raw === "string") out[cleanKey] = raw.slice(0, 1000);
+    if (typeof raw === "string") out[cleanKey] = raw.slice(0, cleanKey === "profileSummary" ? 12_000 : 1_000);
     else if (typeof raw === "number" || typeof raw === "boolean" || raw == null) out[cleanKey] = raw;
     else out[cleanKey] = String(raw).slice(0, 300);
   }

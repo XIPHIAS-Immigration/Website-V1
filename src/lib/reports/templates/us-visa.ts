@@ -182,12 +182,14 @@ function buildHighSkillInput(order: JiopayOrder): HighSkillInput {
     age: toInt(a.age, 30),
     education: pickEducation(a.education ?? a.qualification),
     yearsExperience: toInt(a.yearsExperience ?? a.experience, 5),
+    languageTest: "not-provided",
     languageScore: toFloat(a.languageScore ?? a.language, 0),
     evidence: buildEvidence(a, { citations: citationCount, publications: publicationCount, patents: patentCount }),
     citationCount,
     publicationCount,
     patentCount,
     resumeFileName: str(a.resumeFileName ?? a.resume ?? a.cv),
+    resumeParseStatus: "not-provided",
     profileSummary: str(a.profileSummary ?? a.summary ?? a.notes ?? a.goals),
   };
 }
