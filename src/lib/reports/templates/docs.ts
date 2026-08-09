@@ -30,8 +30,7 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
-import { resolveProgramme as resolveDossier } from "@/lib/reports/programme";
-import { buildDossierPages } from "../dossier-sections";
+import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
 
 /* ------------------------------------------------------------------ *
  * Defensive coercion helpers (mirrors templates/route.ts)
@@ -314,7 +313,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
   const { items, indicative } = buildDocList(program);
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
-  const imgs = await loadCountryImages(order.country);
+  const imgs = allocateReportImages(await loadCountryImages(order.country), "docs", order.merchantTxnNo);
 
   const family = toBool(a.family ?? a.familyMembers);
   const timelineMonths = toInt(a.timeline ?? a.timelineMonths ?? program?.timelineMonths, program?.timelineMonths ?? 9);
@@ -360,6 +359,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
       `Destination: ${countryLabel}`,
       `Programme: ${programLabel}`,
       ...(goalLabel ? [`Goal: ${goalLabel}`] : []),
+      family ? "Dependants included" : "Primary applicant only",
       indicative ? "Indicative checklist" : "Programme-matched",
     ],
     fitScore: overall,
@@ -438,13 +438,12 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
     pill(d.group, groupTone(d.group)),
     d.required ? pill("Required", "bad") : pill("If applicable", "muted"),
     pill("To collect", "warn"),
-    esc(d.notes),
   ];
-  const headCols = ["Document", "Group", "Required?", "Status", "Notes"];
+  const headCols = ["Document", "Group", "Required?", "Status"];
 
   // Paginate the table: ~10 rows fit comfortably on the first checklist page once the
   // multi-line Document/Notes columns are accounted for.
-  const FIRST = 10;
+  const FIRST = 7;
   const firstRows = ordered.slice(0, FIRST).map(toRow);
   const restRows = ordered.slice(FIRST).map(toRow);
 
@@ -484,8 +483,8 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
     : "";
 
   /* 6 — Highest-priority gaps */
-  const priorityDocs = ordered.filter((d) => d.required && (d.group === "Financial & Funds" || d.group === "Programme-specific")).slice(0, 3);
-  const fallbackPriority = ordered.filter((d) => d.required).slice(0, 3);
+  const priorityDocs = ordered.filter((d) => d.required && (d.group === "Financial & Funds" || d.group === "Programme-specific")).slice(0, 2);
+  const fallbackPriority = ordered.filter((d) => d.required).slice(0, 2);
   const gaps = (priorityDocs.length ? priorityDocs : fallbackPriority).map((d, i) =>
     card({
       k: `Priority ${i + 1} · ${d.group}`,
@@ -512,8 +511,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
         "Name, date-of-birth and spelling mismatches across passport, certificates and references.",
         "Expired credential assessments or language results (most have a validity window).",
         "Bank statements that show large unexplained deposits without a source-of-funds trail.",
-        "Reference letters missing role, dates, duties or company letterhead.",
-        ...(program?.disqualifiers?.slice(0, 2).map((d) => str(d).replace(/\.$/, "")) ?? []),
+        ...(program?.disqualifiers?.slice(0, 1).map((d) => str(d).replace(/\.$/, "")) ?? []),
       ].filter(Boolean)),
   });
 
@@ -572,13 +570,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
         card({ k: "Completeness", v: "No silent gaps", note: "Explain any employment or residence gaps proactively with a short cover note." }),
       ]) +
       `<div class="spacer-16"></div>` +
-      ticks([
-        "Keep originals safe and submit certified copies unless originals are explicitly requested.",
-        "Use official issuers — government registries, accredited assessors and recognised test centres.",
-        "Translate non-English documents through a certified translator and attach the original alongside.",
-        "Date and version every file; remove superseded drafts so only the final copy is on hand.",
-        ...(program?.complianceNotes?.slice(0, 2).map((c) => str(c).replace(/\.$/, "")) ?? []),
-      ].filter(Boolean)),
+      callout({ k: "File-control standard", text: "Keep certified originals safe, use official issuers, attach certified translations, and retain only the current dated version of each file." }),
   });
 
   /* 9 — Advisor close (dark) */
@@ -604,31 +596,16 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
 
-  // This report's own grouped checklist is the core deliverable, so the appended dossier
-  // is intentionally minimal — a chapter divider plus the family-inclusion view — to add
-  // context without duplicating the checklist or inflating an entry-tier report.
-  const dossier = resolveDossier({ country: order.country, program: order.program, track: order.track });
-  const dossierPages = dossier
-    ? buildDossierPages(dossier, {
-        header: head,
-        footLabel: "XIPHIAS Immigration Private Limited · Document Readiness",
-        images: imgs,
-        sections: ["divider", "family"],
-      })
-    : [];
-
-  const bodyHtml = [
+  const bodyHtml = cleanReportPunctuation([
     cover,
     briefPage,
-    overviewPage,
     checklistPage,
     checklistPage2,
     gapsPage,
     planPage,
     evidencePage,
-    ...dossierPages,
     summaryPage,
-  ].join("");
+  ].join(""));
 
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

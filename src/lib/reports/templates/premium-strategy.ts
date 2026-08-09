@@ -2,7 +2,7 @@ import "server-only";
 
 import type { JiopayOrder } from "@/lib/payments/jiopay-store";
 import { resolveProgrammes } from "@/lib/reports/programme";
-import { buildDossierPages, programmeNarrativePages, type DossierSection } from "../dossier-sections";
+import { buildDossierPages, programmeNarrativePages } from "../dossier-sections";
 import { loadCoverBg, loadCountryImages, loadLogo } from "../assets";
 import {
   bigStats,
@@ -26,6 +26,7 @@ import {
   ticks,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
 
 // The flagship eligibility report (product premium_report), rebuilt on the premium
 // framework so it shares the same full-page editorial design as the other reports and
@@ -75,6 +76,11 @@ function num(value: unknown): number | undefined {
   const n = Number(value);
   return Number.isFinite(n) ? n : undefined;
 }
+function toBool(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  const normalized = str(value).toLowerCase();
+  return normalized === "true" || normalized === "yes" || normalized === "1";
+}
 function smartLabel(value: string): string {
   return value
     .split(/\s+/)
@@ -98,22 +104,23 @@ function fitWord(score: number): string {
 }
 
 export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Buffer> {
+  const depth = depthFor("premium_strategy");
   const a = (order.answers ?? {}) as Record<string, unknown>;
   const country = order.country || str(a.country) || str(a.destination) || str(a.countryFocus);
   const programName = order.program || str(a.recommendedProgram) || str(a.program);
   // Carry the primary route plus its strongest alternative (each with full dossier +
   // prose narrative) so the flagship report has real programme depth, not one route.
-  const dossiers = resolveProgrammes({ country, program: programName, track: order.track }, 2);
+  const dossiers = resolveProgrammes({ country, program: programName, track: order.track }, depth.maxProgrammes);
   const dossier = dossiers[0] ?? null;
   const route = dossier?.title || (programName ? smartLabel(programName) : "Advisor-led route");
   const countryLabel = smartLabel(country) || dossier?.country || "Global mobility";
 
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
-  const imgs = await loadCountryImages(country || dossier?.country);
+  const imgs = allocateReportImages(await loadCountryImages(country || dossier?.country), "premium_strategy", order.merchantTxnNo);
 
   const fit = clampScore(num(a.fitScore) ?? num(a.score) ?? num(a.routeFit) ?? 82, 82);
-  const hasFamily = Boolean(str(a.family) || str(a.familyMembers));
+  const hasFamily = toBool(a.family ?? a.familyMembers);
   const scores = {
     routeFit: fit,
     evidence: clampScore(num(a.evidenceStrength) ?? 68, 68),
@@ -247,8 +254,8 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
 
   // 7 — Eligibility self-check (full, actionable matrix — distinct from the dossier's
   // descriptive eligibility list: this is a personal "can you evidence it?" tracker).
-  const reqs = (dossier?.requirements ?? []).map((r) => String(r ?? "").trim()).filter(Boolean).slice(0, 8);
-  const disq = (dossier?.disqualifiers ?? []).map((d) => String(d ?? "").trim()).filter(Boolean).slice(0, 4);
+  const reqs = (dossier?.requirements ?? []).map((r) => String(r ?? "").trim()).filter(Boolean).slice(0, 6);
+  const disq = (dossier?.disqualifiers ?? []).map((d) => String(d ?? "").trim()).filter(Boolean).slice(0, 2);
   const selfCheckPage = reqs.length
     ? page({
         header: head,
@@ -264,16 +271,8 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
           }) +
           `<div class="spacer-16"></div>` +
           callout({ k: "How to use this", text: "Bring this completed self-check to your advisor strategy call. The gaps you flag here are exactly what we close before filing." }) +
-          `<div class="spacer-24"></div>` +
-          sectionHeader({ eyebrow: "Evidence quality", title: "What strong evidence looks like" }) +
-          ticks([
-            "Independent and verifiable — backed by third parties, not just your own statements.",
-            "Consistent — names, dates and roles match across every document you submit.",
-            "Quantified — achievements shown with numbers, outcomes and credible references.",
-            "Current — assessments, tests and clearances are within their validity windows.",
-          ]) +
           (disq.length
-            ? `<div class="spacer-16"></div>` + callout({ k: "Common reasons this route is refused", text: disq.join("  •  ") })
+            ? `<div class="spacer-8"></div>` + callout({ k: "Refusal risks to review", text: disq.join("; ") })
             : ""),
         footer: foot("07"),
       })
@@ -283,11 +282,209 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // dossier; an alternative route (if found) gets a focused dossier so the report compares
   // real options. Each programme also contributes its page narrative (the site write-up).
   const footLabel = "XIPHIAS Immigration Private Limited · Personal Strategy";
-  const ALT_SECTIONS: DossierSection[] = ["divider", "snapshot", "eligibility", "costs", "family", "risk"];
   const dossierPages = dossiers.flatMap((d, idx) => [
-    ...buildDossierPages(d, { header: head, footLabel, images: imgs, sections: idx === 0 ? undefined : ALT_SECTIONS }),
-    ...programmeNarrativePages(d, { header: head, footLabel, images: imgs, maxSections: idx === 0 ? 4 : 2 }),
+    ...buildDossierPages(d, {
+      header: head,
+      footLabel,
+      images: imgs,
+      sections: [...(idx === 0 ? depth.primaryDossierSections : depth.alternativeDossierSections)],
+    }),
+    ...programmeNarrativePages(d, {
+      header: head,
+      footLabel,
+      images: imgs,
+      maxSections: idx === 0 ? depth.maxNarrativeSections : Math.min(2, depth.maxNarrativeSections),
+    }),
   ]);
+
+  const decisionPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Decision framework",
+        title: "The conditions for a confident go decision",
+        desc: `A premium strategy should state not only why ${route} fits, but also what must be true before you commit time and capital.`,
+      }) +
+      grid(2, [
+        card({ k: "Eligibility gate", v: "Evidence confirmed", note: "Every mandatory criterion is mapped to a current, independently verifiable document." }),
+        card({ k: "Financial gate", v: budget > 0 ? budgetLabel : "Budget confirmed", note: "Government, professional, relocation and contingency costs fit your available funds." }),
+        card({ k: "Timing gate", v: `${timelineMonths}-month objective`, note: "Long-lead documents and government processing fit the planning window." }),
+        card({ k: "Family gate", v: hasFamily ? "Dependants modelled" : "Primary applicant", note: "Inclusion timing, status rights and dependant evidence are confirmed." }),
+      ]) +
+      `<div class="spacer-24"></div>` +
+      sectionHeader({ title: "Pause and reassess when" }) +
+      ticks([
+        "A mandatory criterion depends on evidence that cannot be independently verified.",
+        "The all-in cost or maintained-funds requirement exceeds the confirmed budget.",
+        "A deadline relies on an issuer or government processing time outside your control.",
+        "A material profile, family, employment or source-of-funds fact changes before filing.",
+      ]) +
+      `<div class="spacer-16"></div>` +
+      callout({ k: "Advisor decision", text: "Proceed only after the advisor records each gate as confirmed, conditional or unresolved and gives the unresolved items a named owner and due date." }),
+    footer: foot("Decision framework"),
+  });
+
+  const assumptionsPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Strategy assumptions",
+        title: "What this recommendation assumes",
+        desc: "A premium recommendation is only useful when its assumptions are explicit. Confirm each item during advisor review and record any change before filing.",
+      }) +
+      table({
+        head: ["Planning assumption", "Current basis", "Advisor confirmation"],
+        rows: [
+          ["Destination", countryLabel, "Confirm jurisdiction and intended place of settlement"],
+          ["Primary route", route, "Confirm current eligibility and programme availability"],
+          ["Objective", goal || "Advisor-led plan", "Confirm the status and long-term outcome sought"],
+          ["Planning window", `${timelineMonths} months`, "Test against document and government lead times"],
+          ["Budget basis", budgetLabel, "Confirm all-in funds, reserves and payment timing"],
+          ["Family scope", hasFamily ? "Dependants included" : "Primary applicant only", "Confirm who applies now and who may join later"],
+        ].map((row) => row.map(esc)),
+      }) +
+      `<div class="spacer-16"></div>` +
+      callout({ k: "Change control", text: "Re-score the strategy if employment, family composition, available funds, destination, immigration history or the intended filing date changes materially." }),
+    footer: foot("Assumptions"),
+  });
+
+  const evidenceRequirements = (dossier?.requirements ?? []).map((item) => String(item ?? "").trim()).filter(Boolean).slice(0, 6);
+  const evidenceBlueprintPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Evidence ownership",
+        title: "Your evidence production blueprint",
+        desc: `Convert the tests for ${route} into named evidence workstreams. Your advisor replaces each provisional status with verified, build or unavailable.`,
+      }) +
+      table({
+        head: ["Evidence workstream", "Proof standard", "Owner", "Status"],
+        rows: (evidenceRequirements.length ? evidenceRequirements : [
+          "Identity and immigration history",
+          "Education and professional standing",
+          "Employment or business track record",
+          "Funds and source-of-funds evidence",
+          "Family and civil-status records",
+        ]).map((item, index) => [
+          esc(item),
+          index % 2 === 0 ? "Independent, current and internally consistent" : "Primary record plus third-party corroboration",
+          index < 2 ? "Client" : index < 4 ? "Client + issuer" : "Advisor review",
+          pill("To verify", "warn"),
+        ]),
+      }) +
+      `<div class="spacer-16"></div>` +
+      callout({ k: "Evidence rule", text: "Do not treat a document as complete merely because it exists. It must prove the specific legal or programme test, agree with the rest of the file and remain valid on the filing date." }),
+    footer: foot("Evidence blueprint"),
+  });
+
+  const riskInputs = [
+    ...(dossier?.disqualifiers ?? []),
+    ...(dossier?.riskNotes ?? []),
+    ...(dossier?.complianceNotes ?? []),
+  ].map((item) => String(item ?? "").trim()).filter(Boolean).slice(0, 6);
+  const riskRegisterPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Risk register",
+        title: "Risks to close before commitment",
+        desc: `The controls below turn known ${countryLabel} and ${route} risks into concrete pre-filing decisions.`,
+      }) +
+      table({
+        head: ["Risk", "Control", "Decision gate"],
+        rows: (riskInputs.length ? riskInputs : [
+          "Eligibility evidence is incomplete or inconsistent",
+          "Government rules or intake conditions change",
+          "Funds cannot be traced to a lawful source",
+          "A third-party document misses the filing window",
+          "Family facts are not aligned across the application",
+        ]).map((item, index) => [
+          esc(item),
+          index % 3 === 0 ? "Advisor eligibility verification" : index % 3 === 1 ? "Current-rule and deadline check" : "Document and narrative quality control",
+          index < 2 ? "Before engagement scope" : "Before filing approval",
+        ]),
+      }) +
+      `<div class="spacer-16"></div>` +
+      callout({ k: "Escalation rule", text: "Any unresolved mandatory criterion, adverse immigration fact, unexplained funds movement or contradictory record must be escalated before a filing date is agreed." }),
+    footer: foot("Risk register"),
+  });
+
+  const financialControlPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Financial readiness",
+        title: "Control the all-in financial exposure",
+        desc: `The stated budget of ${budgetLabel} is a planning input. The advisor must convert it into a timed and evidenced funding plan for ${route}.`,
+      }) +
+      grid(2, [
+        card({ k: "Programme threshold", v: dossier?.minInvestment ? `${dossier.currency || "USD"} ${dossier.minInvestment.toLocaleString("en-US")}` : "Confirm current amount", note: "Qualifying capital, maintained funds or route threshold where applicable." }),
+        card({ k: "Government and third parties", v: "Verify current schedules", note: "Filing, biometrics, assessment, translation, medical and clearance costs." }),
+        card({ k: "Professional scope", v: "Written quotation", note: "Tie fees to deliverables, milestones and any exclusions." }),
+        card({ k: "Contingency reserve", v: "Hold separately", note: "Allow for exchange-rate movement, repeat documents, travel and timing changes." }),
+      ]) +
+      `<div class="spacer-16"></div>` +
+      steps([
+        { title: "Confirm the amount", body: "Replace every indicative number with a dated source or written advisor confirmation." },
+        { title: "Prove lawful origin", body: "Map each material balance or transfer to bank, tax, sale, business or income records." },
+        { title: "Sequence payments", body: "Identify what is payable at engagement, document preparation, filing and government decision stages." },
+        { title: "Protect liquidity", body: "Keep relocation and emergency reserves outside funds committed to the immigration plan." },
+      ]),
+    footer: foot("Financial controls"),
+  });
+
+  const familyPlanningPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Family and status planning",
+        title: hasFamily ? "Plan every dependant into the same strategy" : "Protect future family flexibility",
+        desc: "A route decision should account for status rights, timing and evidence for every person affected, even when only one applicant files first.",
+      }) +
+      grid(2, [
+        card({ k: "Application scope", v: hasFamily ? "Family included" : "Primary applicant", note: "Confirm who applies together and who follows later." }),
+        card({ k: "Civil evidence", v: "Verify early", note: "Birth, marriage, custody, name-change and dependency records often have long lead times." }),
+        card({ k: "Work and study rights", v: "Route-specific", note: "Confirm dependant rights and any separate permits before relocation decisions." }),
+        card({ k: "Status continuity", v: "Sequence carefully", note: "Avoid gaps between current status, travel, filing and activation requirements." }),
+      ]) +
+      `<div class="spacer-16"></div>` +
+      ticks([
+        "Confirm passport validity and consistent names for every applicant.",
+        "Record previous visas, refusals, residence and travel history consistently.",
+        "Check medical, police-clearance and biometrics requirements by age and location.",
+        "Confirm whether dependants can be added after filing and what delay or cost that creates.",
+        "Plan schooling, healthcare, accommodation and work rights before the intended move date.",
+      ]),
+    footer: foot("Family planning"),
+  });
+
+  const alternativeRoutes = dossiers.slice(1, 3).map((item) => item.title).filter(Boolean) as string[];
+  const scenarioPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Scenario planning",
+        title: "Primary plan, fallback and trigger points",
+        desc: `Keep ${route} as the lead strategy while defining exactly when an alternative should replace it.`,
+      }) +
+      grid(3, [
+        card({ k: "Primary scenario", v: route, note: `Proceed when eligibility, evidence, funds and timing gates are confirmed for ${countryLabel}.` }),
+        card({ k: "Alternative scenario", v: alternativeRoutes[0] || "Advisor-selected fallback", note: "Use when the primary route depends on evidence or timing that cannot be secured." }),
+        card({ k: "Second fallback", v: alternativeRoutes[1] || "Re-scope destination or timing", note: "Use only after comparing status outcome, family rights, cost and processing risk." }),
+      ]) +
+      `<div class="spacer-8"></div>` +
+      table({
+        head: ["Trigger", "Action", "Owner"],
+        rows: [
+          ["Mandatory evidence cannot be obtained", "Re-score the fallback route before further spend", "Advisor"],
+          ["Budget or maintained-funds position changes", "Rebuild the cost plan and payment sequence", "Client + advisor"],
+          ["Government intake or rule changes", "Verify transition provisions and alternative filing window", "Advisor"],
+          ["Employment, business or family facts change", "Update the profile, documents and route assumptions", "Client"],
+          ["Timeline becomes non-negotiable", "Compare a temporary bridge against the long-term route", "Advisor"],
+        ].map((row) => row.map(esc)),
+      }),
+    footer: foot("Scenario planning"),
+  });
 
   // Milestone plan — month-by-month (full, distinct from the 90-day roadmap)
   const milestonePage = page({
@@ -412,7 +609,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
 
-  const bodyHtml = [
+  const bodyHtml = cleanReportPunctuation([
     cover,
     execPage,
     scorePage,
@@ -420,6 +617,13 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     methodologyPage,
     whyFitsPage,
     selfCheckPage,
+    decisionPage,
+    assumptionsPage,
+    evidenceBlueprintPage,
+    riskRegisterPage,
+    financialControlPage,
+    familyPlanningPage,
+    scenarioPage,
     ...dossierPages,
     milestonePage,
     roadmapPage,
@@ -427,6 +631,6 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     deliversPage,
     engagementPage,
     closer,
-  ].join("");
+  ].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

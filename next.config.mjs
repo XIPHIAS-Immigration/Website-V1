@@ -10,6 +10,9 @@ const nextConfig = {
   // Unbounded minification workers can stall after consuming close to 1 GB.
   experimental: {
     cpus: 2,
+    // The separate webpack process crashes natively on Windows Node 24/25.
+    // Keep it enabled on Linux CI/deployments, where it lowers build memory.
+    webpackBuildWorker: process.platform !== "win32",
   },
 
   images: {

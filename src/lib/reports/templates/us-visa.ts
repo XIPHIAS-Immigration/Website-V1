@@ -35,6 +35,7 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
 
 const GOALS = new Set(["permanent-residency", "temporary-work", "talent-visa", "founder", "not-sure"]);
 const FIELDS = new Set(["technology", "science", "business", "arts", "healthcare", "academia", "sports", "other"]);
@@ -269,6 +270,7 @@ const ROUTE_BRIEF: Record<string, { criteria: string; selfPetition: string; jobO
 };
 
 export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
+  const depth = depthFor("us_visa");
   const input = buildHighSkillInput(order);
   const allScored = scoreHighSkillRoutes(input);
   // Force the report to the four US work/immigration families, in strategic order.
@@ -282,7 +284,7 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
   const evidenceSelected = EVIDENCE_KEYS.filter((k) => input.evidence[k]);
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
-  const imgs = await loadCountryImages(order.country || "United States");
+  const imgs = allocateReportImages(await loadCountryImages("United States"), "us_visa", order.merchantTxnNo);
 
   const reportTitle = "US Visa Strategy Report";
   const ref = order.merchantTxnNo;
@@ -535,12 +537,12 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
           body: "Submit through the correct service centre or process, monitor status, and prepare for any Request for Evidence with the advisory desk.",
         },
       ]) +
-      `<div class="spacer-24"></div>` +
+      `<div class="spacer-8"></div>` +
       sectionHeader({ title: "US-specific risk & due diligence" }) +
       grid(2, [
         card({ k: "Rules & fees", v: "Verify before filing", note: "USCIS fees, processing times and policy memos change; confirm current rules at advisor review." }),
-        card({ k: "Evidence independence", v: "Outside recognition wins", note: "EB-1A and O-1A turn on recognition independent of your employer — not internal performance reviews." }),
-        card({ k: "H-1B cap risk", v: "Lottery is not guaranteed", note: "H-1B selection depends on the annual cap lottery; build a self-petition fallback (EB-2 NIW / EB-1A) where you qualify." }),
+        card({ k: "Evidence independence", v: "Outside recognition wins", note: "EB-1A and O-1A rely on recognition independent of your employer." }),
+        card({ k: "H-1B cap risk", v: "Lottery is not guaranteed", note: "Build a self-petition fallback where your evidence supports one." }),
         card({ k: "RFE readiness", v: "Anticipate challenges", note: "Strong, consistent, well-indexed exhibits reduce Requests for Evidence and adjudication delays." }),
       ]),
     footer: foot("07"),
@@ -577,25 +579,30 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
     order.program,
     "EB-1A Extraordinary Ability",
     "EB-2 NIW National Interest Waiver",
+    "EB-1B Outstanding Professors and Researchers",
     "O-1 Extraordinary Ability",
     "H-1B Specialty Occupation",
   ].filter(Boolean) as string[];
   const seenSlugs = new Set<string>();
   const dossierPages: string[] = [];
   for (const ref of usRefs) {
-    // This is the top-tier report: carry up to three full US route dossiers so it is
-    // the most comprehensive in the catalogue (30+ pages).
-    if (seenSlugs.size >= 3) break;
+    // Carry the number of full US route dossiers assigned to this premium tier.
+    if (seenSlugs.size >= depth.maxProgrammes) break;
     const d = resolveProgramme({ country: "United States", program: ref, track: "skilled" });
     if (d && d.programSlug && !seenSlugs.has(d.programSlug)) {
       seenSlugs.add(d.programSlug);
       const usFoot = "XIPHIAS Immigration Private Limited · US Visa Strategy";
-      dossierPages.push(...buildDossierPages(d, { header: head, footLabel: usFoot, images: imgs }));
+      dossierPages.push(...buildDossierPages(d, {
+        header: head,
+        footLabel: usFoot,
+        images: imgs,
+        sections: [...(seenSlugs.size === 1 ? depth.primaryDossierSections : depth.alternativeDossierSections)],
+      }));
       // The route's own write-up, where it carries usable prose (US routes are often terse).
-      dossierPages.push(...programmeNarrativePages(d, { header: head, footLabel: usFoot, images: imgs, maxSections: 1 }));
+      dossierPages.push(...programmeNarrativePages(d, { header: head, footLabel: usFoot, images: imgs, maxSections: depth.maxNarrativeSections }));
     }
   }
 
-  const bodyHtml = [cover, briefPage, scorecardPage, comparePage, topPage, evidencePage, planPage, ...dossierPages, summaryPage].join("");
+  const bodyHtml = cleanReportPunctuation([cover, briefPage, scorecardPage, comparePage, topPage, evidencePage, planPage, ...dossierPages, summaryPage].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

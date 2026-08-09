@@ -18,6 +18,7 @@
     "test:content-admin": "node --test --test-isolation=none tests/content-admin-format.test.mjs",
     "test:lead-security": "node --test --test-isolation=none tests/public-lead-security.test.mjs",
     "test:deep-analysis": "node --test --test-isolation=none tests/deep-analysis-routing.test.mjs",
+    "test:report-depth": "node --test --test-isolation=none tests/report-depth.test.mjs",
     "prebuild": "node scripts/build-search-index.mjs",
     "prevercel-build": "node scripts/build-search-index.mjs",
     "analyze": "cross-env ANALYZE=true next build",

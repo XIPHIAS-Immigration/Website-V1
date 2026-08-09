@@ -27,8 +27,7 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
-import { resolveProgramme } from "@/lib/reports/programme";
-import { buildDossierPages } from "../dossier-sections";
+import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
 
 const TRACKS = new Set(["residency", "citizenship", "corporate", "skilled", "all"]);
 const PRIORITIES = new Set(["speed", "cost", "mobility", "stability", "tax", "business"]);
@@ -309,7 +308,7 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
   const best = ranked[0];
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
-  const imgs = await loadCountryImages(order.country);
+  const imgs = allocateReportImages(await loadCountryImages(order.country), "compare", order.merchantTxnNo);
 
   const reportTitle = "Programme Comparison Report";
   const ref = order.merchantTxnNo;
@@ -322,7 +321,6 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
 
   const cheapest = [...programmes].sort((x, y) => x.investmentUsd - y.investmentUsd)[0];
   const fastest = [...programmes].sort((x, y) => x.timelineMonths - y.timelineMonths)[0];
-  const mostMobile = programmes.find((p) => p.track === "citizenship");
   const avgFit = ranked.reduce((s, r) => s + r.fit, 0) / Math.max(1, ranked.length);
 
   // 1 — Cover
@@ -380,7 +378,7 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
             `${p.title} (${properLabel(p.country)}) — ${trackLabel(p.track)}.`,
         ),
       ) +
-      `<div class="spacer-16"></div>` +
+      `<div class="spacer-8"></div>` +
       callout({
         k: "How to read this report",
         text: best
@@ -428,11 +426,6 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
       table({
         head: ["Factor", ...programmes.map((p) => p.title)],
         rows: compareRows,
-      }) +
-      `<div class="spacer-16"></div>` +
-      callout({
-        k: "Reading the table",
-        text: `${cheapest ? `Lowest indicative cost: ${cheapest.title} (${cheapest.country}). ` : ""}${fastest ? `Fastest indicative timeline: ${fastest.title} (${fastest.country}). ` : ""}${mostMobile ? `Strongest mobility: ${mostMobile.title}. ` : ""}The recommendation that follows weighs these against your stated priority.`,
       }),
     footer: foot("03"),
   });
@@ -606,18 +599,6 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
 
-  // The side-by-side comparison is this report's value; append only a brief snapshot of
-  // the lead programme rather than the full dossier (kept for the higher-priced reports).
-  const dossier = resolveProgramme({ country: order.country, program: order.program, track: order.track });
-  const dossierPages = dossier
-    ? buildDossierPages(dossier, {
-        header: head,
-        footLabel: "XIPHIAS Immigration Private Limited · Programme Comparison",
-        images: imgs,
-        sections: ["divider", "snapshot"],
-      })
-    : [];
-
-  const bodyHtml = [cover, briefPage, comparePage, ...detailPages, recoPage, planPage, ...dossierPages, summaryPage].join("");
+  const bodyHtml = cleanReportPunctuation([cover, briefPage, comparePage, ...detailPages, recoPage, planPage, summaryPage].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

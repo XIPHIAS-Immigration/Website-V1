@@ -12,7 +12,8 @@ import {
 } from "@/lib/xia-intelligence-model";
 import { resolveProgramme, type Dossier } from "@/lib/reports/programme";
 import { loadCountryImageAssets, loadLogo } from "../assets";
-import { buildDossierPages, type DossierSection } from "../dossier-sections";
+import { buildDossierPages } from "../dossier-sections";
+import { depthFor } from "./report-depth";
 import {
   bigStats,
   callout,
@@ -601,8 +602,9 @@ function dossierForPaidReport(dossier: Dossier, route: ScoredHighSkillRoute): Do
 }
 
 export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffer> {
+  const depth = depthFor("deep_analysis");
   const input = buildHighSkillInput(order);
-  const scored = scoreHighSkillRoutes(input).slice(0, input.targetCountry === "global" ? 6 : 4);
+  const scored = scoreHighSkillRoutes(input).slice(0, input.targetCountry === "global" ? 6 : 3);
   const top = scored[0];
   const includesNiv = scored.some((route) => route.id === "australia-niv-858");
   const countryIntel = countryIntelligence(input);
@@ -629,7 +631,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     })
     .filter((dossier): dossier is NonNullable<typeof dossier> => Boolean(dossier))
     .filter((dossier, index, all) => all.findIndex((candidate) => `${candidate.vertical}:${candidate.programSlug}` === `${dossier.vertical}:${dossier.programSlug}`) === index)
-    .slice(0, 3);
+    .slice(0, depth.maxProgrammes);
   const reservedSources = new Set<string>();
   const dossierImgs = dossiers.map((dossier) => {
     const dossierCountry = str(dossier.countrySlug ?? dossier.country).toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -881,20 +883,18 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
           grid(3, [
             card({ k: "Country", v: top.country }),
             card({ k: "Visa family", v: top.visaFamily }),
-            card({ k: "Tier", v: top.tier }),
             card({ k: "Timeline", v: top.timeline }),
-            card({ k: "Difficulty", v: titleCase(top.difficulty.replace(/-/g, " ")) }),
             card({ k: "Pathway type", v: top.permanent ? "Permanent residency" : top.settlementPathway ? "Temporary with settlement pathway" : "Temporary route" }),
           ]) +
-          `<div class="spacer-16"></div>` +
+          `<div class="spacer-8"></div>` +
           scoreBar({ label: "Route fit", value: top.fitScore, tag: fitLabel(top.fitScore) }) +
           `<div class="spacer-8"></div>` +
           `<h3 class="h-sub">Why this route fits your profile</h3>` +
-          ticks(top.reasons.length ? top.reasons.slice(0, 6) : ["Matched against your target, field, education and evidence inputs."]) +
+          ticks(top.reasons.length ? top.reasons.slice(0, 3) : ["Matched against your target, field, education and evidence inputs."]) +
           (top.gaps.length
-            ? `<div class="spacer-8"></div><h3 class="h-sub">What to strengthen</h3>` + ticks(top.gaps.slice(0, 5))
+            ? `<div class="spacer-8"></div><h3 class="h-sub">What to strengthen</h3>` + ticks(top.gaps.slice(0, 2))
             : "") +
-          `<div class="spacer-16"></div>` +
+          `<div class="spacer-8"></div>` +
           callout({
             k: "Best suited to",
             text: `Typically strong for ${top.bestFor.slice(0, 4).join(", ")}.${top.requiresSponsor ? " This route relies on employer or sponsor support, which should be secured early." : " This route does not require employer sponsorship, so you can self-petition on evidence."}`,
@@ -929,7 +929,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
             ? "The strongest visa families for your profile, ranked by fit score. Scores are directional advisory signals confirmed at advisor review."
             : `This report is scoped to ${COUNTRY_LABELS[input.targetCountry]}. Scores are directional advisory signals confirmed at advisor review, with outside-country alternatives intentionally excluded.`,
       }) +
-      (index === 0 ? bigStats([
+      (index === 0 && input.targetCountry === "global" ? bigStats([
         { k: "Routes ranked", v: `${scored.length}`, n: "matched to your profile" },
         { k: "Top route fit", v: top ? `${clampScore(top.fitScore)}` : "To confirm", n: top ? `${top.country} · ${top.tier}` : "refine inputs" },
         { k: "Shortlist strength", v: `${clampScore(avgTop3)}`, n: "average of your top 3" },
@@ -1554,13 +1554,12 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
   // unique reserved country image; thin prose-only overview pages are omitted because their
   // content repeats the richer snapshot and programme sections.
   const footLabel = "XIPHIAS Immigration Private Limited · Deep Analysis";
-  const ALT_SECTIONS: DossierSection[] = ["divider", "snapshot", "eligibility", "scoring", "costs", "documents", "process", "risk", "faq"];
   const dossierPages = dossiers.flatMap((d, idx) =>
     buildDossierPages(d, {
       header: head,
       footLabel,
       images: dossierImgs[idx],
-      sections: idx === 0 ? undefined : ALT_SECTIONS,
+      sections: [...(idx === 0 ? depth.primaryDossierSections : depth.alternativeDossierSections)],
     }),
   );
 

@@ -32,7 +32,8 @@ import {
 } from "../components";
 import { renderReportPdf } from "../render";
 import { resolveProgramme } from "@/lib/reports/programme";
-import { buildDossierPages, programmeNarrativePages } from "../dossier-sections";
+import { buildDossierPages } from "../dossier-sections";
+import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
 
 const GOALS = new Set(["not-sure", "pr", "work-visa", "citizenship", "investment", "business-setup", "family-migration"]);
 const PROFILES = new Set(["investor", "entrepreneur", "professional", "family", "company", "remote", "researcher", "student"]);
@@ -123,13 +124,14 @@ function dateLabel(): string {
 }
 
 export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
+  const depth = depthFor("route");
   const data = getXiaIntelligenceData();
   const input = buildRouteInput(order);
-  const scored = scoreProgrammeRoutes(data.programme.items, input).slice(0, 6);
+  const scored = scoreProgrammeRoutes(data.programme.items, input).slice(0, 4);
   const top = scored[0];
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
-  const imgs = await loadCountryImages(order.country);
+  const imgs = allocateReportImages(await loadCountryImages(order.country), "route", order.merchantTxnNo);
 
   const reportTitle = "Route Intelligence Report";
   const ref = order.merchantTxnNo;
@@ -362,13 +364,11 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
           images: imgs,
           // Mid-tier depth: the core programme picture without the full scoring /
           // document / projects deep-dive reserved for the higher-priced reports.
-          sections: ["divider", "snapshot", "eligibility", "costs", "family", "process", "risk", "faq"],
+          sections: [...depth.primaryDossierSections],
         }),
-        // The programme write-up (Overview / Why-country), where it exists.
-        ...programmeNarrativePages(dossier, { header: head, footLabel: routeFootLabel, images: imgs, maxSections: 2 }),
       ]
     : [];
 
-  const bodyHtml = [cover, briefPage, topPage, comparePage, readinessPage, altPage, planPage, ...dossierPages, summaryPage].join("");
+  const bodyHtml = cleanReportPunctuation([cover, briefPage, topPage, comparePage, readinessPage, altPage, planPage, ...dossierPages, summaryPage].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

@@ -9,8 +9,6 @@ import {
   type CostBreakdown,
   type CostProgram,
 } from "@/lib/cost-estimator";
-import { resolveProgramme } from "@/lib/reports/programme";
-import { buildDossierPages } from "../dossier-sections";
 import { loadCoverBg, loadCountryImages, loadLogo } from "../assets";
 import {
   bigStats,
@@ -34,6 +32,7 @@ import {
   ticks,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
 
 const TRACKS = new Set<Vertical>(["residency", "citizenship", "skilled", "corporate"]);
 
@@ -216,7 +215,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
   const input = buildCostInput(order);
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
-  const imgs = await loadCountryImages(order.country);
+  const imgs = allocateReportImages(await loadCountryImages(order.country), "cost", order.merchantTxnNo);
 
   // Resolve a real programme where possible; otherwise use a representative track estimate.
   let matched: ProgrammeExplorerItem | null = null;
@@ -367,7 +366,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
         head: ["Cost component", "What it covers", "Indicative cost", "Share"],
         rows: itemRows,
       }) +
-      `<div class="spacer-16"></div>` +
+      `<div class="spacer-8"></div>` +
       grid(2, [
         card({
           k: "Fees & checks",
@@ -477,7 +476,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       scoreBar({ label: "Timeline clarity", value: timelineClarity, tag: breakdown.timelineLabel }) +
       scoreBar({ label: "Family provisioning", value: familyReadiness, tag: `${breakdown.familySize} applicant${breakdown.familySize === 1 ? "" : "s"} in scope` }) +
       scoreBar({ label: "Source-of-funds readiness", value: fundsReadiness, tag: program.track === "skilled" ? "Lower funds burden" : "Evidence a clean funds trail" }) +
-      `<div class="spacer-16"></div>` +
+      `<div class="spacer-8"></div>` +
       grid(2, [
         card({ k: "Readiness band", v: `${overallReadiness} / 100`, note: pillBand(overallReadiness) }),
         card({ k: "Buffer recommended", v: usd(contingency), note: "12% indicative contingency over the headline total." }),
@@ -581,20 +580,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
 
-  // Append a focused, cost-oriented slice of the programme dossier. This entry-tier
-  // report stays lean and on-topic (snapshot + the full cost breakdown) rather than
-  // carrying the full programme dossier reserved for the higher-priced reports.
-  const dossier = resolveProgramme({ country: order.country, program: order.program, track: order.track });
-  const dossierPages = dossier
-    ? buildDossierPages(dossier, {
-        header: head,
-        footLabel: "XIPHIAS Immigration Private Limited · Cost & Budget",
-        images: imgs,
-        sections: ["divider", "snapshot", "costs"],
-      })
-    : [];
-
-  const bodyHtml = [
+  const bodyHtml = cleanReportPunctuation([
     cover,
     summaryPage,
     tablePage,
@@ -603,9 +589,8 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
     scorecardPage,
     timelinePage,
     planPage,
-    ...dossierPages,
     closePage,
-  ].join("");
+  ].join(""));
 
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }
