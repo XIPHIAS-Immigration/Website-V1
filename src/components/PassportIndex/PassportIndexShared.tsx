@@ -112,9 +112,9 @@ export function PassportSectionNav({ active }: { active: SectionId }) {
   return (
     <nav
       aria-label="Passport index sections"
-      className="sticky top-0 z-20 border-b border-[#E1E1E1] bg-white/95 backdrop-blur-sm shadow-sm"
+      className="sticky top-[68px] z-20 border-y border-slate-200 bg-white/95 backdrop-blur-sm"
     >
-      <div className="mx-auto flex max-w-screen-2xl overflow-x-auto">
+      <div className="no-scrollbar mx-auto flex max-w-screen-2xl overflow-x-auto px-4 md:px-6">
         {passportSectionLinks.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.id;
@@ -125,36 +125,36 @@ export function PassportSectionNav({ active }: { active: SectionId }) {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={[
-                "group flex min-w-[90px] flex-1 flex-col items-center gap-1.5 border-b-2 px-3 py-4 text-center transition-colors duration-150 md:min-w-[120px] md:py-5",
+                "group flex min-w-[116px] flex-1 items-center justify-center gap-2 border-b-2 px-4 py-3 text-center transition-colors duration-150",
                 isActive
-                  ? "border-[#1c57b4] bg-[#f0f6ff]"
-                  : "border-transparent hover:border-[#1c57b4]/30 hover:bg-[#f8fafc]",
+                  ? "border-primary bg-primary/[0.04] text-primary"
+                  : "border-transparent text-slate-600 hover:border-primary/30 hover:text-primary",
               ].join(" ")}
             >
               {/* Icon badge */}
               <span
                 className={[
-                  "flex size-8 items-center justify-center rounded-lg transition-colors duration-150 md:size-9",
+                  "flex size-5 items-center justify-center transition-colors duration-150",
                   isActive
-                    ? "bg-[#1c57b4] text-white"
-                    : "bg-[#F5F7FA] text-[#9ca3af] group-hover:bg-[#eaf2ff] group-hover:text-[#1c57b4]",
+                    ? "text-primary"
+                    : "text-slate-400 group-hover:text-primary",
                 ].join(" ")}
               >
-                <Icon className="size-3.5 md:size-4" aria-hidden="true" />
+                <Icon className="size-4" aria-hidden="true" />
               </span>
 
               {/* Label */}
               <span
                 className={[
-                  "text-[11.5px] font-black leading-none md:text-[12.5px]",
-                  isActive ? "text-[#1c57b4]" : "text-[#263238] group-hover:text-[#1c57b4]",
+                  "type-small whitespace-nowrap font-bold",
+                  isActive ? "text-primary" : "text-slate-600 group-hover:text-primary",
                 ].join(" ")}
               >
                 {item.label}
               </span>
 
               {/* Summary — visible md+ */}
-              <span className="hidden text-[10px] leading-[1.4] text-[#9ca3af] lg:block">
+              <span className="hidden">
                 {item.summary}
               </span>
             </Link>
@@ -179,12 +179,12 @@ export function PassportIndexShell({
   children: ReactNode;
 }) {
   return (
-    <main className="bg-white text-[#263238]">
+    <div className="bg-white text-slate-800">
 
       {/* ── Hero header — centered ── */}
-      <section className="relative overflow-hidden bg-white">
+      <section className="border-b border-slate-200 bg-white">
         {/* Subtle branded background */}
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="hidden" aria-hidden="true">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_0%,rgba(28,87,180,0.055),transparent_70%)]" />
           <div
             className="absolute inset-0 opacity-[0.035]"
@@ -195,30 +195,27 @@ export function PassportIndexShell({
           />
         </div>
 
-        <div className="relative mx-auto max-w-screen-2xl px-4 pb-16 pt-20 text-center md:px-6 md:pb-20 md:pt-28">
+        <div className="mx-auto max-w-screen-2xl px-5 py-10 sm:px-8 sm:py-12 lg:px-12">
 
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e1b923]/50 bg-[#fff8df] px-5 py-2 text-[12px] font-black uppercase tracking-[0.24em] text-[#7a5c00]">
+          <div className="type-caption inline-flex items-center gap-2 uppercase text-primary">
             <Sparkles className="size-4 text-[#e1b923]" aria-hidden="true" />
             {eyebrow}
           </div>
 
           {/* Main heading */}
-          <h1
-            className="mx-auto mt-7 max-w-[960px] font-black leading-[1.05] tracking-tight text-[#071a3a]"
-            style={{ fontSize: "clamp(2.4rem, 5.6vw, 4.5rem)" }}
-          >
+          <h1 className="type-page-title mt-4 max-w-4xl text-slate-950">
             {title}
           </h1>
 
           {/* Description */}
-          <p className="mx-auto mt-6 max-w-[700px] text-[1.2rem] leading-[1.8] text-[#505050]">
+          <p className="type-body mt-5 max-w-3xl text-slate-600">
             {description}
           </p>
 
           {/* Gold accent rule */}
           <div
-            className="mx-auto mt-10 h-1 w-20 rounded-full bg-gradient-to-r from-transparent via-[#e1b923] to-transparent"
+            className="mt-7 h-1 w-16 bg-[#e1b923]"
             aria-hidden="true"
           />
         </div>
@@ -226,7 +223,7 @@ export function PassportIndexShell({
 
       <PassportSectionNav active={active} />
       {children}
-    </main>
+    </div>
   );
 }
 

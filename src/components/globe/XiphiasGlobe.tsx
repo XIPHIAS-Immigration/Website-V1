@@ -161,7 +161,7 @@ function Marker({
       )}
 
       {hovered && (
-        <Html center position={[0, size * 5, 0]} distanceFactor={9} style={{ pointerEvents: "none" }}>
+        <Html center position={[0, size * 5, 0]} distanceFactor={5} style={{ pointerEvents: "none" }}>
           <div className="whitespace-nowrap rounded-full border border-white/20 bg-[#04070f]/85 px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm">
             {marker.label}
           </div>

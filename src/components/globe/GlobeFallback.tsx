@@ -31,7 +31,12 @@ export default function GlobeFallback({ markers = [], theme = "dark", className 
         if (cosc <= 0.04) return null; // back hemisphere
         const x = Math.cos(lat) * Math.sin(dl);
         const y = Math.cos(lat0) * Math.sin(lat) - Math.sin(lat0) * Math.cos(lat) * Math.cos(dl);
-        return { code: m.code, x, y: -y, color: m.color };
+        return {
+          code: m.code,
+          x: Number(x.toFixed(6)),
+          y: Number((-y).toFixed(6)),
+          color: m.color,
+        };
       })
       .filter(Boolean) as { code: string; x: number; y: number; color?: string }[];
   }, [markers]);

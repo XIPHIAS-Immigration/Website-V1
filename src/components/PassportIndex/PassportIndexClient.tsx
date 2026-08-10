@@ -1,16 +1,27 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, BookOpen, Compass, FileCheck2, Landmark, MapPinned, Route, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  BookOpen,
+  Compass,
+  FileCheck2,
+  Landmark,
+  MapPinned,
+  Route,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+
 import type { PassportRecord } from "@/data/passport-index";
 import {
   PassportIndexShell,
-  PassportMiniCard,
   PassportSourceNote,
+  passportProfileHref,
+  scoreWidth,
   type PassportStats,
 } from "@/components/PassportIndex/PassportIndexShared";
 import PassportGlobe from "@/components/PassportIndex/PassportGlobe";
 import Counter from "@/components/motion/Counter";
-import Reveal from "@/components/motion/Reveal";
-import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 
 type Props = {
   records: PassportRecord[];
@@ -18,22 +29,56 @@ type Props = {
 };
 
 const journeys = [
-  { step: "01", icon: BarChart3, title: "Global ranking", description: "Search the curated mobility table and open individual passport profiles.", href: "/passport-index/ranking", cta: "Browse ranking" },
-  { step: "02", icon: Compass, title: "Compare passports", description: "Choose two passports and see the mobility gap and advisory meaning.", href: "/passport-index/compare", cta: "Compare now" },
-  { step: "03", icon: MapPinned, title: "My passport", description: "Start from the client passport and goal, then get a practical direction.", href: "/passport-index/my-passport", cta: "Build profile" },
-  { step: "04", icon: Route, title: "Improve mobility", description: "Review the main route families: residency, citizenship, skilled, and corporate.", href: "/passport-index/improve", cta: "See routes" },
-  { step: "05", icon: FileCheck2, title: "Methodology", description: "Understand the source snapshot, limits, scoring, and advisor caveats.", href: "/passport-index/methodology", cta: "Read notes" },
+  {
+    step: "01",
+    icon: BarChart3,
+    title: "Global ranking",
+    description: "Search the mobility table and open an individual passport profile.",
+    href: "/passport-index/ranking",
+    cta: "Browse ranking",
+  },
+  {
+    step: "02",
+    icon: Compass,
+    title: "Compare passports",
+    description: "Place two passports side by side and understand the mobility gap.",
+    href: "/passport-index/compare",
+    cta: "Compare now",
+  },
+  {
+    step: "03",
+    icon: MapPinned,
+    title: "My passport",
+    description: "Begin with your current passport, priorities and preferred destination.",
+    href: "/passport-index/my-passport",
+    cta: "Build profile",
+  },
+  {
+    step: "04",
+    icon: Route,
+    title: "Improve mobility",
+    description: "Review residency, citizenship, skilled and corporate route families.",
+    href: "/passport-index/improve",
+    cta: "See routes",
+  },
+  {
+    step: "05",
+    icon: FileCheck2,
+    title: "Methodology",
+    description: "Review the data snapshot, scoring limits and advisor caveats.",
+    href: "/passport-index/methodology",
+    cta: "Read notes",
+  },
 ];
 
 const xiphiasLayers = [
-  { icon: Landmark, label: "Rank", description: "Shows current travel access strength." },
-  { icon: ShieldCheck, label: "Risk", description: "Adds program, compliance, and document review." },
-  { icon: BookOpen, label: "Route", description: "Connects ranking to residence or citizenship actions." },
+  { icon: Landmark, label: "Rank", description: "Understand current travel access strength." },
+  { icon: ShieldCheck, label: "Risk", description: "Review compliance, evidence and route constraints." },
+  { icon: BookOpen, label: "Route", description: "Connect mobility goals to a practical next step." },
 ];
 
 export default function PassportIndexClient({ records, stats }: Props) {
   const topRecords = records.filter((record) => record.rankValue <= 5).slice(0, 6);
-
   const statTiles = [
     { value: stats.trackedPassports, label: "Passports tracked" },
     { value: stats.trackedDestinations, label: "Destinations assessed" },
@@ -44,150 +89,197 @@ export default function PassportIndexClient({ records, stats }: Props) {
   return (
     <PassportIndexShell
       active="overview"
-      eyebrow="XIPHIAS Global Mobility Index"
-      title="Passport power, transformed into a mobility strategy."
-      description="A premium visual index for families, investors and founders — understand travel access, compare passports, and move from a ranking to a practical residence or citizenship route."
+      eyebrow="XIPHIAS Mobility Intelligence"
+      title="Passport Power"
+      description="See what your passport opens today, compare global mobility, and connect the ranking to a practical residency or citizenship strategy."
     >
-      {/* ── Animated stat band ── */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-screen-2xl px-4 pt-10 md:px-6">
-          <Stagger className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {statTiles.map((tile) => (
-              <StaggerItem
-                key={tile.label}
-                className="rounded-2xl border border-[#E1E1E1] bg-gradient-to-br from-white to-[#f5f8ff] p-6 text-center shadow-sm"
-              >
-                <Counter to={tile.value} className="block text-4xl font-black leading-none text-[#1c57b4] md:text-5xl" />
-                <p className="mt-2.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#505050]">{tile.label}</p>
-              </StaggerItem>
-            ))}
-          </Stagger>
+      <section className="border-b border-slate-200 bg-slate-50">
+        <div className="mx-auto grid max-w-screen-2xl grid-cols-2 px-5 sm:px-8 lg:grid-cols-4 lg:px-12">
+          {statTiles.map((tile, index) => (
+            <div
+              key={tile.label}
+              className={[
+                "px-3 py-6 text-center sm:px-6",
+                index % 2 === 0 ? "border-r border-slate-200" : "",
+                index > 1 ? "border-t border-slate-200 lg:border-t-0" : "",
+                index > 0 ? "lg:border-l lg:border-r-0" : "lg:border-r-0",
+              ].join(" ")}
+            >
+              <Counter
+                to={tile.value}
+                className="block text-3xl font-bold leading-none text-primary sm:text-4xl"
+              />
+              <p className="type-caption mt-2 uppercase text-slate-500">{tile.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ── Big globe display — near full-page, cinematic ── */}
-      <section className="bg-white">
-        <div className="mx-auto w-full max-w-[1840px] px-3 pb-12 pt-8 sm:px-5">
-          <Reveal className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[12px] font-black uppercase tracking-[0.2em] text-[#1c57b4]">The world access globe</p>
-              <h2 className="mt-1.5 text-3xl font-black text-[#071a3a] md:text-[2.75rem]">Spin the world. Find your access.</h2>
+      <section className="bg-white py-14 sm:py-16">
+        <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 lg:px-12">
+          <div className="mx-auto mb-8 flex max-w-[1020px] flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <p className="type-caption uppercase text-primary">Interactive mobility workspace</p>
+              <h2 className="type-section-title mt-2 text-slate-950">
+                Find your passport. See its global reach.
+              </h2>
+              <p className="type-body mt-3 text-slate-600">
+                Select a passport to update the globe, ranking details and advisor context.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Link href="/passport-index/ranking" className="inline-flex items-center gap-1.5 rounded-xl bg-[#1c57b4] px-5 py-3 text-[14px] font-black text-white transition hover:bg-[#1648a0]">
-                View ranking <ArrowRight className="size-4" />
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/passport-index/my-passport"
+                className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary/90"
+              >
+                Check my passport <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
-              <Link href="/passport-index/compare" className="inline-flex items-center gap-1.5 rounded-xl border border-[#E1E1E1] px-5 py-3 text-[14px] font-black text-[#263238] transition hover:border-[#1c57b4] hover:text-[#1c57b4]">
+              <Link
+                href="/passport-index/compare"
+                className="inline-flex min-h-11 items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:border-primary hover:text-primary"
+              >
                 Compare passports
               </Link>
             </div>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <PassportGlobe records={records} />
-          </Reveal>
+          </div>
+          <PassportGlobe records={records} />
         </div>
       </section>
 
-      {/* ── Client journeys ── */}
-      <section className="mx-auto max-w-screen-2xl px-4 py-12 md:px-6">
-        <Reveal className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[12px] font-black uppercase tracking-[0.2em] text-[#1c57b4]">Explore the section</p>
-            <h2 className="mt-1.5 text-3xl font-black text-[#071a3a] md:text-4xl">Five focused client views.</h2>
-          </div>
-          <p className="max-w-sm text-[15px] leading-relaxed text-[#505050]">
-            Each view answers one question and sends the visitor to the next useful step.
-          </p>
-        </Reveal>
-
-        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {journeys.map((item) => {
-            const Icon = item.icon;
-            return (
-              <StaggerItem key={item.step}>
-                <Link
-                  href={item.href}
-                  className="group flex h-full flex-col rounded-2xl border border-[#E1E1E1] bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[#1c57b4] hover:shadow-xl"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="flex size-12 items-center justify-center rounded-xl bg-[#eaf2ff] text-[#1c57b4] transition group-hover:bg-[#1c57b4] group-hover:text-white">
-                      <Icon className="size-5" aria-hidden="true" />
-                    </span>
-                    <span className="text-[26px] font-black tabular-nums text-[#e6eaf0]">{item.step}</span>
-                  </div>
-                  <h3 className="mt-4 text-[16px] font-black text-[#071a3a]">{item.title}</h3>
-                  <p className="mt-1.5 flex-1 text-[13.5px] leading-[1.7] text-[#505050]">{item.description}</p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-black text-[#1c57b4]">
-                    {item.cta}
-                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                  </span>
-                </Link>
-              </StaggerItem>
-            );
-          })}
-        </Stagger>
-      </section>
-
-      {/* ── Top mobility cluster + XIPHIAS layer ── */}
-      <section className="mx-auto max-w-screen-2xl px-4 pb-14 md:px-6">
-        <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
-          <Reveal className="rounded-2xl border border-[#E1E1E1] bg-white p-6 shadow-sm">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[12px] font-black uppercase tracking-[0.2em] text-[#1c57b4]">Leading passports</p>
-                <h2 className="mt-1 text-2xl font-black text-[#071a3a]">Top mobility cluster</h2>
-              </div>
-              <Link href="/passport-index/ranking" className="hidden items-center gap-1.5 rounded-xl border border-[#E1E1E1] px-4 py-2 text-[13px] font-black text-[#1c57b4] transition hover:border-[#1c57b4] hover:bg-[#eaf2ff] md:inline-flex">
-                Full ranking <ArrowRight className="size-4" />
-              </Link>
+      <section className="border-y border-slate-200 bg-slate-50 py-14 sm:py-16">
+        <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 lg:px-12">
+          <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+            <div className="max-w-md">
+              <p className="type-caption uppercase text-primary">Choose your next view</p>
+              <h2 className="type-section-title mt-2 text-slate-950">
+                One question at a time.
+              </h2>
+              <p className="type-body mt-4 text-slate-600">
+                Open the part of Passport Power that matches the decision you are making now.
+              </p>
             </div>
-            <Stagger className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {topRecords.map((record) => (
-                <StaggerItem key={record.code}>
-                  <PassportMiniCard record={record} stats={stats} />
-                </StaggerItem>
-              ))}
-            </Stagger>
-          </Reveal>
 
-          <Reveal delay={0.1} className="flex flex-col rounded-2xl border border-white/20 bg-gradient-to-br from-[#1c57b4] to-[#0d3b8e] p-7 shadow-lg">
-            <div className="flex items-center gap-2">
-              <Sparkles className="size-4 text-[#e1b923]" aria-hidden="true" />
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#e1b923]">XIPHIAS layer</p>
-            </div>
-            <h2 className="mt-3 text-2xl font-black text-white">Ranking is only the start.</h2>
-            <p className="mt-2.5 text-[14px] leading-relaxed text-white/65">
-              A score shows access. XIPHIAS connects it to eligibility, risk, and a real route for the client.
-            </p>
-            <div className="mt-5 grid gap-3">
-              {xiphiasLayers.map((item, idx) => {
+            <div className="border-y border-slate-300">
+              {journeys.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.label} className="flex items-start gap-3.5 rounded-xl border border-white/12 bg-white/8 p-4">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#e1b923] text-[#071a3a]">
+                  <Link
+                    key={item.step}
+                    href={item.href}
+                    className="group grid grid-cols-[40px_1fr_auto] items-center gap-4 border-b border-slate-200 py-5 last:border-b-0"
+                  >
+                    <span className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">
                       <Icon className="size-5" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="type-card-title block text-slate-950">{item.title}</span>
+                      <span className="type-small mt-1 block text-slate-600">{item.description}</span>
+                    </span>
+                    <span className="hidden items-center gap-2 text-sm font-bold text-primary sm:inline-flex">
+                      {item.cta} <ArrowRight className="size-4 transition group-hover:translate-x-1" aria-hidden="true" />
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-14 sm:py-16">
+        <div className="mx-auto grid max-w-screen-2xl gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_380px] lg:px-12">
+          <div>
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="type-caption uppercase text-primary">Leading passports</p>
+                <h2 className="type-section-title mt-2 text-slate-950">Top mobility cluster</h2>
+              </div>
+              <Link
+                href="/passport-index/ranking"
+                className="hidden items-center gap-2 text-sm font-bold text-primary hover:underline sm:inline-flex"
+              >
+                Full ranking <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </div>
+
+            <div className="mt-7 border-y border-slate-300">
+              {topRecords.map((record) => (
+                <Link
+                  key={record.code}
+                  href={passportProfileHref(record)}
+                  className="group grid grid-cols-[1fr_auto] gap-4 border-b border-slate-200 py-4 last:border-b-0"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                        {record.code}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="type-card-title truncate text-slate-950">{record.country}</h3>
+                        <p className="type-small text-slate-500">{record.band}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full bg-[#e1b923]"
+                        style={{ width: scoreWidth(record.score, stats.topScore) }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-right">
+                    <div>
+                      <span className="type-caption block uppercase text-slate-400">Rank</span>
+                      <strong className="type-small mt-1 block text-slate-700">{record.rank}</strong>
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-[15px] font-black text-white">{item.label}</h3>
-                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black text-white/50">
-                          {String(idx + 1).padStart(2, "0")}
-                        </span>
-                      </div>
-                      <p className="mt-0.5 text-[13px] leading-[1.55] text-white/65">{item.description}</p>
+                      <span className="type-caption block uppercase text-slate-400">Score</span>
+                      <strong className="mt-1 block text-xl font-bold text-primary">{record.score}</strong>
+                    </div>
+                    <ArrowRight className="size-4 text-slate-300 transition group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <aside className="self-start rounded-lg bg-primary p-7 text-white">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-[#e1b923]" aria-hidden="true" />
+              <p className="type-caption uppercase text-[#e1b923]">XIPHIAS advisory layer</p>
+            </div>
+            <h2 className="type-section-title mt-3 text-white">Ranking is only the start.</h2>
+            <p className="type-small mt-3 text-white/75">
+              A score measures access. A useful plan also considers eligibility, evidence, risk and timing.
+            </p>
+
+            <div className="mt-6 divide-y divide-white/15 border-y border-white/15">
+              {xiphiasLayers.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="flex gap-3 py-4">
+                    <Icon className="mt-0.5 size-5 shrink-0 text-[#e1b923]" aria-hidden="true" />
+                    <div>
+                      <h3 className="type-card-title text-white">{item.label}</h3>
+                      <p className="type-small mt-1 text-white/70">{item.description}</p>
                     </div>
                   </div>
                 );
               })}
             </div>
-            <div className="my-5 h-px bg-white/10" />
-            <Link href="/personal-booking" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-4 py-3 text-[14px] font-black text-[#071a3a] transition hover:bg-[#f0cb3b]">
-              Speak to an advisor <ArrowRight className="size-4" />
+
+            <Link
+              href="/personal-booking"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#e1b923] px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-[#f0cb3b]"
+            >
+              Speak to an advisor <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
-            <Link href="/passport-index/improve" className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/15 px-4 py-3 text-[13px] font-black text-white/70 transition hover:border-white/30 hover:text-white">
-              View route families <ArrowRight className="size-3.5" />
+            <Link
+              href="/passport-index/improve"
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-md border border-white/25 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+            >
+              Explore mobility routes <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
-          </Reveal>
+          </aside>
         </div>
       </section>
 
