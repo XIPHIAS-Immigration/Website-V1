@@ -22,6 +22,9 @@ export type ProgrammeExplorerItem = {
   timelineLabel: string;
   presence: "low" | "moderate" | "high" | "variable";
   family: boolean;
+  benefits: string[];
+  residencyOutcome: string;
+  familySummary: string;
   risk: "standard" | "enhanced" | "high";
   source: "site-content" | "catalog";
   evidence: string[];
@@ -204,6 +207,65 @@ function detectFamily(text: string, track: Vertical) {
   return track !== "corporate";
 }
 
+function cleanList(values: unknown) {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map((value) => stripMdx(String(value ?? "")))
+    .filter(Boolean);
+}
+
+function residencyOutcome(
+  track: Vertical,
+  benefits: string[],
+  summary: string,
+  pathway = "",
+) {
+  const candidates = [...benefits, pathway, summary].filter(Boolean);
+  const direct = candidates.find((value) =>
+    /\b(permanent residen(?:ce|cy)|residen(?:ce|cy)|pr|settlement|citizenship|renewable work permit)\b/i.test(
+      value,
+    ),
+  );
+  if (direct) return excerpt(direct, direct, 180);
+
+  const fallback: Record<Vertical, string> = {
+    residency: "Residence permit pathway; renewal and permanent residence conditions vary by programme.",
+    citizenship: "Citizenship pathway; any residence conditions depend on the selected programme.",
+    skilled: "Skilled work or migration status; permanent residence depends on the selected route.",
+    corporate: "Business or work residence status; renewal and settlement depend on programme rules.",
+  };
+  return fallback[track];
+}
+
+function familySummary(
+  family: boolean,
+  benefits: string[],
+  matrix?: ProgramDoc["familyMatrix"],
+) {
+  const explicitBenefit = benefits.find((value) =>
+    /\b(family|spouse|dependant|dependent|children|parents|siblings)\b/i.test(value),
+  );
+  if (matrix?.notes) return excerpt(matrix.notes, matrix.notes, 180);
+
+  if (matrix) {
+    const members: string[] = [];
+    if (matrix.spouse) members.push("spouse");
+    if (typeof matrix.childrenUpTo === "number") {
+      members.push(`children up to age ${matrix.childrenUpTo}`);
+    }
+    if (typeof matrix.parentsFromAge === "number" && matrix.parentsFromAge <= 80) {
+      members.push(matrix.parentsFromAge > 0 ? `parents aged ${matrix.parentsFromAge}+` : "dependent parents");
+    }
+    if (matrix.siblings) members.push("eligible siblings");
+    if (members.length) return `May include ${members.join(", ")}; final dependency rules require review.`;
+  }
+
+  if (explicitBenefit) return excerpt(explicitBenefit, explicitBenefit, 180);
+  return family
+    ? "Family inclusion is indicated; dependant eligibility requires advisor confirmation."
+    : "Family inclusion is not indicated for this route; confirm alternatives with an advisor.";
+}
+
 function detectRisk(text: string, track: Vertical): ProgrammeExplorerItem["risk"] {
   const source = text.toLowerCase();
   if (/sanction|criminal|pep|source of funds|enhanced due diligence|rigorous due diligence|eb-5|usa|malta/.test(source)) {
@@ -256,6 +318,9 @@ function fromDoc(doc: ProgramDoc): ProgrammeExplorerItem {
     doc.summary,
     doc.tags?.join(" "),
     doc.quickFacts?.map((fact) => `${fact.label}: ${fact.value}`).join(" "),
+    doc.benefits?.join(" "),
+    doc.routeType,
+    doc.familyMatrix ? Object.values(doc.familyMatrix).join(" ") : "",
     catalog ? Object.values(catalog).join(" ") : "",
     doc.body,
   ]
@@ -270,6 +335,15 @@ function fromDoc(doc: ProgramDoc): ProgrammeExplorerItem {
         ? parseMoney(`${catalog.minInvestmentUSD} ${raw}`, doc.vertical)
         : parseMoney(raw, doc.vertical);
   const timeline = catalog ? parseTimeline(`${catalog.processingTime} ${raw}`, doc.vertical) : parseTimeline(raw, doc.vertical);
+  const benefits = cleanList(doc.benefits);
+  const structuredFamily = Boolean(
+    doc.familyMatrix?.spouse ||
+      doc.familyMatrix?.siblings ||
+      typeof doc.familyMatrix?.childrenUpTo === "number" ||
+      typeof doc.familyMatrix?.parentsFromAge === "number",
+  );
+  const hasFamily = structuredFamily || detectFamily(raw, doc.vertical);
+  const summary = excerpt(doc.summary || doc.body, `${TRACK_LABELS[doc.vertical]} programme in ${country}`);
 
   return {
     id: `doc:${doc.url}`,
@@ -278,7 +352,7 @@ function fromDoc(doc: ProgramDoc): ProgrammeExplorerItem {
     countrySlug: doc.country,
     track: doc.vertical,
     href: doc.url,
-    summary: excerpt(doc.summary || doc.body, `${TRACK_LABELS[doc.vertical]} programme in ${country}`),
+    summary,
     heroImage: doc.heroImage,
     tags: doc.tags ?? [],
     investmentUsd: investment,
@@ -287,7 +361,10 @@ function fromDoc(doc: ProgramDoc): ProgrammeExplorerItem {
     timelineMonths: timeline,
     timelineLabel: catalog?.processingTime || timelineLabel(timeline),
     presence: detectPresence(raw, doc.vertical),
-    family: detectFamily(raw, doc.vertical),
+    family: hasFamily,
+    benefits: benefits.length ? benefits.slice(0, 3) : [summary],
+    residencyOutcome: residencyOutcome(doc.vertical, benefits, summary, doc.routeType),
+    familySummary: familySummary(hasFamily, benefits, doc.familyMatrix),
     risk: detectRisk(raw, doc.vertical),
     source: "site-content",
     evidence: [
@@ -324,6 +401,11 @@ function fromCatalog(item: ReturnType<typeof catalogPrograms>[number], countryRo
   const canon = CANONICAL_MIN_USD[item.slug];
   const investment = canon !== undefined ? canon ?? 0 : parseMoney(raw, item.track);
   const timeline = parseTimeline(raw, item.track);
+  const hasFamily = Boolean(item.familyIncluded);
+  const summary = item.notes;
+  const benefits = [item.pathway, item.notes]
+    .map((value) => stripMdx(String(value ?? "")))
+    .filter(Boolean);
 
   return {
     id: `catalog:${catalogKey(item)}`,
@@ -332,14 +414,20 @@ function fromCatalog(item: ReturnType<typeof catalogPrograms>[number], countryRo
     countrySlug,
     track: item.track,
     href: countryRouteSlug ? `/${item.track}/${countryRouteSlug}` : `/${item.track}`,
-    summary: item.notes,
+    summary,
     tags: [item.track, item.pathway],
     investmentUsd: investment,
     investmentLabel: canon === null ? NO_FIXED_LABEL : item.minInvestmentUSD,
     timelineMonths: timeline,
     timelineLabel: item.processingTime,
     presence: detectPresence(raw, item.track),
-    family: Boolean(item.familyIncluded),
+    family: hasFamily,
+    benefits: benefits.slice(0, 2),
+    residencyOutcome: residencyOutcome(item.track, benefits, summary, item.pathway),
+    familySummary:
+      typeof item.familyIncluded === "string"
+        ? excerpt(item.familyIncluded, item.familyIncluded, 180)
+        : familySummary(hasFamily, benefits),
     risk: detectRisk(raw, item.track),
     source: "catalog",
     evidence: ["Enriched XIPHIAS programme catalog", "Use advisor review before quoting final rules"],

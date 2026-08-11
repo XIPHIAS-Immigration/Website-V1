@@ -9,7 +9,7 @@ import ProgramComparisonClient, {
 export const metadata: Metadata = {
   title: "Compare Programmes — XIA Intelligence",
   description:
-    "Put 2–4 XIPHIAS immigration programmes side by side on indicative cost, timeline, physical presence, tax position and passport power gained.",
+    "Put 2-4 XIPHIAS immigration programmes side by side on cost, timeline, benefits, residency outcome, family inclusion, physical presence and passport power.",
   alternates: { canonical: "/compare-programs" },
 };
 
@@ -22,6 +22,9 @@ export default function CompareProgramsPage() {
     presence: it.presence,
     risk: it.risk,
     family: it.family,
+    benefits: it.benefits,
+    residencyOutcome: it.residencyOutcome,
+    familySummary: it.familySummary,
   }));
   return <ProgramComparisonClient programs={programs} />;
 }

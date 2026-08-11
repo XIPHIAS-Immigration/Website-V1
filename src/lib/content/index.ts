@@ -101,6 +101,12 @@ export function loadAllContent(): AnyDoc[] {
       brochure: data.brochure ?? "",
       tags: data.tags ?? [],
       quickFacts: data.quickFacts ?? [],
+      benefits: Array.isArray(data.benefits) ? data.benefits.map(String) : [],
+      familyMatrix:
+        data.familyMatrix && typeof data.familyMatrix === "object"
+          ? data.familyMatrix
+          : undefined,
+      routeType: data.routeType ? String(data.routeType) : "",
       faq: data.faq ?? [],
       body: content,
       path: file,

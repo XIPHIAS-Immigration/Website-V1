@@ -2,6 +2,14 @@ export type Vertical = "residency" | "citizenship" | "skilled" | "corporate";
 
 export type QuickFact = { label: string; value: string };
 
+export type FamilyMatrix = {
+  spouse?: boolean;
+  childrenUpTo?: number | null;
+  parentsFromAge?: number | null;
+  siblings?: boolean;
+  notes?: string;
+};
+
 export type ProgramDoc = {
   kind: "program";
   title: string;
@@ -16,6 +24,9 @@ export type ProgramDoc = {
   brochure?: string;
   tags?: string[];
   quickFacts?: QuickFact[];
+  benefits?: string[];
+  familyMatrix?: FamilyMatrix;
+  routeType?: string;
   faq?: { q: string; a: string }[];
   body: string; // MDX raw
   path: string; // fs path

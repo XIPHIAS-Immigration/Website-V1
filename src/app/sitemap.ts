@@ -46,7 +46,7 @@ const BLOCKLIST: Array<string | RegExp> = [
   /^\/canada-assesent-report(\/|$)/,
   // Intentional orphan landing page: index through direct Search Console
   // submission, not through the public sitemap or site navigation.
-  /^\/immigration-consultants-in-india$/,
+  /^\/(?:top-)?immigration-consultants-in-india$/,
 ];
 
 /* ------------------------------ utils ----------------------------------- */

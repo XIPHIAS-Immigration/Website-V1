@@ -26,6 +26,9 @@ export type ComparableProgram = CostProgram & {
   presence: PresenceKey;
   risk: "standard" | "enhanced" | "high";
   family: boolean;
+  benefits: string[];
+  residencyOutcome: string;
+  familySummary: string;
 };
 
 const MAX = 4;
@@ -119,6 +122,38 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
           cells: selected.map((p) => <span>{p.timelineLabel}</span>),
         },
         {
+          key: "benefits",
+          label: "Benefits",
+          hint: "Highlights from the programme page",
+          cells: selected.map((p) => (
+            <ul className="space-y-1.5">
+              {p.benefits.slice(0, 3).map((benefit) => (
+                <li key={benefit} className="flex gap-2">
+                  <span aria-hidden="true" className="mt-1.5 size-1.5 shrink-0 rounded-full bg-secondary" />
+                  <span>{benefit}</span>
+                </li>
+              ))}
+            </ul>
+          )),
+        },
+        {
+          key: "residency",
+          label: "Residency",
+          hint: "Status or settlement pathway",
+          cells: selected.map((p) => <span>{p.residencyOutcome}</span>),
+        },
+        {
+          key: "family",
+          label: "Family",
+          hint: "Indicative dependant inclusion",
+          cells: selected.map((p) => (
+            <div>
+              <span className="font-semibold text-white">{p.family ? "Family route" : "Main applicant route"}</span>
+              <span className="type-caption mt-0.5 block font-normal text-white/55">{p.familySummary}</span>
+            </div>
+          )),
+        },
+        {
           key: "presence",
           label: "Physical presence",
           hint: "Residency proxy — not day counts",
@@ -154,7 +189,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
     <ToolShell
       eyebrow="XIA · Compare Programs"
       title="Compare Programmes on the Numbers That Matter."
-      subtitle="Put 2–4 routes side by side — indicative cost, timeline, physical presence, tax position and the passport power you'd gain."
+      subtitle="Put 2-4 routes side by side - indicative cost, timeline, benefits, residency, family inclusion, physical presence and passport power."
       actions={<CurrencyGlassSelect />}
       contactContext="Programme Comparison"
       contactId="compare-programmes"
