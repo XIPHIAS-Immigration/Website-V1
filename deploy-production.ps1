@@ -20,6 +20,23 @@ function Remove-DirectorySafely([string]$Path, [switch]$Required) {
     if (-not (Test-Path -LiteralPath $Path)) { return $true }
 
     Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue
+    if (Test-Path -LiteralPath $Path) {
+        # Next.js cache filenames can exceed the legacy Windows path limit.
+        $resolvedPath = [System.IO.Path]::GetFullPath($Path)
+        $extendedPath = if ($resolvedPath.StartsWith("\\")) {
+            "\\?\UNC\$($resolvedPath.TrimStart('\'))"
+        }
+        else {
+            "\\?\$resolvedPath"
+        }
+
+        try {
+            [System.IO.Directory]::Delete($extendedPath, $true)
+        }
+        catch {
+            Write-Host "Extended-path cleanup failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
     if (-not (Test-Path -LiteralPath $Path)) { return $true }
 
     if ($Required) {
