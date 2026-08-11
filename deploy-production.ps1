@@ -31,35 +31,6 @@ function Remove-DirectorySafely([string]$Path, [switch]$Required) {
     return $false
 }
 
-function Remove-OldDeploymentBackups([int]$Keep = 5) {
-    Write-Step "Removing old deployment backups (keeping the newest $Keep)"
-
-    $projectPrefix = [System.IO.Path]::GetFullPath($projectRoot).TrimEnd("\") + "\"
-    $backups = @(
-        Get-ChildItem -LiteralPath $projectRoot -Directory -Filter ".next.deploy-backup-*" `
-            -ErrorAction SilentlyContinue |
-            Sort-Object LastWriteTimeUtc -Descending
-    )
-
-    foreach ($backup in ($backups | Select-Object -Skip $Keep)) {
-        $candidate = [System.IO.Path]::GetFullPath($backup.FullName)
-        if (-not $candidate.StartsWith($projectPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-            Write-Host "Skipping unexpected backup path: $candidate" -ForegroundColor Yellow
-            continue
-        }
-        if (-not (Test-Path -LiteralPath $candidate -PathType Container)) { continue }
-
-        Write-Host "Removing $($backup.Name)"
-        try {
-            [void](Remove-DirectorySafely -Path $candidate)
-        }
-        catch {
-            Write-Host "Could not remove old backup $($backup.Name): $($_.Exception.Message)" -ForegroundColor Yellow
-            Write-Host "The deployment is healthy; this backup can be removed later." -ForegroundColor Yellow
-        }
-    }
-}
-
 function Test-PortListening {
     $connection = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
         Select-Object -First 1
@@ -178,8 +149,6 @@ try {
     if (Test-Path -LiteralPath $backupPath) {
         [void](Remove-DirectorySafely -Path $backupPath)
     }
-
-    Remove-OldDeploymentBackups -Keep 5
 
     Write-Host ""
     Write-Host "Deployment completed successfully." -ForegroundColor Green
