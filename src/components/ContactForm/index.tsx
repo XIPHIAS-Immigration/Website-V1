@@ -32,6 +32,7 @@ export default function ContactForm({
 }: Props) {
   const isFull = variant === "full";
   const [loading, setLoading] = useState(false);
+  const [submissionState, setSubmissionState] = useState<"idle" | "submitting" | "submitted">("idle");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [msgLen, setMsgLen] = useState(defaults?.message?.length ?? 0);
   const [turnstileReset, setTurnstileReset] = useState(0);
@@ -96,6 +97,9 @@ export default function ContactForm({
 
     try {
       setLoading(true);
+      // Give the visitor immediate feedback while CRM capture and email delivery
+      // continue on the server. If the request fails, the form is restored.
+      setSubmissionState("submitting");
 
       const res = await fetch(apiEndpoint, {
         method: "POST",
@@ -133,6 +137,7 @@ export default function ContactForm({
       setTurnstileReset((value) => value + 1);
       setTouched({});
       setMsgLen(0);
+      setSubmissionState("submitted");
       if (onSuccess) {
         try {
           await Promise.resolve(onSuccess());
@@ -142,6 +147,7 @@ export default function ContactForm({
       }
       if (onSuccessRedirect) router.push(onSuccessRedirect);
     } catch (err: any) {
+      setSubmissionState("idle");
       toast.error(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -186,12 +192,45 @@ export default function ContactForm({
         </p>
       </header>
 
+      {submissionState !== "idle" && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="relative mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center dark:border-emerald-800 dark:bg-emerald-950/40"
+        >
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-xl font-black text-white">
+            &#10003;
+          </div>
+          <h3 className="mt-3 text-lg font-black text-emerald-900 dark:text-emerald-100">
+            Thank you! We will reach out to you shortly.
+          </h3>
+          <p className="mt-1 text-sm text-emerald-800 dark:text-emerald-200">
+            {submissionState === "submitting"
+              ? "We are securely recording your enquiry now."
+              : "Your enquiry has been received by our team."}
+          </p>
+          {submissionState === "submitted" && !onSuccessRedirect && (
+            <button
+              type="button"
+              onClick={() => setSubmissionState("idle")}
+              className="mt-4 text-sm font-semibold text-primary underline underline-offset-4"
+            >
+              Send another enquiry
+            </button>
+          )}
+        </div>
+      )}
+
       {/* form */}
       <form
         ref={formRef}
         onSubmit={handleSubmit}
         noValidate
-        className="relative mt-3 grid grid-cols-1 gap-3 md:grid-cols-2"
+        aria-hidden={submissionState !== "idle"}
+        className={[
+          "relative mt-3 grid grid-cols-1 gap-3 md:grid-cols-2",
+          submissionState !== "idle" ? "hidden" : "",
+        ].join(" ")}
       >
         {/* Honeypot */}
         <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />

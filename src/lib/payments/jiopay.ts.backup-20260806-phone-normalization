@@ -80,17 +80,6 @@ export function formatJiopayAmount(amountInr: number) {
   return amountInr.toFixed(2);
 }
 
-export function formatJiopayPhone(phone?: string) {
-  const value = phone?.trim();
-  if (!value) return undefined;
-
-  const hasInternationalPrefix = value.startsWith("+");
-  const digits = value.replace(/\D/g, "");
-  if (!digits) return undefined;
-
-  return hasInternationalPrefix ? `+${digits}` : digits;
-}
-
 function formatInTimeZone(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone,
@@ -153,7 +142,7 @@ export function buildJiopaySalePayload(input: JiopayCheckoutInput, config: Jiopa
     txnDate: makeJiopayTxnDate(),
     returnURL: input.returnUrl || config.returnUrl,
     customerEmailID: input.customerEmail,
-    customerMobileNo: formatJiopayPhone(input.customerPhone),
+    customerMobileNo: input.customerPhone || undefined,
     customerName: input.customerName,
     addlParam1: input.productType,
     addlParam2: input.productName.slice(0, 120),

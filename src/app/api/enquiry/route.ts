@@ -73,7 +73,10 @@ export async function POST(req: Request) {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
-      secure: false,
+      secure: Number(process.env.SMTP_PORT) === 465,
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -218,9 +221,32 @@ export async function POST(req: Request) {
       html: adminHtml,
     };
 
-    await Promise.all([transporter.sendMail(adminMail), transporter.sendMail(userMail)]);
+    const emailResults = await Promise.allSettled([
+      transporter.sendMail(adminMail),
+      transporter.sendMail(userMail),
+    ]);
+    const emailLabels = ["admin", "customer"];
+    emailResults.forEach((result, index) => {
+      if (result.status === "rejected") {
+        console.error(
+          `[enquiry-email] ${emailLabels[index]} email failed for lead ${lead.id}:`,
+          result.reason,
+        );
+      }
+    });
+    const emailsSent = emailResults.every((result) => result.status === "fulfilled");
 
-    return NextResponse.json({ ok: true, message: "Lead captured and emails sent successfully", leadId: lead.id });
+    // The enquiry has already been safely captured in the CRM. A temporary
+    // email failure must not tell the visitor to submit again and create a
+    // duplicate lead; the failure remains visible in the server log.
+    return NextResponse.json({
+      ok: true,
+      message: emailsSent
+        ? "Lead captured and emails sent successfully"
+        : "Lead captured; one or more notification emails require retry",
+      leadId: lead.id,
+      emailStatus: emailsSent ? "sent" : "failed",
+    });
   } catch (err: any) {
     console.error("Error in /api/enquiry:", err);
     return NextResponse.json({ error: err?.message || "Request failed" }, { status: 500 });
