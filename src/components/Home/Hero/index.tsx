@@ -151,7 +151,7 @@ export default function Hero() {
             XIA Immigration Intelligence
           </p>
           <h1 id="home-hero-title" className="type-page-title mt-4">
-            Immigration Consultants in India for Global Residency &amp; Citizenship
+            Best Immigration Consultant in India
           </h1>
           <p className="type-body mx-auto mt-4 max-w-2xl text-white/75">
             Explore Canada PR, US EB-5, skilled migration, residency and citizenship by investment, plus corporate mobility across 50+ countries.
