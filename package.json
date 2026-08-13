@@ -19,6 +19,7 @@
     "test:lead-security": "node --test --test-isolation=none tests/public-lead-security.test.mjs",
     "test:deep-analysis": "node --test --test-isolation=none tests/deep-analysis-routing.test.mjs",
     "test:report-depth": "node --test --test-isolation=none tests/report-depth.test.mjs",
+    "test:reports": "node --test --test-isolation=none tests/report-client-case.test.mjs tests/report-personalisation-contract.test.mjs tests/report-depth.test.mjs tests/deep-analysis-routing.test.mjs",
     "prebuild": "node scripts/build-search-index.mjs",
     "prevercel-build": "node scripts/build-search-index.mjs",
     "analyze": "cross-env ANALYZE=true next build",

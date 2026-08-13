@@ -57,7 +57,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   premium_report: {
     productType: "premium_report",
     label: "XIPHIAS Personal Immigration Strategy Report",
-    priceInr: priceOf(5000),
+    priceInr: priceOf(1000),
     fulfillment: "report",
     reportKind: "premium_strategy",
     emailSubject: "Your XIPHIAS Personal Immigration Strategy Report",
@@ -66,7 +66,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   route_report: {
     productType: "route_report",
     label: "XIPHIAS Route Intelligence Report",
-    priceInr: priceOf(1999),
+    priceInr: priceOf(599),
     fulfillment: "report",
     reportKind: "route",
     emailSubject: "Your XIPHIAS Route Intelligence Report",
@@ -75,7 +75,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   deep_analysis_report: {
     productType: "deep_analysis_report",
     label: "XIPHIAS High-Skill Deep Analysis Report",
-    priceInr: priceOf(3999),
+    priceInr: priceOf(799),
     fulfillment: "report",
     reportKind: "deep_analysis",
     emailSubject: "Your XIPHIAS High-Skill Deep Analysis Report",
@@ -84,7 +84,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   us_visa_report: {
     productType: "us_visa_report",
     label: "XIPHIAS US Visa Strategy Report",
-    priceInr: priceOf(4999),
+    priceInr: priceOf(1000),
     fulfillment: "report",
     reportKind: "us_visa",
     emailSubject: "Your XIPHIAS US Visa Strategy Report",
@@ -93,7 +93,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   cost_report: {
     productType: "cost_report",
     label: "XIPHIAS Cost & Budget Report",
-    priceInr: priceOf(499),
+    priceInr: priceOf(199),
     fulfillment: "report",
     reportKind: "cost",
     emailSubject: "Your XIPHIAS Cost & Budget Report",
@@ -102,7 +102,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   compare_report: {
     productType: "compare_report",
     label: "XIPHIAS Programme Comparison Report",
-    priceInr: priceOf(199),
+    priceInr: priceOf(99),
     fulfillment: "report",
     reportKind: "compare",
     emailSubject: "Your XIPHIAS Programme Comparison Report",
@@ -111,7 +111,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   docs_report: {
     productType: "docs_report",
     label: "XIPHIAS Document Readiness Report",
-    priceInr: priceOf(199),
+    priceInr: priceOf(99),
     fulfillment: "report",
     reportKind: "docs",
     emailSubject: "Your XIPHIAS Document Readiness Report",
@@ -122,7 +122,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   registration: {
     productType: "registration",
     label: "XIPHIAS Registration",
-    priceInr: priceOf(10000),
+    priceInr: priceOf(1000),
     fulfillment: "registration",
     emailSubject: "Your X-Hub registration is ready",
     fileSlug: "Registration",
@@ -156,7 +156,7 @@ export type PriceResolution =
 /**
  * Resolve the amount to charge for a checkout.
  *  - Fixed-price catalog products: the server price is authoritative; any client-supplied
- *    amount is ignored. This prevents price tampering on public buttons (e.g. ₹5,000 → ₹1).
+ *    amount is ignored. This prevents price tampering on public buttons.
  *  - custom_payment: uses the per-request amount (must be > 0) and requires staff auth.
  *  - Unknown products are rejected outright (no arbitrary public products).
  */

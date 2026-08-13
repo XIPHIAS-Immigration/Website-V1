@@ -9,27 +9,29 @@ import { buildUsVisaReport } from "@/lib/reports/templates/us-visa";
 import { buildCostReport } from "@/lib/reports/templates/cost";
 import { buildCompareReport } from "@/lib/reports/templates/compare";
 import { buildDocsReport } from "@/lib/reports/templates/docs";
+import { withClientCaseAnswers } from "@/lib/reports/client-case";
 
 /**
  * Generate the PDF for a paid report, dispatching on the product's report template.
  * All reports are built on the shared premium framework (src/lib/reports/*).
  */
 export async function generateReportPdf(reportKind: ReportKind, order: JiopayOrder): Promise<Buffer> {
+  const normalizedOrder = withClientCaseAnswers(order);
   switch (reportKind) {
     case "premium_strategy":
-      return buildPremiumStrategyReport(order);
+      return buildPremiumStrategyReport(normalizedOrder);
     case "route":
-      return buildRouteReport(order);
+      return buildRouteReport(normalizedOrder);
     case "deep_analysis":
-      return buildDeepAnalysisReport(order);
+      return buildDeepAnalysisReport(normalizedOrder);
     case "us_visa":
-      return buildUsVisaReport(order);
+      return buildUsVisaReport(normalizedOrder);
     case "cost":
-      return buildCostReport(order);
+      return buildCostReport(normalizedOrder);
     case "compare":
-      return buildCompareReport(order);
+      return buildCompareReport(normalizedOrder);
     case "docs":
-      return buildDocsReport(order);
+      return buildDocsReport(normalizedOrder);
     default:
       throw new Error(`Unknown report template: ${String(reportKind)}`);
   }

@@ -26,6 +26,7 @@ import {
   pill,
   runningFooter,
   runningHeader,
+  reportBasisPage,
   scoreBar,
   sectionHeader,
   splitPage,
@@ -35,7 +36,9 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
+import { assessPersonalisation, buildClientCase, referenceMatches, reportBasis } from "../client-case";
 
 const GOALS = new Set(["permanent-residency", "temporary-work", "talent-visa", "founder", "not-sure"]);
 const FIELDS = new Set(["technology", "science", "business", "arts", "healthcare", "academia", "sports", "other"]);
@@ -180,9 +183,9 @@ function buildHighSkillInput(order: JiopayOrder): HighSkillInput {
     goal: pickGoal(a.goal ?? a.objective),
     field: pickEnum(a.field ?? a.industry, FIELDS, "technology") as HighSkillInput["field"],
     role: str(a.role ?? a.profile ?? a.occupation ?? order.program),
-    age: toInt(a.age, 30),
+    age: toInt(a.age, 0),
     education: pickEducation(a.education ?? a.qualification),
-    yearsExperience: toInt(a.yearsExperience ?? a.experience, 5),
+    yearsExperience: toInt(a.yearsExperience ?? a.experience, 0),
     languageTest: "not-provided",
     languageScore: toFloat(a.languageScore ?? a.language, 0),
     evidence: buildEvidence(a, { citations: citationCount, publications: publicationCount, patents: patentCount }),
@@ -271,14 +274,25 @@ const ROUTE_BRIEF: Record<string, { criteria: string; selfPetition: string; jobO
 
 export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
   const depth = depthFor("us_visa");
+  const clientCase = buildClientCase(order);
+  const personalisation = assessPersonalisation(clientCase);
   const input = buildHighSkillInput(order);
   const allScored = scoreHighSkillRoutes(input);
-  // Force the report to the four US work/immigration families, in strategic order.
-  const usRoutes = US_ROUTE_ORDER
+  const selected = clientCase.objective.selectedProgrammes.value ?? [];
+  const selectedIds = selected.flatMap((name) => {
+    const hit = allScored.find((route) => referenceMatches(`${route.id} ${route.title}`, name));
+    return hit ? [hit.id] : [];
+  });
+  const routeOrder = selectedIds.length ? [...selectedIds, ...US_ROUTE_ORDER.filter((id) => !selectedIds.includes(id))] : [...US_ROUTE_ORDER];
+  const usRoutes = routeOrder
     .map((id) => allScored.find((r) => r.id === id))
     .filter((r): r is ScoredHighSkillRoute => Boolean(r));
   // Recommended primary = highest-scoring US family (engine already ranks by fit).
-  const ranked = [...usRoutes].sort((a, b) => b.fitScore - a.fitScore);
+  const modelCap = clampScore(35 + personalisation.completeness * 0.6);
+  const advisorFit = clientCase.advisor.routeFitScore.value;
+  const ranked = [...usRoutes]
+    .sort((a, b) => b.fitScore - a.fitScore)
+    .map((route, index) => ({ ...route, fitScore: index === 0 && advisorFit !== undefined ? clampScore(advisorFit) : Math.min(route.fitScore, modelCap) }));
   const top = ranked[0];
   const completion = highSkillCompletion(input);
   const evidenceSelected = EVIDENCE_KEYS.filter((k) => input.evidence[k]);
@@ -290,6 +304,7 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · US Visa Strategy", label);
   const head = runningHeader(reportTitle, { country: "United States", route: top?.title });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   const avgUsFit = ranked.length
     ? ranked.reduce((sum, r) => sum + r.fitScore, 0) / ranked.length
@@ -390,7 +405,9 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
       sectionHeader({ title: "Readiness measures" }) +
       scoreBar({ label: "Profile depth captured", value: completion, tag: `${completion}% of key inputs provided` }) +
       scoreBar({ label: "Evidence breadth", value: clampScore(20 + evidenceSelected.length * 10), tag: `${evidenceSelected.length} evidence categor${evidenceSelected.length === 1 ? "y" : "ies"} on record` }) +
-      scoreBar({ label: "Self-petition readiness", value: top && !top.requiresSponsor ? 74 : 56, tag: top && !top.requiresSponsor ? "Top route allows self-petition" : "Top route needs a US petitioner" }) +
+      (top && !top.requiresSponsor
+        ? callout({ k: "Self-petition structure", text: "The working lead permits self-petition, but readiness is not scored until the qualifying evidence and proposed endeavour are reviewed." })
+        : callout({ k: "Petitioner required", text: "The working lead requires a qualifying US petitioner or employer. No sponsorship-readiness score is assigned without petitioner evidence." })) +
       scoreBar({ label: "US route shortlist strength", value: avgUsFit, tag: "Average across the four families" }),
   });
 
@@ -556,7 +573,7 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
       `<h2 class="h-section" style="color:#fff;margin-top:8px;">Your US route, ready to advance</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         top
-          ? `Your profile points most strongly to ${top.title} for entry to the United States. The next step is an advisor review to confirm eligibility and build the evidence package that wins.`
+          ? `${top.title} is the current working US route based on ${personalisation.completeness}% core profile completeness. Confirm petitioner requirements, immigration history and the quality of every claimed evidence category before filing.`
           : "Add your role, education and evidence so an advisor can lock a strong US primary route and evidence plan.",
       )}</p>` +
       `<div class="spacer-24"></div>` +
@@ -603,6 +620,7 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
     }
   }
 
-  const bodyHtml = cleanReportPunctuation([cover, briefPage, scorecardPage, comparePage, topPage, evidencePage, planPage, ...dossierPages, summaryPage].join(""));
+  const companyPages = buildCompanyProfilePages({ header: head, footer: foot });
+  const bodyHtml = cleanReportPunctuation([cover, basisPage, briefPage, scorecardPage, comparePage, topPage, evidencePage, planPage, ...dossierPages, ...companyPages, summaryPage].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

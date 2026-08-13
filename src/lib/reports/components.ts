@@ -37,6 +37,80 @@ export function runningFooter(left: string, right: string): string {
   return `<div class="runfoot"><span>${esc(left)}</span><span>${esc(right)}</span></div>`;
 }
 
+export function reportBasisBanner(opts: {
+  reviewStatus: "draft" | "advisor-reviewed" | "verified";
+  completeness: number;
+  confirmedFacts: number;
+  limitations?: string[];
+  executiveSummary?: string;
+  recommendation?: string;
+  advisorNotes?: string;
+  sources?: string[];
+  customRisks?: string[];
+  nextActions?: string[];
+  gates?: { label: string; status: "confirmed" | "review" | "missing"; detail: string }[];
+}): string {
+  const label = opts.reviewStatus === "verified"
+    ? "Verified case file"
+    : opts.reviewStatus === "advisor-reviewed"
+      ? "Advisor-reviewed case file"
+      : "Draft case file";
+  const tone = opts.reviewStatus === "verified" ? "good" : opts.reviewStatus === "advisor-reviewed" ? "warn" : "muted";
+  const limitations = (opts.limitations ?? []).slice(0, 2);
+  const gates = (opts.gates ?? []).filter((gate) => gate.status !== "confirmed").slice(0, 3);
+  return `<div class="callout" style="margin-bottom:12px;">
+    <div class="callout__k">${pill(label, tone)} &nbsp; Personalisation basis</div>
+    <p>${esc(`${opts.completeness}% of the core case profile is captured; ${opts.confirmedFacts} core facts are advisor-confirmed or verified.`)}</p>
+    ${limitations.length ? `<p><strong>Open limitations:</strong> ${esc(limitations.join(" · "))}</p>` : ""}
+    ${gates.length ? `<p><strong>Open gates:</strong> ${esc(gates.map((gate) => `${gate.label} (${gate.status})`).join(" · "))}</p>` : ""}
+  </div>`;
+}
+
+export function reportBasisPage(opts: {
+  header?: string;
+  footer?: string;
+  basis: Parameters<typeof reportBasisBanner>[0];
+}): string {
+  const basis = opts.basis;
+  const gates = basis.gates ?? [];
+  const tone = (status: "confirmed" | "review" | "missing"): PillTone => status === "confirmed" ? "good" : status === "review" ? "warn" : "bad";
+  const rows = gates.map((gate) => [esc(gate.label), pill(gate.status === "confirmed" ? "Confirmed" : gate.status === "review" ? "Review" : "Missing", tone(gate.status)), esc(gate.detail.length > 150 ? `${gate.detail.slice(0, 147)}...` : gate.detail)]);
+  const verificationPage = page({
+    header: opts.header,
+    footer: opts.footer,
+    body:
+      sectionHeader({
+        eyebrow: "Case basis & verification",
+        title: "What this report knows, and what remains open",
+        desc: `${basis.completeness}% of the core case profile is captured. Conclusions are limited to the facts and evidence statuses recorded below.`,
+      }) +
+      (rows.length ? table({ head: ["Eligibility gate", "Status", "Recorded basis"], rows }) : callout({ k: "No gates recorded", text: "Complete the client case before relying on this report." })),
+  });
+  const advisorPage = page({
+    header: opts.header,
+    footer: opts.footer,
+    body:
+      sectionHeader({
+        eyebrow: "Advisor-authored content",
+        title: "Client-specific risks, actions and sources",
+        desc: "These entries come from the advisor report desk and are stored with this report version. They supplement, rather than replace, current programme rules.",
+      }) +
+      (basis.executiveSummary ? callout({ k: "Client-specific executive summary", text: basis.executiveSummary }) : "") +
+      `<div class="spacer-16"></div>` +
+      (basis.recommendation ? callout({ k: "Advisor recommendation", text: basis.recommendation }) : "") +
+      `<div class="spacer-16"></div>` +
+      grid(2, [
+        card({ k: "Client-specific risks", v: (basis.customRisks ?? []).length ? (basis.customRisks ?? []).slice(0, 4).join("; ") : "None supplied", note: "Only risks recorded for this client are shown." }),
+        card({ k: "Client-specific next actions", v: (basis.nextActions ?? []).length ? (basis.nextActions ?? []).slice(0, 4).join("; ") : "Advisor to define", note: "Actions should be tied to evidence or an open gate." }),
+        card({ k: "Advisor notes", v: basis.advisorNotes || "None supplied" }),
+        card({ k: "Factual sources", v: (basis.sources ?? []).length ? `${(basis.sources ?? []).length} source reference${(basis.sources ?? []).length === 1 ? "" : "s"} recorded` : "No sources recorded", note: (basis.sources ?? []).slice(0, 2).join(" · ") }),
+      ]) +
+      `<div class="spacer-24"></div>` +
+      callout({ k: "Version control", text: "If any client fact, family detail, programme rule, cost, document status or immigration history changes, create a new report version and repeat advisor review." }),
+  });
+  return verificationPage + advisorPage;
+}
+
 export function coverPage(opts: {
   logoDataUri?: string | null;
   coverBgDataUri?: string | null;

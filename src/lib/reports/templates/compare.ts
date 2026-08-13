@@ -3,6 +3,7 @@ import "server-only";
 import type { JiopayOrder } from "@/lib/payments/jiopay-store";
 import { getXiaIntelligenceData } from "@/lib/xia-intelligence";
 import type { ProgrammeRouteSource } from "@/lib/xia-intelligence-model";
+import type { ProgrammeExplorerItem } from "@/lib/programme-explorer";
 import { loadCoverBg, loadCountryImages, loadLogo } from "../assets";
 import {
   bigStats,
@@ -18,6 +19,7 @@ import {
   pill,
   runningFooter,
   runningHeader,
+  reportBasisPage,
   scoreBar,
   sectionHeader,
   splitPage,
@@ -27,12 +29,14 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
+import { assessPersonalisation, buildClientCase, reportBasis } from "../client-case";
 
 const TRACKS = new Set(["residency", "citizenship", "corporate", "skilled", "all"]);
 const PRIORITIES = new Set(["speed", "cost", "mobility", "stability", "tax", "business"]);
 
-type Programme = ProgrammeRouteSource;
+type Programme = ProgrammeRouteSource & Pick<ProgrammeExplorerItem, "benefits" | "residencyOutcome" | "familySummary">;
 
 function str(value: unknown): string {
   return typeof value === "string" ? value.trim() : value == null ? "" : String(value).trim();
@@ -121,6 +125,7 @@ function parseCandidateList(order: JiopayOrder): string[] {
       if (p) out.push(p);
     }
   };
+  push(a.selectedProgrammes);
   push(a.programmes);
   push(a.programs);
   push(a.compare);
@@ -135,10 +140,23 @@ function parseCandidateList(order: JiopayOrder): string[] {
 function matchProgramme(items: Programme[], needle: string): Programme | undefined {
   const n = normalize(needle);
   if (!n) return undefined;
-  // exact title, then title contains, then country, then keyword/tag signal
+  const tokens = n.split(" ").filter((token) => token.length > 1);
+  const subclassNumbers = tokens.filter((token) => /^\d{3}$/.test(token));
+  const tokenScore = (item: Programme) => {
+    const haystack = normalize([item.title, item.country, item.countrySlug, item.keywords, ...(item.tags ?? [])].join(" "));
+    const haystackTokens = new Set(haystack.split(" "));
+    if (subclassNumbers.length && !subclassNumbers.every((token) => haystackTokens.has(token))) return -1;
+    return tokens.filter((token) => haystackTokens.has(token)).length / Math.max(1, tokens.length);
+  };
+  const tokenMatch = items
+    .map((item) => ({ item, score: tokenScore(item) }))
+    .filter(({ score }) => score >= 0.45)
+    .sort((left, right) => right.score - left.score)[0]?.item;
+  // Exact title and route-level matches take priority. Country matching is only a fallback.
   return (
     items.find((i) => normalize(i.title) === n) ??
     items.find((i) => normalize(i.title).includes(n) || n.includes(normalize(i.title))) ??
+    tokenMatch ??
     items.find((i) => normalize(i.country) === n || normalize(i.countrySlug) === n) ??
     items.find((i) => normalize(i.country).includes(n) || n.includes(normalize(i.country))) ??
     items.find((i) => normalize(i.keywords).includes(n) || i.tags.some((t) => normalize(t).includes(n)))
@@ -147,9 +165,11 @@ function matchProgramme(items: Programme[], needle: string): Programme | undefin
 
 // Choose 2-4 programmes to compare. Honour explicit picks from the order; otherwise
 // anchor on the order's country/programme/track and fill with the closest peers.
-function selectProgrammes(order: JiopayOrder, items: Programme[]): Programme[] {
+function selectProgrammes(order: JiopayOrder, items: Programme[]): { programmes: Programme[]; usedFallback: boolean; unmatched: string[] } {
   const picked: Programme[] = [];
   const seen = new Set<string>();
+  const requested = parseCandidateList(order);
+  const unmatched: string[] = [];
   const add = (p?: Programme) => {
     if (p && !seen.has(p.id)) {
       seen.add(p.id);
@@ -157,9 +177,11 @@ function selectProgrammes(order: JiopayOrder, items: Programme[]): Programme[] {
     }
   };
 
-  for (const ref of parseCandidateList(order)) {
+  for (const ref of requested) {
     if (picked.length >= 4) break;
-    add(matchProgramme(items, ref));
+    const match = matchProgramme(items, ref);
+    if (match) add(match);
+    else unmatched.push(ref);
   }
 
   // Anchor on the order's own programme / country.
@@ -198,7 +220,7 @@ function selectProgrammes(order: JiopayOrder, items: Programme[]): Programme[] {
     }
   }
 
-  return picked.slice(0, 4);
+  return { programmes: picked.slice(0, 4), usedFallback: requested.length < 2 || unmatched.length > 0, unmatched };
 }
 
 // Human label for a programme track code (avoids title-casing raw codes).
@@ -294,8 +316,11 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
   const data = getXiaIntelligenceData();
   const items = data.programme.items as Programme[];
   const a = (order.answers ?? {}) as Record<string, unknown>;
+  const clientCase = buildClientCase(order);
+  const personalisation = assessPersonalisation(clientCase);
 
-  const programmes = selectProgrammes(order, items);
+  const selection = selectProgrammes(order, items);
+  const programmes = selection.programmes;
   const priority = pickEnum(a.priority, PRIORITIES, "stability");
   const budget = toInt(a.budget ?? a.budgetUsd, 0);
   const timeline = toInt(a.timeline ?? a.timelineMonths, 12);
@@ -316,8 +341,9 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     runningFooter("XIPHIAS Immigration Private Limited · Programme Comparison", label);
   const head = runningHeader(reportTitle, {
     country: best ? best.p.country : "Global",
-    route: programmes.map((p) => p.country).slice(0, 3).join(" · "),
+    route: `${programmes.length} selected programme${programmes.length === 1 ? "" : "s"}`,
   });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   const cheapest = [...programmes].sort((x, y) => x.investmentUsd - y.investmentUsd)[0];
   const fastest = [...programmes].sort((x, y) => x.timelineMonths - y.timelineMonths)[0];
@@ -381,8 +407,10 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-8"></div>` +
       callout({
         k: "How to read this report",
-        text: best
-          ? `On your stated priority of "${priority}", ${best.p.title} (${best.p.country}) leads the shortlist. Use the side-by-side table to weigh it against the alternatives before confirming with an advisor.`
+        text: selection.usedFallback
+          ? "Fewer than two explicit programme selections were supplied, so catalogue peers were added only to keep the comparison usable. They are examples, not client-approved alternatives."
+          : best
+          ? `On the stated priority of "${priority}", ${best.p.title} (${best.p.country}) leads the selected shortlist. Confirm legal eligibility separately.`
           : "Use the side-by-side table to weigh each option's cost, timeline and obligations before confirming with an advisor.",
       }),
     footer: foot("02"),
@@ -395,7 +423,6 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     ["Indicative cost", ...programmes.map((p) => esc(costLabel(p)))],
     ["Indicative timeline", ...programmes.map((p) => esc(timelineDisplay(p)))],
     ["Physical presence", ...programmes.map((p) => pill(presenceLabel(p.presence), presenceTone(p.presence)))],
-    ["Family inclusion", ...programmes.map((p) => pill(p.family ? "Supported" : "Review", familyTone(p.family)))],
     ["Due diligence", ...programmes.map((p) => pill(riskLabel(p.risk), riskTone(p.risk)))],
     [
       "Fit on your priority",
@@ -405,6 +432,12 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
         .map((r) => pill(`${r.fit}`, r.fit >= 75 ? "good" : r.fit >= 55 ? "warn" : "muted")),
     ],
     ["Evidence basis", ...programmes.map((p) => esc(p.source === "site-content" ? "Approved page" : "Catalog"))],
+  ];
+  const outcomeRows: string[][] = [
+    ["Benefits", ...programmes.map((p) => esc(p.benefits?.slice(0, 2).join("; ") || "Advisor confirmation required"))],
+    ["Residency outcome", ...programmes.map((p) => esc(p.residencyOutcome || "Programme-specific review required"))],
+    ["Family inclusion", ...programmes.map((p) => pill(p.family ? "Supported" : "Review", familyTone(p.family)))],
+    ["Family details", ...programmes.map((p) => esc(p.familySummary || (p.family ? "Family inclusion indicated; member and age rules require review" : "Review separately")))],
   ];
   const comparePage = page({
     header: head,
@@ -430,6 +463,26 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     footer: foot("03"),
   });
 
+  const outcomesPage = page({
+    header: head,
+    body:
+      sectionHeader({
+        eyebrow: "Client outcomes",
+        title: "Benefits, residency and family",
+        desc: "These practical outcomes sit alongside cost and timing. Any programme-specific dependant ages, residence conditions and benefit limitations require advisor confirmation.",
+      }) +
+      table({
+        head: ["Outcome", ...programmes.map((p) => p.title)],
+        rows: outcomeRows,
+      }) +
+      `<div class="spacer-16"></div>` +
+      callout({
+        k: "Interpretation",
+        text: "Supported means the programme data indicates family inclusion is commonly available. It does not confirm eligibility for any particular dependant or guarantee a residence outcome.",
+      }),
+    footer: foot("04"),
+  });
+
   // 4 — Per-programme strengths & trade-offs (paginated, 2 per page)
   const detailPages: string[] = [];
   // Cycle distinct country images for the image-panel pages so the panels vary and
@@ -440,7 +493,7 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
 
   for (let i = 0; i < programmes.length; i += 2) {
     const slice = programmes.slice(i, i + 2);
-    const pageIndex = 4 + i / 2;
+    const pageIndex = 5 + i / 2;
     const blocks = slice
       .map((p) => {
         const fit = ranked.find((r) => r.p.id === p.id)?.fit ?? 60;
@@ -498,9 +551,9 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
       }) +
       sectionHeader({
         eyebrow: "Recommendation",
-        title: best ? `Best for you: ${best.p.title}` : "Best for you",
+        title: best ? `Working lead: ${best.p.title}` : "Working lead",
         desc: best
-          ? `Across your shortlist, ${best.p.country} aligns most closely with a "${priority}" priority${budget > 0 ? ` and a USD ${budget.toLocaleString("en-US")} budget` : ""}.`
+          ? `Across the supplied comparison inputs, ${best.p.country} aligns most closely with a "${priority}" priority${budget > 0 ? ` and a USD ${budget.toLocaleString("en-US")} budget` : ""}. This is not an eligibility finding.`
           : "Refine your shortlist with an advisor to surface a clear lead option.",
       }) +
       (best
@@ -541,11 +594,11 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
         k: "Confidence note",
         text: "Fit scores are directional signals based on your inputs and approved programme content. The final choice depends on current government rules, fees and the strength of your evidence — all confirmed at advisor review before any filing.",
       }),
-    footer: foot(String(4 + Math.ceil(programmes.length / 2)).padStart(2, "0")),
+    footer: foot(String(5 + Math.ceil(programmes.length / 2)).padStart(2, "0")),
   });
 
   // 6 — Decision scorecard + checklist + action plan
-  const planPageNo = String(5 + Math.ceil(programmes.length / 2)).padStart(2, "0");
+  const planPageNo = String(6 + Math.ceil(programmes.length / 2)).padStart(2, "0");
   const planPage = page({
     header: head,
     body:
@@ -599,6 +652,7 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
 
-  const bodyHtml = cleanReportPunctuation([cover, briefPage, comparePage, ...detailPages, recoPage, planPage, summaryPage].join(""));
+  const companyPages = buildCompanyProfilePages({ header: head, footer: foot });
+  const bodyHtml = cleanReportPunctuation([cover, basisPage, briefPage, comparePage, outcomesPage, ...detailPages, recoPage, planPage, ...companyPages, summaryPage].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { JiopayOrder } from "@/lib/payments/jiopay-store";
-import { resolveProgrammes } from "@/lib/reports/programme";
+import { resolveProgramme, resolveProgrammes, type Dossier } from "@/lib/reports/programme";
 import { buildDossierPages, programmeNarrativePages } from "../dossier-sections";
 import { loadCoverBg, loadCountryImages, loadLogo } from "../assets";
 import {
@@ -18,6 +18,7 @@ import {
   pill,
   runningFooter,
   runningHeader,
+  reportBasisPage,
   scoreBar,
   sectionHeader,
   splitPage,
@@ -26,7 +27,9 @@ import {
   ticks,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
+import { assessPersonalisation, buildClientCase, factValue, reportBasis, verifiedDocumentReadiness } from "../client-case";
 
 // The flagship eligibility report (product premium_report), rebuilt on the premium
 // framework so it shares the same full-page editorial design as the other reports and
@@ -106,27 +109,49 @@ function fitWord(score: number): string {
 export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Buffer> {
   const depth = depthFor("premium_strategy");
   const a = (order.answers ?? {}) as Record<string, unknown>;
+  const clientCase = buildClientCase(order);
+  const personalisation = assessPersonalisation(clientCase);
+  const documentReadiness = verifiedDocumentReadiness(clientCase.documents);
   const country = order.country || str(a.country) || str(a.destination) || str(a.countryFocus);
   const programName = order.program || str(a.recommendedProgram) || str(a.program);
-  // Carry the primary route plus its strongest alternative (each with full dossier +
-  // prose narrative) so the flagship report has real programme depth, not one route.
-  const dossiers = resolveProgrammes({ country, program: programName, track: order.track }, depth.maxProgrammes);
+  // Resolve advisor-selected routes first. Alternatives are added only after every
+  // explicit selection has been considered, preserving the report desk's shortlist.
+  const selectedProgrammes = clientCase.objective.selectedProgrammes.value ?? [];
+  const dossiers: Dossier[] = [];
+  const dossierKeys = new Set<string>();
+  const addDossier = (candidate: Dossier | null) => {
+    if (!candidate) return;
+    const key = `${candidate.vertical}:${candidate.programSlug ?? candidate.title ?? ""}`.toLowerCase();
+    if (!key || dossierKeys.has(key)) return;
+    dossierKeys.add(key);
+    dossiers.push(candidate);
+  };
+  for (const selected of selectedProgrammes) {
+    if (dossiers.length >= depth.maxProgrammes) break;
+    addDossier(resolveProgramme({ country, program: selected, track: order.track }));
+  }
+  for (const alternative of resolveProgrammes({ country, program: programName, track: order.track }, depth.maxProgrammes)) {
+    if (dossiers.length >= depth.maxProgrammes) break;
+    addDossier(alternative);
+  }
   const dossier = dossiers[0] ?? null;
   const route = dossier?.title || (programName ? smartLabel(programName) : "Advisor-led route");
   const countryLabel = smartLabel(country) || dossier?.country || "Global mobility";
+  const isDraft = clientCase.reviewStatus === "draft";
 
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
   const imgs = allocateReportImages(await loadCountryImages(country || dossier?.country), "premium_strategy", order.merchantTxnNo);
 
-  const fit = clampScore(num(a.fitScore) ?? num(a.score) ?? num(a.routeFit) ?? 82, 82);
-  const hasFamily = toBool(a.family ?? a.familyMembers);
+  const explicitFit = factValue(clientCase.advisor.routeFitScore);
+  const hasFamily = factValue(clientCase.family.included) === true;
+  const fit = explicitFit;
   const scores = {
     routeFit: fit,
-    evidence: clampScore(num(a.evidenceStrength) ?? 68, 68),
-    docs: clampScore(num(a.documentReadiness) ?? 56, 56),
-    risk: clampScore(num(a.riskClarity) ?? 72, 72),
-    family: hasFamily ? 70 : 62,
+    evidence: factValue(clientCase.advisor.evidenceStrengthScore),
+    docs: factValue(clientCase.advisor.documentReadinessScore) ?? documentReadiness.score,
+    risk: factValue(clientCase.advisor.riskClarityScore),
+    family: factValue(clientCase.advisor.familyReadinessScore),
   };
 
   const reportTitle = "Personal Immigration Strategy Report";
@@ -135,6 +160,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Personal Strategy", label);
   let panel = 3;
   const nextImg = (): string | undefined => (imgs.length ? imgs[panel++ % imgs.length] : undefined);
+  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   const goal = goalLabel(a.goals ?? a.objective ?? a.goal ?? order.track);
   const profileKey = str(a.profile ?? a.applicantProfile).toLowerCase();
@@ -155,13 +181,15 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     coverBgDataUri: coverBg,
     cardImageDataUri: imgs[1] ?? imgs[0],
     heroImageDataUri: imgs[0],
-    eyebrow: "Private Client Assessment",
+    eyebrow: isDraft ? "Draft Sample · Unverified" : "Private Client Assessment",
     title: reportTitle,
     preparedFor: order.customer.name,
-    subtitle: `A focused recommendation for ${countryLabel} immigration planning.`,
-    chips: [route, goal || "Advisor-led plan", dateLabel()].filter(Boolean),
+    subtitle: isDraft
+      ? `A preliminary planning example for ${countryLabel}. Not for filing or decision-making.`
+      : `A focused recommendation for ${countryLabel} immigration planning.`,
+    chips: [isDraft ? "DRAFT - UNVERIFIED" : route, goal || "Advisor-led plan", dateLabel()].filter(Boolean),
     fitScore: fit,
-    fitLabel: fitWord(fit),
+    fitLabel: fit !== undefined ? fitWord(fit) : "Advisor scoring required",
     countryLabel,
     dateLabel: dateLabel(),
   });
@@ -169,9 +197,11 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // 2 — Executive recommendation (split, fills via image panel)
   const execContent =
     sectionHeader({
-      eyebrow: "Recommended direction",
-      title: route,
-      desc: dossier?.tagline || `XIPHIAS recommends an advisor-led ${route} evidence review before full filing preparation.`,
+      eyebrow: isDraft ? "Working direction" : "Recommended direction",
+      title: isDraft ? `${route} for verification` : route,
+      desc: isDraft
+        ? `This route is included for comparison only. Verify eligibility, evidence and current rules before treating it as a recommendation.`
+        : dossier?.tagline || `XIPHIAS recommends an advisor-led ${route} evidence review before full filing preparation.`,
     }) +
     grid(2, [
       card({ k: "Country", v: countryLabel }),
@@ -182,18 +212,23 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     `<div class="spacer-16"></div>` +
     callout({
       k: "Working result",
-      text: `${fitWord(fit)} (${fit}/100). Your profile can support this route once the evidence pack and document set are confirmed at advisor review.`,
+      text: fit !== undefined
+        ? `${fitWord(fit)} (${fit}/100). This remains conditional on the evidence pack and document set being confirmed.`
+        : `${route} is a working direction only. Route fit has not been scored because the supporting case facts are incomplete or unconfirmed.`,
     });
   const execPage = splitPage({ header: head, footer: foot("02"), content: execContent, imageDataUri: nextImg(), capEyebrow: "Recommended route", capTitle: route });
 
   // 3 — Readiness scorecard (split)
+  const scoreBars = [
+    scores.routeFit !== undefined ? scoreBar({ label: "Route fit", value: scores.routeFit, tag: fitWord(scores.routeFit) }) : "",
+    scores.evidence !== undefined ? scoreBar({ label: "Evidence strength", value: scores.evidence, tag: scores.evidence >= 70 ? "Strong" : "Build proof" }) : "",
+    scores.docs !== undefined ? scoreBar({ label: "Document readiness", value: scores.docs, tag: `${documentReadiness.verified} verified · ${documentReadiness.incomplete} incomplete` }) : "",
+    scores.risk !== undefined ? scoreBar({ label: "Risk clarity", value: scores.risk, tag: "Advisor assessed" }) : "",
+    scores.family !== undefined ? scoreBar({ label: "Family readiness", value: scores.family, tag: hasFamily ? "Dependants assessed" : "Primary applicant" }) : "",
+  ].filter(Boolean).join("");
   const scoreContent =
     sectionHeader({ eyebrow: "Route-fit analytics", title: "Readiness scorecard", desc: "Directional advisory signals. The advisor review decides the final evidence positioning." }) +
-    scoreBar({ label: "Route fit", value: scores.routeFit, tag: fitWord(scores.routeFit) }) +
-    scoreBar({ label: "Evidence strength", value: scores.evidence, tag: scores.evidence >= 70 ? "Strong" : "Build proof" }) +
-    scoreBar({ label: "Document readiness", value: scores.docs, tag: scores.docs >= 70 ? "On track" : "Collect & verify" }) +
-    scoreBar({ label: "Risk clarity", value: scores.risk, tag: "Review with advisor" }) +
-    scoreBar({ label: "Family readiness", value: scores.family, tag: hasFamily ? "Dependants in scope" : "Primary applicant" }) +
+    (scoreBars || callout({ k: "Scores not yet assigned", text: "Complete the advisor review before treating this strategy as final." })) +
     `<div class="spacer-16"></div>` +
     callout({ k: "Best next move", text: "Complete the evidence matrix and confirm your route positioning with a XIPHIAS advisor before filing." });
   const scorePage = splitPage({ header: head, footer: foot("03"), content: scoreContent, imageDataUri: nextImg(), capEyebrow: "Assessment dashboard", capTitle: "Readiness scorecard" });
@@ -218,8 +253,8 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     sectionHeader({ eyebrow: "Our method", title: "How this strategy was built", desc: "A transparent view of the steps behind your personalised recommendation." }) +
     steps([
       { title: "Profile intake", body: "Your objective, profile, budget, timeline and family position were captured from your assessment responses." },
-      { title: "Route matching", body: `Your profile was matched against XIPHIAS programme content to surface ${route} as the strongest-fit route for ${countryLabel}.` },
-      { title: "Readiness scoring", body: "Route fit, evidence strength, document readiness, risk clarity and family readiness were scored to show where to focus." },
+      { title: "Route matching", body: `${route} was selected or matched as the working route for ${countryLabel}; the advisor confirms it against legal criteria and evidence.` },
+      { title: "Readiness scoring", body: "Only supplied or advisor-confirmed scores are shown. Missing dimensions remain unscored rather than receiving defaults." },
       { title: "Cost & timeline modelling", body: "Indicative programme, government and professional costs were mapped against your planning window." },
       { title: "Advisor validation", body: "Every figure and requirement in this report is confirmed by a XIPHIAS advisor against current rules before you file." },
     ]);
@@ -244,11 +279,11 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       `<div class="spacer-16"></div>` +
       grid(3, [
         card({ k: "Recommended route", v: route }),
-        card({ k: "Route fit", v: `${fit} / 100`, note: fitWord(fit) }),
+        card({ k: "Route fit", v: fit !== undefined ? `${fit} / 100` : "Not assessed", note: fit !== undefined ? fitWord(fit) : "Advisor review required" }),
         card({ k: "Decision priority", v: priorityLabel }),
       ]) +
       `<div class="spacer-16"></div>` +
-      callout({ k: "The bottom line", text: `On your stated priority of ${priorityLabel.toLowerCase()}, ${route} in ${countryLabel} is the route that converts your profile into a credible, advisor-backed plan with the fewest open risks.` }),
+      callout({ k: "The bottom line", text: clientCase.reviewStatus === "draft" ? `${route} is the current working route, not a final recommendation. Resolve the open case limitations and obtain advisor confirmation before acting.` : `On the confirmed case information, ${route} in ${countryLabel} is the current primary strategy. Remaining evidence and risk items must still be closed before filing.` }),
     footer: foot("06"),
   });
 
@@ -590,15 +625,17 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const closer = page({
     dark: true,
     body:
-      `<div class="eyebrow">Final recommendation</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">Proceed to ${esc(route)}</h2>` +
+      `<div class="eyebrow">${isDraft ? "Draft conclusion" : "Final recommendation"}</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${isDraft ? "Complete verification before choosing a route" : `Proceed to ${esc(route)}`}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
-        `Your profile points to ${route} in ${countryLabel}. The next step is an advisor review to confirm eligibility, build the evidence plan and finalise costs before filing.`,
+        isDraft
+          ? `${route} in ${countryLabel} is a working comparison route only. Replace sample facts, verify the evidence and complete advisor review before making an immigration or payment decision.`
+          : `Your profile points to ${route} in ${countryLabel}. The next step is an advisor review to confirm eligibility, build the evidence plan and finalise costs before filing.`,
       )}</p>` +
       `<div class="spacer-24"></div>` +
       grid(3, [
         card({ dark: true, k: "Route", v: route }),
-        card({ dark: true, k: "Route fit", v: `${fit} / 100` }),
+        card({ dark: true, k: "Route fit", v: fit !== undefined ? `${fit} / 100` : "Not assessed" }),
         card({ dark: true, k: "Next service", v: "Advisor strategy call" }),
       ]) +
       `<div class="spacer-24"></div>` +
@@ -608,9 +645,11 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
+  const companyPages = buildCompanyProfilePages({ header: head, footer: foot });
 
   const bodyHtml = cleanReportPunctuation([
     cover,
+    basisPage,
     execPage,
     scorePage,
     profilePage,
@@ -630,6 +669,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     advisorPrepPage,
     deliversPage,
     engagementPage,
+    ...companyPages,
     closer,
   ].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });

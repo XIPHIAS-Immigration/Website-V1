@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 type Payload = Record<string, unknown>;
 
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_PRICE_INR = 10000;
+const DEFAULT_PRICE_INR = 1000;
 
 function safeEqualSecret(a: string, b: string) {
   const left = Buffer.from(a);

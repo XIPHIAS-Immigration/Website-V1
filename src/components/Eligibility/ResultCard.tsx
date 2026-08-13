@@ -20,7 +20,7 @@ type Props = {
 };
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
-const DETAILED_REPORT_PRICE_INR = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR || "10000";
+const DETAILED_REPORT_PRICE_INR = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR || "1000";
 const DETAILED_REPORT_PAYMENT_URL = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL || TOPMATE_REGISTRATION_URL;
 
 function formatInr(value: string) {
@@ -96,7 +96,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
       track,
       country: safeResult.countryFocus,
       program: safeResult.programs?.[0]?.name,
-      message: "Clicked INR 10,000 detailed report registration CTA.",
+      message: "Clicked detailed report registration CTA.",
       page: typeof window !== "undefined" ? window.location.pathname : "/eligibility",
       tags: ["detailed-report-intent", "topmate-registration"],
       consent: true,

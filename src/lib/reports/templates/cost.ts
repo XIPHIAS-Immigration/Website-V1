@@ -24,6 +24,7 @@ import {
   pill,
   runningFooter,
   runningHeader,
+  reportBasisPage,
   scoreBar,
   sectionHeader,
   splitPage,
@@ -32,7 +33,9 @@ import {
   ticks,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
+import { assessPersonalisation, buildClientCase, reportBasis } from "../client-case";
 
 const TRACKS = new Set<Vertical>(["residency", "citizenship", "skilled", "corporate"]);
 
@@ -213,6 +216,8 @@ function fallbackProgram(input: CostInput): CostProgram {
 
 export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
   const input = buildCostInput(order);
+  const clientCase = buildClientCase(order);
+  const personalisation = assessPersonalisation(clientCase);
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
   const imgs = allocateReportImages(await loadCountryImages(order.country), "cost", order.merchantTxnNo);
@@ -236,9 +241,13 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Cost & Budget", label);
   const head = runningHeader(reportTitle, { country: countryLabel, route: program.title });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   // ── Derived budgeting figures ───────────────────────────────────────────────
-  const total = breakdown.totalUsd;
+  const verifiedCosts = clientCase.finances.verifiedCosts.value ?? [];
+  const verifiedUsdCosts = verifiedCosts.filter((item) => item.currency.toUpperCase() === "USD");
+  const usesVerifiedCosts = verifiedCosts.length > 0 && verifiedUsdCosts.length === verifiedCosts.length;
+  const total = usesVerifiedCosts ? verifiedUsdCosts.reduce((sum, item) => sum + item.amount, 0) : breakdown.totalUsd;
   const perApplicant = Math.round(total / Math.max(1, breakdown.familySize));
   const govtItem = breakdown.lineItems.find((i) => i.key === "govt");
   const ddItem = breakdown.lineItems.find((i) => i.key === "due-diligence");
@@ -255,14 +264,16 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
   const familyDelta = total - soloTotal;
 
   // Readiness signals (directional, advisory).
-  const dataConfidence = isFallback ? 50 : 78;
-  const budgetClarity = breakdown.baseUsd > 0 ? 74 : 60;
-  const timelineClarity = breakdown.timelineMonths > 0 ? 72 : 56;
-  const familyReadiness = breakdown.dependents > 0 ? 70 : 64;
-  const fundsReadiness = program.track === "citizenship" || program.track === "residency" ? 58 : 66;
-  const overallReadiness = Math.round(
-    (dataConfidence + budgetClarity + timelineClarity + familyReadiness + fundsReadiness) / 5,
-  );
+  const familyKnown = clientCase.family.dependants.status !== "unknown" || clientCase.family.included.status !== "unknown";
+  const budgetKnown = clientCase.finances.budgetUsd.value !== undefined;
+  const fundsKnown = clientCase.finances.availableFundsUsd.value !== undefined || clientCase.finances.sourceOfFunds.status !== "unknown";
+  const dataConfidence = isFallback ? 25 : 55;
+  const budgetClarity = budgetKnown ? 60 : undefined;
+  const timelineClarity = clientCase.objective.timelineMonths.value !== undefined ? 60 : undefined;
+  const familyReadiness = familyKnown ? 55 : undefined;
+  const fundsReadiness = fundsKnown ? 55 : undefined;
+  const readinessParts = [dataConfidence, budgetClarity, timelineClarity, familyReadiness, fundsReadiness].filter((value): value is number => value !== undefined);
+  const overallReadiness = clientCase.advisor.riskClarityScore.value ?? (readinessParts.length >= 4 ? Math.round(readinessParts.reduce((sum, value) => sum + value, 0) / readinessParts.length) : undefined);
 
   // Distinct image-panel picker for the split (editorial two-column) pages. Starts at
   // imgs[3] and cycles so each analytical panel uses a different photo and avoids the
@@ -309,7 +320,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       }) +
       sectionHeader({
         eyebrow: "Cost summary",
-        title: "Your indicative all-in budget",
+        title: usesVerifiedCosts ? "Your sourced USD budget" : "Your indicative all-in budget",
         desc: `An itemised estimate for ${program.title}${countryLabel ? ` (${countryLabel})` : ""}, sized for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}. Every figure is an advisory planning placeholder confirmed at review.`,
       }) +
       grid(3, [
@@ -328,13 +339,16 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
           })
         : callout({
             k: "How to read this budget",
-            text: "The headline total bundles your qualifying investment (where applicable), government and application fees, due diligence per applicant, dependant add-ons and the XIPHIAS professional service fee. Plan against the buffered figure.",
+            text: usesVerifiedCosts ? "The headline total uses the advisor-entered cost items and recorded sources. Confirm that each item remains current before payment." : "The headline total uses an indicative internal planning model. It is not a government fee schedule or binding quote.",
           })),
     footer: foot("02"),
   });
 
   // 3 — Itemised cost table
-  const itemRows = breakdown.lineItems.map((item) => [
+  const reportLineItems = usesVerifiedCosts
+    ? verifiedUsdCosts.map((item) => ({ label: item.label, amountUsd: item.amount, note: [item.source, item.verifiedAt ? `Verified ${item.verifiedAt}` : ""].filter(Boolean).join(" · ") || "Advisor-entered sourced item." }))
+    : breakdown.lineItems;
+  const itemRows = reportLineItems.map((item) => [
     `<strong>${esc(item.label)}</strong>`,
     esc(item.note),
     `<span class="num">${esc(usd(item.amountUsd))}</span>`,
@@ -395,7 +409,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
         title: "What shapes your total",
         desc: "Each bar shows a component as a percentage of the estimated total — useful for spotting where the budget concentrates.",
       }) +
-      breakdown.lineItems
+      reportLineItems
         .map((item) =>
           scoreBar({
             label: item.label,
@@ -470,16 +484,35 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
         title: "Your budget-readiness scorecard",
         desc: "Directional advisory signals on how ready this budget is to move forward. Scores improve as you confirm figures and assemble evidence with an advisor.",
       }) +
-      scoreBar({ label: "Overall budget readiness", value: overallReadiness, tag: overallReadiness >= 70 ? "Well positioned to plan" : "Refine with an advisor" }) +
+      (overallReadiness !== undefined ? scoreBar({ label: "Overall budget readiness", value: overallReadiness, tag: "Based only on supplied financial facts" }) : callout({ k: "Budget readiness not scored", text: "Provide budget, available funds, source of funds and exact family composition before assigning a readiness score." })) +
       scoreBar({ label: "Estimate confidence", value: dataConfidence, tag: isFallback ? "Representative track estimate" : "Matched to a programme" }) +
-      scoreBar({ label: "Budget clarity", value: budgetClarity, tag: breakdown.baseUsd > 0 ? "Investment anchor known" : "Confirm fee schedule" }) +
-      scoreBar({ label: "Timeline clarity", value: timelineClarity, tag: breakdown.timelineLabel }) +
-      scoreBar({ label: "Family provisioning", value: familyReadiness, tag: `${breakdown.familySize} applicant${breakdown.familySize === 1 ? "" : "s"} in scope` }) +
-      scoreBar({ label: "Source-of-funds readiness", value: fundsReadiness, tag: program.track === "skilled" ? "Lower funds burden" : "Evidence a clean funds trail" }) +
-      `<div class="spacer-8"></div>` +
+      (budgetClarity !== undefined ? scoreBar({ label: "Budget information", value: budgetClarity, tag: "Client budget supplied" }) : "") +
+      (timelineClarity !== undefined ? scoreBar({ label: "Timeline information", value: timelineClarity, tag: breakdown.timelineLabel }) : "") +
+      (familyReadiness !== undefined ? scoreBar({ label: "Family information", value: familyReadiness, tag: `${breakdown.familySize} applicant${breakdown.familySize === 1 ? "" : "s"} stated` }) : "") +
+      (fundsReadiness !== undefined ? scoreBar({ label: "Source-of-funds information", value: fundsReadiness, tag: "Details supplied; verification pending" }) : ""),
+  });
+
+  const readinessNotesPage = page({
+    header: head,
+    footer: foot("07"),
+    body:
+      sectionHeader({
+        eyebrow: "Score interpretation",
+        title: "What your budget readiness means",
+        desc: "The score reflects only the financial facts and source material supplied for this case. It is not an approval prediction or a fee quote.",
+      }) +
+      callout({ k: "Fee basis", text: usesVerifiedCosts ? `This total uses ${verifiedCosts.length} advisor-entered source item${verifiedCosts.length === 1 ? "" : "s"}. Reverify dated sources before payment.` : isFallback ? "This report uses a synthetic track-level planning model because no exact programme matched. Do not use its total as a quote." : "Government, due-diligence and professional-fee components are planning assumptions, not a current government fee schedule. Obtain a dated advisor quote before payment." }) +
+      `<div class="spacer-16"></div>` +
       grid(2, [
-        card({ k: "Readiness band", v: `${overallReadiness} / 100`, note: pillBand(overallReadiness) }),
+        card({ k: "Readiness band", v: overallReadiness !== undefined ? `${overallReadiness} / 100` : "Not assessed", note: overallReadiness !== undefined ? pillBand(overallReadiness) : "Financial facts required" }),
         card({ k: "Buffer recommended", v: usd(contingency), note: "12% indicative contingency over the headline total." }),
+      ]) +
+      `<div class="spacer-16"></div>` +
+      ticks([
+        "Confirm every government and third-party fee against a dated source before payment.",
+        "Document the source and availability of funds needed for the selected route.",
+        "Recalculate for currency movement, family changes and programme updates.",
+        "Treat any unverified component as a planning placeholder, not a payable amount.",
       ]),
   });
 
@@ -569,7 +602,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-24"></div>` +
       grid(3, [
         card({ dark: true, k: "Estimated total", v: usd(total) }),
-        card({ dark: true, k: "Budget readiness", v: `${overallReadiness} / 100` }),
+        card({ dark: true, k: "Budget readiness", v: overallReadiness !== undefined ? `${overallReadiness} / 100` : "Not assessed" }),
         card({ dark: true, k: "Next service", v: "Advisor budget review" }),
       ]) +
       `<div class="spacer-24"></div>` +
@@ -582,13 +615,16 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
 
   const bodyHtml = cleanReportPunctuation([
     cover,
+    basisPage,
     summaryPage,
     tablePage,
     compositionPage,
     familyPage,
     scorecardPage,
+    readinessNotesPage,
     timelinePage,
     planPage,
+    ...buildCompanyProfilePages({ header: head, footer: foot }),
     closePage,
   ].join(""));
 

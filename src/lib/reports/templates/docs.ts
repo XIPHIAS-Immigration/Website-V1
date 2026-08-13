@@ -21,6 +21,7 @@ import {
   pill,
   runningFooter,
   runningHeader,
+  reportBasisPage,
   scoreBar,
   sectionHeader,
   splitPage,
@@ -30,13 +31,30 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
+import { assessPersonalisation, buildClientCase, reportBasis, verifiedDocumentReadiness, type ClientDocument } from "../client-case";
 
 /* ------------------------------------------------------------------ *
  * Defensive coercion helpers (mirrors templates/route.ts)
  * ------------------------------------------------------------------ */
 function str(value: unknown): string {
   return typeof value === "string" ? value.trim() : value == null ? "" : String(value).trim();
+}
+
+function documentCategory(value: string): string | undefined {
+  const text = value.toLowerCase();
+  if (/passport/.test(text)) return "passport";
+  if (/police|clearance|pcc/.test(text)) return "police-clearance";
+  if (/degree|qualification|transcript|diploma/.test(text)) return "qualification";
+  if (/(employment|work).*(reference|experience)|reference.*(employment|work|experience)/.test(text)) return "employment-reference";
+  if (/employment contract|job offer|offer letter/.test(text)) return "employment-contract";
+  if (/ielts|pte|oet|toefl|language test|english test/.test(text)) return "language";
+  if (/marriage|name change/.test(text)) return "marriage-name";
+  if (/birth certificate/.test(text)) return "birth";
+  if (/bank|fund|financial|income|salary|tax/.test(text)) return "financial";
+  if (/medical|health examination/.test(text)) return "medical";
+  return undefined;
 }
 function toBool(value: unknown): boolean {
   if (typeof value === "boolean") return value;
@@ -309,6 +327,8 @@ function groupTone(group: DocGroup): PillTone {
 
 export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
   const a = (order.answers ?? {}) as Record<string, unknown>;
+  const clientCase = buildClientCase(order);
+  const personalisation = assessPersonalisation(clientCase);
   const { program, countryLabel, programLabel } = resolveProgramme(order);
   const { items, indicative } = buildDocList(program);
   const logo = await loadLogo();
@@ -327,22 +347,23 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
   const fundsCount = items.filter((d) => d.group === "Financial & Funds").length;
   const programmeSpecific = items.filter((d) => d.group === "Programme-specific").length;
 
-  // Readiness sub-scores (directional, computed from coverage breadth).
+  const readiness = verifiedDocumentReadiness(clientCase.documents);
+  // Checklist coverage measures report quality, not the client's readiness.
   const breadthScore = clampScore((coveredGroups.length / GROUP_ORDER.length) * 100);
   const checklistDepth = clampScore(Math.min(100, 35 + total * 4));
-  const fundsScore = clampScore(fundsCount > 0 ? 70 : 48);
+  const fundsScore = clientCase.documents.length
+    ? clampScore((clientCase.documents.filter((item) => item.status === "verified" && /(fund|bank|tax|income|salary|financial)/i.test(item.name)).length / Math.max(1, fundsCount)) * 100)
+    : undefined;
   const matchScore = indicative ? 52 : 84;
-  const familyScore = family ? 64 : 72;
-  const overall = clampScore(
-    breadthScore * 0.3 + checklistDepth * 0.25 + matchScore * 0.25 + fundsScore * 0.1 + familyScore * 0.1,
-  );
+  const overall = clientCase.advisor.documentReadinessScore.value ?? readiness.score;
   const readinessLabel =
-    overall >= 78 ? "Well prepared" : overall >= 60 ? "On track" : overall >= 45 ? "Building" : "Early stage";
+    overall === undefined ? "Not assessed" : overall >= 78 ? "Well prepared" : overall >= 60 ? "On track" : overall >= 45 ? "Building" : "Early stage";
 
   const reportTitle = "Document Readiness Report";
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Document Readiness", label);
   const head = runningHeader(reportTitle, { country: countryLabel, route: program?.title });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   /* 1 — Cover */
   const cover = coverPage({
@@ -363,7 +384,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
       indicative ? "Indicative checklist" : "Programme-matched",
     ],
     fitScore: overall,
-    fitLabel: `${readinessLabel} · ${total} documents`,
+    fitLabel: `${readinessLabel} · ${clientCase.documents.length ? `${clientCase.documents.length} client records` : "inventory required"}`,
     countryLabel,
     dateLabel: dateLabel(),
   });
@@ -411,14 +432,13 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
       sectionHeader({
         eyebrow: "Readiness overview",
         title: "Your document-readiness scorecard",
-        desc: "Directional readiness signals computed from the breadth and depth of your checklist. Scores guide where to focus and are confirmed at advisor review.",
+        desc: clientCase.documents.length ? "Readiness is calculated from the status of the client's actual document inventory. Checklist breadth is shown separately." : "No client document inventory was supplied, so personal readiness is intentionally unscored. The checklist below shows possible requirements.",
       }) +
-      scoreBar({ label: "Overall document readiness", value: overall, tag: readinessLabel }) +
-      scoreBar({ label: "Category coverage", value: breadthScore, tag: `${coveredGroups.length} of ${GROUP_ORDER.length} categories in scope` }) +
-      scoreBar({ label: "Checklist depth", value: checklistDepth, tag: `${total} documents identified` }) +
+      (overall !== undefined ? scoreBar({ label: "Overall document readiness", value: overall, tag: readinessLabel }) : callout({ k: "Readiness not assessed", text: "Add the client's document inventory and statuses to calculate a truthful score." })) +
+      scoreBar({ label: "Checklist category coverage", value: breadthScore, tag: `${coveredGroups.length} of ${GROUP_ORDER.length} categories in scope` }) +
+      scoreBar({ label: "Checklist depth", value: checklistDepth, tag: `${total} possible documents identified` }) +
       scoreBar({ label: "Programme match", value: matchScore, tag: indicative ? "Indicative — confirm route" : "Matched to your programme" }) +
-      scoreBar({ label: "Funds evidence", value: fundsScore, tag: fundsCount > 0 ? `${fundsCount} financial items flagged` : "Confirm funds requirements" }) +
-      scoreBar({ label: "Family readiness", value: familyScore, tag: family ? "Dependant documents in scope" : "Primary applicant only" }) +
+      (fundsScore !== undefined ? scoreBar({ label: "Verified funds evidence", value: fundsScore, tag: `${fundsCount} possible financial items` }) : "") +
       `<div class="spacer-16"></div>` +
       grid(3, [
         card({ k: "Categories in scope", v: `${coveredGroups.length} / ${GROUP_ORDER.length}`, note: coveredGroups.join(" · ") }),
@@ -433,11 +453,24 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
     if (gi !== 0) return gi;
     return Number(y.required) - Number(x.required);
   });
+  const inventoryStatus = (d: DocItem): ClientDocument | undefined => {
+    const exact = clientCase.documents.find((item) => item.name.toLowerCase() === d.name.toLowerCase());
+    if (exact) return exact;
+    const category = documentCategory(d.name);
+    return category ? clientCase.documents.find((item) => documentCategory(item.name) === category) : undefined;
+  };
   const toRow = (d: DocItem): string[] => [
     `<strong>${esc(d.name)}</strong>`,
     pill(d.group, groupTone(d.group)),
     d.required ? pill("Required", "bad") : pill("If applicable", "muted"),
-    pill("To collect", "warn"),
+    (() => {
+      const found = inventoryStatus(d);
+      if (!found) return pill("Not assessed", "muted");
+      if (found.status === "verified") return pill("Verified", "good");
+      if (found.status === "expired" || found.status === "rejected") return pill(titleCase(found.status), "bad");
+      if (found.status === "available" || found.status === "uploaded") return pill(titleCase(found.status), "warn");
+      return pill(titleCase(found.status), "muted");
+    })(),
   ];
   const headCols = ["Document", "Group", "Required?", "Status"];
 
@@ -483,7 +516,10 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
     : "";
 
   /* 6 — Highest-priority gaps */
-  const priorityDocs = ordered.filter((d) => d.required && (d.group === "Financial & Funds" || d.group === "Programme-specific")).slice(0, 2);
+  const priorityDocs = ordered.filter((d) => {
+    const status = inventoryStatus(d)?.status;
+    return d.required && status !== "verified" && (d.group === "Financial & Funds" || d.group === "Programme-specific");
+  }).slice(0, 2);
   const fallbackPriority = ordered.filter((d) => d.required).slice(0, 2);
   const gaps = (priorityDocs.length ? priorityDocs : fallbackPriority).map((d, i) =>
     card({
@@ -584,7 +620,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
       )}</p>` +
       `<div class="spacer-24"></div>` +
       grid(3, [
-        card({ dark: true, k: "Readiness", v: `${overall} / 100` }),
+        card({ dark: true, k: "Readiness", v: overall !== undefined ? `${overall} / 100` : "Not assessed" }),
         card({ dark: true, k: "Documents", v: `${total} mapped` }),
         card({ dark: true, k: "Next service", v: "Document verification" }),
       ]) +
@@ -598,12 +634,14 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
 
   const bodyHtml = cleanReportPunctuation([
     cover,
+    basisPage,
     briefPage,
     checklistPage,
     checklistPage2,
     gapsPage,
     planPage,
     evidencePage,
+    ...buildCompanyProfilePages({ header: head, footer: foot }),
     summaryPage,
   ].join(""));
 

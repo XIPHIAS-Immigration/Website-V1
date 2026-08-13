@@ -30,6 +30,7 @@ import {
   pill,
   runningFooter,
   runningHeader,
+  reportBasisPage,
   scoreBar,
   sectionHeader,
   splitPage,
@@ -39,6 +40,8 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { buildCompanyProfilePages } from "../company-profile";
+import { assessPersonalisation, buildClientCase, referenceMatches, reportBasis } from "../client-case";
 
 const TARGET_COUNTRIES = new Set(["usa", "canada", "uk", "australia", "global"]);
 const GOALS = new Set(["permanent-residency", "temporary-work", "talent-visa", "founder", "not-sure"]);
@@ -603,8 +606,20 @@ function dossierForPaidReport(dossier: Dossier, route: ScoredHighSkillRoute): Do
 
 export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffer> {
   const depth = depthFor("deep_analysis");
+  const clientCase = buildClientCase(order);
+  const personalisation = assessPersonalisation(clientCase);
   const input = buildHighSkillInput(order);
-  const scored = scoreHighSkillRoutes(input).slice(0, input.targetCountry === "global" ? 6 : 3);
+  const allScored = scoreHighSkillRoutes(input);
+  const selected = clientCase.objective.selectedProgrammes.value ?? [];
+  const selectedRoutes = selected.flatMap((name) => {
+    const hit = allScored.find((route) => referenceMatches(`${route.id} ${route.title}`, name));
+    return hit ? [hit] : [];
+  });
+  const modelCap = clampScore(35 + personalisation.completeness * 0.6);
+  const advisorFit = clientCase.advisor.routeFitScore.value;
+  const scored = (selectedRoutes.length ? [...selectedRoutes, ...allScored.filter((route) => !selectedRoutes.some((selectedRoute) => selectedRoute.id === route.id))] : allScored)
+    .slice(0, input.targetCountry === "global" ? 6 : 3)
+    .map((route, index) => ({ ...route, fitScore: index === 0 && advisorFit !== undefined ? clampScore(advisorFit) : Math.min(route.fitScore, modelCap) }));
   const top = scored[0];
   const includesNiv = scored.some((route) => route.id === "australia-niv-858");
   const countryIntel = countryIntelligence(input);
@@ -695,6 +710,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Deep Analysis", label);
   const head = runningHeader(reportTitle, { country: COUNTRY_LABELS[input.targetCountry], route: top?.title });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   const avgTop3 = scored.slice(0, 3).reduce((sum, r) => sum + r.fitScore, 0) / Math.max(1, Math.min(3, scored.length));
   const totalEvidenceCategories = highSkillRoutes.reduce(
@@ -793,7 +809,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       callout({
         k: "Headline read",
         text: top
-          ? `Your strongest ${COUNTRY_LABELS[input.targetCountry]} match today is ${top.title} (${top.country}) at ${clampScore(top.fitScore)}/100. It is currently a ${top.tier.toLowerCase()} position. Use this report to confirm the evidence you still need to build for this destination.`
+          ? `${selectedRoutes.length ? "The advisor-selected route begins with" : "The current model ranks"} ${top.title} (${top.country}) at ${clampScore(top.fitScore)}/100 from ${personalisation.completeness}% core profile completeness. Treat the score as directional until the evidence claims and route criteria are verified.`
           : "Provide more profile detail with an advisor to surface a stronger ranked shortlist of high-skill routes.",
       }),
     footer: foot("02"),
@@ -1565,6 +1581,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
 
   const bodyHtml = removeLongDashes([
     cover,
+    basisPage,
     briefPage,
     cvPage,
     scorecardPage,
@@ -1594,6 +1611,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     ninetyDayPage,
     xiphiasHelpPage,
     ...dossierPages,
+    ...buildCompanyProfilePages({ header: head, footer: foot }),
     summaryPage,
   ].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml, embedBrandFonts: true });

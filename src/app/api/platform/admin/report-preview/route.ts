@@ -30,6 +30,8 @@ function buildSampleOrder(sp: URLSearchParams, productType: string, label: strin
   withDefault("presence", "any");
   withDefault("priority", "stability");
   withDefault("notes", "Sample preview order for report design QA.");
+  const targetCountries = (sp.get("targetCountries") || "").split(/[,|;\n]+/).map((item) => item.trim()).filter(Boolean);
+  const selectedProgrammes = (sp.get("selectedProgrammes") || "").split(/[,|;\n]+/).map((item) => item.trim()).filter(Boolean);
 
   return {
     merchantTxnNo: sp.get("ref") || "PREVIEW-0001",
@@ -42,8 +44,8 @@ function buildSampleOrder(sp: URLSearchParams, productType: string, label: strin
       phone: sp.get("phone") || undefined,
     },
     track: sp.get("track") || undefined,
-    country: sp.get("country") || undefined,
-    program: sp.get("program") || undefined,
+    country: sp.get("country") || targetCountries[0] || undefined,
+    program: sp.get("program") || selectedProgrammes[0] || undefined,
     answers,
     status: "paid",
     createdAt: now,

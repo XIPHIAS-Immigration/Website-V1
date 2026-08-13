@@ -20,7 +20,7 @@ const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
 const MAX_JSON_KB = 64;
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PRICE_INR = "10000";
+const DEFAULT_REPORT_PRICE_INR = "1000";
 
 const rlBucket: Map<string, number[]> =
   (global as any).__eligibilityRL__ ?? new Map<string, number[]>();

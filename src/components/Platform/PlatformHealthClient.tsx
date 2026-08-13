@@ -146,7 +146,7 @@ export default function PlatformHealthClient({ initialHealth }: Props) {
         ready={health.registration.topmateUrlConfigured && health.registration.provisioningMode !== "blocked"}
       >
         <div className="grid gap-1">
-          <p>Topmate INR 10,000 URL: {health.registration.topmateUrlConfigured ? "configured" : "missing"}</p>
+          <p>Topmate INR 1,000 URL: {health.registration.topmateUrlConfigured ? "configured" : "missing"}</p>
           <p>Provisioning secret: {health.registration.webhookSecretConfigured ? "configured" : "missing"}</p>
           <p>Provisioning mode: {health.registration.provisioningMode}</p>
           <p className="mt-2">

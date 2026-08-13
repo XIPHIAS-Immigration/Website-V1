@@ -21,7 +21,7 @@ const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigratio
 const REPORT_TITLE = "Assessment Preview Report";
 const DETAILED_REPORT_TITLE = "Detailed Personal Mobility Report";
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PRICE_INR = "10000";
+const DEFAULT_REPORT_PRICE_INR = "1000";
 const PDF_LOGO_BASE64 = process.env.PDF_LOGO_BASE64 || "";
 
 const FOOTER_ADDRESS =

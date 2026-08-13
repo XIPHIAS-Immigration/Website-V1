@@ -18,7 +18,7 @@ export default function RegistrationRedirectPage() {
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d8b650]">XIPHIAS registration</p>
         <h1 className="mt-3 text-3xl font-black tracking-normal">Detailed assessment registration</h1>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-200">
-          The INR 10,000 Topmate registration product is not configured yet. Create the product in Topmate, then set
+          The INR 1,000 Topmate registration product is not configured yet. Create the product in Topmate, then set
           <strong> TOPMATE_REGISTRATION_URL</strong> in the deployment environment. The consultation booking flow remains separate.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">

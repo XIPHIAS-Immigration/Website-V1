@@ -30,7 +30,7 @@ const FULL_DOSSIER: readonly DossierSection[] = [
  */
 export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
   premium_strategy: {
-    priceInr: 5000,
+    priceInr: 1000,
     targetPages: [46, 56],
     maxProgrammes: 3,
     primaryDossierSections: FULL_DOSSIER,
@@ -38,7 +38,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 4,
   },
   us_visa: {
-    priceInr: 4999,
+    priceInr: 1000,
     targetPages: [44, 52],
     maxProgrammes: 4,
     primaryDossierSections: FULL_DOSSIER,
@@ -46,7 +46,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 1,
   },
   deep_analysis: {
-    priceInr: 3999,
+    priceInr: 799,
     targetPages: [40, 48],
     maxProgrammes: 1,
     primaryDossierSections: ["divider", "documents"],
@@ -54,7 +54,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   route: {
-    priceInr: 1999,
+    priceInr: 599,
     targetPages: [12, 18],
     maxProgrammes: 1,
     primaryDossierSections: ["divider", "snapshot", "eligibility", "costs", "process", "risk"],
@@ -62,7 +62,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   cost: {
-    priceInr: 499,
+    priceInr: 199,
     targetPages: [7, 9],
     maxProgrammes: 1,
     primaryDossierSections: [],
@@ -70,7 +70,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   compare: {
-    priceInr: 199,
+    priceInr: 99,
     targetPages: [5, 7],
     maxProgrammes: 0,
     primaryDossierSections: [],
@@ -78,7 +78,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   docs: {
-    priceInr: 199,
+    priceInr: 99,
     targetPages: [6, 8],
     maxProgrammes: 0,
     primaryDossierSections: [],

@@ -22,6 +22,7 @@ import {
   pill,
   runningFooter,
   runningHeader,
+  reportBasisPage,
   scoreBar,
   sectionHeader,
   splitPage,
@@ -31,9 +32,11 @@ import {
   type PillTone,
 } from "../components";
 import { renderReportPdf } from "../render";
+import { buildCompanyProfilePages } from "../company-profile";
 import { resolveProgramme } from "@/lib/reports/programme";
 import { buildDossierPages } from "../dossier-sections";
 import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
+import { assessPersonalisation, buildClientCase, factValue, referenceMatches, reportBasis } from "../client-case";
 
 const GOALS = new Set(["not-sure", "pr", "work-visa", "citizenship", "investment", "business-setup", "family-migration"]);
 const PROFILES = new Set(["investor", "entrepreneur", "professional", "family", "company", "remote", "researcher", "student"]);
@@ -90,14 +93,15 @@ function goalLabel(goal: string): string {
 
 function buildRouteInput(order: JiopayOrder): RouteIntelligenceInput {
   const a = (order.answers ?? {}) as Record<string, unknown>;
+  const clientCase = buildClientCase(order);
   return {
     goal: pickEnum(a.goal, GOALS, "not-sure") as RouteIntelligenceInput["goal"],
     track: pickEnum(order.track ?? a.track, TRACKS, "all") as RouteIntelligenceInput["track"],
     destination: str(order.country ?? a.destination ?? a.country),
     profile: pickEnum(a.profile, PROFILES, "professional") as RouteIntelligenceInput["profile"],
     budget: toInt(a.budget ?? a.budgetUsd, 0),
-    timeline: toInt(a.timeline ?? a.timelineMonths, 12),
-    family: toBool(a.family ?? a.familyMembers),
+    timeline: toInt(a.timeline ?? a.timelineMonths, 0),
+    family: factValue(clientCase.family.included) === true,
     presence: pickEnum(a.presence, PRESENCE, "any") as RouteIntelligenceInput["presence"],
     priority: pickEnum(a.priority, PRIORITIES, "stability") as RouteIntelligenceInput["priority"],
     notes: str(a.notes ?? a.goals),
@@ -125,9 +129,26 @@ function dateLabel(): string {
 
 export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
   const depth = depthFor("route");
+  const clientCase = buildClientCase(order);
+  const personalisation = assessPersonalisation(clientCase);
   const data = getXiaIntelligenceData();
   const input = buildRouteInput(order);
-  const scored = scoreProgrammeRoutes(data.programme.items, input).slice(0, 4);
+  const modelCap = clampScore(35 + personalisation.completeness * 0.6);
+  const advisorFit = clientCase.advisor.routeFitScore.value;
+  const allScored = scoreProgrammeRoutes(data.programme.items, input);
+  const selected = clientCase.objective.selectedProgrammes.value ?? [];
+  const selectedRoutes = selected.flatMap((name) => {
+    const hit = allScored.find((route) => referenceMatches(`${route.id} ${route.title}`, name));
+    return hit ? [hit] : [];
+  });
+  const scored = (selectedRoutes.length
+    ? [...selectedRoutes, ...allScored.filter((route) => !selectedRoutes.some((selectedRoute) => selectedRoute.id === route.id))]
+    : allScored)
+    .slice(0, 4)
+    .map((route, index) => ({
+      ...route,
+      fitScore: index === 0 && advisorFit !== undefined ? clampScore(advisorFit) : Math.min(route.fitScore, modelCap),
+    }));
   const top = scored[0];
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
@@ -137,6 +158,7 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Route Intelligence", label);
   const head = runningHeader(reportTitle, { country: input.destination ? smartLabel(input.destination) : "Global", route: top?.title });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   const avgTop3 = scored.slice(0, 3).reduce((sum, r) => sum + r.fitScore, 0) / Math.max(1, Math.min(3, scored.length));
 
@@ -167,8 +189,8 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
     card({ k: "Primary goal", v: goalLabel(input.goal) }),
     card({ k: "Profile", v: smartLabel(input.profile) }),
     card({ k: "Indicative budget", v: input.budget > 0 ? `USD ${input.budget.toLocaleString("en-US")}` : "To confirm" }),
-    card({ k: "Timeline", v: `${input.timeline} months` }),
-    card({ k: "Family", v: input.family ? "Including dependants" : "Primary applicant" }),
+    card({ k: "Timeline", v: input.timeline > 0 ? `${input.timeline} months` : "Not provided" }),
+    card({ k: "Family", v: clientCase.family.included.status === "unknown" ? "Not provided" : input.family ? "Including dependants" : "Primary applicant" }),
   ]);
   const briefPage = splitPage({
     header: head,
@@ -187,7 +209,7 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
       callout({
         k: "Best next move",
         text: top
-          ? `Your strongest match today is ${top.title} (${top.country}). Use this report to compare it against the alternatives and confirm the evidence you will need.`
+          ? `${top.title} (${top.country}) is the highest-ranked working match from the information supplied. It is not a final eligibility decision; resolve the listed limitations and hard eligibility gates first.`
           : "Refine your destination and goal with an advisor to surface a stronger shortlist.",
       }),
   });
@@ -271,9 +293,9 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
       }) +
       scoreBar({ label: "Top route fit", value: top?.fitScore ?? 60, tag: top ? fitLabel(top.fitScore) : "Refine inputs" }) +
       scoreBar({ label: "Shortlist strength", value: avgTop3, tag: "Average of your top matches" }) +
-      scoreBar({ label: "Budget alignment", value: input.budget > 0 ? 72 : 55, tag: input.budget > 0 ? "Budget provided" : "Confirm budget" }) +
-      scoreBar({ label: "Timeline clarity", value: input.timeline > 0 ? 70 : 58, tag: `${input.timeline}-month window` }) +
-      scoreBar({ label: "Family readiness", value: input.family ? 70 : 62, tag: input.family ? "Dependants in scope" : "Primary applicant" }),
+      (input.budget > 0 ? scoreBar({ label: "Budget information", value: 60, tag: "Amount provided; costs not yet verified" }) : callout({ k: "Budget not assessed", text: "No budget was supplied, so affordability did not contribute a favourable score." })) +
+      (input.timeline > 0 ? scoreBar({ label: "Timeline information", value: 60, tag: `${input.timeline}-month preference provided` }) : callout({ k: "Timeline not assessed", text: "No planning window was supplied." })) +
+      (clientCase.family.included.status !== "unknown" ? scoreBar({ label: "Family information", value: clientCase.family.details.value || clientCase.family.dependants.value !== undefined ? 65 : 50, tag: input.family ? "Dependants need route-specific review" : "Primary applicant" }) : callout({ k: "Family scope not assessed", text: "Family composition was not confirmed." })),
   });
 
   // 5 — Why the alternatives fit
@@ -337,7 +359,7 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
       `<h2 class="h-section" style="color:#fff;margin-top:8px;">Proceed with confidence</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         top
-          ? `Your profile points most strongly to ${top.title} in ${top.country}. The next step is an advisor review to confirm eligibility and build your evidence plan.`
+          ? `${top.title} in ${top.country} is the current working lead based on ${personalisation.completeness}% profile completeness. The next step is to resolve hard eligibility, admissibility and evidence questions before confirming it.`
           : "Refine your destination and goal with an advisor to lock a strong primary route.",
       )}</p>` +
       `<div class="spacer-24"></div>` +
@@ -369,6 +391,7 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
       ]
     : [];
 
-  const bodyHtml = cleanReportPunctuation([cover, briefPage, topPage, comparePage, readinessPage, altPage, planPage, ...dossierPages, summaryPage].join(""));
+  const companyPages = buildCompanyProfilePages({ header: head, footer: foot });
+  const bodyHtml = cleanReportPunctuation([cover, basisPage, briefPage, topPage, comparePage, readinessPage, altPage, planPage, ...dossierPages, ...companyPages, summaryPage].join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

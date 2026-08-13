@@ -33,6 +33,23 @@ const PRODUCTS = {
   docs: "docs_report",
 };
 
+const EXPECTED_PRICES = {
+  premium_report: 1000,
+  us_visa_report: 1000,
+  deep_analysis_report: 799,
+  route_report: 599,
+  cost_report: 199,
+  compare_report: 99,
+  docs_report: 99,
+  registration: 1000,
+};
+
+test("fixed product prices match the approved catalogue", () => {
+  for (const [productType, expectedPrice] of Object.entries(EXPECTED_PRICES)) {
+    assert.equal(PRODUCT_CATALOG[productType].priceInr, expectedPrice, `${productType} price drifted`);
+  }
+});
+
 test("report depth prices match the payment catalogue", () => {
   for (const [kind, productType] of Object.entries(PRODUCTS)) {
     assert.equal(REPORT_DEPTH[kind].priceInr, PRODUCT_CATALOG[productType].priceInr, `${kind} price drifted`);
