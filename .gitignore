@@ -47,3 +47,7 @@ next-env.d.ts
 *.zip
 # audit screenshots / generated samples
 /report-samples/
+
+# local report generation, candidate data, and PDF QA artifacts
+/tmp/
+/output/pdf/
