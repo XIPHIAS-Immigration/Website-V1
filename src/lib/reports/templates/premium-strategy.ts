@@ -130,9 +130,15 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     if (dossiers.length >= depth.maxProgrammes) break;
     addDossier(resolveProgramme({ country, program: selected, track: order.track }));
   }
-  for (const alternative of resolveProgrammes({ country, program: programName, track: order.track }, depth.maxProgrammes)) {
-    if (dossiers.length >= depth.maxProgrammes) break;
-    addDossier(alternative);
+  // An explicit advisor/user shortlist is authoritative. Do not silently pad it
+  // with country-level alternatives, because those extra routes can be mistaken
+  // for assessed or recommended programmes. Fall back to discovery only when no
+  // supplied programme resolves to a dossier.
+  if (dossiers.length === 0) {
+    for (const alternative of resolveProgrammes({ country, program: programName, track: order.track }, depth.maxProgrammes)) {
+      if (dossiers.length >= depth.maxProgrammes) break;
+      addDossier(alternative);
+    }
   }
   const dossier = dossiers[0] ?? null;
   const route = dossier?.title || (programName ? smartLabel(programName) : "Advisor-led route");

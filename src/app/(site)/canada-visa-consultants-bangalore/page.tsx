@@ -287,23 +287,20 @@ export default function CanadaVisaConsultantsBangalorePage() {
               <span>Registration deadline: 28 August 2026</span>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#consultation" className="inline-flex min-h-12 items-center gap-2 rounded-lg bg-[#f0c83f] px-5 py-3 text-sm font-bold text-primary transition hover:bg-white">
-                Check Canada PR Eligibility <ArrowRight className="size-4" aria-hidden="true" />
+            <div className="mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
+              <a
+                href="#consultation"
+                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg bg-[#f0c83f] px-7 py-4 text-base font-bold text-primary shadow-lg transition hover:bg-white"
+              >
+                Book a Consultation <ArrowRight className="size-5" aria-hidden="true" />
               </a>
-              <a href="#consultation" className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-white/45 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20">
-                Book a Consultation <ArrowRight className="size-4" aria-hidden="true" />
+              <a
+                href="#consultation"
+                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg border border-white/50 bg-white/10 px-6 py-4 text-base font-bold text-white transition hover:bg-white/20"
+              >
+                Check Canada PR Eligibility <ArrowRight className="size-5" aria-hidden="true" />
               </a>
             </div>
-
-            <dl className="mt-10 grid max-w-3xl grid-cols-3 border-y border-white/25 py-5">
-              {[["4.7/5", "Google rating"], ["17+", "Years advising"], ["6", "Global offices"]].map(([value, label]) => (
-                <div key={label} className="px-3 first:pl-0 sm:px-6">
-                  <dt className="text-2xl font-bold text-[#f0c83f] sm:text-3xl">{value}</dt>
-                  <dd className="type-caption mt-1 text-white/70">{label}</dd>
-                </div>
-              ))}
-            </dl>
           </div>
         </div>
       </section>

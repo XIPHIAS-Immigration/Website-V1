@@ -105,6 +105,7 @@ test("advisor-selected programmes remain authoritative across route-led reports"
   const premium = read("src/lib/reports/templates/premium-strategy.ts");
   assert.match(premium, /clientCase\.objective\.selectedProgrammes\.value/);
   assert.match(premium, /resolveProgramme\(\{ country, program: selected/);
+  assert.match(premium, /if \(dossiers\.length === 0\)/);
 
   const route = read("src/lib/reports/templates/route.ts");
   assert.match(route, /clientCase\.objective\.selectedProgrammes\.value/);
