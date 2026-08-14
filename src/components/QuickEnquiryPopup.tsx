@@ -22,6 +22,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 function shouldSkipPath(pathname: string) {
   const p = pathname.toLowerCase();
   if (p.startsWith("/contact")) return true;
+  if (p === "/canada-visa-consultants-bangalore") return true;
   if (p === "/eligibility" || p.startsWith("/eligibility/")) return true;
   if (p.includes("eligibility-check")) return true;
   if (p.startsWith("/deep-analysis")) return true;

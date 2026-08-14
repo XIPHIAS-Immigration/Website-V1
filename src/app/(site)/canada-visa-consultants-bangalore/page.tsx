@@ -17,7 +17,9 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 
-import ContactForm from "@/components/ContactForm";
+import CanadaConsultationPopup, {
+  CanadaBangaloreContactForm,
+} from "@/components/CanadaBangalore/CanadaConsultationPopup";
 import { JsonLd } from "@/lib/seo";
 
 const SITE_URL = "https://www.xiphiasimmigration.com";
@@ -251,6 +253,7 @@ export default function CanadaVisaConsultantsBangalorePage() {
   return (
     <>
       <JsonLd id="canada-visa-consultants-bangalore-jsonld" data={pageJsonLd} />
+      <CanadaConsultationPopup />
 
       <section className="relative isolate min-h-[660px] overflow-hidden bg-primary text-white">
         <Image
@@ -277,6 +280,12 @@ export default function CanadaVisaConsultantsBangalorePage() {
               Our Canada immigration consultants in Bangalore assess your age, education, experience,
               occupation, language ability and immigration goals before discussing a suitable pathway.
             </p>
+
+            <div className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[#f0c83f]/45 bg-primary/65 px-4 py-3 text-sm font-bold text-white shadow-lg backdrop-blur-sm">
+              <span className="text-[#f0c83f]">Limited consultation seats available</span>
+              <span className="hidden text-white/45 sm:inline" aria-hidden="true">|</span>
+              <span>Registration deadline: 28 August 2026</span>
+            </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#consultation" className="inline-flex min-h-12 items-center gap-2 rounded-lg bg-[#f0c83f] px-5 py-3 text-sm font-bold text-primary transition hover:bg-white">
@@ -561,13 +570,7 @@ export default function CanadaVisaConsultantsBangalorePage() {
             </ul>
           </div>
 
-          <ContactForm
-            idPrefix="canada-visa-consultants-bangalore"
-            heading="Check your Canada PR eligibility"
-            subheading="Share your profile. A XIPHIAS advisor will respond within 24 hours."
-            defaults={{ message: "I would like to assess my Canada PR, Express Entry or PNP options from Bangalore." }}
-            className="!max-w-none !rounded-lg !shadow-none"
-          />
+          <CanadaBangaloreContactForm />
         </div>
         <p className="type-caption mx-auto mt-8 max-w-screen-2xl px-5 text-white/55 sm:px-8 lg:px-12">
           No obligation. Your information is handled confidentially. Eligibility and outcomes depend on individual facts and current Canadian immigration rules.
