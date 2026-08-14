@@ -13,11 +13,18 @@ import { getPlatformRepository } from "@/lib/platform/repository";
 import { createReportDownloadGrant } from "@/lib/payments/report-delivery";
 import { recordJiopayPurchaseInCrm } from "@/lib/crm/save-payment";
 import { fulfillJiopayOrder } from "@/lib/payments/fulfillment";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Payload = Record<string, unknown>;
+
+function customerReturnPath(productType?: string) {
+  return getProductConfig(productType)?.requiresIntake
+    ? "/due-diligence-intelligence/paid"
+    : "/payment/jiopay/return";
+}
 
 async function readPayload(req: NextRequest): Promise<Payload> {
   const params = Object.fromEntries(req.nextUrl.searchParams.entries());
@@ -76,7 +83,7 @@ async function handleReturn(req: NextRequest) {
           ? "failed"
           : "returned";
 
-    const redirectUrl = new URL("/payment/jiopay/return", req.nextUrl.origin);
+    const redirectUrl = new URL(customerReturnPath(existingOrder?.productType), req.nextUrl.origin);
     redirectUrl.searchParams.set("status", status);
     redirectUrl.searchParams.set("verified", verified ? "1" : "0");
     redirectUrl.searchParams.set("order", merchantTxnNo);
@@ -154,7 +161,7 @@ async function handleReturn(req: NextRequest) {
     }
   }
 
-  const redirectUrl = new URL("/payment/jiopay/return", req.nextUrl.origin);
+  const redirectUrl = new URL(customerReturnPath(initialOrder?.productType), req.nextUrl.origin);
   redirectUrl.searchParams.set("status", status);
   redirectUrl.searchParams.set("verified", verified ? "1" : "0");
   if (merchantTxnNo) redirectUrl.searchParams.set("order", merchantTxnNo);

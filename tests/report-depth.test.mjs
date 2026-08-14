@@ -31,16 +31,18 @@ const PRODUCTS = {
   cost: "cost_report",
   compare: "compare_report",
   docs: "docs_report",
+  due_diligence: "due_diligence_report",
 };
 
 const EXPECTED_PRICES = {
   premium_report: 1000,
   us_visa_report: 1000,
-  deep_analysis_report: 799,
-  route_report: 599,
-  cost_report: 199,
-  compare_report: 99,
-  docs_report: 99,
+  deep_analysis_report: 499,
+  route_report: 499,
+  cost_report: 499,
+  compare_report: 499,
+  docs_report: 499,
+  due_diligence_report: 499,
   registration: 1000,
 };
 
@@ -48,6 +50,11 @@ test("fixed product prices match the approved catalogue", () => {
   for (const [productType, expectedPrice] of Object.entries(EXPECTED_PRICES)) {
     assert.equal(PRODUCT_CATALOG[productType].priceInr, expectedPrice, `${productType} price drifted`);
   }
+});
+
+test("paid due diligence waits for the expanded intake", () => {
+  assert.equal(PRODUCT_CATALOG.due_diligence_report.reportKind, "due_diligence");
+  assert.equal(PRODUCT_CATALOG.due_diligence_report.requiresIntake, true);
 });
 
 test("report depth prices match the payment catalogue", () => {

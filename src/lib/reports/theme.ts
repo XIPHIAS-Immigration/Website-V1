@@ -97,6 +97,7 @@ export const REPORT_CSS = `
   .cover-rule { width: 24mm; height: .8mm; background: ${BRAND.gold}; margin: 6mm 0; }
   .cover h1 { font-family: ${DISPLAY}; color: #fff; font-size: 38pt; line-height: 1.04; margin: 0; max-width: 150mm; font-weight: 700; }
   .cover-sub { margin-top: 6mm; font-size: 12pt; color: #dfe6f2; max-width: 125mm; line-height: 1.55; }
+  .cover-profile { margin-top: 4mm; width: fit-content; max-width: 150mm; border-left: .8mm solid ${BRAND.gold}; background: rgba(10,31,68,.5); padding: 2.6mm 4mm; color: #fff; font-size: 10pt; font-weight: 700; line-height: 1.4; }
   .cover-meta { margin-top: 9mm; display: flex; gap: 8mm; align-items: flex-end; }
   .cover-prep .k { font-size: 8pt; letter-spacing: 0; text-transform: uppercase; color: ${BRAND.goldSoft}; }
   .cover-prep .v { font-family: ${DISPLAY}; font-size: 15pt; margin-top: 1.5mm; color: #fff; font-weight: 700; }

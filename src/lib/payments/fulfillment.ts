@@ -3,7 +3,7 @@ import "server-only";
 import { getJiopayOrder, updateJiopayOrder, type JiopayOrder } from "@/lib/payments/jiopay-store";
 import { getProductConfig, type ProductConfig } from "@/lib/payments/product-catalog";
 import { sendPlatformEmail, getPlatformRecipient } from "@/lib/platform/email";
-import { ensurePaidReportArtifact, reportDownloadUrl } from "@/lib/payments/report-delivery";
+import { createReportDownloadGrant, ensurePaidReportArtifact, reportDownloadUrl } from "@/lib/payments/report-delivery";
 import { finalizeCrmJiopayPayment } from "@/lib/payments/crm-jiopay";
 
 export type FulfillmentStatus =
@@ -11,6 +11,7 @@ export type FulfillmentStatus =
   | "unknown_product"
   | "already_fulfilled"
   | "report_sent"
+  | "report_pending_intake"
   | "report_failed"
   | "registration_delegated"
   | "registration_skipped"
@@ -148,6 +149,28 @@ async function fulfillReport(
 ): Promise<FulfillmentResult> {
   if (!product.reportKind) {
     return { status: "report_failed", detail: "No report template configured for this product." };
+  }
+  if (product.requiresIntake && order.answers?.paidIntakeCompleted !== true) {
+    const invitationSent = order.events?.some((event) => event.type === "intake_invitation_sent");
+    if (!invitationSent) {
+      const grant = createReportDownloadGrant(order.merchantTxnNo);
+      const url = new URL("/due-diligence-intelligence/paid", opts.siteUrl.replace(/\/+$/, ""));
+      url.searchParams.set("order", order.merchantTxnNo);
+      url.searchParams.set("expires", String(grant.expires));
+      url.searchParams.set("token", grant.token);
+      const mail = await sendPlatformEmail({
+        to: order.customer.email,
+        subject: "Continue your XIPHIAS Due Diligence Report",
+        label: "XIPHIAS Immigration",
+        html: `<p>Hi <strong>${escapeHtml(order.customer.name)}</strong>,</p><p>Your INR ${escapeHtml(order.amountInr)} payment is confirmed. Complete the secure paid due-diligence intake to generate your personalised report.</p><p><a href="${escapeHtml(url.toString())}">Continue due diligence</a></p><p>This link is valid for seven days. No report will be generated until the paid intake is submitted.</p>`,
+      });
+      updateJiopayOrder(order.merchantTxnNo, {}, {
+        type: "intake_invitation_sent",
+        at: new Date().toISOString(),
+        data: { productType: order.productType, mail },
+      });
+    }
+    return { status: "report_pending_intake", detail: "paid_intake_required" };
   }
   try {
     const pdf = await ensurePaidReportArtifact(order, product);

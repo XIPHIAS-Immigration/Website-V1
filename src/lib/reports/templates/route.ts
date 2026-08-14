@@ -36,7 +36,7 @@ import { buildCompanyProfilePages } from "../company-profile";
 import { resolveProgramme } from "@/lib/reports/programme";
 import { buildDossierPages } from "../dossier-sections";
 import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
-import { assessPersonalisation, buildClientCase, factValue, referenceMatches, reportBasis } from "../client-case";
+import { assessPersonalisation, buildClientCase, caseCoverProfileLine, factValue, referenceMatches, reportBasis } from "../client-case";
 
 const GOALS = new Set(["not-sure", "pr", "work-visa", "citizenship", "investment", "business-setup", "family-migration"]);
 const PROFILES = new Set(["investor", "entrepreneur", "professional", "family", "company", "remote", "researcher", "student"]);
@@ -171,6 +171,7 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
     eyebrow: "XIA · Route Intelligence",
     title: "Route Intelligence Report",
     preparedFor: order.customer.name,
+    profileLine: caseCoverProfileLine(clientCase),
     subtitle: "A ranked, evidence-led view of the immigration routes that best match your goal, profile, budget and timeline.",
     chips: [
       input.destination ? `Destination: ${smartLabel(input.destination)}` : "Global search",

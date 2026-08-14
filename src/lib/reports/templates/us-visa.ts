@@ -38,7 +38,7 @@ import {
 import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
-import { assessPersonalisation, buildClientCase, referenceMatches, reportBasis } from "../client-case";
+import { assessPersonalisation, buildClientCase, caseCoverProfileLine, referenceMatches, reportBasis } from "../client-case";
 
 const GOALS = new Set(["permanent-residency", "temporary-work", "talent-visa", "founder", "not-sure"]);
 const FIELDS = new Set(["technology", "science", "business", "arts", "healthcare", "academia", "sports", "other"]);
@@ -320,6 +320,7 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
     eyebrow: "XIA · US Visa Intelligence",
     title: "US Visa Strategy Report",
     preparedFor: order.customer.name,
+    profileLine: caseCoverProfileLine(clientCase),
     subtitle:
       "An evidence-led strategy across the US high-skill visa families — EB-1A, EB-2 NIW, O-1A and H-1B — matched to your profile, with the recommended primary route and the evidence to build.",
     chips: [

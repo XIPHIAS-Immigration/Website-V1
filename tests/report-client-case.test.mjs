@@ -22,7 +22,7 @@ const model = loadClientCase();
 function order(answers = {}) {
   return {
     merchantTxnNo: "CASE-001",
-    amountInr: 799,
+    amountInr: 499,
     productType: "deep_analysis_report",
     productName: "Deep Analysis",
     customer: { name: "Test Client", email: "client@example.com" },
@@ -56,6 +56,36 @@ test("advisor-reviewed cases preserve provenance and selected programmes", () =>
   assert.deepEqual(clientCase.objective.selectedProgrammes.value, ["Australia subclass 189", "Australia subclass 190"]);
 });
 
+test("CPA and assessing body are populated from case-specific assessment fields", () => {
+  const clientCase = model.buildClientCase(order({
+    cpa: "Good - subject to formal assessment and employment evidence",
+    assessingAuthority: "Australian Computer Society (ACS)",
+  }));
+  assert.equal(clientCase.career.cpa.value, "Good - subject to formal assessment and employment evidence");
+  assert.equal(clientCase.career.assessingBody.value, "Australian Computer Society (ACS)");
+
+  const basis = model.reportBasis(clientCase);
+  assert.equal(basis.cpa, "Good - subject to formal assessment and employment evidence");
+  assert.equal(basis.assessingBody, "Australian Computer Society (ACS)");
+});
+
+test("ANZSCO aliases are preserved and displayed on the cover without inference", () => {
+  const clientCase = model.buildClientCase(order({
+    targetCountries: "Australia",
+    selectedProgrammes: "Skilled Independent visa (subclass 189)",
+    occupation: "ICT Support Engineer",
+    occupationCode: "263212",
+  }));
+  assert.equal(clientCase.career.anzscoCode.value, "263212");
+  assert.equal(model.caseCoverProfileLine(clientCase), "Occupation: ICT Support Engineer | ANZSCO 263212");
+
+  const missing = model.buildClientCase(order({
+    targetCountries: "Australia",
+    occupation: "ICT Support Engineer",
+  }));
+  assert.equal(model.caseCoverProfileLine(missing), "Occupation: ICT Support Engineer | ANZSCO: Not provided");
+});
+
 test("document readiness is calculated from actual statuses", () => {
   const empty = model.verifiedDocumentReadiness([]);
   assert.equal(empty.score, undefined);
@@ -79,4 +109,3 @@ test("personalisation assessment reports critical limitations", () => {
   assert.ok(assessment.limitations.some((item) => item.includes("document inventory")));
   assert.ok(assessment.limitations.some((item) => item.includes("draft")));
 });
-

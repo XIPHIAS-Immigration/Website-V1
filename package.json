@@ -17,6 +17,7 @@
     "seo:audit": "node scripts/seo-content-audit.mjs",
     "test:content-admin": "node --test --test-isolation=none tests/content-admin-format.test.mjs",
     "test:lead-security": "node --test --test-isolation=none tests/public-lead-security.test.mjs",
+    "test:due-diligence": "node --test --test-isolation=none tests/due-diligence.test.mjs tests/due-diligence-paid.test.mjs",
     "test:deep-analysis": "node --test --test-isolation=none tests/deep-analysis-routing.test.mjs",
     "test:report-depth": "node --test --test-isolation=none tests/report-depth.test.mjs",
     "test:reports": "node --test --test-isolation=none tests/report-client-case.test.mjs tests/report-personalisation-contract.test.mjs tests/report-depth.test.mjs tests/deep-analysis-routing.test.mjs",

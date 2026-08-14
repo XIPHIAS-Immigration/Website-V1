@@ -31,7 +31,7 @@ import {
 import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
-import { assessPersonalisation, buildClientCase, reportBasis } from "../client-case";
+import { assessPersonalisation, buildClientCase, caseCoverProfileLine, reportBasis } from "../client-case";
 
 const TRACKS = new Set(["residency", "citizenship", "corporate", "skilled", "all"]);
 const PRIORITIES = new Set(["speed", "cost", "mobility", "stability", "tax", "business"]);
@@ -358,6 +358,7 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     eyebrow: "XIA · Programme Comparison",
     title: "Programme Comparison Report",
     preparedFor: order.customer.name,
+    profileLine: caseCoverProfileLine(clientCase),
     subtitle:
       "A side-by-side comparison of your shortlisted immigration programmes — cost, timeline, presence, family, due diligence and fit — with a clear recommendation.",
     chips: [

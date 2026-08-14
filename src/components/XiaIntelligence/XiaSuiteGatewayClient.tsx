@@ -6,10 +6,12 @@ import {
   ArrowRight,
   BrainCircuit,
   Calculator,
+  ClipboardCheck,
   Gauge,
   GraduationCap,
   Route,
   Scale,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -31,6 +33,13 @@ const suiteOptions = [
     glow: "#e1b923",
   },
   {
+    href: "/due-diligence-intelligence",
+    label: "Immigration Due Diligence",
+    copy: "Check Identity, Immigration History, Documents, Funds, Family Evidence and Counterparties before You Apply.",
+    icon: ShieldAlert,
+    glow: "#e1b923",
+  },
+  {
     href: "/us-visa-intelligence",
     label: "US Visa Intelligence",
     copy: "Review US Visa directions including EB1A, EB2 NIW, O1A, H-1B, L1, Founder and Employer routes.",
@@ -42,6 +51,13 @@ const suiteOptions = [
     label: "Cost Estimator",
     copy: "Estimate an indicative Family Cost, Government Fees, Due Diligence, Dependants and Timeline.",
     icon: Calculator,
+    glow: "#e1b923",
+  },
+  {
+    href: "/document-readiness",
+    label: "Document Readiness",
+    copy: "Review CV, Funds, Employment, Education and Family Evidence before Advisor Verification.",
+    icon: ClipboardCheck,
     glow: "#e1b923",
   },
   {
@@ -136,7 +152,7 @@ export default function XiaSuiteGatewayClient() {
               </div>
               <TextType
                 className="type-small mt-1 block text-white/85"
-                text={["Reading your profile…", "Scoring eligibility…", "Auditing documents…", "Mapping your routes…"]}
+                text={["Reading your profile…", "Scoring eligibility…", "Auditing documents…", "Checking due-diligence risks…", "Mapping your routes…"]}
                 speed={42}
               />
             </div>

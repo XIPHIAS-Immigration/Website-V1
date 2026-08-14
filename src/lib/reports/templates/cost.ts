@@ -35,7 +35,7 @@ import {
 import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
-import { assessPersonalisation, buildClientCase, reportBasis } from "../client-case";
+import { assessPersonalisation, buildClientCase, caseCoverProfileLine, reportBasis } from "../client-case";
 
 const TRACKS = new Set<Vertical>(["residency", "citizenship", "skilled", "corporate"]);
 
@@ -296,6 +296,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
     eyebrow: "XIA · Cost & Budget",
     title: "Cost & Budget Report",
     preparedFor: order.customer.name,
+    profileLine: caseCoverProfileLine(clientCase),
     subtitle:
       "An itemised, family-tailored cost plan for your chosen route — government fees, due diligence, professional fees and dependant add-ons, with a headline budget you can plan against.",
     chips: [

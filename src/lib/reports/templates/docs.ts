@@ -33,7 +33,7 @@ import {
 import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation } from "./report-depth";
-import { assessPersonalisation, buildClientCase, reportBasis, verifiedDocumentReadiness, type ClientDocument } from "../client-case";
+import { assessPersonalisation, buildClientCase, caseCoverProfileLine, reportBasis, verifiedDocumentReadiness, type ClientDocument } from "../client-case";
 
 /* ------------------------------------------------------------------ *
  * Defensive coercion helpers (mirrors templates/route.ts)
@@ -374,6 +374,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
     eyebrow: "Document Readiness",
     title: "Document Readiness Report",
     preparedFor: order.customer.name,
+    profileLine: caseCoverProfileLine(clientCase),
     subtitle:
       "A personalised document checklist and readiness assessment for your selected destination and programme — grouped by category, prioritised by impact, and built for verifiable evidence.",
     chips: [

@@ -19,7 +19,8 @@ export type ReportKind =
   | "us_visa" // US Visa Intelligence
   | "cost" // Cost Estimator
   | "compare" // Compare Programs
-  | "docs"; // Document Readiness
+  | "docs" // Document Readiness
+  | "due_diligence"; // Immigration Due Diligence
 
 export type ProductConfig = {
   productType: string;
@@ -29,6 +30,8 @@ export type ProductConfig = {
   priceInr: number;
   fulfillment: FulfillmentKind;
   reportKind?: ReportKind;
+  /** Payment unlocks a deeper intake. Fulfilment waits until that intake is submitted. */
+  requiresIntake?: boolean;
   /** Only staff/admin may create checkouts for this product (arbitrary-amount links). */
   requiresStaff?: boolean;
   /** Email subject used when the report/receipt is delivered. */
@@ -66,7 +69,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   route_report: {
     productType: "route_report",
     label: "XIPHIAS Route Intelligence Report",
-    priceInr: priceOf(599),
+    priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "route",
     emailSubject: "Your XIPHIAS Route Intelligence Report",
@@ -75,7 +78,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   deep_analysis_report: {
     productType: "deep_analysis_report",
     label: "XIPHIAS High-Skill Deep Analysis Report",
-    priceInr: priceOf(799),
+    priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "deep_analysis",
     emailSubject: "Your XIPHIAS High-Skill Deep Analysis Report",
@@ -93,7 +96,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   cost_report: {
     productType: "cost_report",
     label: "XIPHIAS Cost & Budget Report",
-    priceInr: priceOf(199),
+    priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "cost",
     emailSubject: "Your XIPHIAS Cost & Budget Report",
@@ -102,7 +105,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   compare_report: {
     productType: "compare_report",
     label: "XIPHIAS Programme Comparison Report",
-    priceInr: priceOf(99),
+    priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "compare",
     emailSubject: "Your XIPHIAS Programme Comparison Report",
@@ -111,11 +114,21 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   docs_report: {
     productType: "docs_report",
     label: "XIPHIAS Document Readiness Report",
-    priceInr: priceOf(99),
+    priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "docs",
     emailSubject: "Your XIPHIAS Document Readiness Report",
     fileSlug: "Document-Readiness-Report",
+  },
+  due_diligence_report: {
+    productType: "due_diligence_report",
+    label: "XIPHIAS Immigration Due Diligence Report",
+    priceInr: priceOf(499),
+    fulfillment: "report",
+    reportKind: "due_diligence",
+    requiresIntake: true,
+    emailSubject: "Your XIPHIAS Immigration Due Diligence Report",
+    fileSlug: "Immigration-Due-Diligence-Report",
   },
   // Full X-Hub onboarding (legacy paid-registration flow). Fixed price closes the
   // arbitrary-amount tampering vector; adjust here if registration pricing changes.

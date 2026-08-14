@@ -5,7 +5,7 @@ import XiaSuiteGatewayClient from "@/components/XiaIntelligence/XiaSuiteGatewayC
 export const metadata: Metadata = {
   title: "XIA Intelligence Suite",
   description:
-    "Explore route-fit, high-skill visa evidence, investment pathways, document readiness, reports, and advisor workflow with XIPHIAS XIA.",
+    "Explore route-fit, high-skill visa evidence, immigration due diligence, investment pathways, document readiness, reports, and advisor workflow with XIPHIAS XIA.",
   alternates: {
     canonical: "/xia-intelligence",
   },

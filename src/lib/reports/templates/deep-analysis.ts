@@ -41,7 +41,7 @@ import {
 } from "../components";
 import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
-import { assessPersonalisation, buildClientCase, referenceMatches, reportBasis } from "../client-case";
+import { assessPersonalisation, buildClientCase, caseCoverProfileLine, referenceMatches, reportBasis } from "../client-case";
 
 const TARGET_COUNTRIES = new Set(["usa", "canada", "uk", "australia", "global"]);
 const GOALS = new Set(["permanent-residency", "temporary-work", "talent-visa", "founder", "not-sure"]);
@@ -763,6 +763,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     eyebrow: "XIA · Deep Analysis",
     title: "High-Skill Deep Analysis Report",
     preparedFor: order.customer.name,
+    profileLine: caseCoverProfileLine(clientCase),
     subtitle:
       input.targetCountry === "global"
         ? "An evidence-led analysis of your high-skill profile, ranking the visa routes that best match your achievements, recognition and target."

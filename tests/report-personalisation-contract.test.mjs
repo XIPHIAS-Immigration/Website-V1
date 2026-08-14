@@ -4,14 +4,24 @@ import test from "node:test";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 
-test("all seven paid templates are routed through the modern report router", () => {
+test("all eight paid templates are routed through the modern report router", () => {
   const router = read("src/lib/payments/report-router.ts");
-  for (const kind of ["premium_strategy", "route", "deep_analysis", "us_visa", "cost", "compare", "docs"]) {
+  for (const kind of ["premium_strategy", "route", "deep_analysis", "us_visa", "cost", "compare", "docs", "due_diligence"]) {
     assert.match(router, new RegExp(`case ["']${kind}["']`));
   }
   const api = read("src/app/api/platform/admin/reports/route.ts");
   assert.match(api, /generateReportPdf\(config\.reportKind, order\)/);
   assert.doesNotMatch(api, /generatePremiumReportPdf/);
+});
+
+test("due-diligence report uses the paid intake and preserves its verification boundary", () => {
+  const source = read("src/lib/reports/templates/due-diligence.ts");
+  assert.match(source, /paidInputFromAnswers/);
+  assert.match(source, /analysePaidDueDiligence/);
+  assert.match(source, /No passport, biometric, document-authenticity/);
+  assert.match(source, /buildCompanyProfilePages/);
+  assert.match(source, /input\.cpaAssessment/);
+  assert.match(source, /input\.assessingBody/);
 });
 
 test("templates with readiness claims use the shared verified case model", () => {
@@ -21,12 +31,35 @@ test("templates with readiness claims use the shared verified case model", () =>
   }
 });
 
-test("all seven paid templates include the shared company credibility appendix", () => {
+test("all paid templates inherit dynamic CPA and assessing-body content", () => {
+  const components = read("src/lib/reports/components.ts");
+  assert.match(components, /CPA and assessing body/);
+  assert.match(components, /basis\.cpa/);
+  assert.match(components, /basis\.assessingBody/);
+
+  for (const name of ["premium-strategy", "route", "deep-analysis", "us-visa", "cost", "compare", "docs"]) {
+    const source = read(`src/lib/reports/templates/${name}.ts`);
+    assert.match(source, /reportBasisPage/);
+  }
+});
+
+test("all eight paid templates place supplied occupation and ANZSCO context on the cover", () => {
+  const components = read("src/lib/reports/components.ts");
+  assert.match(components, /opts\.profileLine/);
+  assert.match(components, /cover-profile/);
+
+  for (const name of ["premium-strategy", "route", "deep-analysis", "us-visa", "cost", "compare", "docs", "due-diligence"]) {
+    const source = read(`src/lib/reports/templates/${name}.ts`);
+    assert.match(source, /caseCoverProfileLine\(clientCase\)/);
+  }
+});
+
+test("all eight paid templates include the shared company credibility appendix", () => {
   const appendix = read("src/lib/reports/company-profile.ts");
   for (const heading of ["About XIPHIAS Immigration", "Awards and independent recognition", "Testimonials and review platforms", "Public insights and media presence", "Office locations"]) {
     assert.match(appendix, new RegExp(heading));
   }
-  for (const name of ["premium-strategy", "route", "deep-analysis", "us-visa", "cost", "compare", "docs"]) {
+  for (const name of ["premium-strategy", "route", "deep-analysis", "us-visa", "cost", "compare", "docs", "due-diligence"]) {
     const source = read(`src/lib/reports/templates/${name}.ts`);
     assert.match(source, /buildCompanyProfilePages/);
   }

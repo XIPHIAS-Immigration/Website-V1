@@ -33,6 +33,12 @@ export async function GET(req: NextRequest) {
   if (!product || product.fulfillment !== "report" || !product.reportKind) {
     return NextResponse.json({ ok: false, error: "This purchase has no PDF report." }, { status: 400 });
   }
+  if (product.requiresIntake && order.answers?.paidIntakeCompleted !== true) {
+    return NextResponse.json(
+      { ok: false, intakeRequired: true, error: "Complete the paid due-diligence intake before generating this report." },
+      { status: 409 },
+    );
+  }
 
   try {
     const pdf = await ensurePaidReportArtifact(order, product);

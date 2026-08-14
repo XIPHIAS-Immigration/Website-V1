@@ -46,7 +46,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 1,
   },
   deep_analysis: {
-    priceInr: 799,
+    priceInr: 499,
     targetPages: [40, 48],
     maxProgrammes: 1,
     primaryDossierSections: ["divider", "documents"],
@@ -54,15 +54,23 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   route: {
-    priceInr: 599,
+    priceInr: 499,
     targetPages: [12, 18],
     maxProgrammes: 1,
     primaryDossierSections: ["divider", "snapshot", "eligibility", "costs", "process", "risk"],
     alternativeDossierSections: [],
     maxNarrativeSections: 0,
   },
+  due_diligence: {
+    priceInr: 499,
+    targetPages: [10, 14],
+    maxProgrammes: 0,
+    primaryDossierSections: [],
+    alternativeDossierSections: [],
+    maxNarrativeSections: 0,
+  },
   cost: {
-    priceInr: 199,
+    priceInr: 499,
     targetPages: [7, 9],
     maxProgrammes: 1,
     primaryDossierSections: [],
@@ -70,7 +78,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   compare: {
-    priceInr: 99,
+    priceInr: 499,
     targetPages: [5, 7],
     maxProgrammes: 0,
     primaryDossierSections: [],
@@ -78,7 +86,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   docs: {
-    priceInr: 99,
+    priceInr: 499,
     targetPages: [6, 8],
     maxProgrammes: 0,
     primaryDossierSections: [],
@@ -105,6 +113,7 @@ const IMAGE_KIND_OFFSET: Record<ReportKind, number> = {
   cost: 4,
   compare: 5,
   docs: 6,
+  due_diligence: 7,
 };
 
 function stableHash(value: string): number {

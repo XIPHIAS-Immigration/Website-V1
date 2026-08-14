@@ -29,7 +29,7 @@ import {
 import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
-import { assessPersonalisation, buildClientCase, factValue, reportBasis, verifiedDocumentReadiness } from "../client-case";
+import { assessPersonalisation, buildClientCase, caseCoverProfileLine, factValue, reportBasis, verifiedDocumentReadiness } from "../client-case";
 
 // The flagship eligibility report (product premium_report), rebuilt on the premium
 // framework so it shares the same full-page editorial design as the other reports and
@@ -184,6 +184,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     eyebrow: isDraft ? "Draft Sample · Unverified" : "Private Client Assessment",
     title: reportTitle,
     preparedFor: order.customer.name,
+    profileLine: caseCoverProfileLine(clientCase),
     subtitle: isDraft
       ? `A preliminary planning example for ${countryLabel}. Not for filing or decision-making.`
       : `A focused recommendation for ${countryLabel} immigration planning.`,

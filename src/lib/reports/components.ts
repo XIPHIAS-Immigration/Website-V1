@@ -45,6 +45,8 @@ export function reportBasisBanner(opts: {
   executiveSummary?: string;
   recommendation?: string;
   advisorNotes?: string;
+  cpa?: string;
+  assessingBody?: string;
   sources?: string[];
   customRisks?: string[];
   nextActions?: string[];
@@ -75,6 +77,33 @@ export function reportBasisPage(opts: {
   const gates = basis.gates ?? [];
   const tone = (status: "confirmed" | "review" | "missing"): PillTone => status === "confirmed" ? "good" : status === "review" ? "warn" : "bad";
   const rows = gates.map((gate) => [esc(gate.label), pill(gate.status === "confirmed" ? "Confirmed" : gate.status === "review" ? "Review" : "Missing", tone(gate.status)), esc(gate.detail.length > 150 ? `${gate.detail.slice(0, 147)}...` : gate.detail)]);
+  const professionalAssessmentPage = page({
+    header: opts.header,
+    footer: opts.footer,
+    body:
+      sectionHeader({
+        eyebrow: "Professional assessment",
+        title: "CPA and assessing body",
+        desc: "These case-specific fields are populated from the submitted assessment data and must be reviewed whenever the proposed occupation, programme or professional pathway changes.",
+      }) +
+      grid(2, [
+        card({
+          k: "CPA",
+          v: basis.cpa || "Not provided",
+          note: basis.cpa ? "Recorded candidate assessment position" : "Add the candidate assessment result to the case data.",
+        }),
+        card({
+          k: "Assessing body",
+          v: basis.assessingBody || "Not provided",
+          note: basis.assessingBody ? "Recorded authority for the proposed professional pathway" : "Add the relevant assessing authority to the case data.",
+        }),
+      ]) +
+      `<div class="spacer-24"></div>` +
+      callout({
+        k: "Assessment control",
+        text: "The CPA and assessing body shown here are report inputs, not a substitute for a formal assessment outcome. Confirm that both remain aligned with the candidate's actual occupation, qualifications, evidence and selected immigration route before filing.",
+      }),
+  });
   const verificationPage = page({
     header: opts.header,
     footer: opts.footer,
@@ -108,7 +137,7 @@ export function reportBasisPage(opts: {
       `<div class="spacer-24"></div>` +
       callout({ k: "Version control", text: "If any client fact, family detail, programme rule, cost, document status or immigration history changes, create a new report version and repeat advisor review." }),
   });
-  return verificationPage + advisorPage;
+  return professionalAssessmentPage + verificationPage + advisorPage;
 }
 
 export function coverPage(opts: {
@@ -159,6 +188,7 @@ export function coverPage(opts: {
       <div class="cover-rule"></div>
       <h1>${esc(opts.title)}</h1>
       ${opts.subtitle ? `<div class="cover-sub">${esc(opts.subtitle)}</div>` : ""}
+      ${opts.profileLine ? `<div class="cover-profile">${esc(opts.profileLine)}</div>` : ""}
       <div class="cover-meta">
         ${opts.preparedFor ? `<div class="cover-prep"><div class="k">Prepared exclusively for</div><div class="v">${esc(opts.preparedFor)}</div></div>` : ""}
         ${seal}

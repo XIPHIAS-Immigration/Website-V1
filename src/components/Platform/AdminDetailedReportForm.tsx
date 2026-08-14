@@ -151,12 +151,15 @@ export default function AdminDetailedReportForm() {
           <legend className="px-1 text-sm font-black">Career and route evidence</legend>
           <div className="grid gap-3 md:grid-cols-2">
             <Label title="Occupation / role"><input name="occupation" className={inputClass} /></Label>
+            <Label title="ANZSCO code"><input name="anzscoCode" inputMode="numeric" placeholder="For example, 263212" className={inputClass} /></Label>
             <Label title="Field / industry"><input name="field" className={inputClass} /></Label>
             <Label title="Highest education"><input name="education" className={inputClass} /></Label>
             <Label title="Years of experience"><input name="yearsExperience" type="number" min="0" className={inputClass} /></Label>
             <Label title="Language test"><input name="languageTest" placeholder="IELTS, PTE..." className={inputClass} /></Label>
             <Label title="Language score"><input name="languageScore" inputMode="decimal" className={inputClass} /></Label>
             <Label title="Skills assessment"><input name="skillsAssessment" placeholder="Authority, occupation and status" className={inputClass} /></Label>
+            <Label title="CPA / assessment potential"><input name="cpa" placeholder="Use the supplied assessment wording" className={inputClass} /></Label>
+            <Label title="Assessing body"><input name="assessingBody" placeholder="For example, Australian Computer Society (ACS)" className={inputClass} /></Label>
             <Label title="Employer / business"><input name="employerOrBusiness" className={inputClass} /></Label>
           </div>
           <Label title="Proposed endeavour / intended work"><textarea name="proposedEndeavour" rows={3} className={inputClass} /></Label>

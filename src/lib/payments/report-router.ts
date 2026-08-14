@@ -9,6 +9,7 @@ import { buildUsVisaReport } from "@/lib/reports/templates/us-visa";
 import { buildCostReport } from "@/lib/reports/templates/cost";
 import { buildCompareReport } from "@/lib/reports/templates/compare";
 import { buildDocsReport } from "@/lib/reports/templates/docs";
+import { buildDueDiligenceReport } from "@/lib/reports/templates/due-diligence";
 import { withClientCaseAnswers } from "@/lib/reports/client-case";
 
 /**
@@ -32,6 +33,8 @@ export async function generateReportPdf(reportKind: ReportKind, order: JiopayOrd
       return buildCompareReport(normalizedOrder);
     case "docs":
       return buildDocsReport(normalizedOrder);
+    case "due_diligence":
+      return buildDueDiligenceReport(normalizedOrder);
     default:
       throw new Error(`Unknown report template: ${String(reportKind)}`);
   }

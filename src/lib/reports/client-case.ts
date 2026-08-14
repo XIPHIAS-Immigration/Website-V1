@@ -61,12 +61,15 @@ export type ClientCase = {
   };
   career: {
     occupation: CaseFact<string>;
+    anzscoCode: CaseFact<string>;
     field: CaseFact<string>;
     education: CaseFact<string>;
     yearsExperience: CaseFact<number>;
     languageTest: CaseFact<string>;
     languageScore: CaseFact<number>;
     skillsAssessment: CaseFact<string>;
+    cpa: CaseFact<string>;
+    assessingBody: CaseFact<string>;
     employerOrBusiness: CaseFact<string>;
     proposedEndeavour: CaseFact<string>;
     resumeSummary: CaseFact<string>;
@@ -339,12 +342,44 @@ export function buildClientCase(order: JiopayOrder): ClientCase {
     },
     career: {
       occupation: fact(text(a.occupation ?? a.role ?? a.profile) || undefined, meta("occupation")),
+      anzscoCode: fact(
+        text(
+          a.anzscoCode ??
+            a.anzsco ??
+            a.ANZSCO ??
+            a.occupationCode ??
+            a.nominatedOccupationCode ??
+            a.proposedOccupationCode,
+        ) || undefined,
+        meta("anzscoCode"),
+      ),
       field: fact(text(a.field ?? a.industry) || undefined, meta("field")),
       education: fact(text(a.education ?? a.qualification) || undefined, meta("education")),
       yearsExperience: fact(numberValue(a.yearsExperience ?? a.experience), meta("yearsExperience")),
       languageTest: fact(text(a.languageTest) || undefined, meta("languageTest")),
       languageScore: fact(numberValue(a.languageScore ?? a.ielts), meta("languageScore")),
       skillsAssessment: fact(text(a.skillsAssessment) || undefined, meta("skillsAssessment")),
+      cpa: fact(
+        text(
+          a.cpa ??
+            a.cpaAssessment ??
+            a.candidateProfileAssessment ??
+            a.profileAssessment ??
+            a.assessmentPotential ??
+            a.skillsAssessmentPotential ??
+            a.acsAssessmentPotential,
+        ) || undefined,
+        meta("cpa"),
+      ),
+      assessingBody: fact(
+        text(
+          a.assessingBody ??
+            a.assessingAuthority ??
+            a.assessmentAuthority ??
+            a.skillsAssessingAuthority,
+        ) || undefined,
+        meta("assessingBody"),
+      ),
       employerOrBusiness: fact(text(a.employerOrBusiness ?? a.employer ?? a.business) || undefined, meta("employerOrBusiness")),
       proposedEndeavour: fact(text(a.proposedEndeavour) || undefined, meta("proposedEndeavour")),
       resumeSummary: fact(text(a.profileSummary ?? a.resumeSummary ?? a.summary) || undefined, meta("resumeSummary")),
@@ -408,6 +443,26 @@ export function isConfirmed<T>(value: CaseFact<T>): boolean {
 
 export function factLabel<T>(value: CaseFact<T>, formatter: (entry: T) => string = String): string {
   return value.value === undefined ? "Not provided" : formatter(value.value);
+}
+
+/**
+ * Candidate-specific occupation context for report covers. ANZSCO is reproduced only
+ * from supplied case data; it is never inferred from the destination or occupation.
+ */
+export function caseCoverProfileLine(clientCase: ClientCase): string | undefined {
+  const occupation = factValue(clientCase.career.occupation)?.trim();
+  const suppliedCode = factValue(clientCase.career.anzscoCode)?.trim();
+  const routeContext = [
+    ...(factValue(clientCase.objective.targetCountries) ?? []),
+    ...(factValue(clientCase.objective.selectedProgrammes) ?? []),
+  ].join(" ");
+  const australiaRelevant = /\baustralia\b|\bskillselect\b|\bsubclass\s*(?:189|190|491|186|482)\b/i.test(routeContext);
+  const code = suppliedCode?.replace(/^anzsco\s*[:#-]?\s*/i, "").trim();
+  const parts: string[] = [];
+  if (occupation) parts.push(`Occupation: ${occupation}`);
+  if (code) parts.push(`ANZSCO ${code}`);
+  else if (australiaRelevant) parts.push("ANZSCO: Not provided");
+  return parts.length ? parts.join(" | ") : undefined;
 }
 
 export function verifiedDocumentReadiness(documents: ClientDocument[]): {
@@ -572,6 +627,9 @@ export function reportBasis(clientCase: ClientCase, assessment = assessPersonali
     executiveSummary: clientCase.advisor.executiveSummary.value,
     recommendation: clientCase.advisor.recommendation.value,
     advisorNotes: clientCase.advisor.notes.value,
+    cpa: clientCase.career.cpa.value,
+    assessingBody: clientCase.career.assessingBody.value,
+    anzscoCode: clientCase.career.anzscoCode.value,
     sources: clientCase.advisor.factualSources.value,
     customRisks: clientCase.advisor.customRisks.value,
     nextActions: clientCase.advisor.nextActions.value,
