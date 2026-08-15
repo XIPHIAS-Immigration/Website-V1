@@ -13,6 +13,9 @@ import { estimateCost, COST_DISCLAIMER, type CostProgram } from "@/lib/cost-esti
 import { ToolShell, IndicativeChip } from "@/components/XiaTools/ToolShell";
 import { MeterBar } from "@/components/XiaTools/MeterBar";
 import { BOOKING_ROUTE } from "@/lib/topmate";
+import { getProductConfig } from "@/lib/payments/product-catalog";
+
+const COST_REPORT_PRICE_INR = getProductConfig("cost_report")?.priceInr ?? 499;
 
 const TRACKS = [
   { value: "all", label: "All" },
@@ -110,7 +113,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
           name,
           email,
           phone,
-          productType: "premium_report",
+          productType: "cost_report",
           productName: `Cost estimate — ${selected.title}`,
           track: selected.track,
           country: selected.country,
@@ -331,7 +334,7 @@ function Inner({ programs }: { programs: CostProgram[] }) {
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3.5 text-[14px] font-bold text-primary transition hover:bg-[#f0cb3b] disabled:opacity-60"
                     >
                       {pdf.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}
-                      Download full PDF report
+                      Buy full report - INR {COST_REPORT_PRICE_INR}
                     </motion.button>
                     <Link
                       href={BOOKING_ROUTE}

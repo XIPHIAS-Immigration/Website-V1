@@ -83,8 +83,8 @@ export async function buildDueDiligenceReport(order: JiopayOrder): Promise<Buffe
       heroImageDataUri: countryHero,
       eyebrow: "XIA Intelligence - Paid Due Diligence",
       title: "Immigration Due Diligence Report",
-      subtitle: "A structured review of declared identity, history, evidence, funds and counterparties.",
-      chips: [track, country, programme, "Client-supplied information"],
+      subtitle: "A structured review of identity, immigration history, evidence, funds and relevant counterparties.",
+      chips: [track, country, programme, "Personal case assessment"],
       fitScore: analysis.completeness,
       fitLabel: analysis.overallLabel,
       scoreTag: "Answer depth",
@@ -129,14 +129,14 @@ export async function buildDueDiligenceReport(order: JiopayOrder): Promise<Buffe
   pages.push(
     page({
       header,
-      footer: footer("Declared identity profile"),
+      footer: footer("Identity profile"),
       body:
         sectionHeader({
           eyebrow: "Identity profile",
-          title: "Declared facts requiring reconciliation",
-          desc: "These values were supplied by the purchaser. They have not been independently verified against original records.",
+          title: "Applicant profile for review",
+          desc: "These recorded details form the basis of this assessment. Any material inconsistency should be resolved against the supporting records before filing.",
         }) +
-        table({ head: ["Field", "Declared value"], rows: analysis.declaredFacts.map(([label, value]) => [esc(label), esc(value)]) }) +
+        table({ head: ["Profile detail", "Assessment input"], rows: analysis.declaredFacts.map(([label, value]) => [esc(label), esc(value)]) }) +
         `<div class="spacer-16"></div>` +
         grid(2, [
           card({ k: "Family members", v: shown(input.familyMembers), note: "Applicants and related persons should be recorded separately before formal screening." }),
@@ -188,14 +188,14 @@ export async function buildDueDiligenceReport(order: JiopayOrder): Promise<Buffe
         sectionHeader({
           eyebrow: "Evidence inventory",
           title: "What is available, partial or missing",
-          desc: `Statuses are client declarations. No file was authenticated or issuer contacted as part of this INR ${order.amountInr.toLocaleString("en-IN")} report.`,
+          desc: `Statuses reflect the evidence position recorded for this assessment. Supporting files remain subject to document review.`,
         }) +
         table({
-          head: ["Evidence group", "Declared status", "Purpose"],
+          head: ["Evidence group", "Current status", "Purpose"],
           rows: analysis.evidenceRows.map((row) => row.map(esc)),
         }) +
         `<div class="spacer-16"></div>` +
-        disclaimer("A declared status describes the applicant's present evidence position. It is not a document-authenticity result or confirmation from an issuing authority."),
+        disclaimer("The current status records the evidence position used for this assessment. Document authenticity remains subject to review of the supporting records."),
     }),
   );
 
@@ -217,11 +217,11 @@ export async function buildDueDiligenceReport(order: JiopayOrder): Promise<Buffe
         ]) +
         `<div class="spacer-16"></div>` +
         grid(2, [
-          card({ k: "CPA / profile assessment", v: shown(input.cpaAssessment), note: "Client-supplied assessment position; not recalculated in this report." }),
-          card({ k: "Assessing body", v: shown(input.assessingBody), note: "Case-specific authority supplied in the paid intake." }),
+          card({ k: "CPA / profile assessment", v: shown(input.cpaAssessment), note: "Recorded assessment position for this case." }),
+          card({ k: "Assessing body", v: shown(input.assessingBody), note: "Relevant case-specific authority." }),
         ]) +
         `<div class="spacer-16"></div>` +
-        disclaimer("CPA and assessing-body values are reproduced from the paid intake. They are not recalculated, inferred from country logic or treated as formal assessment outcomes."),
+        disclaimer("CPA and assessing-body details are shown as recorded for the case. A formal outcome should be confirmed against the relevant authority's current process."),
     }),
   );
 

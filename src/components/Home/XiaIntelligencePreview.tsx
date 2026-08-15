@@ -49,9 +49,12 @@ export default function XiaIntelligencePreview() {
           </ul>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/deep-analysis" className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-bold text-white transition hover:brightness-110">
-              Start Deep Analysis
+            <Link href="/express-reports" className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-bold text-white transition hover:brightness-110">
+              Buy a report from INR 499
               <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+            <Link href="/deep-analysis" className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-slate-800 transition hover:border-primary hover:text-primary">
+              Use Deep Analysis
             </Link>
             <a
               href="/samples/xiphias-premium-report-sample.pdf"

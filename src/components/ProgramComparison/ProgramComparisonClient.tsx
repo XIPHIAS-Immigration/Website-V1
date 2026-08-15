@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Minus, Plus, Scale, Users, X } from "lucide-react";
+import { ArrowRight, FileDown, Minus, Plus, Scale, Users, X } from "lucide-react";
 
 import { CurrencyProvider, useCurrency } from "@/lib/CurrencyProvider";
 import { GlassSelect, CurrencyGlassSelect } from "@/components/XiaTools/GlassSelect";
@@ -88,6 +88,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
 
   const selected = selectedIds.map((id) => byId.get(id)).filter(Boolean) as ComparableProgram[];
   const remaining = programs.filter((p) => !selectedIds.includes(p.id));
+  const reportHref = `/express-reports?report=compare_report&programmes=${encodeURIComponent(selected.map((item) => item.title).join("\n"))}`;
 
   const add = (id: string) => {
     if (!id || selectedIds.includes(id) || selectedIds.length >= MAX) return;
@@ -289,6 +290,14 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
       {/* Footer CTAs */}
       <div className="mt-7 flex flex-col gap-3 sm:flex-row">
         <Link
+          href={reportHref}
+          aria-disabled={selected.length < 2}
+          className={`inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3.5 text-[14px] font-bold text-primary transition hover:bg-[#f0cb3b] ${selected.length < 2 ? "pointer-events-none opacity-50" : ""}`}
+        >
+          <FileDown className="size-4" />
+          Buy personalised comparison report
+        </Link>
+        <Link
           href="/passport-index/compare"
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 px-5 py-3.5 text-[14px] font-semibold text-white transition hover:bg-white/10"
         >
@@ -297,7 +306,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
         </Link>
         <Link
           href={BOOKING_ROUTE}
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3.5 text-[14px] font-bold text-primary transition hover:bg-[#f0cb3b]"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 px-5 py-3.5 text-[14px] font-semibold text-white transition hover:bg-white/10"
         >
           Discuss these routes with an advisor
           <ArrowRight className="size-4" />

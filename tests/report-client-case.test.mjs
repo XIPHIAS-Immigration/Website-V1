@@ -69,6 +69,34 @@ test("CPA and assessing body are populated from case-specific assessment fields"
   assert.equal(basis.assessingBody, "Australian Computer Society (ACS)");
 });
 
+test("CRM assessment evidence is preserved in the versioned report basis", () => {
+  const clientCase = model.buildClientCase(order({
+    languageDetails: "IELTS L7 R7 W7 S7",
+    professionalRecognition: "Washington Accord qualification; RPL not required",
+    pointsAssessment: "Age 30; English 10; Experience 10; Qualification 15; Nomination 5",
+    claimedPointsTotal: 70,
+    employerOrBusiness: "Example Employer",
+    sourceOfFunds: "Salary savings",
+    currentImmigrationStatus: "Valid work permit",
+    immigrationHistory: "Previous visitor visa",
+    refusals: "None confirmed by client",
+    medicalNotes: "No declaration recorded",
+    characterNotes: "PCC pending",
+  }));
+  const basis = model.reportBasis(clientCase);
+  assert.equal(basis.languageDetails, "IELTS L7 R7 W7 S7");
+  assert.equal(basis.professionalRecognition, "Washington Accord qualification; RPL not required");
+  assert.equal(basis.claimedPointsTotal, 70);
+  assert.match(basis.pointsAssessment, /Age 30/);
+  assert.equal(basis.employerOrBusiness, "Example Employer");
+  assert.equal(basis.sourceOfFunds, "Salary savings");
+  assert.equal(basis.currentImmigrationStatus, "Valid work permit");
+  assert.equal(basis.immigrationHistory, "Previous visitor visa");
+  assert.equal(basis.refusals, "None confirmed by client");
+  assert.equal(basis.medicalNotes, "No declaration recorded");
+  assert.equal(basis.characterNotes, "PCC pending");
+});
+
 test("ANZSCO aliases are preserved and displayed on the cover without inference", () => {
   const clientCase = model.buildClientCase(order({
     targetCountries: "Australia",

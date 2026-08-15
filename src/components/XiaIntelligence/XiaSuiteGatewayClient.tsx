@@ -14,10 +14,18 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  FileText,
 } from "lucide-react";
 import { CharReveal, GradientText, Reveal, Stagger, StaggerItem, TextType, TiltCard } from "@/components/motion";
 
 const suiteOptions = [
+  {
+    href: "/express-reports",
+    label: "Express Reports",
+    copy: "Choose a focused personalised PDF, complete only the relevant intake and purchase it directly.",
+    icon: FileText,
+    glow: "#e1b923",
+  },
   {
     href: "/route-intelligence",
     label: "Route Intelligence",

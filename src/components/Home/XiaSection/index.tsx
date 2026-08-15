@@ -60,8 +60,15 @@ export default function XiaSection() {
             {/* CTAs */}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/xia-intelligence"
+                href="/express-reports"
                 className="inline-flex items-center gap-2 rounded-xl bg-secondary px-6 py-2.5 text-sm font-extrabold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.35)] transition-all hover:bg-[#f0cb3b] hover:shadow-[0_4px_20px_rgba(225,185,35,0.50)]"
+              >
+                Buy a report from INR 499
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/xia-intelligence"
+                className="inline-flex items-center gap-2 rounded-xl border border-primary/25 px-6 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary/5"
               >
                 Try XIA Intelligence
                 <ArrowRight className="h-4 w-4" />

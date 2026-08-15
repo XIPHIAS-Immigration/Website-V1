@@ -504,6 +504,7 @@ export const headerMenu: HeaderItem[] = [
     href: '/#resources',
     submenu: [
       { label: 'Start Your Journey',  href: '/eligibility#start' },
+      { label: 'Express Reports',      href: '/express-reports' },
       { label: 'XIA Intelligence',    href: '/xia-intelligence' },
       { label: 'Route Intelligence',  href: '/route-intelligence' },
       { label: 'Deep Analysis',       href: '/deep-analysis' },

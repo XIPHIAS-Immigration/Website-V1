@@ -30,6 +30,7 @@ function shouldSkipPath(pathname: string) {
   if (p.startsWith("/us-visa-intelligence")) return true;
   if (p.startsWith("/cost-estimator")) return true;
   if (p.startsWith("/compare-programs")) return true;
+  if (p.startsWith("/express-reports")) return true;
   if (p.startsWith("/xiphias-program-index")) return true;
   if (p.startsWith("/xia-intelligence")) return true;
   if (p.startsWith("/programme-explorer")) return true;

@@ -47,6 +47,28 @@ export function reportBasisBanner(opts: {
   advisorNotes?: string;
   cpa?: string;
   assessingBody?: string;
+  anzscoCode?: string;
+  occupation?: string;
+  education?: string;
+  yearsExperience?: number;
+  languageTest?: string;
+  languageScore?: number;
+  languageDetails?: string;
+  skillsAssessment?: string;
+  professionalRecognition?: string;
+  pointsAssessment?: string;
+  claimedPointsTotal?: number;
+  employerOrBusiness?: string;
+  familyIncluded?: boolean;
+  dependants?: number;
+  budgetUsd?: number;
+  availableFundsUsd?: number;
+  sourceOfFunds?: string;
+  currentImmigrationStatus?: string;
+  immigrationHistory?: string;
+  refusals?: string;
+  medicalNotes?: string;
+  characterNotes?: string;
   sources?: string[];
   customRisks?: string[];
   nextActions?: string[];
@@ -97,6 +119,10 @@ export function reportBasisPage(opts: {
           v: basis.assessingBody || "Not provided",
           note: basis.assessingBody ? "Recorded authority for the proposed professional pathway" : "Add the relevant assessing authority to the case data.",
         }),
+        card({ k: "Occupation code", v: basis.anzscoCode || "Not provided", note: "NOC, ANZSCO or other adviser-confirmed occupation code." }),
+        card({ k: "Skills-assessment status", v: basis.skillsAssessment || "Not provided" }),
+        card({ k: "Language evidence", v: [basis.languageTest, basis.languageScore !== undefined ? String(basis.languageScore) : "", basis.languageDetails].filter(Boolean).join(" | ") || "Not provided" }),
+        card({ k: "Claimed points", v: basis.claimedPointsTotal !== undefined ? String(basis.claimedPointsTotal) : "Not provided", note: "Adviser-entered total; not silently recalculated by the report." }),
       ]) +
       `<div class="spacer-24"></div>` +
       callout({
@@ -137,7 +163,72 @@ export function reportBasisPage(opts: {
       `<div class="spacer-24"></div>` +
       callout({ k: "Version control", text: "If any client fact, family detail, programme rule, cost, document status or immigration history changes, create a new report version and repeat advisor review." }),
   });
-  return professionalAssessmentPage + verificationPage + advisorPage;
+
+  type RecordedDetail = { label: string; value?: string };
+  const money = (value?: number) => value === undefined ? undefined : `USD ${value.toLocaleString("en-US")}`;
+  const details: RecordedDetail[] = [
+    { label: "Occupation", value: basis.occupation },
+    { label: "Education", value: basis.education },
+    { label: "Work experience", value: basis.yearsExperience === undefined ? undefined : `${basis.yearsExperience} years` },
+    { label: "Professional recognition / Washington Accord / RPL", value: basis.professionalRecognition },
+    { label: "Adviser-entered points breakdown", value: basis.pointsAssessment },
+    { label: "Employer or business", value: basis.employerOrBusiness },
+    { label: "Family included", value: basis.familyIncluded === undefined ? undefined : basis.familyIncluded ? "Yes" : "No" },
+    { label: "Dependants", value: basis.dependants === undefined ? undefined : String(basis.dependants) },
+    { label: "Confirmed budget", value: money(basis.budgetUsd) },
+    { label: "Available funds", value: money(basis.availableFundsUsd) },
+    { label: "Source of funds", value: basis.sourceOfFunds },
+    { label: "Current immigration status", value: basis.currentImmigrationStatus },
+    { label: "Immigration and visa history", value: basis.immigrationHistory },
+    { label: "Visa refusals / cancellations", value: basis.refusals },
+    { label: "Medical declarations", value: basis.medicalNotes },
+    { label: "Character / police declarations", value: basis.characterNotes },
+  ].filter((entry) => Boolean(entry.value));
+
+  const expanded: RecordedDetail[] = [];
+  for (const detail of details) {
+    const value = detail.value ?? "";
+    if (value.length <= 1200) {
+      expanded.push(detail);
+      continue;
+    }
+    for (let start = 0, part = 1; start < value.length; start += 1200, part += 1) {
+      expanded.push({ label: `${detail.label}${part > 1 ? " (continued)" : ""}`, value: value.slice(start, start + 1200) });
+    }
+  }
+
+  const groups: RecordedDetail[][] = [];
+  let current: RecordedDetail[] = [];
+  let chars = 0;
+  for (const detail of expanded) {
+    const nextChars = detail.value?.length ?? 0;
+    if (current.length && (current.length >= 4 || chars + nextChars > 1800)) {
+      groups.push(current);
+      current = [];
+      chars = 0;
+    }
+    current.push(detail);
+    chars += nextChars;
+  }
+  if (current.length) groups.push(current);
+
+  const recordedPages = groups.map((group, index) => page({
+    header: opts.header,
+    footer: opts.footer,
+    body:
+      sectionHeader({
+        eyebrow: "Recorded assessment evidence",
+        title: index === 0 ? "Client facts used in this report" : "Client facts (continued)",
+        desc: "These values are reproduced from the versioned CRM assessment snapshot. Blank fields are not invented or inferred.",
+      }) +
+      (group.length === 1
+        ? card({ k: group[0].label, v: group[0].value || "Not provided" })
+        : grid(2, group.map((detail) => card({ k: detail.label, v: detail.value || "Not provided" })))) +
+      `<div class="spacer-16"></div>` +
+      callout({ k: "Versioned evidence", text: "Changes to any of these facts require a new report version and a fresh adviser review before client delivery." }),
+  })).join("");
+
+  return professionalAssessmentPage + recordedPages + verificationPage + advisorPage;
 }
 
 export function coverPage(opts: {

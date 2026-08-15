@@ -67,9 +67,13 @@ export type ClientCase = {
     yearsExperience: CaseFact<number>;
     languageTest: CaseFact<string>;
     languageScore: CaseFact<number>;
+    languageDetails: CaseFact<string>;
     skillsAssessment: CaseFact<string>;
     cpa: CaseFact<string>;
     assessingBody: CaseFact<string>;
+    professionalRecognition: CaseFact<string>;
+    pointsAssessment: CaseFact<string>;
+    claimedPointsTotal: CaseFact<number>;
     employerOrBusiness: CaseFact<string>;
     proposedEndeavour: CaseFact<string>;
     resumeSummary: CaseFact<string>;
@@ -287,6 +291,11 @@ export function applyCaseCompatibilityAnswers(answers: Record<string, unknown>):
   if (next.role == null && next.occupation != null) next.role = next.occupation;
   if (next.destination == null && next.targetCountries != null) next.destination = list(next.targetCountries)[0];
   if (next.programmes == null && next.selectedProgrammes != null) next.programmes = next.selectedProgrammes;
+  if (next.documents == null && (next.documentsAvailable != null || next.documentsMissing != null)) {
+    const available = list(next.documentsAvailable).map((name) => ({ name, status: "available" }));
+    const missing = list(next.documentsMissing).map((name) => ({ name, status: "missing" }));
+    next.documents = JSON.stringify([...available, ...missing]);
+  }
   return next;
 }
 
@@ -358,6 +367,7 @@ export function buildClientCase(order: JiopayOrder): ClientCase {
       yearsExperience: fact(numberValue(a.yearsExperience ?? a.experience), meta("yearsExperience")),
       languageTest: fact(text(a.languageTest) || undefined, meta("languageTest")),
       languageScore: fact(numberValue(a.languageScore ?? a.ielts), meta("languageScore")),
+      languageDetails: fact(text(a.languageDetails) || undefined, meta("languageDetails")),
       skillsAssessment: fact(text(a.skillsAssessment) || undefined, meta("skillsAssessment")),
       cpa: fact(
         text(
@@ -380,6 +390,9 @@ export function buildClientCase(order: JiopayOrder): ClientCase {
         ) || undefined,
         meta("assessingBody"),
       ),
+      professionalRecognition: fact(text(a.professionalRecognition) || undefined, meta("professionalRecognition")),
+      pointsAssessment: fact(text(a.pointsAssessment) || undefined, meta("pointsAssessment")),
+      claimedPointsTotal: fact(numberValue(a.claimedPointsTotal), meta("claimedPointsTotal")),
       employerOrBusiness: fact(text(a.employerOrBusiness ?? a.employer ?? a.business) || undefined, meta("employerOrBusiness")),
       proposedEndeavour: fact(text(a.proposedEndeavour) || undefined, meta("proposedEndeavour")),
       resumeSummary: fact(text(a.profileSummary ?? a.resumeSummary ?? a.summary) || undefined, meta("resumeSummary")),
@@ -630,6 +643,27 @@ export function reportBasis(clientCase: ClientCase, assessment = assessPersonali
     cpa: clientCase.career.cpa.value,
     assessingBody: clientCase.career.assessingBody.value,
     anzscoCode: clientCase.career.anzscoCode.value,
+    occupation: clientCase.career.occupation.value,
+    education: clientCase.career.education.value,
+    yearsExperience: clientCase.career.yearsExperience.value,
+    languageTest: clientCase.career.languageTest.value,
+    languageScore: clientCase.career.languageScore.value,
+    languageDetails: clientCase.career.languageDetails.value,
+    skillsAssessment: clientCase.career.skillsAssessment.value,
+    professionalRecognition: clientCase.career.professionalRecognition.value,
+    pointsAssessment: clientCase.career.pointsAssessment.value,
+    claimedPointsTotal: clientCase.career.claimedPointsTotal.value,
+    employerOrBusiness: clientCase.career.employerOrBusiness.value,
+    familyIncluded: clientCase.family.included.value,
+    dependants: clientCase.family.dependants.value,
+    budgetUsd: clientCase.finances.budgetUsd.value,
+    availableFundsUsd: clientCase.finances.availableFundsUsd.value,
+    sourceOfFunds: clientCase.finances.sourceOfFunds.value,
+    currentImmigrationStatus: clientCase.immigration.currentStatus.value,
+    immigrationHistory: clientCase.immigration.history.value,
+    refusals: clientCase.immigration.refusals.value,
+    medicalNotes: clientCase.immigration.medicalNotes.value,
+    characterNotes: clientCase.immigration.characterNotes.value,
     sources: clientCase.advisor.factualSources.value,
     customRisks: clientCase.advisor.customRisks.value,
     nextActions: clientCase.advisor.nextActions.value,

@@ -30,6 +30,8 @@ import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
 import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report-depth";
 import { assessPersonalisation, buildClientCase, caseCoverProfileLine, factValue, reportBasis, verifiedDocumentReadiness } from "../client-case";
+import { buildCrmPointsAssessmentFrontMatter } from "./crm-points-assessment";
+import { buildCrmProfilePersonalisation } from "./crm-profile-personalisation";
 
 // The flagship eligibility report (product premium_report), rebuilt on the premium
 // framework so it shares the same full-page editorial design as the other reports and
@@ -143,7 +145,8 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const dossier = dossiers[0] ?? null;
   const route = dossier?.title || (programName ? smartLabel(programName) : "Advisor-led route");
   const countryLabel = smartLabel(country) || dossier?.country || "Global mobility";
-  const isDraft = clientCase.reviewStatus === "draft";
+  const isCrmPointsAssessment = str(a.reportFormat) === "points-assessment";
+  const isDraft = clientCase.reviewStatus === "draft" && !isCrmPointsAssessment;
 
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
@@ -166,7 +169,9 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Personal Strategy", label);
   let panel = 3;
   const nextImg = (): string | undefined => (imgs.length ? imgs[panel++ % imgs.length] : undefined);
-  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
+  const basisPage = isCrmPointsAssessment
+    ? buildCrmPointsAssessmentFrontMatter(order)
+    : reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
 
   const goal = goalLabel(a.goals ?? a.objective ?? a.goal ?? order.track);
   const profileKey = str(a.profile ?? a.applicantProfile).toLowerCase();
@@ -180,6 +185,9 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const budgetLabel = budget > 0 ? `~ USD ${Math.round(budget).toLocaleString("en-US")}` : "To confirm at review";
   const benefits = (dossier?.benefits ?? []).map((b) => String(b ?? "").trim()).filter(Boolean).slice(0, 5);
   const tagline = dossier?.tagline || `An advisor-led ${route} strategy for ${countryLabel}.`;
+  const crmPersonalisation = isCrmPointsAssessment
+    ? buildCrmProfilePersonalisation({ clientCase, answers: a, dossier, route, countryLabel, timelineMonths })
+    : null;
 
   // 1 — Cover
   const cover = coverPage({
@@ -191,10 +199,12 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     title: reportTitle,
     preparedFor: order.customer.name,
     profileLine: caseCoverProfileLine(clientCase),
-    subtitle: isDraft
+    subtitle: isCrmPointsAssessment
+      ? `A detailed skilled migration strategy for ${countryLabel}.`
+      : isDraft
       ? `A preliminary planning example for ${countryLabel}. Not for filing or decision-making.`
       : `A focused recommendation for ${countryLabel} immigration planning.`,
-    chips: [isDraft ? "DRAFT - UNVERIFIED" : route, goal || "Advisor-led plan", dateLabel()].filter(Boolean),
+    chips: [isDraft ? "DRAFT - UNVERIFIED" : route, isCrmPointsAssessment && num(a.claimedPointsTotal) !== undefined ? `${num(a.claimedPointsTotal)} points` : goal || "Advisor-led plan", dateLabel()].filter(Boolean),
     fitScore: fit,
     fitLabel: fit !== undefined ? fitWord(fit) : "Advisor scoring required",
     countryLabel,
@@ -204,22 +214,28 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // 2 — Executive recommendation (split, fills via image panel)
   const execContent =
     sectionHeader({
-      eyebrow: isDraft ? "Working direction" : "Recommended direction",
-      title: isDraft ? `${route} for verification` : route,
-      desc: isDraft
+      eyebrow: crmPersonalisation ? "Profile-led strategy" : isDraft ? "Working direction" : "Recommended direction",
+      title: crmPersonalisation ? `${route} for ${order.customer.name}` : isDraft ? `${route} for verification` : route,
+      desc: crmPersonalisation
+        ? crmPersonalisation.closingSummary
+        : isDraft
         ? `This route is included for comparison only. Verify eligibility, evidence and current rules before treating it as a recommendation.`
         : dossier?.tagline || `XIPHIAS recommends an advisor-led ${route} evidence review before full filing preparation.`,
     }) +
-    grid(2, [
-      card({ k: "Country", v: countryLabel }),
-      card({ k: "Recommended route", v: route }),
-      card({ k: "Objective", v: goal || "Advisor-led plan" }),
-      card({ k: "Family", v: hasFamily ? "Dependants in scope" : "Primary applicant" }),
-    ]) +
+    grid(2, crmPersonalisation
+      ? [crmPersonalisation.profileCards[0], crmPersonalisation.profileCards[1], crmPersonalisation.profileCards[2], crmPersonalisation.profileCards[5]].map((item) => card({ k: item.label, v: item.value, note: item.note }))
+      : [
+          card({ k: "Country", v: countryLabel }),
+          card({ k: "Recommended route", v: route }),
+          card({ k: "Objective", v: goal || "Advisor-led plan" }),
+          card({ k: "Family", v: hasFamily ? "Dependants in scope" : "Primary applicant" }),
+        ]) +
     `<div class="spacer-16"></div>` +
     callout({
-      k: "Working result",
-      text: fit !== undefined
+      k: crmPersonalisation ? "Profile impact" : "Working result",
+      text: crmPersonalisation
+        ? `Education, employment, English, skills-assessment, nomination and family evidence are carried into the eligibility matrix, risk register, evidence blueprint, scenarios and action plan that follow.`
+        : fit !== undefined
         ? `${fitWord(fit)} (${fit}/100). This remains conditional on the evidence pack and document set being confirmed.`
         : `${route} is a working direction only. Route fit has not been scored because the supporting case facts are incomplete or unconfirmed.`,
     });
@@ -233,42 +249,69 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     scores.risk !== undefined ? scoreBar({ label: "Risk clarity", value: scores.risk, tag: "Advisor assessed" }) : "",
     scores.family !== undefined ? scoreBar({ label: "Family readiness", value: scores.family, tag: hasFamily ? "Dependants assessed" : "Primary applicant" }) : "",
   ].filter(Boolean).join("");
-  const scoreContent =
-    sectionHeader({ eyebrow: "Route-fit analytics", title: "Readiness scorecard", desc: "Directional advisory signals. The advisor review decides the final evidence positioning." }) +
-    (scoreBars || callout({ k: "Scores not yet assigned", text: "Complete the advisor review before treating this strategy as final." })) +
-    `<div class="spacer-16"></div>` +
-    callout({ k: "Best next move", text: "Complete the evidence matrix and confirm your route positioning with a XIPHIAS advisor before filing." });
+  const scoreContent = crmPersonalisation
+    ? sectionHeader({ eyebrow: "Profile impact dashboard", title: "What drives this strategy", desc: "These recorded factors determine the profile-specific evidence, risks and next actions throughout the report." }) +
+      bigStats([
+        { k: "Total points", v: num(a.claimedPointsTotal) === undefined ? "Not recorded" : String(num(a.claimedPointsTotal)) },
+        { k: "Qualification", v: num(a.qualificationPoints) === undefined ? "Not recorded" : `${num(a.qualificationPoints)} pts` },
+        { k: "Employment", v: num(a.overseasExperiencePoints) === undefined ? "Not recorded" : `${num(a.overseasExperiencePoints)} pts` },
+      ]) +
+      `<div class="spacer-16"></div>` +
+      ticks(crmPersonalisation.strengths.slice(0, 5)) +
+      `<div class="spacer-16"></div>` +
+      callout({ k: "Priority control", text: crmPersonalisation.riskRows[0]?.[0] || "Recheck points and supporting evidence before EOI submission." })
+    : sectionHeader({ eyebrow: "Route-fit analytics", title: "Readiness scorecard", desc: "Directional advisory signals. The advisor review decides the final evidence positioning." }) +
+      (scoreBars || callout({ k: "Scores not yet assigned", text: "Complete the advisor review before treating this strategy as final." })) +
+      `<div class="spacer-16"></div>` +
+      callout({ k: "Best next move", text: "Complete the evidence matrix and confirm your route positioning with a XIPHIAS advisor before filing." });
   const scorePage = splitPage({ header: head, footer: foot("03"), content: scoreContent, imageDataUri: nextImg(), capEyebrow: "Assessment dashboard", capTitle: "Readiness scorecard" });
 
   // 4 — Your profile at a glance (split)
   const profileContent =
-    sectionHeader({ eyebrow: "Client profile", title: "Your profile at a glance", desc: "The inputs behind this recommendation — and what each one signals for your route." }) +
-    grid(2, [
-      card({ k: "Primary objective", v: goal || "Advisor-led plan", note: "The outcome your plan is optimised toward." }),
-      card({ k: "Applicant profile", v: profileLabel, note: "Determines which programme families fit best." }),
-      card({ k: "Planning window", v: `${timelineMonths} months`, note: "Your target timeline to a confirmed status." }),
-      card({ k: "Indicative budget", v: budgetLabel, note: "Anchors the cost modelling and route shortlist." }),
-      card({ k: "Family", v: hasFamily ? "Including dependants" : "Primary applicant", note: hasFamily ? "Dependant inclusion factored into the plan." : "Can be extended to family later." }),
-      card({ k: "Decision priority", v: priorityLabel, note: "The single factor weighted most heavily." }),
-    ]) +
-    `<div class="spacer-16"></div>` +
-    callout({ k: "What this means for you", text: `As a ${profileLabel.toLowerCase()} prioritising ${priorityLabel.toLowerCase()}, ${route} in ${countryLabel} is the route that best balances your objective, budget and timeline — detailed in full across this report.` });
+    sectionHeader({ eyebrow: "Client profile", title: "Your profile at a glance", desc: crmPersonalisation ? "The qualification, employment, English, skills-assessment and points facts that shape every later section of this strategy." : "The inputs behind this recommendation — and what each one signals for your route." }) +
+    grid(2, crmPersonalisation
+      ? crmPersonalisation.profileCards.map((item) => card({ k: item.label, v: item.value, note: item.note }))
+      : [
+          card({ k: "Primary objective", v: goal || "Advisor-led plan", note: "The outcome your plan is optimised toward." }),
+          card({ k: "Applicant profile", v: profileLabel, note: "Determines which programme families fit best." }),
+          card({ k: "Planning window", v: `${timelineMonths} months`, note: "Your target timeline to a confirmed status." }),
+          card({ k: "Indicative budget", v: budgetLabel, note: "Anchors the cost modelling and route shortlist." }),
+          card({ k: "Family", v: hasFamily ? "Including dependants" : "Primary applicant", note: hasFamily ? "Dependant inclusion factored into the plan." : "Can be extended to family later." }),
+          card({ k: "Decision priority", v: priorityLabel, note: "The single factor weighted most heavily." }),
+        ]) +
+    `<div class="spacer-8"></div>` +
+    callout({
+      k: "What this means for you",
+      text: crmPersonalisation
+        ? "These facts drive the points, evidence, risk controls and actions throughout this report."
+        : `As a ${profileLabel.toLowerCase()} prioritising ${priorityLabel.toLowerCase()}, ${route} in ${countryLabel} is the route that best balances your objective, budget and timeline — detailed in full across this report.`,
+    });
   const profilePage = splitPage({ header: head, footer: foot("04"), content: profileContent, imageDataUri: nextImg(), capEyebrow: "Private client", capTitle: profileLabel });
 
   // 5 — How this strategy was built (split, methodology)
   const methodologyContent =
     sectionHeader({ eyebrow: "Our method", title: "How this strategy was built", desc: "A transparent view of the steps behind your personalised recommendation." }) +
-    steps([
-      { title: "Profile intake", body: "Your objective, profile, budget, timeline and family position were captured from your assessment responses." },
-      { title: "Route matching", body: `${route} was selected or matched as the working route for ${countryLabel}; the advisor confirms it against legal criteria and evidence.` },
-      { title: "Readiness scoring", body: "Only supplied or advisor-confirmed scores are shown. Missing dimensions remain unscored rather than receiving defaults." },
-      { title: "Cost & timeline modelling", body: "Indicative programme, government and professional costs were mapped against your planning window." },
-      { title: "Advisor validation", body: "Every figure and requirement in this report is confirmed by a XIPHIAS advisor against current rules before you file." },
-    ]);
+    steps(crmPersonalisation
+      ? [
+          { title: "Profile mapping", body: crmPersonalisation.closingSummary },
+          { title: "Points reconciliation", body: crmPersonalisation.roadmapSteps[0].body },
+          { title: "Evidence mapping", body: `${crmPersonalisation.evidenceRows.length} profile-specific evidence workstreams were created from the recorded qualification, employment, English, assessment and family facts.` },
+          { title: "Risk and scenario mapping", body: `${crmPersonalisation.riskRows.length} current controls and ${crmPersonalisation.scenarioCards.length} pathway scenarios were generated from the same profile snapshot.` },
+          { title: "Version control", body: "Changing any material profile input creates a revised report whose downstream matrices, scenarios and action plan are recalculated." },
+        ]
+      : [
+          { title: "Profile intake", body: "Your objective, profile, budget, timeline and family position were captured from your assessment responses." },
+          { title: "Route matching", body: `${route} was selected or matched as the working route for ${countryLabel}; the advisor confirms it against legal criteria and evidence.` },
+          { title: "Readiness scoring", body: "Only supplied or advisor-confirmed scores are shown. Missing dimensions remain unscored rather than receiving defaults." },
+          { title: "Cost & timeline modelling", body: "Indicative programme, government and professional costs were mapped against your planning window." },
+          { title: "Advisor validation", body: "Every figure and requirement in this report is confirmed by a XIPHIAS advisor against current rules before you file." },
+        ]);
   const methodologyPage = splitPage({ header: head, footer: foot("05"), content: methodologyContent, imageDataUri: nextImg(), capEyebrow: "Methodology", capTitle: "How we built this" });
 
   // 6 — Why this route fits you (full, rationale)
-  const reasons = (benefits.length
+  const reasons = (crmPersonalisation?.strengths.length
+    ? crmPersonalisation.strengths
+    : benefits.length
     ? benefits
     : [
         `${route} aligns with a ${priorityLabel.toLowerCase()} priority for globally mobile applicants.`,
@@ -279,7 +322,9 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const whyFitsPage = page({
     header: head,
     body:
-      heroBand(nextImg(), { eyebrow: "Strategic rationale", title: `Why ${route} fits you` }) +
+      (crmPersonalisation
+        ? sectionHeader({ eyebrow: "Strategic rationale", title: `Why ${route} fits this profile`, desc: crmPersonalisation.closingSummary })
+        : heroBand(nextImg(), { eyebrow: "Strategic rationale", title: `Why ${route} fits you` })) +
       sectionHeader({ eyebrow: "Why this route", title: `The case for ${countryLabel}`, desc: tagline }) +
       `<h3 class="h-sub">What makes this route right for your profile</h3>` +
       ticks(reasons) +
@@ -290,7 +335,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         card({ k: "Decision priority", v: priorityLabel }),
       ]) +
       `<div class="spacer-16"></div>` +
-      callout({ k: "The bottom line", text: clientCase.reviewStatus === "draft" ? `${route} is the current working route, not a final recommendation. Resolve the open case limitations and obtain advisor confirmation before acting.` : `On the confirmed case information, ${route} in ${countryLabel} is the current primary strategy. Remaining evidence and risk items must still be closed before filing.` }),
+      callout({ k: "The bottom line", text: crmPersonalisation ? crmPersonalisation.closingSummary : clientCase.reviewStatus === "draft" ? `${route} is the current working route, not a final recommendation. Resolve the open case limitations and obtain advisor confirmation before acting.` : `On the confirmed case information, ${route} in ${countryLabel} is the current primary strategy. Remaining evidence and risk items must still be closed before filing.` }),
     footer: foot("06"),
   });
 
@@ -298,18 +343,20 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // descriptive eligibility list: this is a personal "can you evidence it?" tracker).
   const reqs = (dossier?.requirements ?? []).map((r) => String(r ?? "").trim()).filter(Boolean).slice(0, 6);
   const disq = (dossier?.disqualifiers ?? []).map((d) => String(d ?? "").trim()).filter(Boolean).slice(0, 2);
-  const selfCheckPage = reqs.length
+  const selfCheckPage = (crmPersonalisation?.eligibilityRows.length || reqs.length)
     ? page({
         header: head,
         body:
           sectionHeader({
             eyebrow: "Eligibility self-check",
-            title: "Can you evidence each requirement?",
-            desc: `Work through each criterion for ${route}. Note where you are strong and where you need to build proof — your advisor confirms the rest at review.`,
+            title: crmPersonalisation ? "How your profile affects each requirement" : "Can you evidence each requirement?",
+            desc: crmPersonalisation ? `Each row connects the recorded profile to the evidence needed for ${route}; changing education, experience, English, occupation or family facts changes this matrix.` : `Work through each criterion for ${route}. Note where you are strong and where you need to build proof — your advisor confirms the rest at review.`,
           }) +
           table({
-            head: ["Requirement", "Your status", "Evidence to show"],
-            rows: reqs.map((r) => [esc(r), pill("Confirm", "warn"), `<span class="muted">To prepare</span>`]),
+            head: crmPersonalisation ? ["Requirement", "Recorded profile", "Evidence to show", "Status"] : ["Requirement", "Your status", "Evidence to show"],
+            rows: crmPersonalisation
+              ? crmPersonalisation.eligibilityRows.map((row) => [esc(row.requirement), esc(row.profile), esc(row.evidence), pill(row.status, row.tone)])
+              : reqs.map((r) => [esc(r), pill("Confirm", "warn"), `<span class="muted">To prepare</span>`]),
           }) +
           `<div class="spacer-16"></div>` +
           callout({ k: "How to use this", text: "Bring this completed self-check to your advisor strategy call. The gaps you flag here are exactly what we close before filing." }) +
@@ -347,20 +394,24 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         title: "The conditions for a confident go decision",
         desc: `A premium strategy should state not only why ${route} fits, but also what must be true before you commit time and capital.`,
       }) +
-      grid(2, [
-        card({ k: "Eligibility gate", v: "Evidence confirmed", note: "Every mandatory criterion is mapped to a current, independently verifiable document." }),
-        card({ k: "Financial gate", v: budget > 0 ? budgetLabel : "Budget confirmed", note: "Government, professional, relocation and contingency costs fit your available funds." }),
-        card({ k: "Timing gate", v: `${timelineMonths}-month objective`, note: "Long-lead documents and government processing fit the planning window." }),
-        card({ k: "Family gate", v: hasFamily ? "Dependants modelled" : "Primary applicant", note: "Inclusion timing, status rights and dependant evidence are confirmed." }),
-      ]) +
+      grid(2, crmPersonalisation
+        ? [crmPersonalisation.profileCards[1], crmPersonalisation.profileCards[2], crmPersonalisation.profileCards[3], crmPersonalisation.profileCards[4]].map((item) => card({ k: `${item.label} gate`, v: item.value, note: item.note }))
+        : [
+            card({ k: "Eligibility gate", v: "Evidence confirmed", note: "Every mandatory criterion is mapped to a current, independently verifiable document." }),
+            card({ k: "Financial gate", v: budget > 0 ? budgetLabel : "Budget confirmed", note: "Government, professional, relocation and contingency costs fit your available funds." }),
+            card({ k: "Timing gate", v: `${timelineMonths}-month objective`, note: "Long-lead documents and government processing fit the planning window." }),
+            card({ k: "Family gate", v: hasFamily ? "Dependants modelled" : "Primary applicant", note: "Inclusion timing, status rights and dependant evidence are confirmed." }),
+          ]) +
       `<div class="spacer-24"></div>` +
       sectionHeader({ title: "Pause and reassess when" }) +
-      ticks([
-        "A mandatory criterion depends on evidence that cannot be independently verified.",
-        "The all-in cost or maintained-funds requirement exceeds the confirmed budget.",
-        "A deadline relies on an issuer or government processing time outside your control.",
-        "A material profile, family, employment or source-of-funds fact changes before filing.",
-      ]) +
+      ticks(crmPersonalisation
+        ? crmPersonalisation.riskRows.slice(0, 5).map((row) => row[0])
+        : [
+            "A mandatory criterion depends on evidence that cannot be independently verified.",
+            "The all-in cost or maintained-funds requirement exceeds the confirmed budget.",
+            "A deadline relies on an issuer or government processing time outside your control.",
+            "A material profile, family, employment or source-of-funds fact changes before filing.",
+          ]) +
       `<div class="spacer-16"></div>` +
       callout({ k: "Advisor decision", text: "Proceed only after the advisor records each gate as confirmed, conditional or unresolved and gives the unresolved items a named owner and due date." }),
     footer: foot("Decision framework"),
@@ -376,14 +427,14 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       }) +
       table({
         head: ["Planning assumption", "Current basis", "Advisor confirmation"],
-        rows: [
+        rows: (crmPersonalisation?.assumptionRows ?? [
           ["Destination", countryLabel, "Confirm jurisdiction and intended place of settlement"],
           ["Primary route", route, "Confirm current eligibility and programme availability"],
           ["Objective", goal || "Advisor-led plan", "Confirm the status and long-term outcome sought"],
           ["Planning window", `${timelineMonths} months`, "Test against document and government lead times"],
           ["Budget basis", budgetLabel, "Confirm all-in funds, reserves and payment timing"],
           ["Family scope", hasFamily ? "Dependants included" : "Primary applicant only", "Confirm who applies now and who may join later"],
-        ].map((row) => row.map(esc)),
+        ]).map((row) => row.map(esc)),
       }) +
       `<div class="spacer-16"></div>` +
       callout({ k: "Change control", text: "Re-score the strategy if employment, family composition, available funds, destination, immigration history or the intended filing date changes materially." }),
@@ -401,18 +452,20 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       }) +
       table({
         head: ["Evidence workstream", "Proof standard", "Owner", "Status"],
-        rows: (evidenceRequirements.length ? evidenceRequirements : [
-          "Identity and immigration history",
-          "Education and professional standing",
-          "Employment or business track record",
-          "Funds and source-of-funds evidence",
-          "Family and civil-status records",
-        ]).map((item, index) => [
-          esc(item),
-          index % 2 === 0 ? "Independent, current and internally consistent" : "Primary record plus third-party corroboration",
-          index < 2 ? "Client" : index < 4 ? "Client + issuer" : "Advisor review",
-          pill("To verify", "warn"),
-        ]),
+        rows: crmPersonalisation
+          ? crmPersonalisation.evidenceRows.map((row) => [esc(row[0]), esc(row[1]), esc(row[2]), pill(row[3], /verified|available|recorded/i.test(row[3]) ? "good" : "warn")])
+          : (evidenceRequirements.length ? evidenceRequirements : [
+              "Identity and immigration history",
+              "Education and professional standing",
+              "Employment or business track record",
+              "Funds and source-of-funds evidence",
+              "Family and civil-status records",
+            ]).map((item, index) => [
+              esc(item),
+              index % 2 === 0 ? "Independent, current and internally consistent" : "Primary record plus third-party corroboration",
+              index < 2 ? "Client" : index < 4 ? "Client + issuer" : "Advisor review",
+              pill("To verify", "warn"),
+            ]),
       }) +
       `<div class="spacer-16"></div>` +
       callout({ k: "Evidence rule", text: "Do not treat a document as complete merely because it exists. It must prove the specific legal or programme test, agree with the rest of the file and remain valid on the filing date." }),
@@ -434,17 +487,19 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       }) +
       table({
         head: ["Risk", "Control", "Decision gate"],
-        rows: (riskInputs.length ? riskInputs : [
-          "Eligibility evidence is incomplete or inconsistent",
-          "Government rules or intake conditions change",
-          "Funds cannot be traced to a lawful source",
-          "A third-party document misses the filing window",
-          "Family facts are not aligned across the application",
-        ]).map((item, index) => [
-          esc(item),
-          index % 3 === 0 ? "Advisor eligibility verification" : index % 3 === 1 ? "Current-rule and deadline check" : "Document and narrative quality control",
-          index < 2 ? "Before engagement scope" : "Before filing approval",
-        ]),
+        rows: crmPersonalisation
+          ? crmPersonalisation.riskRows.map((row) => row.map(esc))
+          : (riskInputs.length ? riskInputs : [
+              "Eligibility evidence is incomplete or inconsistent",
+              "Government rules or intake conditions change",
+              "Funds cannot be traced to a lawful source",
+              "A third-party document misses the filing window",
+              "Family facts are not aligned across the application",
+            ]).map((item, index) => [
+              esc(item),
+              index % 3 === 0 ? "Advisor eligibility verification" : index % 3 === 1 ? "Current-rule and deadline check" : "Document and narrative quality control",
+              index < 2 ? "Before engagement scope" : "Before filing approval",
+            ]),
       }) +
       `<div class="spacer-16"></div>` +
       callout({ k: "Escalation rule", text: "Any unresolved mandatory criterion, adverse immigration fact, unexplained funds movement or contradictory record must be escalated before a filing date is agreed." }),
@@ -457,16 +512,20 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       sectionHeader({
         eyebrow: "Financial readiness",
         title: "Control the all-in financial exposure",
-        desc: `The stated budget of ${budgetLabel} is a planning input. The advisor must convert it into a timed and evidenced funding plan for ${route}.`,
+        desc: crmPersonalisation
+          ? `The recorded budget and available funds below shape the timing and evidence plan for ${route}.`
+          : `The stated budget of ${budgetLabel} is a planning input. The advisor must convert it into a timed and evidenced funding plan for ${route}.`,
       }) +
-      grid(2, [
-        card({ k: "Programme threshold", v: dossier?.minInvestment ? `${dossier.currency || "USD"} ${dossier.minInvestment.toLocaleString("en-US")}` : "Confirm current amount", note: "Qualifying capital, maintained funds or route threshold where applicable." }),
-        card({ k: "Government and third parties", v: "Verify current schedules", note: "Filing, biometrics, assessment, translation, medical and clearance costs." }),
-        card({ k: "Professional scope", v: "Written quotation", note: "Tie fees to deliverables, milestones and any exclusions." }),
-        card({ k: "Contingency reserve", v: "Hold separately", note: "Allow for exchange-rate movement, repeat documents, travel and timing changes." }),
-      ]) +
+      grid(2, crmPersonalisation
+        ? crmPersonalisation.financialCards.map((item) => card({ k: item.label, v: item.value, note: item.note }))
+        : [
+            card({ k: "Programme threshold", v: dossier?.minInvestment ? `${dossier.currency || "USD"} ${dossier.minInvestment.toLocaleString("en-US")}` : "Confirm current amount", note: "Qualifying capital, maintained funds or route threshold where applicable." }),
+            card({ k: "Government and third parties", v: "Verify current schedules", note: "Filing, biometrics, assessment, translation, medical and clearance costs." }),
+            card({ k: "Professional scope", v: "Written quotation", note: "Tie fees to deliverables, milestones and any exclusions." }),
+            card({ k: "Contingency reserve", v: "Hold separately", note: "Allow for exchange-rate movement, repeat documents, travel and timing changes." }),
+          ]) +
       `<div class="spacer-16"></div>` +
-      steps([
+      steps(crmPersonalisation?.financialSteps ?? [
         { title: "Confirm the amount", body: "Replace every indicative number with a dated source or written advisor confirmation." },
         { title: "Prove lawful origin", body: "Map each material balance or transfer to bank, tax, sale, business or income records." },
         { title: "Sequence payments", body: "Identify what is payable at engagement, document preparation, filing and government decision stages." },
@@ -483,14 +542,16 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         title: hasFamily ? "Plan every dependant into the same strategy" : "Protect future family flexibility",
         desc: "A route decision should account for status rights, timing and evidence for every person affected, even when only one applicant files first.",
       }) +
-      grid(2, [
-        card({ k: "Application scope", v: hasFamily ? "Family included" : "Primary applicant", note: "Confirm who applies together and who follows later." }),
-        card({ k: "Civil evidence", v: "Verify early", note: "Birth, marriage, custody, name-change and dependency records often have long lead times." }),
-        card({ k: "Work and study rights", v: "Route-specific", note: "Confirm dependant rights and any separate permits before relocation decisions." }),
-        card({ k: "Status continuity", v: "Sequence carefully", note: "Avoid gaps between current status, travel, filing and activation requirements." }),
-      ]) +
+      grid(2, crmPersonalisation
+        ? crmPersonalisation.familyCards.map((item) => card({ k: item.label, v: item.value, note: item.note }))
+        : [
+            card({ k: "Application scope", v: hasFamily ? "Family included" : "Primary applicant", note: "Confirm who applies together and who follows later." }),
+            card({ k: "Civil evidence", v: "Verify early", note: "Birth, marriage, custody, name-change and dependency records often have long lead times." }),
+            card({ k: "Work and study rights", v: "Route-specific", note: "Confirm dependant rights and any separate permits before relocation decisions." }),
+            card({ k: "Status continuity", v: "Sequence carefully", note: "Avoid gaps between current status, travel, filing and activation requirements." }),
+          ]) +
       `<div class="spacer-16"></div>` +
-      ticks([
+      ticks(crmPersonalisation?.familyActions ?? [
         "Confirm passport validity and consistent names for every applicant.",
         "Record previous visas, refusals, residence and travel history consistently.",
         "Check medical, police-clearance and biometrics requirements by age and location.",
@@ -509,21 +570,23 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         title: "Primary plan, fallback and trigger points",
         desc: `Keep ${route} as the lead strategy while defining exactly when an alternative should replace it.`,
       }) +
-      grid(3, [
-        card({ k: "Primary scenario", v: route, note: `Proceed when eligibility, evidence, funds and timing gates are confirmed for ${countryLabel}.` }),
-        card({ k: "Alternative scenario", v: alternativeRoutes[0] || "Advisor-selected fallback", note: "Use when the primary route depends on evidence or timing that cannot be secured." }),
-        card({ k: "Second fallback", v: alternativeRoutes[1] || "Re-scope destination or timing", note: "Use only after comparing status outcome, family rights, cost and processing risk." }),
-      ]) +
+      grid(3, crmPersonalisation
+        ? crmPersonalisation.scenarioCards.map((item) => card({ k: item.label, v: item.value, note: item.note }))
+        : [
+            card({ k: "Primary scenario", v: route, note: `Proceed when eligibility, evidence, funds and timing gates are confirmed for ${countryLabel}.` }),
+            card({ k: "Alternative scenario", v: alternativeRoutes[0] || "Advisor-selected fallback", note: "Use when the primary route depends on evidence or timing that cannot be secured." }),
+            card({ k: "Second fallback", v: alternativeRoutes[1] || "Re-scope destination or timing", note: "Use only after comparing status outcome, family rights, cost and processing risk." }),
+          ]) +
       `<div class="spacer-8"></div>` +
       table({
         head: ["Trigger", "Action", "Owner"],
-        rows: [
+        rows: (crmPersonalisation?.triggerRows ?? [
           ["Mandatory evidence cannot be obtained", "Re-score the fallback route before further spend", "Advisor"],
           ["Budget or maintained-funds position changes", "Rebuild the cost plan and payment sequence", "Client + advisor"],
           ["Government intake or rule changes", "Verify transition provisions and alternative filing window", "Advisor"],
           ["Employment, business or family facts change", "Update the profile, documents and route assumptions", "Client"],
           ["Timeline becomes non-negotiable", "Compare a temporary bridge against the long-term route", "Advisor"],
-        ].map((row) => row.map(esc)),
+        ]).map((row) => row.map(esc)),
       }),
     footer: foot("Scenario planning"),
   });
@@ -540,14 +603,14 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       }) +
       table({
         head: ["Window", "Focus", "Milestone"],
-        rows: [
+        rows: (crmPersonalisation?.milestoneRows ?? [
           ["Month 1", "Confirm", "Advisor strategy call; route and evidence plan locked."],
           ["Months 1-2", "Mobilise", "Long-lead documents ordered; secure X-Hub file opened."],
           ["Months 2-4", "Assemble", "Identity, civil, professional and funds evidence gathered."],
           ["Months 4-5", "Engineer", "Evidence shaped to the route's tests; case narrative drafted."],
           ["Months 5-6", "Verify", "Advisor review; certify and translate; finalise the pack."],
           ["Months 6+", "File & track", "Submission, government correspondence and follow-ups managed for you."],
-        ].map((r) => r.map(esc)),
+        ]).map((r) => r.map(esc)),
       }) +
       `<div class="spacer-16"></div>` +
       callout({ k: "Stay on track", text: "Every milestone has a clear owner and document set in X-Hub, so nothing stalls in the gaps between steps." }),
@@ -557,7 +620,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // Advisor-prep (split) — high-leverage questions to bring to the strategy call
   const advisorPrepContent =
     sectionHeader({ eyebrow: "Prepare", title: "Questions to raise with your advisor", desc: "Make your strategy call count — these are the highest-leverage questions for your route." }) +
-    ticks([
+    ticks(crmPersonalisation?.advisorQuestions ?? [
       `What is the strongest evidence angle for ${route} given my profile?`,
       "Which of my requirements are most likely to draw scrutiny, and how do we pre-empt it?",
       "What is the realistic all-in cost, including government and professional fees?",
@@ -575,7 +638,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     body:
       heroBand(nextImg(), { eyebrow: "Action plan", title: "Your next 90 days" }) +
       sectionHeader({ eyebrow: "Roadmap", title: `From assessment to filing`, desc: `A focused sequence to move ${route} from this strategy into a confirmed, document-ready application.` }) +
-      steps([
+      steps(crmPersonalisation?.roadmapSteps ?? [
         { title: "Book your advisor strategy call", body: `Confirm ${route} eligibility, lock the evidence plan and finalise the cost schedule with a XIPHIAS advisor.` },
         { title: "Open your evidence file", body: "Begin assembling identity, civil, professional and funds documents in X-Hub, prioritising long-lead items." },
         { title: "Order long-lead documents", body: "Police clearances, credential assessments and any language tests are requested first — issuers control the timing." },
@@ -635,7 +698,9 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       `<div class="eyebrow">${isDraft ? "Draft conclusion" : "Final recommendation"}</div>` +
       `<h2 class="h-section" style="color:#fff;margin-top:8px;">${isDraft ? "Complete verification before choosing a route" : `Proceed to ${esc(route)}`}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
-        isDraft
+        crmPersonalisation
+          ? crmPersonalisation.closingSummary
+          : isDraft
           ? `${route} in ${countryLabel} is a working comparison route only. Replace sample facts, verify the evidence and complete advisor review before making an immigration or payment decision.`
           : `Your profile points to ${route} in ${countryLabel}. The next step is an advisor review to confirm eligibility, build the evidence plan and finalise costs before filing.`,
       )}</p>` +
