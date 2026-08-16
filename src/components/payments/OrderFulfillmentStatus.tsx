@@ -64,7 +64,7 @@ export default function OrderFulfillmentStatus({ statusUrl }: { statusUrl: strin
         <div>
           <p className="text-sm font-semibold text-[#071a3a]">{complete ? "Fulfilment complete" : attention ? "Order preserved" : "Preparing your purchase"}</p>
           <p className="mt-1 text-sm leading-6 text-[#536277]" aria-live="polite">{message}</p>
-          {actionHref ? <Link href={actionHref} className="mt-3 inline-flex rounded-lg bg-[#1f5fbc] px-4 py-2.5 text-sm font-semibold text-white">Continue to X-Hub</Link> : null}
+          {actionHref ? <a href={actionHref} className="mt-3 inline-flex rounded-lg bg-[#1f5fbc] px-4 py-2.5 text-sm font-semibold text-white">Open Client CRM</a> : null}
           {stage === "needs_support" ? <Link href="/contact" className="mt-3 inline-flex rounded-lg bg-[#1f5fbc] px-4 py-2.5 text-sm font-semibold text-white">Contact support with your order reference</Link> : null}
         </div>
       </div>

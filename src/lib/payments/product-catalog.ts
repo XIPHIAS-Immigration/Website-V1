@@ -129,14 +129,14 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
     emailSubject: "Your XIPHIAS Immigration Due Diligence Report",
     fileSlug: "Immigration-Due-Diligence-Report",
   },
-  // Full X-Hub onboarding (legacy paid-registration flow). Fixed price closes the
-  // arbitrary-amount tampering vector; adjust here if registration pricing changes.
+  // India CRM registration: INR 5,000 professional fee + INR 900 GST.
+  // The fixed all-inclusive amount is enforced by both the website and CRM.
   registration: {
     productType: "registration",
-    label: "XIPHIAS Full Assessment Registration",
-    priceInr: priceOf(5000),
+    label: "XIPHIAS Full Assessment Registration + Deep Analysis",
+    priceInr: priceOf(5900),
     fulfillment: "registration",
-    emailSubject: "Your X-Hub registration is ready",
+    emailSubject: "Your XIPHIAS client CRM registration is ready",
     fileSlug: "Registration",
   },
   // Staff-created custom-amount links (X-Hub admin console). Amount comes from the request

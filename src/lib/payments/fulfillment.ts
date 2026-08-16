@@ -5,6 +5,7 @@ import { getProductConfig, type ProductConfig } from "@/lib/payments/product-cat
 import { sendPlatformEmail, getPlatformRecipient } from "@/lib/platform/email";
 import { createReportDownloadGrant, ensurePaidReportArtifact, reportDownloadUrl } from "@/lib/payments/report-delivery";
 import { finalizeCrmJiopayPayment } from "@/lib/payments/crm-jiopay";
+import { provisionCrmPaidRegistration } from "@/lib/payments/crm-registration";
 
 export type FulfillmentStatus =
   | "missing_order"
@@ -80,7 +81,7 @@ function reportDeliveryEmailHtml(args: {
  * Fulfil a successfully-paid JioPay order based on its product type.
  *  - report products: generate the correct PDF and email it to the customer (report-only;
  *    no X-Hub account is created).
- *  - registration: delegate to the existing /api/platform/registration/provision flow;
+ *  - registration: create the paid India CRM client, receipt and secure client access;
  *    automatic provisioning is on unless operations explicitly set JIOPAY_AUTO_PROVISION=false.
  *  - custom: staff-created links — just record the payment.
  *
@@ -234,49 +235,73 @@ async function fulfillReport(
   }
 }
 
-async function fulfillRegistration(order: JiopayOrder, opts: { siteUrl: string }): Promise<FulfillmentResult> {
-  // A verified registration purchase provisions the X-Hub workspace by default.
-  // Operations can still stop automatic provisioning explicitly during maintenance.
+async function fulfillRegistration(
+  order: JiopayOrder,
+  opts: { siteUrl: string; gatewayPayload?: Record<string, unknown> },
+): Promise<FulfillmentResult> {
+  // A verified registration purchase is owned by the India CRM. X-Hub is not
+  // involved in client onboarding for this product.
   if (process.env.JIOPAY_AUTO_PROVISION === "false") return { status: "registration_skipped", detail: "auto_provision_disabled" };
-  const secret = process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET;
-  if (!secret) return { status: "registration_skipped", detail: "missing_registration_secret" };
 
   updateJiopayOrder(order.merchantTxnNo, { status: "processing" }, {
     type: "registration_provisioning_started",
     at: new Date().toISOString(),
   });
 
-  const siteUrl = opts.siteUrl.replace(/\/+$/, "");
-  const response = await fetch(`${siteUrl}/api/platform/registration/provision`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-registration-secret": secret },
-    body: JSON.stringify({
-      secret,
-      name: order.customer.name,
-      email: order.customer.email,
-      phone: order.customer.phone,
-      track: order.track,
-      country: order.country,
-      program: order.program || order.productName,
-      amount: order.amountInr,
-      paymentReference: order.merchantTxnNo,
-      product: order.productName,
-      answers: order.answers,
-    }),
-    cache: "no-store",
-  });
+  try {
+    const registration = await provisionCrmPaidRegistration(order, opts.gatewayPayload || {});
+    const mail = await sendPlatformEmail({
+      to: order.customer.email,
+      subject: "Your XIPHIAS client CRM registration is ready",
+      label: "XIPHIAS Immigration",
+      html: `
+        <div style="margin:0;padding:24px;background:#eef3f9;font-family:Segoe UI,Arial,sans-serif;color:#071a3a">
+          <div style="max-width:700px;margin:auto;background:#fff;border:1px solid #dbe7f3;border-radius:20px;overflow:hidden">
+            <div style="padding:28px;background:#071a3a;color:#fff">
+              <div style="font-size:12px;font-weight:900;letter-spacing:.16em;color:#f6d86d">XIPHIAS IMMIGRATION</div>
+              <h1 style="margin:8px 0 0;color:#fff;font-size:27px">Registration confirmed</h1>
+            </div>
+            <div style="padding:28px">
+              <p>Dear <strong>${escapeHtml(order.customer.name)}</strong>,</p>
+              <p>Your payment has been verified and client ID <strong>${registration.clientId}</strong> has been created in the XIPHIAS India CRM.</p>
+              <table style="width:100%;border-collapse:collapse;background:#f8fbff;border:1px solid #dbe7f3">
+                <tr><td style="padding:10px;font-weight:800">Registration fee</td><td style="padding:10px">INR 5,000</td></tr>
+                <tr><td style="padding:10px;font-weight:800">GST</td><td style="padding:10px">INR 900</td></tr>
+                <tr><td style="padding:10px;font-weight:800">Total paid</td><td style="padding:10px">INR 5,900</td></tr>
+                <tr><td style="padding:10px;font-weight:800">CRM status</td><td style="padding:10px">REGISTERED / PAID</td></tr>
+                <tr><td style="padding:10px;font-weight:800">Deep Analysis</td><td style="padding:10px">Included — pending profile intake and adviser review</td></tr>
+                <tr><td style="padding:10px;font-weight:800">Payment reference</td><td style="padding:10px">${escapeHtml(order.merchantTxnNo)}</td></tr>
+              </table>
+              <p style="margin:22px 0;text-align:center"><a href="${escapeHtml(registration.accessUrl)}" style="display:inline-block;border-radius:10px;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;padding:14px 22px">Set password and open Client CRM</a></p>
+              <p style="font-size:12px;color:#536277">This is a single-use secure setup link. Complete your CRM profile after signing in so the assessment team can prepare the included Deep Analysis report.</p>
+            </div>
+          </div>
+        </div>`,
+    });
+    if (mail.status !== "sent") throw new Error(`CRM access email was not sent: ${mail.reason}`);
 
-  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-  if (!response.ok) {
-    updateJiopayOrder(order.merchantTxnNo, { status: "paid" }, { type: "registration_failed", at: new Date().toISOString(), data });
+    await sendPlatformEmail({
+      to: getPlatformRecipient("general"),
+      subject: `Paid CRM registration: ${order.customer.name} — client ${registration.clientId}`,
+      label: "XIPHIAS Platform",
+      html: `<p>India CRM client <strong>${registration.clientId}</strong> is REGISTERED and INR 5,900 is PAID.</p><p>Deep Analysis is included and pending profile intake/adviser review. Payment ref: ${escapeHtml(order.merchantTxnNo)}.</p>`,
+    }).catch(() => undefined);
+
+    updateJiopayOrder(
+      order.merchantTxnNo,
+      { status: "provisioned" },
+      { type: "registration_provisioned", at: new Date().toISOString(), data: { ...registration, mail } },
+    );
+    return { status: "registration_delegated", mail };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "CRM paid-registration provisioning failed.";
+    updateJiopayOrder(order.merchantTxnNo, { status: "paid" }, {
+      type: "registration_failed",
+      at: new Date().toISOString(),
+      data: { error: detail },
+    });
     return { status: "registration_skipped", detail: "provision_failed" };
   }
-  updateJiopayOrder(
-    order.merchantTxnNo,
-    { status: "provisioned" },
-    { type: "registration_provisioned", at: new Date().toISOString(), data },
-  );
-  return { status: "registration_delegated" };
 }
 
 async function fulfillCustom(order: JiopayOrder): Promise<FulfillmentResult> {

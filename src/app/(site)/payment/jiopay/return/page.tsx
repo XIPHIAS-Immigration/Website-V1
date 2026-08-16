@@ -68,7 +68,7 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
     ? isCrmPayment
       ? "JioPay returned a successful response. Your payment is being recorded in CRM and the usual invoice or receipt confirmation will be sent to your registered email."
       : isRegistration
-        ? "JioPay returned a successful response. XIPHIAS is recording your registration and preparing your X-Hub onboarding. Access details and the next assessment steps are sent to the email used at checkout."
+        ? "JioPay returned a successful response. XIPHIAS is creating your India CRM client record, paid receipt and secure client access. The included Deep Analysis begins after you complete your CRM profile."
         : "JioPay returned a successful response. XIPHIAS will verify and record your purchase, prepare the personalised PDF, and email a secure copy to the address used at checkout."
     : failed
       ? checkoutMessage ||
@@ -117,13 +117,13 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
               Return to client CRM
             </a>
           ) : isRegistration ? (
-            <Link
-              href="/x-hub/sign-in"
+            <a
+              href="https://www.xiphiasimmigration.com/XIPHIAS/ClientAccess.ashx"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f5fbc] px-5 py-3 text-sm font-semibold text-white"
             >
               <FileText className="size-4" aria-hidden="true" />
-              Continue to X-Hub
-            </Link>
+              Client CRM login
+            </a>
           ) : (
             <Link
               href="/reports"

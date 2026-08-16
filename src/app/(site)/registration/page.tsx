@@ -8,12 +8,12 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Full Immigration Assessment Registration | XIPHIAS",
-  description: "Register for a full XIPHIAS immigration assessment, Deep Analysis and secure X-Hub case onboarding for INR 5,000.",
+  description: "Register for a full XIPHIAS immigration assessment, Deep Analysis and secure client CRM onboarding for INR 5,900 including GST.",
   robots: { index: false, follow: false },
 };
 
 export default function RegistrationPage() {
-  const priceInr = getProductConfig("registration")?.priceInr ?? 5000;
+  const priceInr = getProductConfig("registration")?.priceInr ?? 5900;
 
   return (
     <main className="min-h-screen bg-[#eef3f9] pb-24 pt-24 text-[#071a3a]">
@@ -21,10 +21,10 @@ export default function RegistrationPage() {
         <div className="mx-auto grid max-w-screen-xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f0c83f]">XIPHIAS full assessment</p>
-            <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Register once. Get the analysis and a case workspace.</h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-white/65">For INR {priceInr.toLocaleString("en-IN")}, start a structured immigration assessment, receive the Deep Analysis within the onboarding workflow and organise the next steps in X-Hub.</p>
+            <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Register once. Get the analysis and your client CRM.</h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-white/65">For INR 5,000 plus INR 900 GST, start a structured immigration assessment, receive the included Deep Analysis and manage the next steps in the XIPHIAS client CRM.</p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              {["Deep Analysis assessment included", "Secure X-Hub case workspace", "Document and evidence organisation", "Advisor handoff and next-step plan"].map((item) => <div key={item} className="flex items-center gap-2 text-sm text-white/75"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-emerald-400/15 text-emerald-300"><Check className="size-3" /></span>{item}</div>)}
+              {["Deep Analysis report included", "Secure client CRM access", "Registration and payment visible in CRM", "Advisor handoff and next-step plan"].map((item) => <div key={item} className="flex items-center gap-2 text-sm text-white/75"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-emerald-400/15 text-emerald-300"><Check className="size-3" /></span>{item}</div>)}
             </div>
             <a href="#registration-checkout" className="mt-8 inline-flex h-14 items-center gap-2 rounded-xl bg-[#d8ad1f] px-7 text-base font-black text-primary">Register for INR {priceInr.toLocaleString("en-IN")} <ArrowRight className="size-5" /></a>
           </div>
@@ -32,7 +32,7 @@ export default function RegistrationPage() {
             {[
               [FileSearch, "Assessment", "Build the evidence-led profile"],
               [Route, "Deep Analysis", "Review route fit and gaps"],
-              [FolderLock, "X-Hub", "Organise documents and milestones"],
+              [FolderLock, "Client CRM", "Organise documents and milestones"],
               [UserRoundCheck, "Handoff", "Prepare the case for advisor review"],
             ].map(([Icon, title, copy], index) => {
               const ItemIcon = Icon as typeof FileSearch;
@@ -48,7 +48,7 @@ export default function RegistrationPage() {
           <ol className="mt-6 space-y-6">
             {[
               ["Pay securely", "Complete the short checkout form and pay through JioPay."],
-              ["Open X-Hub", "Your case workspace is provisioned and access details are sent by email."],
+              ["Open the client CRM", "Your CRM client ID, paid receipt and secure access are created after verified payment."],
               ["Complete the profile", "Add the full personal, education, employment and document history securely after payment."],
               ["Receive the assessment", "The Deep Analysis and advisor-ready next steps use the information actually supplied."],
             ].map(([title, copy], index) => <li key={title} className="flex gap-4"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#071a3a] text-xs font-black text-[#d8ad1f]">{index + 1}</span><div><h2 className="font-black">{title}</h2><p className="mt-1 text-sm leading-6 text-slate-500">{copy}</p></div></li>)}

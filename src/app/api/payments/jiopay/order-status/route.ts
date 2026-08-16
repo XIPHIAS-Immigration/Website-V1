@@ -28,6 +28,8 @@ export async function GET(req: NextRequest) {
   if (!product) return NextResponse.json({ ok: false, error: "Unknown purchased product." }, { status: 400 });
 
   const completed = order.events.some((event) => event.type === "report_delivered" || event.type === "registration_provisioned");
+  const registrationEvent = order.events.find((event) => event.type === "registration_provisioned");
+  const crmAccessUrl = typeof registrationEvent?.data?.accessUrl === "string" ? registrationEvent.data.accessUrl : undefined;
   const waitingForIntake = product.requiresIntake && order.answers?.paidIntakeCompleted !== true;
   const failureEvents = order.events.filter((event) => event.type === "report_failed" || event.type === "registration_failed");
   const latestStart = Math.max(eventTime(order, "report_generation_started"), eventTime(order, "registration_provisioning_started"));
@@ -61,7 +63,7 @@ export async function GET(req: NextRequest) {
             : "pending";
   const message = stage === "ready"
     ? product.fulfillment === "registration"
-      ? "Your X-Hub workspace is ready. Sign-in details were sent to your checkout email."
+      ? "Your India CRM client ID is registered, INR 5,900 is recorded as paid, and secure access was sent to your checkout email."
       : "Your personalised PDF is ready and has been sent to your checkout email."
     : stage === "action_required"
       ? "Payment is confirmed. Complete the secure paid intake to generate the report."
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest) {
           ? "The payment was not completed."
           : stage === "processing"
             ? product.fulfillment === "registration"
-              ? "Payment is confirmed. Your X-Hub workspace is being created."
+              ? "Payment is confirmed. Your India CRM client, paid receipt and secure access are being created."
               : "Payment is confirmed. Your personalised report is being generated."
             : "Waiting for verified payment confirmation.";
 
@@ -80,6 +82,6 @@ export async function GET(req: NextRequest) {
     stage,
     message,
     product: product.label,
-    actionHref: stage === "ready" && product.fulfillment === "registration" ? "/x-hub/sign-in" : undefined,
+    actionHref: stage === "ready" && product.fulfillment === "registration" ? crmAccessUrl : undefined,
   });
 }
