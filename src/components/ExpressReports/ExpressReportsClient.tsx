@@ -401,8 +401,8 @@ export default function ExpressReportsClient({
           <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-secondary">Step 2 of 3 &middot; Your information</p>
-              <h1 className="mt-2 max-w-4xl text-3xl font-black leading-tight sm:text-4xl">Complete the {selected.shortTitle} form.</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">Enter the facts relevant to this report, then continue directly to JioPay. After verified payment, the PDF is prepared for download and email delivery.</p>
+              <h1 className="mt-2 max-w-4xl text-3xl font-black leading-tight sm:text-4xl">Please enter the required information below and proceed to checkout.</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">Your answers will be used to personalise the {selected.shortTitle}. After verified payment, the PDF is prepared for download and email delivery.</p>
             </div>
             <div className="flex shrink-0 gap-2 text-[11px] font-black uppercase tracking-wide">
               <span className="rounded-full border border-emerald-300/25 bg-emerald-300/[0.08] px-3 py-2 text-emerald-200">1 Selected</span>
@@ -430,7 +430,7 @@ export default function ExpressReportsClient({
 
             <div className="p-6 sm:p-8 lg:p-10">
               <div className="flex flex-col gap-2 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
-                <div><p className="text-xs font-black uppercase tracking-[0.16em] text-secondary">Focused intake</p><h2 className="mt-2 text-2xl font-black">Tell us only what this report needs.</h2></div>
+                <div><p className="text-xs font-black uppercase tracking-[0.16em] text-secondary">Report information</p><h2 className="mt-2 text-2xl font-black">Complete your details for this report.</h2></div>
                 <span className="text-xs text-white/40">{estimatedIntakeTime}</span>
               </div>
 
