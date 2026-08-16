@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import ExpressReportsClient, {
   type ExpressProgrammeOption,
@@ -40,6 +41,7 @@ const productCopy: Array<Omit<ExpressReportProduct, "priceInr">> = [
     description: "Assess professional, education, experience and evidence signals across relevant high-skill routes.",
     delivery: "Generated after verified payment and delivered by secure download and email.",
     includes: ["Country and route matching", "Evidence-strength review", "Profile readiness measures", "Priority evidence plan"],
+    featured: true,
   },
   {
     productType: "cost_report",
@@ -70,9 +72,8 @@ const productCopy: Array<Omit<ExpressReportProduct, "priceInr">> = [
     title: "XIPHIAS Immigration Due Diligence Report",
     shortTitle: "Immigration Due Diligence",
     description: "Review identity, immigration history, evidence, funds, family records and relevant counterparties through a secure detailed intake.",
-    delivery: "Payment unlocks the secure detailed intake; the PDF follows when that intake is submitted.",
+    delivery: "Generated after verified payment and delivered by secure download and email.",
     includes: ["Structured risk review", "Evidence and chronology matrix", "Source-of-funds review", "Prioritised remediation plan"],
-    requiresIntake: true,
   },
   {
     productType: "us_visa_report",
@@ -89,7 +90,6 @@ const productCopy: Array<Omit<ExpressReportProduct, "priceInr">> = [
     description: "A broader strategy report for customers who want route direction, profile analysis, risks and next actions together.",
     delivery: "Generated after verified payment and delivered by secure download and email.",
     includes: ["Personal profile snapshot", "Route strategy", "Risks and dependencies", "Detailed action roadmap"],
-    featured: true,
   },
 ];
 
@@ -105,6 +105,7 @@ export default async function ExpressReportsPage({ searchParams }: { searchParam
   const requested = typeof params.report === "string" && validTypes.has(params.report as ExpressReportProduct["productType"])
     ? params.report as ExpressReportProduct["productType"]
     : undefined;
+  if (!requested) redirect("/reports");
   const initialProgrammes = typeof params.programmes === "string" ? params.programmes.slice(0, 800) : "";
   const programmes: ExpressProgrammeOption[] = getProgrammeExplorerData().items.map((item) => ({
     id: item.id,

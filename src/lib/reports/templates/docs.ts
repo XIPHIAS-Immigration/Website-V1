@@ -295,8 +295,17 @@ function resolveProgramme(order: JiopayOrder): Resolved {
       }
     }
     const wantP = pSlug.replace(/-/g, " ");
+    const requestedIds = wantP.match(/\b(?:subclass\s*)?\d{3}\b|\b(?:eb|o|h)\s*\d+[a-z]?\b/g)?.map((item) => item.replace(/\s+/g, "")) ?? [];
+    const identifierMatch = requestedIds.length
+      ? pool.find((p) => {
+          const candidate = `${p.title} ${p.programSlug}`.toLowerCase().replace(/[^a-z0-9]+/g, " ");
+          const candidateIds = new Set(candidate.match(/\b(?:subclass\s*)?\d{3}\b|\b(?:eb|o|h)\s*\d+[a-z]?\b/g)?.map((item) => item.replace(/\s+/g, "")) ?? []);
+          return requestedIds.some((value) => candidateIds.has(value));
+        })
+      : undefined;
     const match =
       pool.find((p) => p.programSlug === pSlug) ??
+      identifierMatch ??
       pool.find((p) => programInput && p.title.toLowerCase().includes(wantP)) ??
       pool.find((p) => cSlug && p.countrySlug === cSlug);
     if (match) program = match as ProgramWithChecklist;
@@ -610,12 +619,20 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
       callout({ k: "File-control standard", text: "Keep certified originals safe, use official issuers, attach certified translations, and retain only the current dated version of each file." }),
   });
 
-  /* 9 — Advisor close (dark) */
+  const summaryHeading = overall === undefined
+    ? "Record document statuses before assessing readiness"
+    : overall >= 80
+      ? "Validate the document pack"
+      : overall >= 50
+        ? "Close the priority document gaps"
+        : "Build the document pack before filing";
+
+  /* 9 — Report close (dark) */
   const summaryPage = page({
     dark: true,
     body:
-      `<div class="eyebrow">Advisor summary</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">Assemble with confidence</h2>` +
+      `<div class="eyebrow">Report summary</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(summaryHeading)}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         `You have ${total} documents mapped across ${coveredGroups.length} categories for ${programLabel} in ${countryLabel}. Close the priority gaps first, hold your evidence to the verifiability standards, then book an advisor review before filing.`,
       )}</p>` +
@@ -628,7 +645,7 @@ export async function buildDocsReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">Talk to the advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This report is an advisory document-readiness assessment prepared from your submitted inputs and XIPHIAS programme content. It is not legal advice and does not guarantee any government or visa-office decision. Document requirements, fees and timelines change; the final checklist must be confirmed by a XIPHIAS advisor against current rules before you file or pay any government or third-party fees.",
+        "This automated document-readiness report was generated from your submitted inputs and XIPHIAS programme content. It has not been independently verified by an advisor. It is not legal advice and does not guarantee any government or visa-office decision. Document requirements, fees and timelines change; the final checklist must be confirmed by a XIPHIAS advisor against current rules before you file or pay any government or third-party fees.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });

@@ -71,6 +71,14 @@ const intelligenceActions: IntelligenceAction[] = [
     roles: ["client", "staff", "admin"],
   },
   {
+    href: "/x-hub/deep-analysis",
+    eyebrow: "Included report",
+    title: "Deep Analysis intake",
+    body: "Complete your evidence-led profile and download the Deep Analysis report included with registration.",
+    icon: BrainCircuit,
+    roles: ["client", "staff", "admin"],
+  },
+  {
     href: "/x-hub/documents",
     eyebrow: "Evidence",
     title: "Document readiness",

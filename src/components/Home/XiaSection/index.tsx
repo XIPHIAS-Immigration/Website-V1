@@ -60,7 +60,7 @@ export default function XiaSection() {
             {/* CTAs */}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/express-reports"
+                href="/reports"
                 className="inline-flex items-center gap-2 rounded-xl bg-secondary px-6 py-2.5 text-sm font-extrabold text-primary shadow-[0_4px_14px_rgba(225,185,35,0.35)] transition-all hover:bg-[#f0cb3b] hover:shadow-[0_4px_20px_rgba(225,185,35,0.50)]"
               >
                 Buy a report from INR 499

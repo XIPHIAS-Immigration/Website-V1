@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Track, Result, AnswerMap } from "@/lib/eligibility/types";
 import { trackEvent } from "@/lib/eligibility/analytics";
-import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 
 type Props = {
   track: Track;
@@ -20,10 +20,10 @@ type Props = {
 };
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
-const DETAILED_REPORT_PRICE_INR = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR || "1000";
-const DETAILED_REPORT_PAYMENT_URL = process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL || TOPMATE_REGISTRATION_URL;
+const DETAILED_REPORT_PRICE_INR = getProductConfig("registration")?.priceInr ?? 5000;
+const DETAILED_REPORT_PAYMENT_URL = "/registration";
 
-function formatInr(value: string) {
+function formatInr(value: string | number) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
   if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
   return `INR ${numeric.toLocaleString("en-IN")}`;
@@ -98,7 +98,7 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
       program: safeResult.programs?.[0]?.name,
       message: "Clicked detailed report registration CTA.",
       page: typeof window !== "undefined" ? window.location.pathname : "/eligibility",
-      tags: ["detailed-report-intent", "topmate-registration"],
+      tags: ["detailed-report-intent", "jiopay-registration"],
       consent: true,
     });
 
@@ -304,8 +304,8 @@ export function ResultCard({ track, result, name, email, phone, answers, onBackA
             </p>
             <p className="mt-2 text-3xl font-black">{detailedReportPrice}</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Paid registration uses a dedicated Topmate registration product. After payment,
-              X-Hub opens the client case, checklist, milestones, and detailed report workflow.
+              Secure JioPay registration starts the X-Hub case, checklist, milestones and
+              Deep Analysis workflow without asking for the full profile before payment.
             </p>
             <Link
               href={DETAILED_REPORT_PAYMENT_URL}

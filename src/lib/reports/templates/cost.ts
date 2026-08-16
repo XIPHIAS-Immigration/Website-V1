@@ -131,6 +131,10 @@ function normalize(value: string): string {
     .trim();
 }
 
+function programmeIdentifiers(value: string): string[] {
+  return normalize(value).match(/\b(?:subclass\s*)?\d{3}\b|\b(?:eb|o|h)\s*\d+[a-z]?\b/g)?.map((item) => item.replace(/\s+/g, "")) ?? [];
+}
+
 type CostInput = {
   track: Vertical;
   programName: string;
@@ -176,6 +180,12 @@ function matchProgram(input: CostInput, items: ProgrammeExplorerItem[]): Program
     let score = 0;
     const itemName = normalize(item.title);
     const itemCountry = normalize(item.country);
+    const requestedIds = programmeIdentifiers(input.programName);
+    if (requestedIds.length) {
+      const itemIds = new Set(programmeIdentifiers(`${item.title} ${item.id}`));
+      if (!requestedIds.some((value) => itemIds.has(value))) continue;
+      score += 80;
+    }
 
     if (wantName && itemName === wantName) score += 60;
     else if (wantName && (itemName.includes(wantName) || wantName.includes(itemName))) score += 32;
@@ -591,12 +601,18 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       ]),
   });
 
-  // 9 — Advisor summary (dark close)
+  const closeHeading = usesVerifiedCosts
+    ? "Reverify the sourced budget before payment"
+    : isFallback
+      ? "Confirm the programme before using this estimate"
+      : "Validate the indicative budget";
+
+  // 9 — Report summary (dark close)
   const closePage = page({
     dark: true,
     body:
-      `<div class="eyebrow">Advisor summary</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">Plan with a clear number</h2>` +
+      `<div class="eyebrow">Report summary</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(closeHeading)}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         `Your indicative all-in budget for ${program.title} is ${usd(total)} for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}. Plan against ${usd(allInWithBuffer)} with a buffer, then book an advisor review to confirm every figure before you commit funds.`,
       )}</p>` +
@@ -609,7 +625,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">Talk to the advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This Cost & Budget Report is an advisory planning estimate prepared from your submitted inputs and XIPHIAS programme content. Every figure is indicative — government fees, due diligence, dependant add-ons and investment thresholds vary by case, route, dependants and current government schedules, and change without notice. This is not legal, financial or tax advice and does not guarantee any government or visa-office decision. All figures must be confirmed by a XIPHIAS advisor before any decision or payment of government or third-party fees.",
+        "This automated Cost & Budget Report was generated from your submitted inputs and XIPHIAS programme content. It has not been independently verified by an advisor. Unless a line is explicitly labelled as a sourced advisor-entered amount, every figure is an indicative planning assumption. Government fees, due diligence, dependant add-ons and investment thresholds vary by case, route, dependants and current government schedules, and change without notice. This is not legal, financial or tax advice and does not guarantee any government or visa-office decision. All figures must be confirmed by a XIPHIAS advisor before any decision or payment of government or third-party fees.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });

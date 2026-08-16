@@ -78,7 +78,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   deep_analysis_report: {
     productType: "deep_analysis_report",
     label: "XIPHIAS High-Skill Deep Analysis Report",
-    priceInr: priceOf(499),
+    priceInr: priceOf(4999),
     fulfillment: "report",
     reportKind: "deep_analysis",
     emailSubject: "Your XIPHIAS High-Skill Deep Analysis Report",
@@ -126,7 +126,6 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
     priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "due_diligence",
-    requiresIntake: true,
     emailSubject: "Your XIPHIAS Immigration Due Diligence Report",
     fileSlug: "Immigration-Due-Diligence-Report",
   },
@@ -134,8 +133,8 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   // arbitrary-amount tampering vector; adjust here if registration pricing changes.
   registration: {
     productType: "registration",
-    label: "XIPHIAS Registration",
-    priceInr: priceOf(1000),
+    label: "XIPHIAS Full Assessment Registration",
+    priceInr: priceOf(5000),
     fulfillment: "registration",
     emailSubject: "Your X-Hub registration is ready",
     fileSlug: "Registration",

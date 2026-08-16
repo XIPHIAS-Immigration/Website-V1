@@ -3,7 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import type { Track, AnswerMap, Program } from "@/lib/eligibility/types";
 import { getEligibilityAdvisory } from "@/lib/platform/eligibility-advisor";
 import { getPlatformRepository } from "@/lib/platform/repository";
-import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage, type RGB } from "pdf-lib";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -21,7 +21,7 @@ const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigratio
 const REPORT_TITLE = "Assessment Preview Report";
 const DETAILED_REPORT_TITLE = "Detailed Personal Mobility Report";
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PRICE_INR = "1000";
+const DEFAULT_REPORT_PRICE_INR = 5000;
 const PDF_LOGO_BASE64 = process.env.PDF_LOGO_BASE64 || "";
 
 const FOOTER_ADDRESS =
@@ -113,7 +113,7 @@ function absoluteUrl(pathOrUrl: string, siteUrl = getSiteUrl()) {
   return `${siteUrl}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
 }
 
-function formatInr(value: string) {
+function formatInr(value: string | number) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
   if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
   return `INR ${numeric.toLocaleString("en-IN")}`;
@@ -888,7 +888,7 @@ function addDetailedReportPages(
       },
       {
         title: "Premium report fulfilment",
-        body: `Registration CTA uses ${args.reportPaymentUrl}. Price shown: ${args.reportPrice}. Topmate owns payment; XIPHIAS owns lead, report, portal, and workflow records.`,
+        body: `Registration CTA uses ${args.reportPaymentUrl}. Price shown: ${args.reportPrice}. JioPay handles secure checkout; XIPHIAS owns lead, report, portal, and workflow records.`,
         bullets: ["Provision route can create credentials after payment webhook.", "Detailed PDF can attach when assessment answers are included.", "Advisor should review before final advice."],
         accent: GREEN,
       },
@@ -1141,17 +1141,8 @@ export async function POST(req: NextRequest) {
   });
   const reportReference = `XIP-${Date.now().toString(36).toUpperCase()}`;
   const siteUrl = getSiteUrl();
-  const reportPaymentUrl = absoluteUrl(
-    process.env.ASSESSMENT_REPORT_PAYMENT_URL ||
-      process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL ||
-      TOPMATE_REGISTRATION_URL,
-    siteUrl
-  );
-  const reportPrice = formatInr(
-    process.env.ASSESSMENT_REPORT_PRICE_INR ||
-      process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR ||
-      DEFAULT_REPORT_PRICE_INR
-  );
+  const reportPaymentUrl = absoluteUrl("/registration", siteUrl);
+  const reportPrice = formatInr(getProductConfig("registration")?.priceInr ?? DEFAULT_REPORT_PRICE_INR);
 
   const pdf = await PDFDocument.create();
   const fonts: Fonts = {

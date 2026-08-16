@@ -5,7 +5,7 @@ import { getEligibilityAdvisory } from "@/lib/platform/eligibility-advisor";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import { sendLeadAlert } from "@/lib/platform/whatsapp";
-import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 import type { Track } from "@/lib/eligibility/types";
 import { protectPublicLead } from "@/lib/security/public-lead-security";
 
@@ -20,7 +20,7 @@ const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
 const MAX_JSON_KB = 64;
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PRICE_INR = "1000";
+const DEFAULT_REPORT_PRICE_INR = 5000;
 
 const rlBucket: Map<string, number[]> =
   (global as any).__eligibilityRL__ ?? new Map<string, number[]>();
@@ -65,7 +65,7 @@ function absoluteUrl(pathOrUrl: string, siteUrl = getSiteUrl()) {
   return `${siteUrl}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
 }
 
-function formatInr(value: string) {
+function formatInr(value: string | number) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
   if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
   return `INR ${numeric.toLocaleString("en-IN")}`;
@@ -274,17 +274,8 @@ export async function POST(req: NextRequest) {
       const safeSummary = escapeHtml(result.summary);
       const mailto = `mailto:${encodeURIComponent(email)}`;
       const siteUrl = getSiteUrl();
-      const reportPaymentUrl = absoluteUrl(
-        process.env.ASSESSMENT_REPORT_PAYMENT_URL ||
-          process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PAYMENT_URL ||
-          TOPMATE_REGISTRATION_URL,
-        siteUrl
-      );
-      const reportPrice = formatInr(
-        process.env.ASSESSMENT_REPORT_PRICE_INR ||
-          process.env.NEXT_PUBLIC_ASSESSMENT_REPORT_PRICE_INR ||
-          DEFAULT_REPORT_PRICE_INR
-      );
+      const reportPaymentUrl = absoluteUrl("/registration", siteUrl);
+      const reportPrice = formatInr(getProductConfig("registration")?.priceInr ?? DEFAULT_REPORT_PRICE_INR);
       const logoUrl = `${siteUrl}/images/logo/xiphias-immigration.png`;
       const contactUrl = `${siteUrl}/contact`;
       const portalUrl = `${siteUrl}/x-hub/sign-in`;
@@ -380,7 +371,7 @@ export async function POST(req: NextRequest) {
               <div style="margin:28px 0 0;border-radius:18px;background:#071a3a;padding:22px;color:#fff;">
                 <div style="font-size:12px;color:#f6d86d;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">Next step</div>
                 <h2 style="margin:8px 0 8px;font-size:22px;color:#fff;">Unlock your detailed personal report</h2>
-                <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#dbe7f3;">Registration starts at <strong style="color:#fff;">${reportPrice}</strong>. The full report includes route comparison, country/product fit, document checklist, risk flags, timeline, advisor notes, and X-Hub onboarding. Payment is completed through the dedicated Topmate registration flow.</p>
+                <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#dbe7f3;">Registration is <strong style="color:#fff;">${reportPrice}</strong>. It includes the Deep Analysis workflow, route comparison, document checklist, risk flags, timeline, advisor handoff, and X-Hub onboarding. Payment is completed through secure JioPay checkout.</p>
                 <a href="${reportPaymentUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Register for detailed report</a>
                 <a href="${contactUrl}" style="display:inline-block;margin-left:10px;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 16px;">Speak to an advisor</a>
               </div>

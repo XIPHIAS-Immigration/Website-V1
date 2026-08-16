@@ -1,22 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { trackEvent } from "@/lib/eligibility/analytics";
 import {
-  ArrowRight,
-  BadgeIndianRupee,
-  BarChart3,
-  BrainCircuit,
   Check,
-  ClipboardCheck,
   CreditCard,
   FileCheck2,
-  FileText,
   LoaderCircle,
-  Route,
-  Scale,
-  ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 
 export type ExpressReportProduct = {
@@ -77,6 +68,22 @@ type FormState = {
   documentsAvailable: string;
   documentsMissing: string;
   profileSummary: string;
+  dateOfBirth: string;
+  nationality: string;
+  residenceCountry: string;
+  aliases: string;
+  visaHistory: string;
+  refusalDetails: string;
+  legalDetails: string;
+  passportEvidence: string;
+  documentInconsistencies: string;
+  sourceOfFunds: string;
+  availableFunds: string;
+  counterpartyName: string;
+  counterpartyCountry: string;
+  adverseConcerns: string;
+  cpaAssessment: string;
+  assessingBody: string;
   consent: boolean;
 };
 
@@ -109,18 +116,23 @@ const initialForm: FormState = {
   documentsAvailable: "",
   documentsMissing: "",
   profileSummary: "",
+  dateOfBirth: "",
+  nationality: "",
+  residenceCountry: "",
+  aliases: "",
+  visaHistory: "",
+  refusalDetails: "",
+  legalDetails: "",
+  passportEvidence: "not-provided",
+  documentInconsistencies: "",
+  sourceOfFunds: "",
+  availableFunds: "",
+  counterpartyName: "",
+  counterpartyCountry: "",
+  adverseConcerns: "",
+  cpaAssessment: "",
+  assessingBody: "",
   consent: false,
-};
-
-const productIcons: Record<ProductType, typeof FileText> = {
-  premium_report: Sparkles,
-  route_report: Route,
-  deep_analysis_report: BrainCircuit,
-  us_visa_report: BarChart3,
-  cost_report: BadgeIndianRupee,
-  compare_report: Scale,
-  docs_report: ClipboardCheck,
-  due_diligence_report: ShieldCheck,
 };
 
 const evidenceOptions = [
@@ -163,6 +175,14 @@ function isHighSkill(type: ProductType) {
   return type === "deep_analysis_report" || type === "us_visa_report";
 }
 
+const REPORT_DRAFT_KEY = "xiphias-express-report-draft-v1";
+
+type SavedReportDraft = {
+  selectedType: ProductType;
+  form: FormState;
+  evidence: Record<string, boolean>;
+};
+
 export default function ExpressReportsClient({
   products,
   programmes,
@@ -177,11 +197,13 @@ export default function ExpressReportsClient({
   const [selectedType, setSelectedType] = useState<ProductType>(initialReport ?? "route_report");
   const [form, setForm] = useState<FormState>({ ...initialForm, programmes: initialProgrammes });
   const [evidence, setEvidence] = useState<Record<string, boolean>>({});
+  const [draftReady, setDraftReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [startedAt] = useState(() => Date.now());
 
   const selected = products.find((product) => product.productType === selectedType) ?? products[0];
+  const estimatedIntakeTime = isHighSkill(selectedType) ? "Usually 8-12 minutes" : "Usually 2-4 minutes";
   const countries = useMemo(
     () => Array.from(new Set(programmes.map((item) => item.country))).sort((a, b) => a.localeCompare(b)),
     [programmes],
@@ -196,16 +218,69 @@ export default function ExpressReportsClient({
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((current) => ({ ...current, [key]: value }));
 
-  const chooseProduct = (productType: ProductType) => {
-    setSelectedType(productType);
-    setError("");
-    document.getElementById("express-report-intake")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(REPORT_DRAFT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<SavedReportDraft>;
+        const canRestore = parsed.form && parsed.evidence && parsed.selectedType && (!initialReport || initialReport === parsed.selectedType);
+        if (canRestore) {
+          setSelectedType(parsed.selectedType as ProductType);
+          setForm({ ...initialForm, ...(parsed.form as FormState), programmes: initialProgrammes || parsed.form?.programmes || "" });
+          setEvidence(parsed.evidence as Record<string, boolean>);
+        }
+      }
+    } catch {
+      window.localStorage.removeItem(REPORT_DRAFT_KEY);
+    } finally {
+      setDraftReady(true);
+    }
+  }, [initialProgrammes, initialReport]);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    const draft: SavedReportDraft = { selectedType, form, evidence };
+    window.localStorage.setItem(REPORT_DRAFT_KEY, JSON.stringify(draft));
+  }, [draftReady, evidence, form, selectedType]);
+
+  const formError = (): string => {
+    if (!form.name.trim()) return "Enter your full name to continue.";
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) return "Enter a valid email address to continue.";
+    if (isHighSkill(selectedType)) {
+      if (!form.occupation.trim()) return "Enter your occupation or current role.";
+      if (!form.age.trim() || Number(form.age) < 18) return "Enter your age so the report can assess age-sensitive routes.";
+      if (form.education === "unknown") return "Select your highest education.";
+      if (!form.yearsExperience.trim()) return "Enter your years of experience.";
+    }
+    if (selectedType === "premium_report" && (!form.occupation.trim() || !form.age.trim() || form.education === "unknown" || !form.yearsExperience.trim())) {
+      return "Add your occupation, age, education and experience for a useful premium strategy.";
+    }
+    if (selectedType === "route_report" && !form.occupation.trim() && !form.profileSummary.trim()) {
+      return "Add your occupation or a short background summary so the route recommendation is personal.";
+    }
+    if (selectedType === "cost_report" && (!form.country.trim() || !form.program.trim())) {
+      return "Enter the destination and exact programme for a meaningful cost estimate.";
+    }
+    if (selectedType === "compare_report" && form.programmes.split(/[,;|\n]+/).filter((item) => item.trim()).length < 2) {
+      return "Choose or enter at least two programmes for a useful comparison.";
+    }
+    if (selectedType === "docs_report" && (!form.country.trim() || !form.program.trim())) {
+      return "Enter the destination and programme to build the correct checklist.";
+    }
+    if (selectedType === "due_diligence_report" && (!form.country.trim() || !form.program.trim() || !form.profileSummary.trim())) {
+      return "Enter the destination, route and the focus of your due-diligence review.";
+    }
+    if (selectedType === "due_diligence_report" && (!form.dateOfBirth || !form.nationality.trim() || !form.residenceCountry.trim() || !form.visaHistory.trim())) {
+      return "Complete your date of birth, nationality, residence and visa history for the due-diligence report.";
+    }
+    return "";
   };
 
   const submit = async () => {
     setError("");
-    if (!form.name.trim() || !/^\S+@\S+\.\S+$/.test(form.email.trim())) {
-      setError("Enter your full name and a valid email address.");
+    const validationError = formError();
+    if (validationError) {
+      setError(validationError);
       return;
     }
     if (!form.consent) {
@@ -218,35 +293,65 @@ export default function ExpressReportsClient({
     }
 
     setSubmitting(true);
+    trackEvent("report_checkout_started", { product_type: selectedType, value: selected.priceInr, currency: "INR" });
     try {
       const effectiveCountry = selectedType === "us_visa_report" ? "United States" : form.country;
       const answers: Record<string, string | number | boolean> = {
         goal: form.goal,
         profile: form.profile,
         priority: form.priority,
-        budget: Number(form.budget) || 0,
-        timeline: Number(form.timeline) || 0,
         family: form.family,
-        dependents: Number(form.dependents) || 0,
-        age: Number(form.age) || 0,
         occupation: form.occupation,
         role: form.occupation,
         field: form.field,
         education: form.education,
-        yearsExperience: Number(form.yearsExperience) || 0,
         languageTest: form.languageTest,
-        languageScore: Number(form.languageScore) || 0,
-        citationCount: Number(form.citationCount) || 0,
-        publicationCount: Number(form.publicationCount) || 0,
-        patentCount: Number(form.patentCount) || 0,
         programmes: form.programmes,
         selectedProgrammes: form.programmes,
         documentsAvailable: form.documentsAvailable,
         documentsMissing: form.documentsMissing,
         profileSummary: form.profileSummary,
         objectives: form.profileSummary,
+        fullLegalName: form.name,
+        dateOfBirth: form.dateOfBirth,
+        nationality: form.nationality,
+        residenceCountry: form.residenceCountry,
+        aliases: form.aliases,
+        visaHistory: form.visaHistory,
+        refusalDetails: form.refusalDetails,
+        legalDetails: form.legalDetails,
+        passportEvidence: form.passportEvidence,
+        documentInconsistencies: form.documentInconsistencies,
+        sourceOfFunds: form.sourceOfFunds,
+        availableFunds: form.availableFunds,
+        counterpartyName: form.counterpartyName,
+        counterpartyCountry: form.counterpartyCountry,
+        adverseConcerns: form.adverseConcerns,
+        cpaAssessment: form.cpaAssessment,
+        assessingBody: form.assessingBody,
+        paidIntakeCompleted: selectedType === "due_diligence_report",
+        paidIntakeVersion: selectedType === "due_diligence_report" ? 1 : 0,
+        accuracyConfirmed: form.consent,
+        consentConfirmed: form.consent,
+        dataSource: selectedType === "due_diligence_report" ? "Client pre-payment due-diligence intake" : "Client report intake",
+        reviewStatus: "draft",
         source: "express-reports",
       };
+      for (const [key, raw] of [
+        ["budget", form.budget],
+        ["timeline", form.timeline],
+        ["dependents", form.dependents],
+        ["age", form.age],
+        ["yearsExperience", form.yearsExperience],
+        ["languageScore", form.languageScore],
+        ["citationCount", form.citationCount],
+        ["publicationCount", form.publicationCount],
+        ["patentCount", form.patentCount],
+      ] as const) {
+        if (!raw.trim()) continue;
+        const numeric = Number(raw);
+        if (Number.isFinite(numeric)) answers[key] = numeric;
+      }
       for (const [key, value] of Object.entries(evidence)) {
         answers[key] = value;
         answers[`evidence_${key}`] = value;
@@ -279,6 +384,8 @@ export default function ExpressReportsClient({
       if (!response.ok || !data.ok || !data.checkoutUrl) {
         throw new Error(data.error || "Secure checkout could not be started. Please try again.");
       }
+      window.localStorage.removeItem(REPORT_DRAFT_KEY);
+      trackEvent("report_checkout_redirect", { product_type: selectedType, value: selected.priceInr, currency: "INR" });
       window.location.assign(data.checkoutUrl);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Secure checkout could not be started.");
@@ -287,80 +394,26 @@ export default function ExpressReportsClient({
   };
 
   return (
-    <main className="min-h-screen bg-primary pb-24 pt-24 text-white">
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(225,185,35,0.18),transparent_34%),radial-gradient(circle_at_15%_70%,rgba(48,125,234,0.18),transparent_30%)]" />
-        <div className="relative mx-auto grid max-w-screen-2xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-20">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-secondary">
-              <FileText className="size-4" /> Express assessment reports
-            </span>
-            <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              A personalised immigration report without completing the full journey first.
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">
-              Choose the exact answer you need, complete a focused intake, pay securely and receive the report linked to those answers. The full XIA tools remain available whenever you want deeper exploration.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#report-options" className="inline-flex h-12 items-center gap-2 rounded-xl bg-secondary px-6 text-sm font-black text-primary">
-                Choose a report <ArrowRight className="size-4" />
-              </a>
-              <Link href="/xia-intelligence" className="inline-flex h-12 items-center gap-2 rounded-xl border border-white/20 px-6 text-sm font-bold text-white hover:bg-white/5">
-                Continue using XIA tools
-              </Link>
+    <main className="min-h-screen bg-[#071a3a] pb-24 pt-24 text-white">
+      <section className="border-b border-white/10 bg-[#071a3a]">
+        <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
+          <Link href="/reports" className="text-sm font-bold text-white/55 transition hover:text-white">&larr; Change report</Link>
+          <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-secondary">Step 2 of 3 &middot; Your information</p>
+              <h1 className="mt-2 max-w-4xl text-3xl font-black leading-tight sm:text-4xl">Complete the {selected.shortTitle} form.</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">Enter the facts relevant to this report, then continue directly to JioPay. After verified payment, the PDF is prepared for download and email delivery.</p>
+            </div>
+            <div className="flex shrink-0 gap-2 text-[11px] font-black uppercase tracking-wide">
+              <span className="rounded-full border border-emerald-300/25 bg-emerald-300/[0.08] px-3 py-2 text-emerald-200">1 Selected</span>
+              <span className="rounded-full border border-secondary bg-secondary/10 px-3 py-2 text-secondary">2 Information</span>
+              <span className="rounded-full border border-white/10 px-3 py-2 text-white/35">3 Pay &amp; download</span>
             </div>
           </div>
-          <div className="grid content-center gap-3 sm:grid-cols-2">
-            {[
-              ["01", "Choose", "Select one focused report"],
-              ["02", "Answer", "Only relevant questions"],
-              ["03", "Pay", "Server-priced JioPay checkout"],
-              ["04", "Receive", "Secure PDF download and email"],
-            ].map(([number, title, copy]) => (
-              <div key={number} className="rounded-2xl border border-white/15 bg-white/[0.055] p-5 backdrop-blur-sm">
-                <span className="text-xs font-black tracking-[0.18em] text-secondary">{number}</span>
-                <h2 className="mt-3 text-xl font-black">{title}</h2>
-                <p className="mt-1 text-sm leading-6 text-white/50">{copy}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      <section id="report-options" className="mx-auto max-w-screen-2xl scroll-mt-24 px-4 py-14 sm:px-6 lg:px-8">
-        <div className="max-w-3xl">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-secondary">Report store</p>
-          <h2 className="mt-3 text-3xl font-black sm:text-4xl">Choose the decision you want help with.</h2>
-          <p className="mt-3 text-sm leading-7 text-white/55">Every price is enforced by the server. No client-side amount can override the catalogue.</p>
-        </div>
-        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {products.map((product) => {
-            const Icon = productIcons[product.productType];
-            const active = selectedType === product.productType;
-            return (
-              <button
-                key={product.productType}
-                type="button"
-                onClick={() => chooseProduct(product.productType)}
-                className={`group relative flex min-h-[310px] flex-col rounded-2xl border p-6 text-left transition duration-200 ${active ? "border-secondary bg-secondary/[0.11] shadow-[0_16px_45px_rgba(225,185,35,0.12)]" : "border-white/15 bg-white/[0.035] hover:-translate-y-1 hover:border-white/35 hover:bg-white/[0.06]"}`}
-              >
-                {product.featured ? <span className="absolute right-4 top-4 rounded-full bg-secondary px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-primary">Most complete</span> : null}
-                <span className="grid size-12 place-items-center rounded-xl bg-white/10 text-secondary"><Icon className="size-6" /></span>
-                <h3 className="mt-5 text-xl font-black leading-tight">{product.shortTitle}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/55">{product.description}</p>
-                <div className="mt-auto pt-5">
-                  <div className="flex items-end justify-between gap-3">
-                    <div><span className="text-2xl font-black text-secondary">{priceLabel(product.priceInr)}</span><span className="block text-[11px] text-white/35">one-time payment</span></div>
-                    <span className="grid size-10 place-items-center rounded-full border border-white/15 text-white transition group-hover:border-secondary group-hover:text-secondary"><ArrowRight className="size-4" /></span>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      <section id="express-report-intake" className="mx-auto max-w-screen-2xl scroll-mt-24 px-4 sm:px-6 lg:px-8">
+      <section id="express-report-intake" className="mx-auto max-w-screen-2xl bg-[#071a3a] px-4 py-10 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-3xl border border-white/15 bg-white/[0.035] shadow-2xl">
           <div className="grid lg:grid-cols-[0.72fr_1.28fr]">
             <aside className="border-b border-white/10 bg-black/15 p-6 sm:p-8 lg:border-b-0 lg:border-r">
@@ -378,23 +431,28 @@ export default function ExpressReportsClient({
             <div className="p-6 sm:p-8 lg:p-10">
               <div className="flex flex-col gap-2 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
                 <div><p className="text-xs font-black uppercase tracking-[0.16em] text-secondary">Focused intake</p><h2 className="mt-2 text-2xl font-black">Tell us only what this report needs.</h2></div>
-                <span className="text-xs text-white/40">Usually 2-4 minutes</span>
+                <span className="text-xs text-white/40">{estimatedIntakeTime}</span>
               </div>
 
-              <div className="mt-7 grid gap-6 md:grid-cols-2">
-                <Field label="Full name"><input className={inputClass} value={form.name} onChange={(event) => update("name", event.target.value)} autoComplete="name" /></Field>
-                <Field label="Email address"><input className={inputClass} type="email" value={form.email} onChange={(event) => update("email", event.target.value)} autoComplete="email" /></Field>
-                <Field label="Phone number" hint="Optional, including country code"><input className={inputClass} value={form.phone} onChange={(event) => update("phone", event.target.value)} autoComplete="tel" /></Field>
-                <Field label="Immigration category"><select className={inputClass} value={form.track} onChange={(event) => update("track", event.target.value as FormState["track"])} disabled={selectedType === "us_visa_report"}><option value="skilled" className="bg-primary">Skilled migration</option><option value="residency" className="bg-primary">Residency</option><option value="citizenship" className="bg-primary">Citizenship</option><option value="corporate" className="bg-primary">Corporate mobility</option></select></Field>
-                <input tabIndex={-1} aria-hidden="true" className="hidden" value={form.company} onChange={(event) => update("company", event.target.value)} autoComplete="off" />
+              <div className="mt-7">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-white/40">Contact and delivery</p>
+                <div className="mt-4 grid gap-6 md:grid-cols-2">
+                  <Field label="Full name"><input className={inputClass} value={form.name} onChange={(event) => update("name", event.target.value)} autoComplete="name" /></Field>
+                  <Field label="Email address"><input className={inputClass} type="email" value={form.email} onChange={(event) => update("email", event.target.value)} autoComplete="email" /></Field>
+                  <Field label="Phone number" hint="Optional, including country code"><input className={inputClass} value={form.phone} onChange={(event) => update("phone", event.target.value)} autoComplete="tel" /></Field>
+                  <Field label="Immigration category"><select className={inputClass} value={form.track} onChange={(event) => update("track", event.target.value as FormState["track"])} disabled={selectedType === "us_visa_report"}><option value="skilled" className="bg-primary">Skilled migration</option><option value="residency" className="bg-primary">Residency</option><option value="citizenship" className="bg-primary">Citizenship</option><option value="corporate" className="bg-primary">Corporate mobility</option></select></Field>
+                  <input tabIndex={-1} aria-hidden="true" className="hidden" value={form.company} onChange={(event) => update("company", event.target.value)} autoComplete="off" />
+                </div>
               </div>
 
               <datalist id="express-countries">{countries.map((country) => <option key={country} value={country} />)}</datalist>
               <datalist id="express-programmes">{matchingProgrammes.map((item) => <option key={item.id} value={item.title}>{item.country}</option>)}</datalist>
 
-              {selectedType !== "due_diligence_report" || selected.requiresIntake ? <div className="mt-8 border-t border-white/10 pt-7">{null}</div> : null}
+              <div className="mt-8 border-t border-white/10 pt-7">
+                <p className="mb-5 text-xs font-black uppercase tracking-[0.16em] text-white/40">Report information</p>
+              </div>
 
-              {(selectedType === "route_report" || selectedType === "premium_report") ? (
+              {selectedType === "route_report" || selectedType === "premium_report" ? (
                 <div className="grid gap-6 md:grid-cols-2">
                   <Field label="Preferred destination" hint="Leave blank if you want a global comparison"><input list="express-countries" className={inputClass} value={form.country} onChange={(event) => update("country", event.target.value)} placeholder="For example Australia" /></Field>
                   <Field label="Primary objective"><select className={inputClass} value={form.goal} onChange={(event) => update("goal", event.target.value)}><option value="not-sure" className="bg-primary">Not sure - compare routes</option><option value="pr" className="bg-primary">Permanent residence</option><option value="work-visa" className="bg-primary">Work visa</option><option value="citizenship" className="bg-primary">Citizenship</option><option value="investment" className="bg-primary">Investment migration</option><option value="business-setup" className="bg-primary">Business setup</option><option value="family-migration" className="bg-primary">Family migration</option></select></Field>
@@ -431,12 +489,20 @@ export default function ExpressReportsClient({
                   <Field label="Years of experience"><input className={inputClass} inputMode="numeric" value={form.yearsExperience} onChange={(event) => update("yearsExperience", event.target.value)} /></Field>
                   <Field label="Language test"><select className={inputClass} value={form.languageTest} onChange={(event) => update("languageTest", event.target.value)}><option value="not-provided" className="bg-primary">Not provided</option><option value="ielts" className="bg-primary">IELTS</option><option value="pte" className="bg-primary">PTE</option><option value="toefl" className="bg-primary">TOEFL</option><option value="oet" className="bg-primary">OET</option><option value="celpip" className="bg-primary">CELPIP</option><option value="other" className="bg-primary">Other</option></select></Field>
                   <Field label="Overall language score"><input className={inputClass} value={form.languageScore} onChange={(event) => update("languageScore", event.target.value)} /></Field>
+                </div>
+              ) : null}
+
+              {isHighSkill(selectedType) ? (
+                <details className="mt-7 rounded-xl border border-white/10 bg-black/10 p-5" open={selectedType === "deep_analysis_report"}>
+                  <summary className="cursor-pointer text-sm font-black text-white">Optional achievements and supporting evidence</summary>
+                  <div className="mt-5 grid gap-6 md:grid-cols-2">
                   <Field label="Publication count"><input className={inputClass} inputMode="numeric" value={form.publicationCount} onChange={(event) => update("publicationCount", event.target.value)} /></Field>
                   <Field label="Citation count"><input className={inputClass} inputMode="numeric" value={form.citationCount} onChange={(event) => update("citationCount", event.target.value)} /></Field>
                   <Field label="Patent or registered IP count"><input className={inputClass} inputMode="numeric" value={form.patentCount} onChange={(event) => update("patentCount", event.target.value)} /></Field>
-                  <div className="md:col-span-2"><p className="text-sm font-bold">Evidence you can support</p><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{evidenceOptions.map(([key, label]) => <label key={key} className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.035] p-3 text-xs text-white/70"><input type="checkbox" checked={Boolean(evidence[key])} onChange={(event) => setEvidence((current) => ({ ...current, [key]: event.target.checked }))} className="size-4 accent-[#e1b923]" />{label}</label>)}</div></div>
+                  <div className="md:col-span-2"><p className="text-sm font-bold">Evidence you can support</p><p className="mt-1 text-xs leading-5 text-white/45">Select only evidence you can document. Unselected signals remain not provided.</p><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{evidenceOptions.map(([key, label]) => <label key={key} className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.035] p-3 text-xs text-white/70"><input type="checkbox" checked={Boolean(evidence[key])} onChange={(event) => setEvidence((current) => ({ ...current, [key]: event.target.checked }))} className="size-4 accent-[#e1b923]" />{label}</label>)}</div></div>
                   <div className="md:col-span-2"><Field label="Profile summary" hint="Include measurable achievements, responsibilities and immigration priorities."><textarea className={areaClass} value={form.profileSummary} onChange={(event) => update("profileSummary", event.target.value)} /></Field></div>
-                </div>
+                  </div>
+                </details>
               ) : null}
 
               {selectedType === "cost_report" ? <div className="grid gap-6 md:grid-cols-2"><Field label="Destination"><input list="express-countries" className={inputClass} value={form.country} onChange={(event) => update("country", event.target.value)} /></Field><Field label="Programme"><input list="express-programmes" className={inputClass} value={form.program} onChange={(event) => update("program", event.target.value)} /></Field><Field label="Number of dependants"><input className={inputClass} inputMode="numeric" value={form.dependents} onChange={(event) => update("dependents", event.target.value)} /></Field><Field label="Budget limit (USD)"><input className={inputClass} inputMode="numeric" value={form.budget} onChange={(event) => update("budget", event.target.value)} /></Field><div className="md:col-span-2"><Field label="Cost-planning notes"><textarea className={areaClass} value={form.profileSummary} onChange={(event) => update("profileSummary", event.target.value)} placeholder="Include family composition, expected move date and any cost concerns." /></Field></div></div> : null}
@@ -445,17 +511,49 @@ export default function ExpressReportsClient({
 
               {selectedType === "docs_report" ? <div className="grid gap-6 md:grid-cols-2"><Field label="Destination"><input list="express-countries" className={inputClass} value={form.country} onChange={(event) => update("country", event.target.value)} /></Field><Field label="Programme"><input list="express-programmes" className={inputClass} value={form.program} onChange={(event) => update("program", event.target.value)} /></Field><div className="md:col-span-2"><Field label="Documents already available" hint="List passports, education, employment, financial and civil documents."><textarea className={areaClass} value={form.documentsAvailable} onChange={(event) => update("documentsAvailable", event.target.value)} /></Field></div><div className="md:col-span-2"><Field label="Known missing or expired documents"><textarea className={areaClass} value={form.documentsMissing} onChange={(event) => update("documentsMissing", event.target.value)} /></Field></div></div> : null}
 
-              {selectedType === "due_diligence_report" ? <div className="grid gap-6 md:grid-cols-2"><Field label="Destination"><input list="express-countries" className={inputClass} value={form.country} onChange={(event) => update("country", event.target.value)} /></Field><Field label="Programme or route"><input list="express-programmes" className={inputClass} value={form.program} onChange={(event) => update("program", event.target.value)} /></Field><div className="md:col-span-2"><Field label="What should the due-diligence review focus on?" hint="The secure detailed intake opens after successful payment."><textarea className={areaClass} value={form.profileSummary} onChange={(event) => update("profileSummary", event.target.value)} placeholder="For example identity, visa history, source of funds, employer or investment counterparty." /></Field></div></div> : null}
+              {selectedType === "due_diligence_report" ? (
+                <div className="grid gap-6 md:grid-cols-2">
+                  <Field label="Destination"><input list="express-countries" className={inputClass} value={form.country} onChange={(event) => update("country", event.target.value)} /></Field>
+                  <Field label="Programme or route"><input list="express-programmes" className={inputClass} value={form.program} onChange={(event) => update("program", event.target.value)} /></Field>
+                  <Field label="Date of birth"><input type="date" className={inputClass} value={form.dateOfBirth} onChange={(event) => update("dateOfBirth", event.target.value)} /></Field>
+                  <Field label="Nationality"><input className={inputClass} value={form.nationality} onChange={(event) => update("nationality", event.target.value)} /></Field>
+                  <Field label="Current residence country"><input className={inputClass} value={form.residenceCountry} onChange={(event) => update("residenceCountry", event.target.value)} /></Field>
+                  <Field label="Other names or aliases" hint="Enter None if not applicable"><input className={inputClass} value={form.aliases} onChange={(event) => update("aliases", event.target.value)} /></Field>
+                  <div className="md:col-span-2"><Field label="What should the due-diligence review assess?"><textarea className={areaClass} value={form.profileSummary} onChange={(event) => update("profileSummary", event.target.value)} placeholder="Identity, visa history, funds, employer, agent, investment counterparty or another concern." /></Field></div>
+                  <div className="md:col-span-2"><Field label="Visa and immigration history"><textarea className={areaClass} value={form.visaHistory} onChange={(event) => update("visaHistory", event.target.value)} placeholder="Applications, approvals, current status and relevant dates." /></Field></div>
+                  <Field label="Refusals or cancellations" hint="Enter None or explain"><textarea className={areaClass} value={form.refusalDetails} onChange={(event) => update("refusalDetails", event.target.value)} /></Field>
+                  <Field label="Legal, criminal or regulatory matters" hint="Enter None or explain"><textarea className={areaClass} value={form.legalDetails} onChange={(event) => update("legalDetails", event.target.value)} /></Field>
+                  <Field label="Passport evidence status"><select className={inputClass} value={form.passportEvidence} onChange={(event) => update("passportEvidence", event.target.value)}><option value="not-provided" className="bg-primary">Not provided</option><option value="complete" className="bg-primary">Complete</option><option value="partial" className="bg-primary">Partial</option><option value="missing" className="bg-primary">Missing</option></select></Field>
+                  <Field label="Known document inconsistencies"><textarea className={areaClass} value={form.documentInconsistencies} onChange={(event) => update("documentInconsistencies", event.target.value)} placeholder="Enter None or explain names, dates, titles or amounts that differ." /></Field>
+                  <Field label="Source of funds"><textarea className={areaClass} value={form.sourceOfFunds} onChange={(event) => update("sourceOfFunds", event.target.value)} /></Field>
+                  <Field label="Available funds and currency"><input className={inputClass} value={form.availableFunds} onChange={(event) => update("availableFunds", event.target.value)} /></Field>
+                  <Field label="Employer, agent or other counterparty"><input className={inputClass} value={form.counterpartyName} onChange={(event) => update("counterpartyName", event.target.value)} /></Field>
+                  <Field label="Counterparty country"><input className={inputClass} value={form.counterpartyCountry} onChange={(event) => update("counterpartyCountry", event.target.value)} /></Field>
+                  <div className="md:col-span-2"><Field label="Adverse information or concerns"><textarea className={areaClass} value={form.adverseConcerns} onChange={(event) => update("adverseConcerns", event.target.value)} placeholder="Enter None or describe the concern." /></Field></div>
+                  <Field label="CPA / assessment potential" hint="Use the supplied value; do not estimate"><textarea className={areaClass} value={form.cpaAssessment} onChange={(event) => update("cpaAssessment", event.target.value)} placeholder="Not provided" /></Field>
+                  <Field label="Assessing body or authority"><input className={inputClass} value={form.assessingBody} onChange={(event) => update("assessingBody", event.target.value)} placeholder="Not provided" /></Field>
+                </div>
+              ) : null}
 
-              <div className="mt-8 border-t border-white/10 pt-7">
-                <label className="flex cursor-pointer items-start gap-3 text-xs leading-6 text-white/60"><input type="checkbox" checked={form.consent} onChange={(event) => update("consent", event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#e1b923]" /><span>I agree to the privacy policy and to XIPHIAS processing these details for checkout, report generation, delivery and relevant advisor support.</span></label>
-                {error ? <p className="mt-4 rounded-xl border border-red-300/25 bg-red-400/10 p-3 text-sm font-semibold text-red-100" role="alert">{error}</p> : null}
+              <div className="mt-8 rounded-2xl border border-secondary/25 bg-secondary/[0.07] p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div><p className="text-xs font-black uppercase tracking-[0.15em] text-secondary">Next: secure payment</p><p className="mt-1 text-sm text-white/60">{selected.title} will be delivered to {form.email || "your email"}.</p></div>
+                  <p className="text-2xl font-black text-secondary">{priceLabel(selected.priceInr)}</p>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-white/45">Missing optional facts remain explicitly unprovided. They are not silently invented.</p>
+              </div>
+
+              <div className="mt-7 border-t border-white/10 pt-7">
+                <label className="flex cursor-pointer items-start gap-3 text-xs leading-6 text-white/60"><input type="checkbox" checked={form.consent} onChange={(event) => update("consent", event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#e1b923]" /><span>I confirm that these details are accurate and agree to their processing for checkout, report generation, delivery and relevant advisor support.</span></label>
                 <button type="button" onClick={submit} disabled={submitting} className="mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-secondary px-6 text-base font-black text-primary shadow-[0_12px_30px_rgba(225,185,35,0.2)] transition hover:bg-[#f0cb3b] disabled:cursor-wait disabled:opacity-70">
                   {submitting ? <LoaderCircle className="size-5 animate-spin" /> : <CreditCard className="size-5" />}
-                  {submitting ? "Starting secure checkout..." : `Pay ${priceLabel(selected.priceInr)} securely`}
+                  {submitting ? "Starting secure checkout..." : `Next: pay ${priceLabel(selected.priceInr)}`}
                 </button>
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-white/35"><span>Server-enforced price</span><span>Verified payment fulfilment</span><span>Secure download link</span><span>Email delivery</span></div>
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-white/35"><span>Server-enforced price</span><span>Verified payment</span><span>PDF download</span><span>Email delivery</span></div>
               </div>
+
+              {error ? <p className="mt-6 rounded-xl border border-red-300/25 bg-red-400/10 p-3 text-sm font-semibold text-red-100" role="alert">{error}</p> : null}
+
             </div>
           </div>
         </div>

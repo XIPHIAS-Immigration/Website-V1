@@ -543,16 +543,6 @@ function chunk<T>(items: T[], size: number): T[][] {
   return chunks;
 }
 
-function serviceBenchmarkRows(): string[][] {
-  return [
-    ["Generic online eligibility quiz", "Usually gives a single route or score", "Low", "No evidence strategy, no route trade-off, little filing context"],
-    ["Public government page reading", "Accurate rules but not personalised", "Medium", "Does not translate rules into applicant-specific proof"],
-    ["Low-cost document checklist", "Lists documents", "Medium", "Misses narrative positioning, risk review, and route sequencing"],
-    ["One-time consultant call", "Useful opinion if well prepared", "Variable", "Advice may not be preserved as a structured action plan"],
-    ["XIPHIAS Deep Analysis", "Personalised route ranking, evidence map, risk plan, and advisor-ready dossier", "High", "Built to become the working brief for the advisory desk"],
-  ].map((row) => row.map(esc));
-}
-
 function removeLongDashes(html: string): string {
   return html
     .replace(/\s+[\u2014\u2013]\s+/g, ". ")
@@ -1306,16 +1296,25 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     ];
   });
 
-  const competitorPage = page({
+  const reportScopePage = page({
     header: head,
     body:
       sectionHeader({
-        eyebrow: "Market comparison",
-        title: "What a premium buyer should expect from this report",
-        desc: "Compared with generic competitors, this paid assessment provides a structured decision record: compatible route ranking, personal evidence priorities, risk notes, exact programme dossiers, and a clear advisor handoff.",
+        eyebrow: "Your decision record",
+        title: `How this analysis is structured for ${order.customer.name}`,
+        desc: "Each section below connects the supplied profile to a decision that must be made before filing. Missing or unverified facts remain explicit rather than being replaced with assumptions.",
       }) +
-      table({ head: ["Option", "Typical output", "Personalisation", "What is missing / included"], rows: serviceBenchmarkRows() }),
-    footer: foot("Market comparison"),
+      table({
+        head: ["Decision area", "This report uses", "Result"],
+        rows: [
+          ["Primary route", top?.title ?? "Not confirmed", top ? `${clampScore(top.fitScore)}/100 (${top.tier})` : "More profile evidence required"],
+          ["Destination", COUNTRY_LABELS[input.targetCountry], "Route comparisons remain within the stated country focus"],
+          ["Professional profile", `${titleCase(input.role || input.field)}; ${input.yearsExperience} years indicated`, "Matched against route-specific professional and evidence signals"],
+          ["Evidence position", `${Object.values(input.evidence).filter(Boolean).length} evidence signals indicated`, "Converted into strengths, gaps and a preparation sequence"],
+          ["Advisor handoff", "Open criteria, inconsistencies and verification questions", "A focused brief for current-rule and document review"],
+        ].map((row) => row.map(esc)),
+      }),
+    footer: foot("Decision record"),
   });
 
   const advisorPrepPage = featurePage({
@@ -1542,12 +1541,20 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     footer: foot("Risk controls"),
   });
 
-  // 9. Advisor summary (dark close)
+  const summaryHeading = !top
+    ? "Complete the profile before deciding"
+    : top.tier === "Strong"
+      ? "Validate the leading route"
+      : top.tier === "Possible"
+        ? "Strengthen the case before deciding"
+        : "Build the evidence before filing";
+
+  // 9. Report summary (dark close)
   const summaryPage = page({
     dark: true,
     body:
-      `<div class="eyebrow">Advisor summary</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">Proceed with confidence</h2>` +
+      `<div class="eyebrow">Report summary</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(summaryHeading)}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         top
           ? `Your profile points most strongly to ${top.title} in ${top.country} (${clampScore(top.fitScore)}/100, ${top.tier.toLowerCase()}). The next step is an advisor review to confirm criteria and build your evidence plan.`
@@ -1562,7 +1569,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">Talk to the advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This report is an advisory assessment prepared from your submitted profile and XIPHIAS high-skill visa intelligence. It is not legal advice and does not guarantee any government, immigration or visa-office decision. Fit scores and signal strengths are directional and must be confirmed by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
+        "This automated report was generated from your submitted profile and XIPHIAS high-skill visa intelligence. It has not been independently verified by an advisor. It is not legal advice and does not guarantee any government, immigration or visa-office decision. Fit scores and signal strengths are directional and must be confirmed by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
@@ -1605,7 +1612,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     gapMorePage,
     gapFollowupPage,
     ...evidenceArchitecturePages,
-    competitorPage,
+    reportScopePage,
     advisorPrepPage,
     planPage,
     riskDueDiligencePage,

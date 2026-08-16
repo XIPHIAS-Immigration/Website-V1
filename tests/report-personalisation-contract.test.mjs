@@ -80,7 +80,29 @@ test("draft premium reports cannot present a final route recommendation", () => 
   const premium = read("src/lib/reports/templates/premium-strategy.ts");
   assert.match(premium, /Draft Sample · Unverified/);
   assert.match(premium, /Complete verification before choosing a route/);
-  assert.match(premium, /isDraft \? "Draft conclusion" : "Final recommendation"/);
+  assert.match(premium, /crmPersonalisation \? "Advisor recommendation" : "Report conclusion"/);
+  assert.match(premium, /Validate \$\{route\} before proceeding/);
+});
+
+test("automated templates do not masquerade as advisor-reviewed conclusions", () => {
+  for (const name of ["route", "deep-analysis", "us-visa", "cost", "compare", "docs"]) {
+    const source = read(`src/lib/reports/templates/${name}.ts`);
+    assert.doesNotMatch(source, />Advisor summary</);
+    assert.match(source, /has not been independently verified by an advisor/);
+  }
+  const route = read("src/lib/reports/templates/route.ts");
+  const us = read("src/lib/reports/templates/us-visa.ts");
+  const docs = read("src/lib/reports/templates/docs.ts");
+  assert.doesNotMatch(route, /Proceed with confidence/);
+  assert.doesNotMatch(us, /ready to advance/);
+  assert.doesNotMatch(docs, /Assemble with confidence/);
+});
+
+test("due diligence ends with an explicit verification summary", () => {
+  const source = read("src/lib/reports/templates/due-diligence.ts");
+  assert.match(source, /Report summary/);
+  assert.match(source, /independently queried identity, criminal, sanctions/);
+  assert.match(source, /pages\.push\(\.\.\.buildCompanyProfilePages[\s\S]*closingHeading[\s\S]*pages\.push/);
 });
 
 test("document report does not derive client readiness from checklist breadth", () => {

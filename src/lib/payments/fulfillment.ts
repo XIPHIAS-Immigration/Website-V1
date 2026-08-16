@@ -69,7 +69,7 @@ function reportDeliveryEmailHtml(args: {
             <a href="${escapeHtml(args.downloadUrl)}" style="display:inline-block;border-radius:9px;background:#1f5fbc;color:#fff;text-decoration:none;font-weight:800;padding:13px 22px;">Download your PDF report</a>
           </p>
           <p style="margin:12px 0 0;text-align:center;color:#536277;font-size:12px;line-height:1.6;">The secure download link is valid for seven days. The PDF is also attached to this email.</p>
-          <p style="margin:20px 0 0;color:#536277;font-size:13px;line-height:1.7;">This report is an advisor-prepared planning document. Final eligibility, documentation, fees and timelines must be verified by the XIPHIAS team before filing or investment action.</p>
+          <p style="margin:20px 0 0;color:#536277;font-size:13px;line-height:1.7;">This instant report is generated from the information supplied at checkout and is not advisor-reviewed unless the report explicitly says otherwise. Final eligibility, documentation, fees and timelines must be verified before filing or investment action.</p>
         </div>
       </div>
     </div>
@@ -80,8 +80,8 @@ function reportDeliveryEmailHtml(args: {
  * Fulfil a successfully-paid JioPay order based on its product type.
  *  - report products: generate the correct PDF and email it to the customer (report-only;
  *    no X-Hub account is created).
- *  - registration: delegate to the existing /api/platform/registration/provision flow
- *    (still gated by JIOPAY_AUTO_PROVISION for backward compatibility).
+ *  - registration: delegate to the existing /api/platform/registration/provision flow;
+ *    automatic provisioning is on unless operations explicitly set JIOPAY_AUTO_PROVISION=false.
  *  - custom: staff-created links — just record the payment.
  *
  * Idempotent: if the order already shows a delivered report or a completed registration
@@ -173,6 +173,11 @@ async function fulfillReport(
     return { status: "report_pending_intake", detail: "paid_intake_required" };
   }
   try {
+    updateJiopayOrder(order.merchantTxnNo, { status: "processing" }, {
+      type: "report_generation_started",
+      at: new Date().toISOString(),
+      data: { productType: order.productType, reportKind: product.reportKind },
+    });
     const pdf = await ensurePaidReportArtifact(order, product);
     const filename = `XIPHIAS_${product.fileSlug}_${order.merchantTxnNo}.pdf`;
     const downloadUrl = reportDownloadUrl(opts.siteUrl, order.merchantTxnNo);
@@ -220,7 +225,7 @@ async function fulfillReport(
     return { status: "report_sent", mail };
   } catch (error) {
     const detail = error instanceof Error ? error.message : "report generation failed";
-    updateJiopayOrder(order.merchantTxnNo, {}, {
+    updateJiopayOrder(order.merchantTxnNo, { status: "paid" }, {
       type: "report_failed",
       at: new Date().toISOString(),
       data: { productType: order.productType, error: detail },
@@ -230,10 +235,16 @@ async function fulfillReport(
 }
 
 async function fulfillRegistration(order: JiopayOrder, opts: { siteUrl: string }): Promise<FulfillmentResult> {
-  // Preserve legacy behavior: paid registration provisions a full X-Hub workspace.
-  if (process.env.JIOPAY_AUTO_PROVISION !== "true") return { status: "registration_skipped", detail: "auto_provision_disabled" };
+  // A verified registration purchase provisions the X-Hub workspace by default.
+  // Operations can still stop automatic provisioning explicitly during maintenance.
+  if (process.env.JIOPAY_AUTO_PROVISION === "false") return { status: "registration_skipped", detail: "auto_provision_disabled" };
   const secret = process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET;
   if (!secret) return { status: "registration_skipped", detail: "missing_registration_secret" };
+
+  updateJiopayOrder(order.merchantTxnNo, { status: "processing" }, {
+    type: "registration_provisioning_started",
+    at: new Date().toISOString(),
+  });
 
   const siteUrl = opts.siteUrl.replace(/\/+$/, "");
   const response = await fetch(`${siteUrl}/api/platform/registration/provision`, {
@@ -257,7 +268,7 @@ async function fulfillRegistration(order: JiopayOrder, opts: { siteUrl: string }
 
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
   if (!response.ok) {
-    updateJiopayOrder(order.merchantTxnNo, {}, { type: "registration_failed", at: new Date().toISOString(), data });
+    updateJiopayOrder(order.merchantTxnNo, { status: "paid" }, { type: "registration_failed", at: new Date().toISOString(), data });
     return { status: "registration_skipped", detail: "provision_failed" };
   }
   updateJiopayOrder(

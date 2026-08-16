@@ -1,34 +1,62 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { TOPMATE_REGISTRATION_URL } from "@/lib/topmate";
+import { ArrowRight, Check, FileSearch, FolderLock, Route, UserRoundCheck } from "lucide-react";
+import RegistrationCheckout from "@/components/Registration/RegistrationCheckout";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 
 export const dynamic = "force-dynamic";
 
-function registrationUrl() {
-  return TOPMATE_REGISTRATION_URL;
-}
+export const metadata: Metadata = {
+  title: "Full Immigration Assessment Registration | XIPHIAS",
+  description: "Register for a full XIPHIAS immigration assessment, Deep Analysis and secure X-Hub case onboarding for INR 5,000.",
+  robots: { index: false, follow: false },
+};
 
-export default function RegistrationRedirectPage() {
-  const target = registrationUrl();
-  if (target) redirect(target);
+export default function RegistrationPage() {
+  const priceInr = getProductConfig("registration")?.priceInr ?? 5000;
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-16 text-white">
-      <section className="mx-auto max-w-3xl rounded-lg border border-white/15 bg-white/8 p-6 shadow-2xl">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d8b650]">XIPHIAS registration</p>
-        <h1 className="mt-3 text-3xl font-black tracking-normal">Detailed assessment registration</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-200">
-          The INR 1,000 Topmate registration product is not configured yet. Create the product in Topmate, then set
-          <strong> TOPMATE_REGISTRATION_URL</strong> in the deployment environment. The consultation booking flow remains separate.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/eligibility#start" className="rounded-md bg-[#d8b650] px-4 py-2.5 text-sm font-black text-slate-950">
-            Start assessment
-          </Link>
-          <Link href="/contact" className="rounded-md border border-white/20 px-4 py-2.5 text-sm font-bold text-white">
-            Contact XIPHIAS
-          </Link>
+    <main className="min-h-screen bg-[#eef3f9] pb-24 pt-24 text-[#071a3a]">
+      <section className="bg-primary text-white">
+        <div className="mx-auto grid max-w-screen-xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f0c83f]">XIPHIAS full assessment</p>
+            <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Register once. Get the analysis and a case workspace.</h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-white/65">For INR {priceInr.toLocaleString("en-IN")}, start a structured immigration assessment, receive the Deep Analysis within the onboarding workflow and organise the next steps in X-Hub.</p>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+              {["Deep Analysis assessment included", "Secure X-Hub case workspace", "Document and evidence organisation", "Advisor handoff and next-step plan"].map((item) => <div key={item} className="flex items-center gap-2 text-sm text-white/75"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-emerald-400/15 text-emerald-300"><Check className="size-3" /></span>{item}</div>)}
+            </div>
+            <a href="#registration-checkout" className="mt-8 inline-flex h-14 items-center gap-2 rounded-xl bg-[#d8ad1f] px-7 text-base font-black text-primary">Register for INR {priceInr.toLocaleString("en-IN")} <ArrowRight className="size-5" /></a>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              [FileSearch, "Assessment", "Build the evidence-led profile"],
+              [Route, "Deep Analysis", "Review route fit and gaps"],
+              [FolderLock, "X-Hub", "Organise documents and milestones"],
+              [UserRoundCheck, "Handoff", "Prepare the case for advisor review"],
+            ].map(([Icon, title, copy], index) => {
+              const ItemIcon = Icon as typeof FileSearch;
+              return <div key={String(title)} className="rounded-2xl border border-white/15 bg-white/[0.055] p-5"><ItemIcon className="size-6 text-[#f0c83f]" /><p className="mt-4 text-xs font-black text-[#f0c83f]">0{index + 1}</p><h2 className="mt-1 text-lg font-black">{String(title)}</h2><p className="mt-1 text-sm leading-6 text-white/50">{String(copy)}</p></div>;
+            })}
+          </div>
         </div>
+      </section>
+
+      <section className="mx-auto grid max-w-screen-xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
+        <aside className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0b4ea2]">What happens next</p>
+          <ol className="mt-6 space-y-6">
+            {[
+              ["Pay securely", "Complete the short checkout form and pay through JioPay."],
+              ["Open X-Hub", "Your case workspace is provisioned and access details are sent by email."],
+              ["Complete the profile", "Add the full personal, education, employment and document history securely after payment."],
+              ["Receive the assessment", "The Deep Analysis and advisor-ready next steps use the information actually supplied."],
+            ].map(([title, copy], index) => <li key={title} className="flex gap-4"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#071a3a] text-xs font-black text-[#d8ad1f]">{index + 1}</span><div><h2 className="font-black">{title}</h2><p className="mt-1 text-sm leading-6 text-slate-500">{copy}</p></div></li>)}
+          </ol>
+          <p className="mt-7 border-t border-slate-200 pt-5 text-xs leading-6 text-slate-500">Registration does not guarantee visa eligibility or approval. Supplied facts remain authoritative; missing information stays explicit until provided and verified.</p>
+          <Link href="/reports" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#0b4ea2]">Only need a standalone report? <ArrowRight className="size-4" /></Link>
+        </aside>
+        <RegistrationCheckout priceInr={priceInr} />
       </section>
     </main>
   );

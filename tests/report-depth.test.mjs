@@ -37,13 +37,13 @@ const PRODUCTS = {
 const EXPECTED_PRICES = {
   premium_report: 1000,
   us_visa_report: 1000,
-  deep_analysis_report: 499,
+  deep_analysis_report: 4999,
   route_report: 499,
   cost_report: 499,
   compare_report: 499,
   docs_report: 499,
   due_diligence_report: 499,
-  registration: 1000,
+  registration: 5000,
 };
 
 test("fixed product prices match the approved catalogue", () => {
@@ -52,9 +52,9 @@ test("fixed product prices match the approved catalogue", () => {
   }
 });
 
-test("paid due diligence waits for the expanded intake", () => {
+test("paid due diligence is generated directly after the pre-payment intake", () => {
   assert.equal(PRODUCT_CATALOG.due_diligence_report.reportKind, "due_diligence");
-  assert.equal(PRODUCT_CATALOG.due_diligence_report.requiresIntake, true);
+  assert.notEqual(PRODUCT_CATALOG.due_diligence_report.requiresIntake, true);
 });
 
 test("report depth prices match the payment catalogue", () => {

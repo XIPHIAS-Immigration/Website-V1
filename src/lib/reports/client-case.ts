@@ -676,6 +676,12 @@ export function referenceMatches(candidate: string, reference: string): boolean 
   const candidateText = normalize(candidate);
   const referenceText = normalize(reference);
   if (!referenceText) return false;
+  const identifiers = (value: string) => value.match(/\b(?:subclass\s*)?\d{3}\b|\b(?:eb|o|h)\s*\d+[a-z]?\b/g) ?? [];
+  const referenceIds = identifiers(referenceText).map((value) => value.replace(/\s+/g, ""));
+  if (referenceIds.length) {
+    const candidateIds = new Set(identifiers(candidateText).map((value) => value.replace(/\s+/g, "")));
+    if (!referenceIds.some((value) => candidateIds.has(value))) return false;
+  }
   if (candidateText.includes(referenceText) || referenceText.includes(candidateText)) return true;
   const referenceTokens = referenceText.split(" ").filter((token) => token.length > 1);
   const candidateTokens = new Set(candidateText.split(" "));

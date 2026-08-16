@@ -25,7 +25,7 @@ const EXPLORE = [
 
 const RESOURCES = Object.freeze([
   { label: "Start Your Journey", href: "/eligibility" },
-  { label: "Express Reports", href: "/express-reports" },
+  { label: "Immigration Reports", href: "/reports" },
   { label: "XIA Intelligence", href: "/xia-intelligence" },
   { label: "X-Hub", href: "/x-hub" },
   { label: "Guides & Resources", href: "/guide" },

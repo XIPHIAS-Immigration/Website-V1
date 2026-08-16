@@ -19,9 +19,9 @@ test("express report store exposes every fixed-price report without removing XIA
     "due_diligence_report",
   ]) {
     assert.match(page, new RegExp(`productType: [\"']${type}[\"']`));
-    assert.match(client, new RegExp(`${type}:`));
+    assert.ok(client.includes(`"${type}"`), `${type} missing from the direct intake`);
   }
-  assert.match(suite, /href: ["']\/express-reports["']/);
+  assert.match(suite, /href: ["']\/reports["']/);
   assert.match(suite, /href: ["']\/route-intelligence["']/);
   assert.match(suite, /href: ["']\/deep-analysis["']/);
 });
@@ -35,14 +35,50 @@ test("existing tools route purchases into the correct report products", () => {
   assert.match(compare, /selected\.map\(\(item\) => item\.title\)/);
 });
 
-test("direct intake preserves report-specific data and due diligence remains gated by verified payment", () => {
+test("direct intake is one information page and preserves report-specific data", () => {
   const client = read("src/components/ExpressReports/ExpressReportsClient.tsx");
   const catalog = read("src/lib/payments/product-catalog.ts");
   const fulfillment = read("src/lib/payments/fulfillment.ts");
   assert.match(client, /documentsAvailable: form\.documentsAvailable/);
   assert.match(client, /selectedProgrammes: form\.programmes/);
   assert.match(client, /objectives: form\.profileSummary/);
-  assert.match(catalog, /due_diligence_report:[\s\S]*requiresIntake: true/);
+  assert.match(client, /REPORT_DRAFT_KEY/);
+  assert.doesNotMatch(client, /intakeSteps/);
+  assert.doesNotMatch(client, /Review before payment/);
+  assert.match(client, /Next: pay/);
+  assert.match(client, /paidIntakeCompleted: selectedType === ["']due_diligence_report["']/);
+  assert.match(client, /visaHistory: form\.visaHistory/);
+  assert.match(client, /sourceOfFunds: form\.sourceOfFunds/);
+  assert.doesNotMatch(client, /age: Number\(form\.age\) \|\| 0/);
+  assert.doesNotMatch(catalog, /due_diligence_report:[\s\S]*requiresIntake: true/);
   assert.match(fulfillment, /product\.requiresIntake/);
-  assert.match(fulfillment, /due-diligence-intelligence\/paid/);
+});
+
+test("direct storefront and registration use catalogue-priced JioPay journeys", () => {
+  const store = read("src/lib/payments/report-store.ts");
+  const reportsPage = read("src/app/(site)/reports/page.tsx");
+  const productPage = read("src/app/(site)/reports/[slug]/page.tsx");
+  const registration = read("src/components/Registration/RegistrationCheckout.tsx");
+  const provisioning = read("src/app/api/platform/registration/provision/route.ts");
+  const paymentReturn = read("src/app/api/payments/jiopay/return/route.ts");
+  const fulfillment = read("src/lib/payments/fulfillment.ts");
+  const statusRoute = read("src/app/api/payments/jiopay/order-status/route.ts");
+  const deepAnalysis = read("src/app/api/platform/reports/deep-analysis/route.ts");
+
+  assert.equal((store.match(/productType: ["']/g) || []).length, 8);
+  assert.match(reportsPage, /getPublicReportProducts/);
+  assert.match(reportsPage, /express-reports\?report=/);
+  assert.doesNotMatch(reportsPage, /See report details/);
+  assert.match(productPage, /redirect\(`\/express-reports\?report=/);
+  assert.match(registration, /productType: ["']registration["']/);
+  assert.match(registration, /deepAnalysisIncluded: true/);
+  assert.match(registration, /deferDetailedReport: true/);
+  assert.match(provisioning, /answers\.deferDetailedReport === true/);
+  assert.match(paymentReturn, /isReportProduct\(initialOrder\?\.productType\)/);
+  assert.match(fulfillment, /JIOPAY_AUTO_PROVISION === ["']false["']/);
+  assert.match(statusRoute, /verifyOrderStatusGrant/);
+  assert.match(statusRoute, /failureEvents\.length < 3/);
+  assert.match(deepAnalysis, /registrationPaymentRef/);
+  assert.match(deepAnalysis, /generateReportPdf\("deep_analysis"/);
+  assert.match(provisioning, /Deep Analysis intake/);
 });

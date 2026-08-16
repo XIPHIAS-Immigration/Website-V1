@@ -691,12 +691,19 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     footer: foot("Next steps"),
   });
 
-  // Closing — advisor summary (dark)
+  const closingEyebrow = crmPersonalisation ? "Advisor recommendation" : "Report conclusion";
+  const closingHeading = isDraft
+    ? "Complete verification before choosing a route"
+    : crmPersonalisation
+      ? `Proceed to ${route}`
+      : `Validate ${route} before proceeding`;
+
+  // Closing summary (dark)
   const closer = page({
     dark: true,
     body:
-      `<div class="eyebrow">${isDraft ? "Draft conclusion" : "Final recommendation"}</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${isDraft ? "Complete verification before choosing a route" : `Proceed to ${esc(route)}`}</h2>` +
+      `<div class="eyebrow">${esc(closingEyebrow)}</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(closingHeading)}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         crmPersonalisation
           ? crmPersonalisation.closingSummary
@@ -713,7 +720,9 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">XIPHIAS Immigration Advisory Desk</div><p>immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This document is an advisory assessment prepared from your submitted profile information and XIPHIAS programme content. It is not legal advice and does not guarantee any government or visa-office decision. Final eligibility, fees, documents and timelines must be verified by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
+        crmPersonalisation
+          ? "This document reflects the case information and advisor assessment recorded for this file. It is not legal advice and does not guarantee any government or visa-office decision. Final eligibility, fees, documents and timelines must be rechecked against current rules before filing or payment of any government or third-party fees."
+          : "This automated report was generated from your submitted profile information and XIPHIAS programme content. It has not been independently verified by an advisor. It is not legal advice and does not guarantee any government or visa-office decision. Final eligibility, fees, documents and timelines must be verified by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });

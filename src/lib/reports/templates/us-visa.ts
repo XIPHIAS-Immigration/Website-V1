@@ -566,12 +566,20 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
     footer: foot("07"),
   });
 
-  // 8 — Advisor summary (dark close)
+  const summaryHeading = !top
+    ? "Complete the US profile before deciding"
+    : personalisation.completeness >= 80
+      ? "Validate the leading US route"
+      : personalisation.completeness >= 50
+        ? "Strengthen the US evidence record"
+        : "Build the evidence before filing";
+
+  // 8 — Report summary (dark close)
   const summaryPage = page({
     dark: true,
     body:
-      `<div class="eyebrow">Advisor summary</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">Your US route, ready to advance</h2>` +
+      `<div class="eyebrow">Report summary</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(summaryHeading)}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         top
           ? `${top.title} is the current working US route based on ${personalisation.completeness}% core profile completeness. Confirm petitioner requirements, immigration history and the quality of every claimed evidence category before filing.`
@@ -586,7 +594,7 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">Talk to the US advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This report is an advisory assessment prepared from your submitted inputs and the XIPHIAS US visa intelligence model. It is not legal advice and does not guarantee any USCIS, US Department of State, or consular decision. Fit scores are directional and must be confirmed by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
+        "This automated report was generated from your submitted inputs and the XIPHIAS US visa intelligence model. It has not been independently verified by an advisor. It is not legal advice and does not guarantee any USCIS, US Department of State, or consular decision. Fit scores are directional and must be confirmed by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });

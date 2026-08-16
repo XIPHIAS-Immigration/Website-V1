@@ -3,6 +3,7 @@ import AuthenticatedPageGuard from "@/components/Security/AuthenticatedPageGuard
 import PortalSignOutButton from "@/components/Platform/PortalSignOutButton";
 import {
   Bot,
+  BrainCircuit,
   BarChart3,
   FileText,
   KeyRound,
@@ -43,6 +44,14 @@ const navItems: NavItem[] = [
     key: "xia",
     icon: Bot,
     roles: ["client", "staff", "admin", "partner", "b2g"],
+  },
+  {
+    href: "/x-hub/deep-analysis",
+    label: "Deep Analysis",
+    description: "Included registration report",
+    key: "deep-analysis",
+    icon: BrainCircuit,
+    roles: ["client", "staff", "admin"],
   },
   {
     href: "/xia-intelligence",

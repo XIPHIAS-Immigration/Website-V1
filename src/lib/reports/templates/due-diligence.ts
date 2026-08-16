@@ -355,6 +355,31 @@ export async function buildDueDiligenceReport(order: JiopayOrder): Promise<Buffe
 
   pages.push(...buildCompanyProfilePages({ header, footer }));
 
+  const closingHeading = analysis.completeness >= 80
+    ? "Verify the evidence before relying on the result"
+    : analysis.completeness >= 50
+      ? "Close the priority evidence gaps"
+      : "Complete the due-diligence record";
+  pages.push(
+    page({
+      dark: true,
+      footer: runningFooter(`Reference ${order.merchantTxnNo}`, "Private client due-diligence report"),
+      body:
+        `<div class="eyebrow">Report summary</div>` +
+        `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(closingHeading)}</h2>` +
+        `<p class="lead" style="margin-top:10px;max-width:150mm;">This report recorded ${analysis.findings.length} preparation or risk finding${analysis.findings.length === 1 ? "" : "s"} from ${analysis.completeness}% completed intake data. Resolve the prioritised actions and obtain independent verification before filing, payment or reliance.</p>` +
+        `<div class="spacer-24"></div>` +
+        grid(3, [
+          card({ dark: true, k: "Answer depth", v: `${analysis.completeness}%`, note: "Completeness, not eligibility" }),
+          card({ dark: true, k: "Recorded findings", v: String(analysis.findings.length), note: analysis.overallLabel }),
+          card({ dark: true, k: "Next service", v: "Professional verification" }),
+        ]) +
+        `<div class="spacer-24"></div>` +
+        `<div class="callout"><div class="callout__k">Talk to the advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
+        disclaimer("This automated report is based on client-supplied information and has not independently queried identity, criminal, sanctions, PEP, adverse-media, employer, institution, financial, registry, assessing-authority or government systems. It is not a clearance, legal advice or a guarantee of any immigration outcome."),
+    }),
+  );
+
   return renderReportPdf({
     title: `XIPHIAS Immigration Due Diligence Report - ${order.customer.name}`,
     bodyHtml: pages.join(""),

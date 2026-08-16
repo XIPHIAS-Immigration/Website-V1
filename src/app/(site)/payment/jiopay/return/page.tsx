@@ -2,6 +2,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { CheckCircle2, Clock3, FileText, ShieldAlert } from "lucide-react";
 import ReportAutoDownload from "@/components/payments/ReportAutoDownload";
+import OrderFulfillmentStatus from "@/components/payments/OrderFulfillmentStatus";
+import { getJiopayOrder } from "@/lib/payments/jiopay-store";
+import { getProductConfig } from "@/lib/payments/product-catalog";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Payment Status | XIPHIAS Immigration",
@@ -24,32 +30,46 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
   const order = first(params.order);
   const expires = first(params.expires);
   const token = first(params.token);
+  const statusExpires = first(params.statusExpires);
+  const statusToken = first(params.statusToken);
   const isCrmPayment = first(params.crm) === "1";
   const crmReturnUrl = first(params.back);
   const checkoutMessage = first(params.message);
+  const storedOrder = order ? getJiopayOrder(order) : null;
+  const product = getProductConfig(storedOrder?.productType);
+  const isRegistration = product?.fulfillment === "registration";
+  const isReport = product?.fulfillment === "report";
   const success = status === "success";
   const failed = status === "failed";
   const downloadUrl =
-    success && verified && order && expires && token
+    success && verified && isReport && order && expires && token
       ? `/api/payments/jiopay/report-download?${new URLSearchParams({
           order,
           expires,
           token,
         }).toString()}`
       : "";
+  const fulfillmentStatusUrl =
+    success && verified && order && statusExpires && statusToken
+      ? `/api/payments/jiopay/order-status?${new URLSearchParams({ order, expires: statusExpires, token: statusToken }).toString()}`
+      : "";
 
   const Icon = success ? CheckCircle2 : failed ? ShieldAlert : Clock3;
   const title = success
     ? isCrmPayment
       ? "Payment received"
-      : "Payment response received"
+      : isRegistration
+        ? "Registration payment received"
+        : "Payment response received"
     : failed
       ? "Payment was not completed"
       : "Payment is being verified";
   const copy = success
     ? isCrmPayment
       ? "JioPay returned a successful response. Your payment is being recorded in CRM and the usual invoice or receipt confirmation will be sent to your registered email."
-      : "Jiopay returned a successful response. XIPHIAS will verify and record your purchase, automatically download the personalised PDF, and email a second copy to the address used at checkout."
+      : isRegistration
+        ? "JioPay returned a successful response. XIPHIAS is recording your registration and preparing your X-Hub onboarding. Access details and the next assessment steps are sent to the email used at checkout."
+        : "JioPay returned a successful response. XIPHIAS will verify and record your purchase, prepare the personalised PDF, and email a secure copy to the address used at checkout."
     : failed
       ? checkoutMessage ||
         "Jiopay returned a failed or cancelled payment response. If money was debited, please contact XIPHIAS with the reference shown below."
@@ -84,6 +104,7 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
           </div>
         </div>
 
+        {fulfillmentStatusUrl ? <OrderFulfillmentStatus statusUrl={fulfillmentStatusUrl} /> : null}
         {downloadUrl && <ReportAutoDownload downloadUrl={downloadUrl} />}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -95,13 +116,21 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
               <FileText className="size-4" aria-hidden="true" />
               Return to client CRM
             </a>
-          ) : (
+          ) : isRegistration ? (
             <Link
-              href="/xia-intelligence"
+              href="/x-hub/sign-in"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f5fbc] px-5 py-3 text-sm font-semibold text-white"
             >
               <FileText className="size-4" aria-hidden="true" />
-              Return to XIA Intelligence
+              Continue to X-Hub
+            </Link>
+          ) : (
+            <Link
+              href="/reports"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f5fbc] px-5 py-3 text-sm font-semibold text-white"
+            >
+              <FileText className="size-4" aria-hidden="true" />
+              Return to report store
             </Link>
           )}
           <Link

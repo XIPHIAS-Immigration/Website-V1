@@ -628,12 +628,12 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     footer: foot(planPageNo),
   });
 
-  // 7 — Advisor summary (dark close)
+  // 7 — Report summary (dark close)
   const summaryPage = page({
     dark: true,
     body:
-      `<div class="eyebrow">Advisor summary</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">Choose with clarity</h2>` +
+      `<div class="eyebrow">Report summary</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${best ? "Validate the leading comparison" : "Complete the shortlist before deciding"}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         best
           ? `On your stated priorities, ${best.p.title} in ${best.p.country} is the strongest fit across this shortlist. The next step is an advisor review to confirm current rules and build your evidence plan — keeping a ranked alternative ready.`
@@ -648,7 +648,7 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">Talk to the advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This report is an advisory comparison prepared from your submitted inputs and XIPHIAS programme content. It is not legal advice and does not guarantee any government or visa-office decision. Costs, timelines and fit scores are indicative and directional; they must be confirmed by a XIPHIAS advisor against current rules before filing or payment of any government or third-party fees.",
+        "This automated comparison was generated from your submitted inputs and XIPHIAS programme content. It has not been independently verified by an advisor. It is not legal advice and does not guarantee any government or visa-office decision. Costs, timelines and fit scores are indicative and directional; they must be confirmed by a XIPHIAS advisor against current rules before filing or payment of any government or third-party fees.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });

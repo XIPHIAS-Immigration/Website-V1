@@ -35,6 +35,10 @@ function signaturePayload(merchantTxnNo: string, expires: number) {
   return `${safeReference(merchantTxnNo)}.${expires}`;
 }
 
+function statusSignaturePayload(merchantTxnNo: string, expires: number) {
+  return `status.${safeReference(merchantTxnNo)}.${expires}`;
+}
+
 export function createReportDownloadGrant(merchantTxnNo: string, validityMs = 7 * 24 * 60 * 60 * 1000) {
   const expires = Date.now() + validityMs;
   const token = createHmac("sha256", secretKey())
@@ -49,6 +53,30 @@ export function verifyReportDownloadGrant(merchantTxnNo: string, expires: number
   }
   const expected = createHmac("sha256", secretKey())
     .update(signaturePayload(merchantTxnNo, expires), "utf8")
+    .digest();
+  let provided: Buffer;
+  try {
+    provided = Buffer.from(token, "hex");
+  } catch {
+    return false;
+  }
+  return provided.length === expected.length && timingSafeEqual(provided, expected);
+}
+
+export function createOrderStatusGrant(merchantTxnNo: string, validityMs = 7 * 24 * 60 * 60 * 1000) {
+  const expires = Date.now() + validityMs;
+  const token = createHmac("sha256", secretKey())
+    .update(statusSignaturePayload(merchantTxnNo, expires), "utf8")
+    .digest("hex");
+  return { token, expires };
+}
+
+export function verifyOrderStatusGrant(merchantTxnNo: string, expires: number, token: string) {
+  if (!Number.isSafeInteger(expires) || expires < Date.now() || expires > Date.now() + 8 * 24 * 60 * 60 * 1000) {
+    return false;
+  }
+  const expected = createHmac("sha256", secretKey())
+    .update(statusSignaturePayload(merchantTxnNo, expires), "utf8")
     .digest();
   let provided: Buffer;
   try {

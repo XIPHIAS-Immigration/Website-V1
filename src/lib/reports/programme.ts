@@ -121,7 +121,14 @@ function programScore(meta: Dossier, program: string): number {
   const t = norm(meta.title);
   const ps = slugOf(meta.programSlug);
   const sp = slugOf(program);
+  const identifiers = (value: string) => norm(value).match(/\b(?:subclass\s*)?\d{3}\b|\b(?:eb|o|h)\s*\d+[a-z]?\b/g)?.map((item) => item.replace(/\s+/g, "")) ?? [];
+  const requestedIds = identifiers(program);
+  if (requestedIds.length) {
+    const candidateIds = new Set(identifiers(`${meta.title ?? ""} ${meta.programSlug ?? ""}`));
+    if (!requestedIds.some((value) => candidateIds.has(value))) return 0;
+  }
   if (t === p || (ps && ps === sp)) return 100;
+  if (requestedIds.length) return 92;
   if (t && (t.includes(p) || p.includes(t))) return 70;
   if (ps && sp && (ps.includes(sp) || sp.includes(ps))) return 60;
   const ptoks = new Set(p.split(" ").filter(Boolean));

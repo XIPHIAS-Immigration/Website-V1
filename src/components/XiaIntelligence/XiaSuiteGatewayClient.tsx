@@ -20,7 +20,7 @@ import { CharReveal, GradientText, Reveal, Stagger, StaggerItem, TextType, TiltC
 
 const suiteOptions = [
   {
-    href: "/express-reports",
+    href: "/reports",
     label: "Express Reports",
     copy: "Choose a focused personalised PDF, complete only the relevant intake and purchase it directly.",
     icon: FileText,

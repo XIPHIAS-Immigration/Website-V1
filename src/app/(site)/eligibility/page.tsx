@@ -239,7 +239,7 @@ export default function EligibilityPage() {
                       ["1", "Choose pathway", "Residency, citizenship, skilled, or corporate."],
                       ["2", "Answer profile questions", "Budget, timeline, family, and goal inputs."],
                       ["3", "Receive preview", "Website result plus branded trailer email."],
-                      ["4", "Register for full report", "Topmate registration unlocks the detailed workflow."],
+                      ["4", "Register for full report", "Secure JioPay registration unlocks the detailed workflow."],
                     ].map(([step, title, copy]) => (
                       <div
                         key={step}

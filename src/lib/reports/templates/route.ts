@@ -352,12 +352,20 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
     footer: foot("07"),
   });
 
-  // 7 — Advisor summary (dark close)
+  const summaryHeading = !top
+    ? "Complete the route profile before deciding"
+    : personalisation.completeness >= 80
+      ? "Validate the leading route"
+      : personalisation.completeness >= 50
+        ? "Resolve the open route questions"
+        : "Add the missing profile evidence";
+
+  // 7 — Report summary (dark close)
   const summaryPage = page({
     dark: true,
     body:
-      `<div class="eyebrow">Advisor summary</div>` +
-      `<h2 class="h-section" style="color:#fff;margin-top:8px;">Proceed with confidence</h2>` +
+      `<div class="eyebrow">Report summary</div>` +
+      `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(summaryHeading)}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
         top
           ? `${top.title} in ${top.country} is the current working lead based on ${personalisation.completeness}% profile completeness. The next step is to resolve hard eligibility, admissibility and evidence questions before confirming it.`
@@ -372,7 +380,7 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">Talk to the advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This report is an advisory assessment prepared from your submitted inputs and XIPHIAS programme content. It is not legal advice and does not guarantee any government or visa-office decision. Fit scores are directional and must be confirmed by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
+        "This automated report was generated from your submitted inputs and XIPHIAS programme content. It has not been independently verified by an advisor. It is not legal advice and does not guarantee any government or visa-office decision. Fit scores are directional and must be confirmed by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });

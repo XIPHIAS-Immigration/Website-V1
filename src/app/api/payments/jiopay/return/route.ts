@@ -10,10 +10,10 @@ import {
 } from "@/lib/payments/jiopay";
 import { getJiopayOrder, updateJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getPlatformRepository } from "@/lib/platform/repository";
-import { createReportDownloadGrant } from "@/lib/payments/report-delivery";
+import { createOrderStatusGrant, createReportDownloadGrant } from "@/lib/payments/report-delivery";
 import { recordJiopayPurchaseInCrm } from "@/lib/crm/save-payment";
 import { fulfillJiopayOrder } from "@/lib/payments/fulfillment";
-import { getProductConfig } from "@/lib/payments/product-catalog";
+import { getProductConfig, isReportProduct } from "@/lib/payments/product-catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,6 +56,7 @@ async function handleReturn(req: NextRequest) {
   const merchantTxnNo = extractJiopayMerchantTxnNo(payload);
   let status = "pending";
   let downloadGrant: ReturnType<typeof createReportDownloadGrant> | null = null;
+  let orderStatusGrant: ReturnType<typeof createOrderStatusGrant> | null = null;
   const initialOrder = merchantTxnNo ? getJiopayOrder(merchantTxnNo) : null;
 
   try {
@@ -63,8 +64,17 @@ async function handleReturn(req: NextRequest) {
     verified = verifyJiopaySecureHash(payload, config.secretKey);
     if (verified && isJiopaySuccess(payload)) status = "success";
     else if (verified && Object.keys(payload).length) status = "failed";
-    if (verified && status === "success" && merchantTxnNo && !initialOrder?.crmPayment) {
+    if (
+      verified &&
+      status === "success" &&
+      merchantTxnNo &&
+      !initialOrder?.crmPayment &&
+      isReportProduct(initialOrder?.productType)
+    ) {
       downloadGrant = createReportDownloadGrant(merchantTxnNo);
+    }
+    if (verified && status === "success" && merchantTxnNo && initialOrder && !initialOrder.crmPayment) {
+      orderStatusGrant = createOrderStatusGrant(merchantTxnNo);
     }
   } catch {
     status = "pending";
@@ -74,6 +84,7 @@ async function handleReturn(req: NextRequest) {
     const existingOrder = getJiopayOrder(merchantTxnNo);
     const orderStatus =
       existingOrder?.status === "paid" ||
+      existingOrder?.status === "processing" ||
       existingOrder?.status === "provisioned" ||
       existingOrder?.status === "report_sent"
         ? existingOrder.status
@@ -90,6 +101,10 @@ async function handleReturn(req: NextRequest) {
     if (downloadGrant) {
       redirectUrl.searchParams.set("expires", String(downloadGrant.expires));
       redirectUrl.searchParams.set("token", downloadGrant.token);
+    }
+    if (orderStatusGrant) {
+      redirectUrl.searchParams.set("statusExpires", String(orderStatusGrant.expires));
+      redirectUrl.searchParams.set("statusToken", orderStatusGrant.token);
     }
     if (existingOrder?.crmPayment) {
       redirectUrl.searchParams.set("crm", "1");
@@ -172,6 +187,10 @@ async function handleReturn(req: NextRequest) {
   if (downloadGrant) {
     redirectUrl.searchParams.set("expires", String(downloadGrant.expires));
     redirectUrl.searchParams.set("token", downloadGrant.token);
+  }
+  if (orderStatusGrant) {
+    redirectUrl.searchParams.set("statusExpires", String(orderStatusGrant.expires));
+    redirectUrl.searchParams.set("statusToken", orderStatusGrant.token);
   }
   return NextResponse.redirect(redirectUrl, 303);
 }

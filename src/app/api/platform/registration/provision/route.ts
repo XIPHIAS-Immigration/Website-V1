@@ -82,6 +82,9 @@ async function buildDetailedReportAttachment(args: {
   answers: Record<string, unknown> | null;
 }) {
   if (!args.answers) return null;
+  // The public registration checkout intentionally collects only essentials.
+  // Do not generate a thin "detailed" report until the full X-Hub profile is complete.
+  if (args.answers.deferDetailedReport === true) return null;
   try {
     const reportSecret =
       process.env.XIPHIAS_INTERNAL_REPORT_SECRET || process.env.XIPHIAS_REGISTRATION_WEBHOOK_SECRET || "";
@@ -161,6 +164,7 @@ function credentialEmailHtml(args: {
   temporaryPassword?: string;
   loginUrl: string;
   accountUrl: string;
+  deepAnalysisUrl: string;
   paymentReference: string;
   track: Track;
   country: string;
@@ -226,11 +230,12 @@ function credentialEmailHtml(args: {
             <div style="font-size:12px;color:#f6d86d;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">Next steps</div>
             <ol style="margin:12px 0 18px;padding-left:20px;color:#dbe7f3;line-height:1.8;font-size:14px;">
               <li>Sign in to X-Hub.</li>
-              <li>Review your active case and next action.</li>
+              <li>Complete the included Deep Analysis intake.</li>
               <li>Upload requested documents in the document vault.</li>
               <li>Track report and advisor milestones online.</li>
             </ol>
             <a href="${args.loginUrl}" style="display:inline-block;background:#d8b650;color:#071a3a;text-decoration:none;font-weight:900;border-radius:12px;padding:13px 18px;">Open X-Hub</a>
+            <a href="${args.deepAnalysisUrl}" style="display:inline-block;margin-left:10px;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 16px;">Deep Analysis intake</a>
             <a href="${args.accountUrl}" style="display:inline-block;margin-left:10px;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 16px;">Account settings</a>
           </div>
         </div>
@@ -370,7 +375,7 @@ export async function POST(req: NextRequest) {
     stage: "intake",
     title: `${country} ${titleCase(track)} registration`,
     advisorName: "Senior Global Mobility Desk",
-    nextAction: "Confirm profile details and upload the requested onboarding documents.",
+    nextAction: "Complete the included Deep Analysis intake, then upload the requested onboarding documents.",
     nextActionDue: nextDate(3),
     riskLevel: "medium",
     progress: 12,
@@ -397,9 +402,9 @@ export async function POST(req: NextRequest) {
 
   const milestones = [
     ["Registration received", "Payment event recorded and portal workspace opened.", "complete", nextDate(0)],
-    ["Profile verification", "XIPHIAS team checks intake answers and route assumptions.", "active", nextDate(3)],
+    ["Deep Analysis intake", "Client records the profile, CPA, assessing-body and evidence facts used for the included report.", "active", nextDate(3)],
     ["Document collection", "Client uploads identity, civil, financial, and route-specific records.", "pending", nextDate(7)],
-    ["Detailed report preparation", "Advisor-backed personal report is prepared for review.", "pending", nextDate(10)],
+    ["Deep Analysis verification", "XIPHIAS verifies the downloaded draft against supporting documents and current rules.", "pending", nextDate(10)],
     ["Strategy call", "Client reviews the report and next product/service action with XIPHIAS.", "pending", nextDate(14)],
   ] as const;
 
@@ -435,7 +440,7 @@ export async function POST(req: NextRequest) {
     direction: "outbound",
     from: "XIPHIAS",
     to: name,
-    body: "Your paid registration has been received. Please sign in, confirm your profile, and upload requested documents.",
+    body: "Your paid registration has been received. Please sign in, complete the included Deep Analysis intake, and upload requested documents.",
   });
 
   repo.audit("registration.provisioned", "registration", paymentReference, user.id, {
@@ -446,6 +451,7 @@ export async function POST(req: NextRequest) {
 
   const loginUrl = absoluteUrl("/x-hub/sign-in");
   const accountUrl = absoluteUrl("/x-hub/account");
+  const deepAnalysisUrl = absoluteUrl("/x-hub/deep-analysis");
   const detailedReportAttachment = await buildDetailedReportAttachment({
     name,
     email,
@@ -464,6 +470,7 @@ export async function POST(req: NextRequest) {
           temporaryPassword,
           loginUrl,
           accountUrl,
+          deepAnalysisUrl,
           paymentReference,
           track,
           country,

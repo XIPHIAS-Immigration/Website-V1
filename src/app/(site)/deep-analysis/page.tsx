@@ -32,7 +32,7 @@ export default async function DeepAnalysisPage({
       journeySource={getJourneySource(params)}
       lockedEngine
       title="Deep Analysis"
-      subtitle="A deeper profile review using skills, education, experience, CV notes, and evidence markers before XIPHIAS advisor verification."
+      subtitle="Explore your high-skill profile for free, or buy the full case-specific Deep Analysis report for INR 4,999. Advisor verification remains a separate step before filing."
     />
   );
 }
