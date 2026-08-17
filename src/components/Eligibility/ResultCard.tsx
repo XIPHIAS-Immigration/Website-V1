@@ -20,7 +20,7 @@ type Props = {
 };
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
-const DETAILED_REPORT_PRICE_INR = getProductConfig("registration")?.priceInr ?? 5000;
+const DETAILED_REPORT_PRICE_INR = getProductConfig("registration")?.priceInr ?? 4999;
 const DETAILED_REPORT_PAYMENT_URL = "/registration";
 
 function formatInr(value: string | number) {

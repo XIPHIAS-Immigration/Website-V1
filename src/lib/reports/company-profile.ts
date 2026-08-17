@@ -64,6 +64,39 @@ export function buildCompanyProfilePages(opts: CompanyProfilePagesOptions): stri
       }),
   });
 
+  const testimonialPage = page({
+    header: opts.header,
+    footer: opts.footer("Client testimonials"),
+    body:
+      sectionHeader({
+        eyebrow: "Client experience",
+        title: "What clients say about XIPHIAS",
+        desc: "Selected excerpts from client reviews published on the XIPHIAS reviews page. Individual experiences differ and no testimonial guarantees an immigration outcome.",
+      }) +
+      grid(2, [
+        card({
+          k: "Steffi Sabu · Canada PR client · 2025",
+          v: "Having the right team beside you makes all the difference.",
+          note: "The review describes continued guidance through nomination, invitation, dependant addition and confirmation of permanent residence.",
+        }),
+        card({
+          k: "Ajith Paul · Canada PR client · 2024",
+          v: "Professional, knowledgeable, and always available to address my concerns.",
+          note: "The review highlights personalised attention before and after the Invitation to Apply stage.",
+        }),
+        card({
+          k: "Priyank Ritwik · Australia PR client · 2019",
+          v: "Professional, prompt and patient with every question.",
+          note: "The review credits the processing team for consistent guidance throughout the Australia PR process.",
+        }),
+      ]) +
+      `<div class="spacer-16"></div>` +
+      callout({
+        k: "Read the source reviews",
+        text: "The complete client-written reviews and any company responses are available at www.xiphiasimmigration.com/reviews.",
+      }),
+  });
+
   const trustPage = page({
     header: opts.header,
     footer: opts.footer("Trust, media and offices"),
@@ -93,5 +126,5 @@ export function buildCompanyProfilePages(opts: CompanyProfilePagesOptions): stri
       }),
   });
 
-  return [companyPage, trustPage];
+  return [companyPage, testimonialPage, trustPage];
 }

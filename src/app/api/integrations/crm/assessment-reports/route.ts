@@ -5,8 +5,8 @@ import { normalizeEmail, normalizePhone, normalizeText } from "@/lib/platform/sa
 import { getProductConfig } from "@/lib/payments/product-catalog";
 import type { JiopayOrder } from "@/lib/payments/jiopay-store";
 import { generateReportPdf } from "@/lib/payments/report-router";
-import { assessPersonalisation, buildClientCase } from "@/lib/reports/client-case";
 import { beginCrmAssessmentEmail, completeCrmAssessmentEmail, failCrmAssessmentEmail } from "@/lib/reports/crm-assessment-idempotency";
+import { calculateAustraliaPoints } from "@/lib/reports/australia-points";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +30,9 @@ const TEXT_LIMITS: Record<string, number> = {
   evidenceNotes: 3000, factualSources: 5000, executiveSummary: 5000,
   advisorRecommendation: 5000, customRisks: 4000, nextActions: 4000, advisorNotes: 5000,
   preparedBy: 140, dataSource: 200, reviewedAt: 60, reportFormat: 80,
+  calculationMode: 40, visaSubclass: 20, dateOfBirth: 20, pointsTestDate: 20,
+  englishProficiencyLevel: 40, qualificationLevel: 80, partnerCategory: 60,
+  skillsAssessmentResult: 40, ruleSetVersion: 40, manualAssessmentReason: 1200,
 };
 const NUMBER_FIELDS = [
   "age", "dependants", "timelineMonths", "yearsExperience", "languageScore",
@@ -37,6 +40,14 @@ const NUMBER_FIELDS = [
   "agePoints", "englishPoints", "overseasExperiencePoints", "australianExperiencePoints",
   "professionalYearPoints", "qualificationPoints", "australianStudyPoints", "regionalStudyPoints",
   "stateNominationPoints", "regionalSponsorshipPoints", "partnerPoints", "communityLanguagePoints",
+  "languageListening", "languageReading", "languageWriting", "languageSpeaking",
+  "overseasExperienceMonths", "australianExperienceMonths", "basePointsTotal",
+  "subclass189Points", "subclass190Points", "subclass491Points", "employmentPointsCapAdjustment",
+  "specialistEducationPoints",
+] as const;
+const BOOLEAN_FIELDS = [
+  "familyIncluded", "specialistEducation", "professionalYearCompleted", "australianStudyCompleted",
+  "regionalStudyCompleted", "communityLanguageCredential",
 ] as const;
 
 const replayState = globalThis as typeof globalThis & { xiphiasCrmAssessmentNonces?: Map<string, number> };
@@ -93,6 +104,24 @@ function textList(value: unknown, max: number) {
   return normalizeText(value, max).split(/[,|;\n]+/).map((item) => item.trim()).filter(Boolean);
 }
 
+function cleanFeeItems(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  const categories = new Set(["government", "assessing_body", "language_test", "professional", "third_party", "proof_of_funds", "other"]);
+  return value.slice(0, 20).map((item) => {
+    const row = item && typeof item === "object" ? item as Record<string, unknown> : {};
+    const category = normalizeText(row.category, 40).toLowerCase();
+    const amount = optionalNumber(row.amount);
+    return {
+      category: categories.has(category) ? category : "other",
+      label: normalizeText(row.label, 180),
+      amount,
+      currency: normalizeText(row.currency, 8).toUpperCase(),
+      verifiedDate: normalizeText(row.verifiedDate, 20),
+      source: normalizeText(row.source, 500),
+    };
+  }).filter((row) => row.label && row.amount !== undefined && row.amount >= 0 && row.currency);
+}
+
 function cleanAnswers(body: Payload, reviewStatus: "draft" | "advisor-reviewed") {
   const answers: Record<string, unknown> = {
     manuallyPrepared: true,
@@ -107,11 +136,38 @@ function cleanAnswers(body: Payload, reviewStatus: "draft" | "advisor-reviewed")
     const value = optionalNumber(body[key]);
     if (value !== undefined) answers[key] = value;
   }
-  const familyIncluded = optionalBoolean(body.familyIncluded);
-  if (familyIncluded !== undefined) answers.familyIncluded = familyIncluded;
+  for (const key of BOOLEAN_FIELDS) {
+    const value = optionalBoolean(body[key]);
+    if (value !== undefined) answers[key] = value;
+  }
+  answers.feeItems = cleanFeeItems(body.feeItems);
   if (Array.isArray(body.documentInventory)) answers.documentInventory = body.documentInventory.slice(0, 200);
   if (reviewStatus === "advisor-reviewed") answers.verifiedAt = normalizeText(body.reviewedAt, 60) || new Date().toISOString();
   return answers;
+}
+
+function structuredReportCompleteness(answers: Record<string, unknown>) {
+  const has = (key: string) => Object.prototype.hasOwnProperty.call(answers, key)
+    && answers[key] !== null && answers[key] !== undefined && String(answers[key]).trim() !== "";
+  const calculationMode = normalizeText(answers.calculationMode, 40).toLowerCase();
+  const verifiedCalculation = calculationMode === "australia_verified"
+    && has("ruleSetVersion") && has("claimedPointsTotal") && has("subclass189Points")
+    && has("subclass190Points") && has("subclass491Points");
+  const manualCalculation = calculationMode === "manual_adviser"
+    && has("manualAssessmentReason") && has("claimedPointsTotal");
+  const checks = [
+    has("selectedProgrammes") && has("targetCountries"),
+    has("occupation") && (has("anzscoCode") || has("occupationCode")),
+    calculationMode === "manual_adviser" || (has("dateOfBirth") && has("pointsTestDate")),
+    calculationMode === "manual_adviser" || (["languageListening", "languageReading", "languageWriting", "languageSpeaking"].every(has)),
+    calculationMode === "manual_adviser" || (has("overseasExperienceMonths") && has("australianExperienceMonths")),
+    has("qualificationLevel") || has("education"),
+    has("assessingBody") && has("skillsAssessmentResult"),
+    Array.isArray(answers.feeItems) && answers.feeItems.length > 0,
+    has("profileSummary") && has("advisorRecommendation") && has("nextActions"),
+    has("factualSources") && (verifiedCalculation || manualCalculation),
+  ];
+  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
 function buildOrder(body: Payload, answers: Record<string, unknown>, productType: string, reference: string, name: string, email: string, phone: string): JiopayOrder {
@@ -192,11 +248,28 @@ export async function POST(req: NextRequest) {
 
   const reviewStatus = mode === "email" ? "advisor-reviewed" : "draft";
   const answers = cleanAnswers(body, reviewStatus);
+  const calculationMode = normalizeText(answers.calculationMode, 40).toLowerCase();
+  if (calculationMode === "australia_verified") {
+    const calculated = calculateAustraliaPoints(answers);
+    if (!calculated.ok) return NextResponse.json({ ok: false, error: calculated.errors.join(" ") }, { status: 400 });
+    Object.assign(answers, calculated.values);
+  } else if (calculationMode === "manual_adviser") {
+    if (!normalizeText(answers.manualAssessmentReason, 1200))
+      return NextResponse.json({ ok: false, error: "Manual adviser assessment requires an explanation." }, { status: 400 });
+    const manualFields = ["agePoints", "englishPoints", "overseasExperiencePoints", "australianExperiencePoints",
+      "professionalYearPoints", "qualificationPoints", "australianStudyPoints", "regionalStudyPoints",
+      "stateNominationPoints", "regionalSponsorshipPoints", "partnerPoints", "communityLanguagePoints"];
+    answers.claimedPointsTotal = manualFields.reduce((sum, key) => sum + Math.max(0, optionalNumber(answers[key]) ?? 0), 0);
+    answers.ruleSetVersion = "MANUAL";
+  } else {
+    return NextResponse.json({ ok: false, error: "Select a supported calculation method." }, { status: 400 });
+  }
+  if (!Array.isArray(answers.feeItems) || answers.feeItems.length === 0)
+    return NextResponse.json({ ok: false, error: "Add at least one fee or required-funds line with amount, currency and source." }, { status: 400 });
   const order = buildOrder(body, answers, productType, reference, name, email, phone);
-  const clientCase = buildClientCase(order);
-  const assessment = assessPersonalisation(clientCase);
-  if (mode === "email" && assessment.completeness < 60)
-    return NextResponse.json({ ok: false, error: `Report completeness is ${assessment.completeness}%. At least 60% is required before email.` }, { status: 400 });
+  const completeness = structuredReportCompleteness(answers);
+  if (mode === "email" && completeness < 60)
+    return NextResponse.json({ ok: false, error: `Report completeness is ${completeness}%. At least 60% is required before email.` }, { status: 400 });
 
   let pdf: Buffer;
   let reviewedPdfHash = "";
@@ -238,7 +311,7 @@ export async function POST(req: NextRequest) {
           failCrmAssessmentEmail(idempotencyKey, internalEmail.reason);
           return NextResponse.json({ ok: false, error: internalEmail.reason, internalEmail }, { status: 502 });
         }
-        const result = { ok: true, internalEmail, filename, completeness: assessment.completeness, schemaVersion: 1 };
+        const result = { ok: true, internalEmail, filename, completeness, schemaVersion: 1 };
         completeCrmAssessmentEmail(idempotencyKey, result);
         return NextResponse.json(result);
       }
@@ -259,7 +332,7 @@ export async function POST(req: NextRequest) {
         label: "XIPHIAS Assessment Desk",
         html: `<p>A reviewed ${escapeHtml(config.label)} was sent to <strong>${escapeHtml(name)}</strong> (${escapeHtml(email)}).</p><p>Reference: ${escapeHtml(reference)}</p>`,
       });
-      const result = { ok: true, clientEmail, staffEmail, filename, completeness: assessment.completeness, schemaVersion: 1 };
+      const result = { ok: true, clientEmail, staffEmail, filename, completeness, schemaVersion: 1 };
       completeCrmAssessmentEmail(idempotencyKey, result);
       return NextResponse.json(result);
     } catch (error) {
@@ -275,7 +348,7 @@ export async function POST(req: NextRequest) {
       "Content-Disposition": `${mode === "preview" ? "inline" : "attachment"}; filename="${filename}"`,
       "Cache-Control": "no-store, private",
       "X-Xiphias-Report-Schema": "1",
-      "X-Xiphias-Completeness": String(assessment.completeness),
+      "X-Xiphias-Completeness": String(completeness),
     },
   });
 }

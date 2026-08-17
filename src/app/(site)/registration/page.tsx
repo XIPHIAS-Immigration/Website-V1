@@ -8,12 +8,12 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Full Immigration Assessment Registration | XIPHIAS",
-  description: "Register for a full XIPHIAS immigration assessment, Deep Analysis and secure client CRM onboarding for INR 5,900 including GST.",
+  description: "Register for a full XIPHIAS immigration assessment, Deep Analysis and secure client CRM onboarding for INR 4,999 including GST.",
   robots: { index: false, follow: false },
 };
 
 export default function RegistrationPage() {
-  const priceInr = getProductConfig("registration")?.priceInr ?? 5900;
+  const priceInr = getProductConfig("registration")?.priceInr ?? 4999;
 
   return (
     <main className="min-h-screen bg-[#eef3f9] pb-24 pt-24 text-[#071a3a]">
@@ -22,7 +22,7 @@ export default function RegistrationPage() {
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f0c83f]">XIPHIAS full assessment</p>
             <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">Register once. Get the analysis and your client CRM.</h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-white/65">For INR 5,000 plus INR 900 GST, start a structured immigration assessment, receive the included Deep Analysis and manage the next steps in the XIPHIAS client CRM.</p>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-white/65">For INR 4,999 including GST, start a structured immigration assessment, receive the included Deep Analysis and manage the next steps in the XIPHIAS client CRM.</p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               {["Deep Analysis report included", "Secure client CRM access", "Registration and payment visible in CRM", "Advisor handoff and next-step plan"].map((item) => <div key={item} className="flex items-center gap-2 text-sm text-white/75"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-emerald-400/15 text-emerald-300"><Check className="size-3" /></span>{item}</div>)}
             </div>

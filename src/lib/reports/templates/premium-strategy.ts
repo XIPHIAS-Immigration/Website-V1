@@ -147,6 +147,8 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const countryLabel = smartLabel(country) || dossier?.country || "Global mobility";
   const isCrmPointsAssessment = str(a.reportFormat) === "points-assessment";
   const isDraft = clientCase.reviewStatus === "draft" && !isCrmPointsAssessment;
+  const crmOccupation = str(a.occupation);
+  const crmOccupationCode = str(a.anzscoCode || a.occupationCode);
 
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
@@ -192,15 +194,17 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // 1 — Cover
   const cover = coverPage({
     logoDataUri: logo,
-    coverBgDataUri: coverBg,
-    cardImageDataUri: imgs[1] ?? imgs[0],
-    heroImageDataUri: imgs[0],
+    coverBgDataUri: isCrmPointsAssessment ? undefined : coverBg,
+    cardImageDataUri: isCrmPointsAssessment ? undefined : imgs[1] ?? imgs[0],
+    heroImageDataUri: isCrmPointsAssessment ? undefined : imgs[0],
     eyebrow: isDraft ? "Draft Sample · Unverified" : "Private Client Assessment",
     title: reportTitle,
     preparedFor: order.customer.name,
-    profileLine: caseCoverProfileLine(clientCase),
+    profileLine: isCrmPointsAssessment
+      ? [crmOccupation, crmOccupationCode ? `ANZSCO ${crmOccupationCode}` : ""].filter(Boolean).join(" | ") || caseCoverProfileLine(clientCase)
+      : caseCoverProfileLine(clientCase),
     subtitle: isCrmPointsAssessment
-      ? `A detailed skilled migration strategy for ${countryLabel}.`
+      ? `${crmOccupation || "Skilled migration"}${crmOccupationCode ? ` (${crmOccupationCode})` : ""} - ${route} assessment for ${countryLabel}.`
       : isDraft
       ? `A preliminary planning example for ${countryLabel}. Not for filing or decision-making.`
       : `A focused recommendation for ${countryLabel} immigration planning.`,
@@ -331,7 +335,13 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       `<div class="spacer-16"></div>` +
       grid(3, [
         card({ k: "Recommended route", v: route }),
-        card({ k: "Route fit", v: fit !== undefined ? `${fit} / 100` : "Not assessed", note: fit !== undefined ? fitWord(fit) : "Advisor review required" }),
+        card({
+          k: isCrmPointsAssessment ? "Recorded points" : "Route fit",
+          v: isCrmPointsAssessment
+            ? `${num(a.claimedPointsTotal) ?? 0} points`
+            : fit !== undefined ? `${fit} / 100` : "Not assessed",
+          note: isCrmPointsAssessment ? `${route} calculation` : fit !== undefined ? fitWord(fit) : "Advisor review required",
+        }),
         card({ k: "Decision priority", v: priorityLabel }),
       ]) +
       `<div class="spacer-16"></div>` +
@@ -371,20 +381,45 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // dossier; an alternative route (if found) gets a focused dossier so the report compares
   // real options. Each programme also contributes its page narrative (the site write-up).
   const footLabel = "XIPHIAS Immigration Private Limited · Personal Strategy";
-  const dossierPages = dossiers.flatMap((d, idx) => [
-    ...buildDossierPages(d, {
+  const dossierPages = dossiers.flatMap((d, idx) => {
+    // The employee-reviewed fee schedule in the assessment front matter is the
+    // single source of truth for CRM reports. Public programme data can contain
+    // older indicative amounts, so never repeat those amounts later in the same
+    // client report. Also replace generic occupation examples with the occupation
+    // actually assessed for this client.
+    const reportDossier = isCrmPointsAssessment && idx === 0
+      ? {
+          ...d,
+          prices: [],
+          governmentFees: [],
+          proofOfFunds: [],
+          minInvestment: undefined,
+          occupationLists: crmOccupation
+            ? [{
+                listName: "Selected occupation for this assessment",
+                occupations: [[crmOccupation, crmOccupationCode ? `ANZSCO ${crmOccupationCode}` : ""].filter(Boolean).join(" - ")],
+              }]
+            : [],
+        }
+      : d;
+
+    return [
+    ...buildDossierPages(reportDossier, {
       header: head,
       footLabel,
       images: imgs,
-      sections: [...(idx === 0 ? depth.primaryDossierSections : depth.alternativeDossierSections)],
+      sections: isCrmPointsAssessment && idx === 0
+        ? ["divider", "snapshot", "eligibility", "scoring", "documents", "family", "process", "risk", "faq"]
+        : [...(idx === 0 ? depth.primaryDossierSections : depth.alternativeDossierSections)],
     }),
-    ...programmeNarrativePages(d, {
+    ...programmeNarrativePages(reportDossier, {
       header: head,
       footLabel,
       images: imgs,
       maxSections: idx === 0 ? depth.maxNarrativeSections : Math.min(2, depth.maxNarrativeSections),
     }),
-  ]);
+    ];
+  });
 
   const decisionPage = page({
     header: head,
@@ -687,7 +722,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         "Agree a filing timeline that fits your planning window.",
       ]) +
       `<div class="spacer-16"></div>` +
-      callout({ k: "Ready when you are", text: "Reply to your report email or contact the advisory desk to book your strategy call — your assessment and this report are already on file." }),
+      callout({ k: "Ready when you are", text: "Reply to your report email or contact the advisory desk to book your strategy call. Your assessment and this report are already on file." }),
     footer: foot("Next steps"),
   });
 
@@ -714,7 +749,13 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       `<div class="spacer-24"></div>` +
       grid(3, [
         card({ dark: true, k: "Route", v: route }),
-        card({ dark: true, k: "Route fit", v: fit !== undefined ? `${fit} / 100` : "Not assessed" }),
+        card({
+          dark: true,
+          k: isCrmPointsAssessment ? "Recorded points" : "Route fit",
+          v: isCrmPointsAssessment
+            ? `${num(a.claimedPointsTotal) ?? 0} points`
+            : fit !== undefined ? `${fit} / 100` : "Not assessed",
+        }),
         card({ dark: true, k: "Next service", v: "Advisor strategy call" }),
       ]) +
       `<div class="spacer-24"></div>` +
@@ -728,30 +769,59 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   });
   const companyPages = buildCompanyProfilePages({ header: head, footer: foot });
 
-  const bodyHtml = cleanReportPunctuation([
-    cover,
-    basisPage,
-    execPage,
-    scorePage,
-    profilePage,
-    methodologyPage,
-    whyFitsPage,
-    selfCheckPage,
-    decisionPage,
-    assumptionsPage,
-    evidenceBlueprintPage,
-    riskRegisterPage,
-    financialControlPage,
-    familyPlanningPage,
-    scenarioPage,
-    ...dossierPages,
-    milestonePage,
-    roadmapPage,
-    advisorPrepPage,
-    deliversPage,
-    engagementPage,
-    ...companyPages,
-    closer,
-  ].join(""));
+  // CRM assessment reports retain the detailed programme and advisory content expected
+  // by the client, while excluding only the internal methodology/provenance page and
+  // duplicate generic score filler. The structured six-page assessment front matter is
+  // followed by programme-specific dossier, evidence, financial, family, scenario,
+  // timeline, service, recognition and testimonial pages (normally 30-36 pages).
+  const bodyHtml = cleanReportPunctuation((isCrmPointsAssessment
+    ? [
+        cover,
+        basisPage,
+        execPage,
+        profilePage,
+        whyFitsPage,
+        selfCheckPage,
+        ...dossierPages,
+        decisionPage,
+        assumptionsPage,
+        evidenceBlueprintPage,
+        riskRegisterPage,
+        financialControlPage,
+        familyPlanningPage,
+        scenarioPage,
+        milestonePage,
+        roadmapPage,
+        advisorPrepPage,
+        deliversPage,
+        engagementPage,
+        ...companyPages,
+        closer,
+      ]
+    : [
+        cover,
+        basisPage,
+        execPage,
+        scorePage,
+        profilePage,
+        methodologyPage,
+        whyFitsPage,
+        selfCheckPage,
+        decisionPage,
+        assumptionsPage,
+        evidenceBlueprintPage,
+        riskRegisterPage,
+        financialControlPage,
+        familyPlanningPage,
+        scenarioPage,
+        ...dossierPages,
+        milestonePage,
+        roadmapPage,
+        advisorPrepPage,
+        deliversPage,
+        engagementPage,
+        ...companyPages,
+        closer,
+      ]).join(""));
   return renderReportPdf({ title: `XIPHIAS ${reportTitle}`, bodyHtml });
 }

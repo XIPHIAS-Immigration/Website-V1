@@ -50,8 +50,8 @@ export async function provisionCrmPaidRegistration(
   gatewayPayload: GatewayPayload,
 ): Promise<CrmPaidRegistrationResult> {
   if (order.productType !== "registration") throw new Error("Order is not a paid registration.");
-  if (Math.abs(order.amountInr - 5900) > 0.01) {
-    throw new Error("Paid registration total must be INR 5,900 (INR 5,000 + INR 900 GST).");
+  if (Math.abs(order.amountInr - 4999) > 0.01) {
+    throw new Error("Paid registration total must be INR 4,999 including GST.");
   }
 
   const body = JSON.stringify({
@@ -73,9 +73,9 @@ export async function provisionCrmPaidRegistration(
     track: order.track || "skilled",
     targetCountry: order.country || "",
     primaryGoal: order.program || "Full immigration assessment",
-    baseAmount: 5000,
-    gstAmount: 900,
-    totalAmount: 5900,
+    baseAmount: 4236.44,
+    gstAmount: 762.56,
+    totalAmount: 4999,
     currency: "INR",
     deepAnalysisIncluded: true,
   });

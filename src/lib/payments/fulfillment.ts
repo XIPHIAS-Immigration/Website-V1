@@ -265,9 +265,9 @@ async function fulfillRegistration(
               <p>Dear <strong>${escapeHtml(order.customer.name)}</strong>,</p>
               <p>Your payment has been verified and client ID <strong>${registration.clientId}</strong> has been created in the XIPHIAS India CRM.</p>
               <table style="width:100%;border-collapse:collapse;background:#f8fbff;border:1px solid #dbe7f3">
-                <tr><td style="padding:10px;font-weight:800">Registration fee</td><td style="padding:10px">INR 5,000</td></tr>
-                <tr><td style="padding:10px;font-weight:800">GST</td><td style="padding:10px">INR 900</td></tr>
-                <tr><td style="padding:10px;font-weight:800">Total paid</td><td style="padding:10px">INR 5,900</td></tr>
+                <tr><td style="padding:10px;font-weight:800">Registration and Deep Analysis</td><td style="padding:10px">INR 4,236.44</td></tr>
+                <tr><td style="padding:10px;font-weight:800">GST (18%)</td><td style="padding:10px">INR 762.56</td></tr>
+                <tr><td style="padding:10px;font-weight:800">Total paid</td><td style="padding:10px">INR 4,999.00</td></tr>
                 <tr><td style="padding:10px;font-weight:800">CRM status</td><td style="padding:10px">REGISTERED / PAID</td></tr>
                 <tr><td style="padding:10px;font-weight:800">Deep Analysis</td><td style="padding:10px">Included — pending profile intake and adviser review</td></tr>
                 <tr><td style="padding:10px;font-weight:800">Payment reference</td><td style="padding:10px">${escapeHtml(order.merchantTxnNo)}</td></tr>
@@ -284,7 +284,7 @@ async function fulfillRegistration(
       to: getPlatformRecipient("general"),
       subject: `Paid CRM registration: ${order.customer.name} — client ${registration.clientId}`,
       label: "XIPHIAS Platform",
-      html: `<p>India CRM client <strong>${registration.clientId}</strong> is REGISTERED and INR 5,900 is PAID.</p><p>Deep Analysis is included and pending profile intake/adviser review. Payment ref: ${escapeHtml(order.merchantTxnNo)}.</p>`,
+      html: `<p>India CRM client <strong>${registration.clientId}</strong> is REGISTERED and INR 4,999 including GST is PAID.</p><p>Deep Analysis is included and pending profile intake/adviser review. Payment ref: ${escapeHtml(order.merchantTxnNo)}.</p>`,
     }).catch(() => undefined);
 
     updateJiopayOrder(

@@ -90,6 +90,7 @@ export const REPORT_CSS = `
   .cover-bg { position: absolute; inset: 0; }
   .cover-bg > img { width: 100%; height: 100%; object-fit: cover; object-position: center 32%; display: block; }
   .cover-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,28,68,.72) 0%, rgba(10,28,68,.42) 38%, rgba(10,28,68,.9) 76%, rgba(10,28,68,.98) 100%); }
+  .cover-bg--solid, .cover-bg--solid::after { background: ${BRAND.navy}; }
   .cover-frame { position: absolute; inset: 9mm; border: .28mm solid rgba(255,255,255,.5); pointer-events: none; z-index: 2; }
   .cover-pad { position: absolute; inset: 9mm; padding: 13mm 14mm; display: flex; flex-direction: column; z-index: 2; }
   .cover-logo { height: 14mm; width: auto; object-fit: contain; object-position: left top; }
@@ -156,6 +157,9 @@ export const REPORT_CSS = `
   table.tbl tr:last-child td { border-bottom: none; }
   table.tbl tr:nth-child(even) td { background: ${BRAND.cream}; }
   table.tbl .num { font-weight: 800; color: ${BRAND.navy}; white-space: nowrap; }
+  .compact-table table.tbl { font-size: 9.25pt; }
+  .compact-table table.tbl th { padding: 2.7mm 3.4mm; font-size: 7.8pt; }
+  .compact-table table.tbl td { padding: 2.35mm 3.4mm; line-height: 1.35; }
 
   /* Lists */
   ul.ticks { list-style: none; padding: 0; margin: 0; }

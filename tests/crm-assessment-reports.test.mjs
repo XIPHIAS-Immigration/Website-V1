@@ -18,6 +18,14 @@ async function loadPersonalisationModule() {
   return import(`data:text/javascript;base64,${Buffer.from(transpiled).toString("base64")}`);
 }
 
+async function loadAustraliaPointsModule() {
+  const moduleSource = fs.readFileSync("src/lib/reports/australia-points.ts", "utf8");
+  const transpiled = ts.transpileModule(moduleSource, {
+    compilerOptions: { module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  return import(`data:text/javascript;base64,${Buffer.from(transpiled).toString("base64")}`);
+}
+
 const value = (input) => ({ value: input, status: input === undefined ? "unknown" : "provided" });
 
 function clientCase(overrides = {}) {
@@ -111,7 +119,8 @@ test("CRM assessment reports require a signed, fresh, single-use request", () =>
 
 test("CRM assessment email requires review, completeness and idempotency", () => {
   assert.match(source, /mode === "email" \? "advisor-reviewed" : "draft"/);
-  assert.match(source, /assessment\.completeness < 60/);
+  assert.match(source, /structuredReportCompleteness/);
+  assert.match(source, /completeness < 60/);
   assert.match(source, /Idempotency-Key is required for email/);
   assert.match(source, /beginCrmAssessmentEmail/);
   assert.match(source, /completeCrmAssessmentEmail/);
@@ -126,7 +135,7 @@ test("CRM assessment supports a separate internal administrator review delivery"
   assert.match(source, /internalReviewEmailHtml/);
   assert.match(source, /Internal only:/);
   assert.match(source, /internalEmail/);
-  assert.match(source, /mode === "email" && assessment\.completeness < 60/);
+  assert.match(source, /mode === "email" && completeness < 60/);
 });
 
 test("CRM assessment accepts structured verified case and points inputs", () => {
@@ -158,11 +167,68 @@ test("CRM points assessments replace internal front matter while retaining the p
   assert.match(premium, /points-assessment/);
   assert.match(premium, /buildCrmPointsAssessmentFrontMatter/);
   assert.match(premium, /isCrmPointsAssessment/);
-  assert.match(template, /SkillSelect points summary/);
+  assert.match(template, /Points allocation/);
   assert.match(template, /Subclass 189/);
   assert.match(template, /Subclass 190/);
-  assert.match(template, /Points factor/);
+  assert.match(template, /Subclass 491/);
+  assert.match(template, /Fees and required funds/);
+  assert.match(template, /5 to less than 8 years/);
+  assert.match(template, /Recorded fact/);
+  assert.match(template, /To confirm/);
   assert.doesNotMatch(template, /advisor-supplied|not recorded in CRM|versioned evidence|data source/i);
+});
+
+test("verified Australia calculator applies official boundary brackets and the employment cap", async () => {
+  const calculator = await loadAustraliaPointsModule();
+  assert.equal(calculator.australiaAgePoints(24), 25);
+  assert.equal(calculator.australiaAgePoints(25), 30);
+  assert.equal(calculator.australiaAgePoints(32), 30);
+  assert.equal(calculator.australiaAgePoints(33), 25);
+  assert.equal(calculator.australiaAgePoints(40), 15);
+  assert.equal(calculator.australiaAgePoints(45), 0);
+  assert.equal(calculator.australiaOverseasExperiencePoints(35), 0);
+  assert.equal(calculator.australiaOverseasExperiencePoints(36), 5);
+  assert.equal(calculator.australiaOverseasExperiencePoints(60), 10);
+  assert.equal(calculator.australiaOverseasExperiencePoints(96), 15);
+  assert.equal(calculator.australiaLocalExperiencePoints(11), 0);
+  assert.equal(calculator.australiaLocalExperiencePoints(12), 5);
+  assert.equal(calculator.australiaLocalExperiencePoints(96), 20);
+
+  const result = calculator.calculateAustraliaPoints({
+    visaSubclass: "190", dateOfBirth: "1996-08-18", pointsTestDate: "2026-08-17",
+    languageTest: "IELTS", languageListening: 7, languageReading: 7, languageWriting: 7, languageSpeaking: 7,
+    overseasExperienceMonths: 66, australianExperienceMonths: 0,
+    qualificationLevel: "bachelor_or_higher", partnerCategory: "single_or_aus_partner",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.agePoints, 30);
+  assert.equal(result.values.overseasExperiencePoints, 10);
+  assert.equal(result.values.basePointsTotal, 75);
+  assert.equal(result.values.subclass190Points, 80);
+
+  const capped = calculator.calculateAustraliaPoints({
+    visaSubclass: "189", dateOfBirth: "1996-08-18", pointsTestDate: "2026-08-17",
+    languageTest: "IELTS", languageListening: 8, languageReading: 8, languageWriting: 8, languageSpeaking: 8,
+    overseasExperienceMonths: 96, australianExperienceMonths: 96,
+    qualificationLevel: "doctorate", partnerCategory: "no_partner_points",
+  });
+  assert.equal(capped.ok, true);
+  assert.equal(capped.values.employmentPointsCapAdjustment, -15);
+  assert.equal(capped.values.basePointsTotal, 90);
+});
+
+test("CRM assessment report keeps detailed client-useful sections and excludes methodology filler", () => {
+  const premium = fs.readFileSync("src/lib/reports/templates/premium-strategy.ts", "utf8");
+  const company = fs.readFileSync("src/lib/reports/company-profile.ts", "utf8");
+  assert.match(premium, /isCrmPointsAssessment[\s\S]*?\? \[[\s\S]*?basisPage[\s\S]*?dossierPages[\s\S]*?financialControlPage[\s\S]*?companyPages[\s\S]*?closer/);
+  assert.doesNotMatch(premium.match(/isCrmPointsAssessment[\s\S]*?: \[/)?.[0] || "", /methodologyPage/);
+  assert.match(premium, /crmOccupation/);
+  assert.match(premium, /ANZSCO/);
+  assert.match(premium, /prices: \[\]/);
+  assert.match(premium, /governmentFees: \[\]/);
+  assert.match(premium, /Selected occupation for this assessment/);
+  assert.match(company, /Client testimonials/);
+  assert.match(company, /Awards and independent recognition/);
 });
 
 test("CRM profile facts personalise the full report, not only its opening pages", async () => {

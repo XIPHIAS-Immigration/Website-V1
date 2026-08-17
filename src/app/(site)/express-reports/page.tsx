@@ -99,7 +99,7 @@ export default async function ExpressReportsPage({ searchParams }: { searchParam
   const params = await searchParams;
   const products = productCopy.map((product) => ({
     ...product,
-    priceInr: getProductConfig(product.productType)?.priceInr ?? (product.productType === "premium_report" || product.productType === "us_visa_report" ? 1000 : 499),
+    priceInr: getProductConfig(product.productType)?.priceInr ?? 499,
   }));
   const validTypes = new Set(products.map((product) => product.productType));
   const requested = typeof params.report === "string" && validTypes.has(params.report as ExpressReportProduct["productType"])

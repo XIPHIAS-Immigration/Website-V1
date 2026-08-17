@@ -256,7 +256,7 @@ export function coverPage(opts: {
   // Editorial-luxury cover: full-bleed COUNTRY attraction image (never a portrait),
   // gold inset frame, logo top, and the title block anchored to the bottom over a dark gradient.
   const bg = opts.heroImageDataUri ?? opts.cardImageDataUri ?? opts.coverBgDataUri ?? null;
-  const bgEl = bg ? `<div class="cover-bg"><img src="${bg}" alt="" /></div>` : `<div class="cover-bg"></div>`;
+  const bgEl = bg ? `<div class="cover-bg"><img src="${bg}" alt="" /></div>` : `<div class="cover-bg cover-bg--solid"></div>`;
   const logo = opts.logoDataUri
     ? `<img class="cover-logo" src="${opts.logoDataUri}" alt="XIPHIAS Immigration" />`
     : `<div class="cover-ey" style="margin-top:0;">XIPHIAS Immigration</div>`;

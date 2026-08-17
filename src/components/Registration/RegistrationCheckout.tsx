@@ -57,7 +57,7 @@ export default function RegistrationCheckout({ priceInr }: { priceInr: number })
           consent: form.consent,
           startedAt,
           productType: "registration",
-          productName: "XIPHIAS Full Assessment Registration + Deep Analysis",
+          productName: "XIPHIAS Full Assessment Registration and Deep Analysis",
           track: form.track,
           country: form.country,
           program: form.goal || "Full immigration assessment",
@@ -101,7 +101,7 @@ export default function RegistrationCheckout({ priceInr }: { priceInr: number })
         {submitting ? <LoaderCircle className="size-5 animate-spin" /> : <CreditCard className="size-5" />}
         {submitting ? "Starting secure checkout..." : `Register and pay INR ${priceInr.toLocaleString("en-IN")}`}
       </button>
-      <p className="mt-3 text-center text-xs font-semibold text-slate-500">INR 5,000 registration fee + INR 900 GST. Deep Analysis report included.</p>
+      <p className="mt-3 text-center text-xs font-semibold text-slate-500">INR 4,999 including GST. Deep Analysis report included.</p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-slate-400"><span className="inline-flex items-center gap-1"><ShieldCheck className="size-3.5" /> Server-enforced price</span><span className="inline-flex items-center gap-1"><Check className="size-3.5" /> Secure JioPay checkout</span></div>
     </section>
   );

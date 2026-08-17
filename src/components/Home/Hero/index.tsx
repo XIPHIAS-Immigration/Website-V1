@@ -33,7 +33,7 @@ export default function Hero() {
               href="/registration"
               className="inline-flex h-14 items-center justify-center gap-2 rounded-md bg-[#d8ad1f] px-7 text-base font-black text-primary shadow-[0_12px_30px_rgba(216,173,31,0.25)] transition hover:bg-[#efc939]"
             >
-              Register for full assessment — INR 5,000
+              Register for full assessment — INR 4,999 incl. GST
               <ArrowRight className="size-5" aria-hidden="true" />
             </Link>
             <Link

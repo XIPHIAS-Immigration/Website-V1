@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
   const reference = registrationOrder?.merchantTxnNo || `XHUB-${Date.now()}`;
   const reportOrder: JiopayOrder = {
     merchantTxnNo: reference,
-    amountInr: registrationOrder?.amountInr || 5000,
+    amountInr: registrationOrder?.amountInr || 4999,
     productType: "deep_analysis_report",
     productName: "Deep Analysis Report — Included with Registration",
     customer: {

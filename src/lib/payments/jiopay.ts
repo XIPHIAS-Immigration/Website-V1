@@ -142,6 +142,14 @@ export function verifyJiopaySecureHash(payload: JiopayUnknownPayload, secretKey:
   return timingSafeEqual(left, right);
 }
 
+function jiopayDescription(value: string) {
+  return value
+    .replace(/[^A-Za-z0-9 .,_()-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
+}
+
 export function buildJiopaySalePayload(input: JiopayCheckoutInput, config: JiopayConfig): JiopayPayload {
   const payload: JiopayPayload = {
     merchantId: config.merchantId,
@@ -156,7 +164,7 @@ export function buildJiopaySalePayload(input: JiopayCheckoutInput, config: Jiopa
     customerMobileNo: formatJiopayPhone(input.customerPhone),
     customerName: input.customerName,
     addlParam1: input.productType,
-    addlParam2: input.productName.slice(0, 120),
+    addlParam2: jiopayDescription(input.productName),
   };
   return {
     ...payload,
