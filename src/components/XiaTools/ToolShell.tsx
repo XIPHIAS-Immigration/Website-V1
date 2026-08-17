@@ -2,7 +2,7 @@
 // electric-blue + gold accents). Tier-4 surface: static chrome, no scroll-entrance
 // decoration — motion lives in the interactive panels themselves.
 import type { ReactNode } from "react";
-import { ShieldAlert, Sparkles } from "lucide-react";
+import { CheckCircle2, ShieldAlert, Sparkles } from "lucide-react";
 import { XiaContactPanel } from "@/components/XiaTools/XiaContactPanel";
 
 /** The canonical disclaimer required next to every figure (see skills.md). */
@@ -13,6 +13,7 @@ export function ToolShell({
   title,
   subtitle,
   actions,
+  benefits = ["Personalised assessment", "Evidence and risk gaps", "Advisor-ready next steps"],
   contactContext,
   contactId,
   children,
@@ -21,6 +22,7 @@ export function ToolShell({
   title: ReactNode;
   subtitle: string;
   actions?: ReactNode;
+  benefits?: string[];
   contactContext?: string;
   contactId?: string;
   children: ReactNode;
@@ -37,7 +39,18 @@ export function ToolShell({
             <h1 className="type-section-title mt-5">
               {title}
             </h1>
-            <p className="type-body mt-3 max-w-2xl text-white/70">{subtitle}</p>
+            <p className="type-body mt-4 max-w-3xl text-white/80">{subtitle}</p>
+            <div className="mt-5 flex flex-wrap gap-2.5" aria-label="Assessment benefits">
+              {benefits.map((benefit) => (
+                <span
+                  key={benefit}
+                  className="type-small inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/10 px-3.5 py-2 text-white/90"
+                >
+                  <CheckCircle2 className="size-4 text-secondary" aria-hidden="true" />
+                  {benefit}
+                </span>
+              ))}
+            </div>
           </div>
           {actions ? <div className="shrink-0">{actions}</div> : null}
         </div>

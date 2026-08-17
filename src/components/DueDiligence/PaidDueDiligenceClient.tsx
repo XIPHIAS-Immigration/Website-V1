@@ -36,7 +36,7 @@ const inputClass = "h-11 w-full rounded-lg border border-white/20 bg-black/15 px
 const areaClass = "min-h-28 w-full resize-y rounded-lg border border-white/20 bg-black/15 px-3.5 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/30 hover:border-white/40 focus:border-secondary focus:ring-2 focus:ring-secondary/20";
 
 function EvidenceSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return <select value={value} onChange={(event) => onChange(event.target.value)} className={inputClass}>{evidenceOptions.map(([option, label]) => <option key={option} value={option} className="bg-[#071a3a]">{label}</option>)}</select>;
+  return <select value={value} onChange={(event) => onChange(event.target.value)} className={inputClass}>{evidenceOptions.map(([option, label]) => <option key={option} value={option} className="bg-primary">{label}</option>)}</select>;
 }
 
 export default function PaidDueDiligenceClient({ order, expires, token }: { order: string; expires: string; token: string }) {
@@ -164,7 +164,7 @@ export default function PaidDueDiligenceClient({ order, expires, token }: { orde
                   <Field label="How long have the funds been held?">{textInput("fundsHeldPeriod")}</Field>
                   <Field label="Large or unusual deposits">{textArea("largeDeposits", "Enter None or describe amount, date and origin.")}</Field>
                   <Field label="Third-party funds">{textArea("thirdPartyDetails", "Enter None or identify donors, lenders, companies or trusts.")}</Field>
-                  <Field label="Counterparty type"><select value={input.counterpartyType} onChange={(event) => update("counterpartyType", event.target.value)} className={inputClass}><option value="none" className="bg-[#071a3a]">No material counterparty</option><option value="employer" className="bg-[#071a3a]">Employer or sponsor</option><option value="agent" className="bg-[#071a3a]">Agent or intermediary</option><option value="developer" className="bg-[#071a3a]">Developer or property seller</option><option value="fund" className="bg-[#071a3a]">Fund or investment manager</option><option value="business" className="bg-[#071a3a]">Business or company</option><option value="other" className="bg-[#071a3a]">Other</option></select></Field>
+                  <Field label="Counterparty type"><select value={input.counterpartyType} onChange={(event) => update("counterpartyType", event.target.value)} className={inputClass}><option value="none" className="bg-primary">No material counterparty</option><option value="employer" className="bg-primary">Employer or sponsor</option><option value="agent" className="bg-primary">Agent or intermediary</option><option value="developer" className="bg-primary">Developer or property seller</option><option value="fund" className="bg-primary">Fund or investment manager</option><option value="business" className="bg-primary">Business or company</option><option value="other" className="bg-primary">Other</option></select></Field>
                   <Field label="Counterparty name">{textInput("counterpartyName")}</Field>
                   <Field label="Counterparty country">{textInput("counterpartyCountry")}</Field>
                   <Field label="Counterparty checks"><EvidenceSelect value={input.counterpartyChecks} onChange={(value) => update("counterpartyChecks", value)} /></Field>

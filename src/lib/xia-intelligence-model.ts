@@ -4,12 +4,12 @@ export type RouteIntelligenceInput = {
   goal: "not-sure" | "pr" | "work-visa" | "citizenship" | "investment" | "business-setup" | "family-migration";
   track: Vertical | "all";
   destination: string;
-  profile: "investor" | "entrepreneur" | "professional" | "family" | "company" | "remote" | "researcher" | "student";
+  profile: "not-provided" | "investor" | "entrepreneur" | "professional" | "family" | "company" | "remote" | "researcher" | "student";
   budget: number;
   timeline: number;
   family: boolean;
   presence: "any" | "low" | "moderate" | "high";
-  priority: "speed" | "cost" | "mobility" | "stability" | "tax" | "business";
+  priority: "not-sure" | "speed" | "cost" | "mobility" | "stability" | "tax" | "business";
   notes: string;
 };
 
@@ -35,6 +35,7 @@ export type ProgrammeRouteSource = {
 
 export type ScoredProgrammeRoute = ProgrammeRouteSource & {
   fitScore: number;
+  confidenceScore: number;
   reasons: string[];
   warnings: string[];
 };
@@ -60,7 +61,7 @@ export type HighSkillEvidenceKey =
 export type HighSkillInput = {
   targetCountry: "usa" | "canada" | "uk" | "australia" | "global";
   goal: "permanent-residency" | "temporary-work" | "talent-visa" | "founder" | "not-sure";
-  field: "technology" | "science" | "business" | "arts" | "healthcare" | "academia" | "sports" | "other";
+  field: "not-provided" | "technology" | "science" | "business" | "arts" | "healthcare" | "academia" | "sports" | "other";
   role: string;
   age: number;
   education: "unknown" | "bachelor" | "master" | "phd";
@@ -74,6 +75,10 @@ export type HighSkillInput = {
   resumeFileName: string;
   resumeParseStatus: "not-provided" | "parsed" | "needs-review";
   profileSummary: string;
+  currentStatus?: string;
+  petitionerType?: string;
+  proposedEndeavour?: string;
+  visaHistory?: string;
 };
 
 export type HighSkillVisaRoute = {
@@ -416,44 +421,14 @@ export const highSkillRoutes: HighSkillVisaRoute[] = [
   }),
 ];
 
-const profileKeywords: Record<RouteIntelligenceInput["profile"], string[]> = {
-  investor: ["investment", "investor", "property", "fund", "capital", "golden", "bank deposit"],
-  entrepreneur: ["business", "startup", "entrepreneur", "company", "founder", "innovation"],
-  professional: ["skilled", "talent", "employment", "worker", "points", "job", "occupation"],
-  family: ["family", "spouse", "dependent", "children", "settlement", "residence"],
-  company: ["corporate", "company", "transfer", "sponsorship", "employer", "entity", "freezone"],
-  remote: ["remote", "digital nomad", "freelancer", "low presence", "work remotely"],
-  researcher: ["research", "publication", "citation", "award", "extraordinary", "talent", "niw"],
-  student: ["student", "study", "graduate", "university", "f-1", "j-1", "opt", "stem"],
-};
-
 const priorityKeywords: Record<RouteIntelligenceInput["priority"], string[]> = {
+  "not-sure": [],
   speed: ["fast", "weeks", "quick", "expedited", "streamlined"],
   cost: ["low", "affordable", "donation", "deposit", "no investment"],
   mobility: ["citizenship", "passport", "visa free", "global mobility"],
   stability: ["pr", "permanent", "residency", "renewal", "settlement"],
   tax: ["tax", "presence", "residence", "non-dom"],
   business: ["business", "company", "entrepreneur", "startup", "entity", "founder"],
-};
-
-const goalKeywords: Record<RouteIntelligenceInput["goal"], string[]> = {
-  "not-sure": [],
-  pr: ["pr", "permanent", "residency", "settlement", "green card"],
-  "work-visa": ["work", "employment", "skilled", "job", "sponsor", "h1b", "l1", "permit"],
-  citizenship: ["citizenship", "passport", "cbi", "naturalisation", "visa free"],
-  investment: ["investment", "investor", "golden visa", "property", "fund", "donation", "rbi"],
-  "business-setup": ["business", "company", "startup", "entrepreneur", "founder", "corporate"],
-  "family-migration": ["family", "spouse", "dependent", "children", "settlement"],
-};
-
-const goalTrackBoost: Record<RouteIntelligenceInput["goal"], Partial<Record<Vertical, number>>> = {
-  "not-sure": {},
-  pr: { residency: 16, skilled: 10 },
-  "work-visa": { skilled: 16, corporate: 12 },
-  citizenship: { citizenship: 20 },
-  investment: { residency: 12, citizenship: 12, corporate: 6 },
-  "business-setup": { corporate: 16, residency: 8 },
-  "family-migration": { residency: 8, skilled: 6, citizenship: 6 },
 };
 
 function normalize(value: unknown) {
@@ -480,7 +455,64 @@ function trackLabel(track: Vertical) {
   return `${track.charAt(0).toUpperCase()}${track.slice(1)}`;
 }
 
+function profileCompatibility(item: ProgrammeRouteSource, profile: RouteIntelligenceInput["profile"]) {
+  if (profile === "not-provided") return 0;
+  // Profile classification deliberately uses concise catalogue fields only.
+  // Full page keywords often mention unrelated concepts (for example proof of
+  // funds on a skilled route) and must not turn them into investor matches.
+  const text = normalize(`${item.title} ${item.summary} ${item.tags.join(" ")}`);
+  const has = (...terms: string[]) => terms.some((term) => text.includes(term));
+
+  if (profile === "investor") {
+    const activeBusiness = has("entrepreneur", "startup", "founder", "self employed", "farm", "job creation", "active business", "operate a business", "start a business", "start or buy", "start acquire", "manage a business", "buy a business");
+    const passiveInvestment = has("golden visa", "residency by investment", "citizenship by investment", "investor visa", "property", "real estate", "fund", "bond", "contribution", "donation", "bank deposit");
+    if (activeBusiness) return -1;
+    return passiveInvestment ? 1 : -1;
+  }
+  if (profile === "entrepreneur") return has("entrepreneur", "startup", "founder", "business", "company", "self employed", "farm", "innovation") ? 1 : -1;
+  if (profile === "professional") return has("skilled", "worker", "employment", "occupation", "talent", "points", "job offer") ? 1 : -1;
+  if (profile === "family") return has("family sponsorship", "spouse", "partner", "parent", "family reunification", "dependent visa") ? 1 : -1;
+  if (profile === "company") return has("corporate", "intra company", "transfer", "employer", "business mobility", "expansion worker") ? 1 : -1;
+  if (profile === "remote") return has("remote", "digital nomad", "freelancer") ? 1 : -1;
+  if (profile === "researcher") return has("research", "academic", "publication", "extraordinary", "talent", "national interest") ? 1 : -1;
+  return has("student", "study", "graduate", "university", "education visa") ? 1 : -1;
+}
+
+function goalCompatibility(item: ProgrammeRouteSource, input: RouteIntelligenceInput) {
+  if (input.goal === "not-sure") return true;
+  const text = normalize(`${item.title} ${item.summary} ${item.tags.join(" ")} ${item.keywords}`);
+  if (input.goal === "citizenship") return item.track === "citizenship";
+  if (input.goal === "work-visa") return item.track === "skilled" || item.track === "corporate";
+  if (input.goal === "family-migration") return /family|spouse|partner|parent|depend/.test(text);
+  if (input.goal === "business-setup") return item.track === "corporate" || /entrepreneur|startup|business|founder|company/.test(text);
+  if (input.goal === "investment") return /investment|investor|golden|property|fund|bond|contribution|donation|entrepreneur/.test(text);
+  return (item.track === "residency" || item.track === "skilled") && /permanent|\bpr\b|residen/.test(text);
+}
+
+export function routeInputCompletion(input: RouteIntelligenceInput) {
+  const checks = [
+    Boolean(input.destination.trim()),
+    input.goal !== "not-sure",
+    input.profile !== "not-provided",
+    input.track !== "all",
+    input.timeline > 0,
+    input.priority !== "not-sure",
+    input.profile !== "investor" && input.profile !== "entrepreneur" ? true : input.budget > 0,
+  ];
+  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+}
+
+export function isRouteInputSufficient(input: RouteIntelligenceInput) {
+  return Boolean(
+    input.destination.trim() &&
+      input.goal !== "not-sure" &&
+      input.profile !== "not-provided" &&
+      ((input.profile !== "investor" && input.profile !== "entrepreneur") || input.budget > 0),
+  );
+}
+
 export function scoreProgrammeRoutes(items: ProgrammeRouteSource[], input: RouteIntelligenceInput): ScoredProgrammeRoute[] {
+  if (!isRouteInputSufficient(input)) return [];
   const destination = normalize(input.destination);
   const notesTokens = tokenise(input.notes);
   const isExactDestination = (item: Pick<ProgrammeRouteSource, "country" | "countrySlug">) =>
@@ -492,140 +524,131 @@ export function scoreProgrammeRoutes(items: ProgrammeRouteSource[], input: Route
           destination.includes(normalize(item.country))),
     );
 
-  const scored = items
+  const compatibleItems = items.filter((item) => {
+    if (destination && !isExactDestination(item)) return false;
+    if (input.track !== "all" && item.track !== input.track) return false;
+    if (!goalCompatibility(item, input)) return false;
+    return profileCompatibility(item, input.profile) >= 0;
+  });
+
+  const scored = compatibleItems
     .map((item) => {
-      let score = 42;
+      let score = 0;
       const reasons: string[] = [];
       const warnings: string[] = [];
       const keywords = item.keywords || normalize([item.title, item.summary, item.tags.join(" ")].join(" "));
 
       if (input.track === "all") {
-        score += 7;
+        score += 5;
         reasons.push("Open pathway search across all programme families.");
       } else if (item.track === input.track) {
-        score += 22;
+        score += 10;
         reasons.push(`Matches ${trackLabel(item.track)} focus.`);
-      } else {
-        score -= 14;
-        warnings.push(`Different pathway family: ${trackLabel(item.track)}.`);
       }
 
-      const goalBoost = goalTrackBoost[input.goal]?.[item.track] || 0;
-      if (goalBoost) {
-        score += goalBoost;
-        reasons.push("Matches stated immigration goal.");
-      } else if (input.goal !== "not-sure") {
-        const goalHits = goalKeywords[input.goal].filter((word) => keywords.includes(word));
-        if (goalHits.length) {
-          score += Math.min(10, goalHits.length * 3);
-          reasons.push(`Goal signal matched: ${goalHits.slice(0, 2).join(", ")}.`);
-        }
-      }
+      score += 15;
+      reasons.push("Compatible with the stated immigration goal.");
 
       if (destination) {
-        const countryMatch = isExactDestination(item);
-        if (countryMatch) {
-          score += 34;
-          reasons.push(`Destination match: ${item.country}.`);
-        } else if (keywords.includes(destination)) {
-          score += 8;
-          reasons.push("Destination appears in approved programme content.");
-        } else {
-          score -= 24;
-          warnings.push("Not an exact country match.");
-        }
-      } else {
-        score += 4;
+        score += 20;
+        reasons.push(`Destination match: ${item.country}.`);
+      }
+
+      const profileFit = profileCompatibility(item, input.profile);
+      if (profileFit > 0) {
+        score += 20;
+        reasons.push(`Matches the selected ${input.profile.replace("-", " ")} profile.`);
       }
 
       if (item.investmentUsd <= 0) {
-        score += input.budget <= 100000 ? 16 : 10;
-        reasons.push("No direct investment threshold detected.");
+        score += input.profile === "investor" || input.profile === "entrepreneur" ? 2 : 15;
+        if (input.profile === "investor" || input.profile === "entrepreneur") warnings.push("No verified capital threshold is available for this route.");
+        else reasons.push("No direct investment threshold is shown in the programme data.");
       } else if (input.budget >= item.investmentUsd) {
-        score += 17;
+        score += 15;
         reasons.push("Capital level appears compatible.");
-      } else if (input.budget * 1.25 >= item.investmentUsd) {
-        score += 8;
-        warnings.push("Capital may be close; advisor must verify final fees.");
       } else {
-        score -= 14;
-        warnings.push("Capital may be below the indicative route threshold.");
+        warnings.push(`Budget is below the listed indicative threshold of ${item.investmentLabel || `USD ${item.investmentUsd.toLocaleString()}`}.`);
       }
 
-      if (item.timelineMonths <= input.timeline) {
-        score += 12;
+      if (input.timeline > 0 && item.timelineMonths > 0 && item.timelineMonths <= input.timeline) {
+        score += 8;
         reasons.push("Timeline fits the planning window.");
-      } else if (item.timelineMonths <= input.timeline + 6) {
-        score += 5;
+      } else if (input.timeline > 0 && item.timelineMonths > 0 && item.timelineMonths <= input.timeline + 6) {
+        score += 4;
         warnings.push("Timeline is close but may need flexibility.");
-      } else {
-        score -= 8;
+      } else if (input.timeline > 0 && item.timelineMonths > input.timeline) {
         warnings.push("Timeline may be longer than requested.");
       }
 
       if (input.family && item.family) {
-        score += 9;
+        score += 4;
         reasons.push("Family inclusion is supported or commonly available.");
       } else if (input.family && !item.family) {
-        score -= 7;
         warnings.push("Family inclusion needs separate advisor review.");
       }
 
       if (input.presence !== "any") {
         if (item.presence === input.presence) {
-          score += 9;
+          score += 3;
           reasons.push(`${input.presence} physical-presence preference matched.`);
         } else if (input.presence === "low" && item.presence === "moderate") {
-          score += 3;
+          score += 1;
           warnings.push("Presence may be manageable but not minimal.");
         } else if (item.presence === "variable") {
           score += 1;
         } else {
-          score -= 5;
           warnings.push("Physical-presence preference may not match.");
         }
       }
 
-      const profileHits = profileKeywords[input.profile].filter((word) => keywords.includes(word));
-      if (profileHits.length) {
-        score += Math.min(12, profileHits.length * 4);
-        reasons.push(`Profile signal matched: ${profileHits.slice(0, 2).join(", ")}.`);
-      }
-
       const priorityHits = priorityKeywords[input.priority].filter((word) => keywords.includes(word));
       if (priorityHits.length) {
-        score += Math.min(9, priorityHits.length * 3);
+        score += Math.min(5, priorityHits.length * 2);
         reasons.push(`Priority signal matched: ${priorityHits.slice(0, 2).join(", ")}.`);
       }
 
       const noteHits = notesTokens.filter((token) => keywords.includes(token) || normalize(item.title).includes(token));
       if (noteHits.length) {
-        score += Math.min(10, noteHits.length * 3);
+        score += Math.min(5, noteHits.length * 2);
         reasons.push(`User notes matched: ${noteHits.slice(0, 3).join(", ")}.`);
       }
 
-      if (input.priority === "speed" && item.timelineMonths <= 6) score += 6;
-      if (input.priority === "mobility" && item.track === "citizenship") score += 7;
-      if (input.priority === "business" && (item.track === "corporate" || keywords.includes("business"))) score += 7;
-      if (item.source === "site-content") score += 4;
+      if (input.priority === "speed" && item.timelineMonths <= 6) score += 3;
+      if (input.priority === "mobility" && item.track === "citizenship") score += 3;
+      if (input.priority === "business" && (item.track === "corporate" || keywords.includes("business"))) score += 3;
       if (item.risk === "high") warnings.push("Enhanced due diligence likely required.");
       if (item.source === "catalog") warnings.push("Catalog route; advisor should verify current final rules.");
 
+      const confidenceScore = clamp(
+        35 +
+          (item.source === "site-content" ? 20 : 5) +
+          (destination ? 10 : 0) +
+          (input.goal !== "not-sure" ? 10 : 0) +
+          (input.profile !== "not-provided" ? 10 : 0) +
+          (input.timeline > 0 ? 5 : 0) +
+          (input.notes.trim() ? 5 : 0),
+        0,
+        95,
+      );
+
       return {
         ...item,
-        fitScore: clamp(Math.round(score)),
+        fitScore: clamp(Math.round(score), 0, 98),
+        confidenceScore,
         reasons: reasons.slice(0, 4),
         warnings: warnings.slice(0, 3),
       };
     })
-    .sort((a, b) => b.fitScore - a.fitScore || a.title.localeCompare(b.title));
+    .sort((a, b) => b.fitScore - a.fitScore || b.confidenceScore - a.confidenceScore || a.title.localeCompare(b.title));
 
-  if (destination) {
-    const exactCountryMatches = scored.filter(isExactDestination);
-    if (exactCountryMatches.length) return exactCountryMatches;
-  }
-
-  return scored;
+  return scored.filter((item, index, all) => {
+    const title = normalize(item.title);
+    return !all.slice(0, index).some((previous) => {
+      const previousTitle = normalize(previous.title);
+      return previous.country === item.country && previous.track === item.track && Math.min(title.length, previousTitle.length) >= 12 && (title.includes(previousTitle) || previousTitle.includes(title));
+    });
+  });
 }
 
 export function highSkillCompletion(input: HighSkillInput) {
@@ -641,6 +664,12 @@ export function highSkillCompletion(input: HighSkillInput) {
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
+export function isHighSkillInputSufficient(input: HighSkillInput) {
+  const identityReady = Boolean(input.role.trim()) && input.field !== "not-provided" && input.education !== "unknown" && input.yearsExperience > 0;
+  const evidenceReady = input.profileSummary.trim().length > 30 || input.resumeFileName.trim().length > 0 || Object.values(input.evidence).some(Boolean);
+  return identityReady && evidenceReady;
+}
+
 function tierFor(score: number): ScoredHighSkillRoute["tier"] {
   if (score >= 82) return "Strong";
   if (score >= 68) return "Possible";
@@ -649,10 +678,11 @@ function tierFor(score: number): ScoredHighSkillRoute["tier"] {
 }
 
 export function scoreHighSkillRoutes(input: HighSkillInput): ScoredHighSkillRoute[] {
+  if (!isHighSkillInputSufficient(input)) return [];
   const selectedEvidence = Object.entries(input.evidence)
     .filter(([, selected]) => selected)
     .map(([key]) => key as HighSkillEvidenceKey);
-  const notes = normalize(`${input.role} ${input.field} ${input.profileSummary}`);
+  const notes = normalize(`${input.role} ${input.field} ${input.profileSummary} ${input.proposedEndeavour || ""} ${input.petitionerType || ""}`);
 
   const countryRoutes = highSkillRoutes.filter(
     (route) => route.status === "active" && (input.targetCountry === "global" || route.countryKey === input.targetCountry),

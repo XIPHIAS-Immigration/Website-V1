@@ -60,7 +60,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   premium_report: {
     productType: "premium_report",
     label: "XIPHIAS Personal Immigration Strategy Report",
-    priceInr: priceOf(499),
+    priceInr: priceOf(1000),
     fulfillment: "report",
     reportKind: "premium_strategy",
     emailSubject: "Your XIPHIAS Personal Immigration Strategy Report",
@@ -87,7 +87,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   us_visa_report: {
     productType: "us_visa_report",
     label: "XIPHIAS US Visa Strategy Report",
-    priceInr: priceOf(499),
+    priceInr: priceOf(1000),
     fulfillment: "report",
     reportKind: "us_visa",
     emailSubject: "Your XIPHIAS US Visa Strategy Report",
@@ -129,12 +129,12 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
     emailSubject: "Your XIPHIAS Immigration Due Diligence Report",
     fileSlug: "Immigration-Due-Diligence-Report",
   },
-  // India CRM registration with Deep Analysis. INR 4,999 is inclusive of GST.
+  // India CRM registration with Deep Analysis. INR 5,000 is inclusive of GST.
   // The fixed all-inclusive amount is enforced by both the website and CRM.
   registration: {
     productType: "registration",
     label: "XIPHIAS Full Assessment Registration and Deep Analysis",
-    priceInr: priceOf(4999),
+    priceInr: priceOf(5000),
     fulfillment: "registration",
     emailSubject: "Your XIPHIAS client CRM registration is ready",
     fileSlug: "Registration",

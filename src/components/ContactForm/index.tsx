@@ -302,12 +302,13 @@ export default function ContactForm({
           />
         )}
 
-        {isFull && (
+        {(
           <label className="md:col-span-2 flex items-start gap-2 text-xs sm:text-sm text-neutral-700 dark:text-neutral-300">
             <input
               type="checkbox"
               name="consent"
               value="yes"
+              required
               className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-primary focus:ring-2 focus:ring-primary"
             />
             I agree to be contacted about my inquiry. We never sell your data.

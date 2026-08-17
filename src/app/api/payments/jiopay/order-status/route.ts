@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
             : "pending";
   const message = stage === "ready"
     ? product.fulfillment === "registration"
-      ? "Your India CRM client ID is registered, INR 4,999 including GST is recorded as paid, and secure access was sent to your checkout email."
+      ? "Your India CRM client ID is registered, INR 5,000 including GST is recorded as paid, and secure access was sent to your checkout email."
       : "Your personalised PDF is ready and has been sent to your checkout email."
     : stage === "action_required"
       ? "Payment is confirmed. Complete the secure paid intake to generate the report."

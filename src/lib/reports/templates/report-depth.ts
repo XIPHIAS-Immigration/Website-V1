@@ -16,7 +16,7 @@ export type ReportDepthContract = {
  */
 export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
   premium_strategy: {
-    priceInr: 499,
+    priceInr: 1000,
     targetPages: [30, 36],
     maxProgrammes: 1,
     primaryDossierSections: ["divider", "snapshot", "eligibility", "documents", "risk"],
@@ -24,7 +24,7 @@ export const REPORT_DEPTH: Record<ReportKind, ReportDepthContract> = {
     maxNarrativeSections: 0,
   },
   us_visa: {
-    priceInr: 499,
+    priceInr: 1000,
     targetPages: [24, 32],
     maxProgrammes: 2,
     primaryDossierSections: ["divider", "snapshot", "eligibility", "scoring", "documents", "risk"],

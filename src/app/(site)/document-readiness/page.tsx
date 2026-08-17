@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
-import XiaIntelligenceClient from "@/components/XiaIntelligence/XiaIntelligenceClient";
-import { getXiaIntelligenceData } from "@/lib/xia-intelligence";
+import DocumentReadinessClient from "@/components/DocumentReadiness/DocumentReadinessClient";
 
 export const metadata: Metadata = {
   title: "Document & Evidence Readiness",
@@ -13,13 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function DocumentReadinessPage() {
-  return (
-    <XiaIntelligenceClient
-      data={getXiaIntelligenceData()}
-      initialEngine="documents"
-      lockedEngine
-      title="Document & Evidence Readiness"
-      subtitle="A focused readiness workspace for the documents and evidence needed before advisor review or detailed report generation."
-    />
-  );
+  return <DocumentReadinessClient />;
 }

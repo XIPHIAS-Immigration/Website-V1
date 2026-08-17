@@ -50,7 +50,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
     );
 
   const ranked = useMemo(() => rankPrograms(programs), [programs]);
-  const [track, setTrack] = useState<TrackFilter>("all");
+  const [track, setTrack] = useState<TrackFilter>("residency");
   const [sort, setSort] = useState<SortKey>("index");
 
   const view = useMemo(() => {
@@ -125,12 +125,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
         <span className="text-right">Talk</span>
       </div>
 
-      {/* Ranked rows — bounded internal scroll (data-lenis-prevent so the wheel
-          scrolls this natively instead of the page) */}
-      <div
-        data-lenis-prevent
-        className="mt-1 max-h-[58vh] overflow-y-auto overflow-x-hidden pr-1 [scrollbar-width:thin]"
-      >
+      <div className="mt-1 overflow-x-hidden">
         <ul className="grid gap-2.5">
           {view.map((p, idx) => {
             const rec = passportRecordForCountry(p.country);
@@ -167,6 +162,7 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
                   <span className="type-caption mt-1.5 inline-flex items-center gap-1 rounded-full border border-white/12 bg-white/[0.03] px-2 py-0.5 font-normal text-white/60">
                     Presence: {PRESENCE_LABEL[p.presence]}
                   </span>
+                  <span className="type-caption ml-1 mt-1.5 inline-flex rounded-full border border-white/12 bg-white/[0.03] px-2 py-0.5 font-normal text-white/60">Data confidence: {p.dataConfidence}%</span>
                 </div>
 
                 {/* Index score */}
@@ -181,9 +177,9 @@ export default function ProgramRankingClient({ programs }: { programs: ProgramIn
                 </Cell>
 
                 {/* Cost */}
-                <Cell label="Indicative cost">
+                <Cell label="Catalogue amount">
                   <span className="type-small font-bold text-white">
-                    {p.investmentUsd > 0 ? money(p.investmentUsd) : "Fees only"}
+                    {p.investmentUsd > 0 ? money(p.investmentUsd) : "Not provided"}
                   </span>
                 </Cell>
 

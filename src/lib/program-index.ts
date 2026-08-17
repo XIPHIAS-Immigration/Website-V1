@@ -75,11 +75,11 @@ export const INDEX_FACTORS: {
   },
   {
     key: "passportPower",
-    label: "Passport power gained",
+    label: "Destination mobility context",
     weight: INDEX_WEIGHTS.passportPower,
     direction: "Higher visa-free mobility scores higher",
     description:
-      "Joined to the passport snapshot where available. Destinations outside the snapshot use a neutral baseline pending advisor review.",
+      "Applied to citizenship routes only. Other route families use a neutral value because residence or work status does not automatically grant a passport.",
   },
 ];
 
@@ -94,6 +94,7 @@ export type ScoredProgram = ProgramIndexItem & {
   components: IndexComponents;
   /** False when the destination passport is outside the snapshot (neutral baseline used). */
   passportKnown: boolean;
+  dataConfidence: number;
   rank: number;
 };
 
@@ -117,15 +118,18 @@ function tierFor(score: number): ScoredProgram["tier"] {
 /** Compute the composite index score + component breakdown for one programme. */
 export function scoreProgram(item: ProgramIndexItem): Omit<ScoredProgram, "rank"> {
   const affordability =
-    item.investmentUsd <= 0 ? 100 : clamp(100 - (item.investmentUsd / INVESTMENT_CAP) * 100, 5, 100);
+    item.investmentUsd <= 0 ? 55 : clamp(100 - (item.investmentUsd / INVESTMENT_CAP) * 100, 5, 100);
   const speed = clamp(100 - (item.timelineMonths / TIMELINE_CAP) * 100, 5, 100);
   const flexibility = PRESENCE_SCORE[item.presence] ?? 60;
   const family = item.family ? 100 : 45;
   const dueDiligence = RISK_SCORE[item.risk] ?? 65;
 
-  const record = passportRecordForCountry(item.country);
+  const record = item.track === "citizenship" ? passportRecordForCountry(item.country) : undefined;
   const passportKnown = Boolean(record);
   const passportPower = record ? clamp((record.score / passportIndexStats.topScore) * 100) : NEUTRAL_PASSPORT;
+  const dataConfidence = Math.round(
+    ((item.investmentUsd > 0 ? 1 : 0) + (item.timelineMonths > 0 ? 1 : 0) + (item.timelineLabel ? 1 : 0) + (item.href ? 1 : 0)) / 4 * 100,
+  );
 
   const components: IndexComponents = {
     affordability: Math.round(affordability),
@@ -147,7 +151,7 @@ export function scoreProgram(item: ProgramIndexItem): Omit<ScoredProgram, "rank"
 
   const indexScore = Math.round(clamp(composite));
 
-  return { ...item, indexScore, tier: tierFor(indexScore), components, passportKnown };
+  return { ...item, indexScore, tier: tierFor(indexScore), components, passportKnown, dataConfidence };
 }
 
 /** Score + sort programmes by composite index (desc), assigning ranks. */

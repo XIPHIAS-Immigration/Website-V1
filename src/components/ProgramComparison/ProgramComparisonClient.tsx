@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, FileDown, Minus, Plus, Scale, Users, X } from "lucide-react";
 
 import { CurrencyProvider, useCurrency } from "@/lib/CurrencyProvider";
-import { GlassSelect, CurrencyGlassSelect } from "@/components/XiaTools/GlassSelect";
+import { GlassSelect } from "@/components/XiaTools/GlassSelect";
 import { ToolShell, IndicativeChip, AdvisorNote } from "@/components/XiaTools/ToolShell";
 import { ComparisonTable, type CompareColumn, type CompareRow } from "./ComparisonTable";
 import { estimateCost, type CostProgram } from "@/lib/cost-estimator";
@@ -66,28 +66,17 @@ function PassportCell({ country }: { country: string }) {
   );
 }
 
-function firstDistinct(programs: ComparableProgram[], n: number) {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const p of programs) {
-    if (seen.has(p.country)) continue;
-    seen.add(p.country);
-    out.push(p.id);
-    if (out.length >= n) break;
-  }
-  return out;
-}
-
 function Inner({ programs }: { programs: ComparableProgram[] }) {
   const reduce = useReducedMotion();
   const money = useMoney();
 
   const byId = useMemo(() => new Map(programs.map((p) => [p.id, p])), [programs]);
-  const [selectedIds, setSelectedIds] = useState<string[]>(() => firstDistinct(programs, 2));
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [dependents, setDependents] = useState(0);
 
   const selected = selectedIds.map((id) => byId.get(id)).filter(Boolean) as ComparableProgram[];
-  const remaining = programs.filter((p) => !selectedIds.includes(p.id));
+  const selectedTrack = selected[0]?.track;
+  const remaining = programs.filter((p) => !selectedIds.includes(p.id) && (!selectedTrack || p.track === selectedTrack));
   const reportHref = `/express-reports?report=compare_report&programmes=${encodeURIComponent(selected.map((item) => item.title).join("\n"))}`;
 
   const add = (id: string) => {
@@ -101,15 +90,15 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
     title: p.title,
     subtitle: p.country,
     href: p.href,
-    onRemove: selected.length > 1 ? () => remove(p.id) : undefined,
+    onRemove: () => remove(p.id),
   }));
 
   const rows: CompareRow[] = selected.length
     ? [
         {
           key: "cost",
-          label: "Indicative cost",
-          hint: `Family-tailored for ${1 + dependents} applicant(s)`,
+          label: "Known catalogue amount",
+          hint: `For ${1 + dependents} applicant(s); pending fees are excluded`,
           emphasize: true,
           cells: selected.map((p) => (
             <span className="text-[16px] font-black tabular-nums text-white">
@@ -172,8 +161,8 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
         },
         {
           key: "passport",
-          label: "Passport power gained",
-          hint: "Visa-free mobility of the destination passport",
+          label: "Destination passport context",
+          hint: "Context only; this route does not automatically grant that passport",
           cells: selected.map((p) => <PassportCell country={p.country} />),
         },
         {
@@ -190,8 +179,8 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
     <ToolShell
       eyebrow="XIA · Compare Programs"
       title="Compare Programmes on the Numbers That Matter."
-      subtitle="Put 2-4 routes side by side - indicative cost, timeline, benefits, residency, family inclusion, physical presence and passport power."
-      actions={<CurrencyGlassSelect />}
+      subtitle="Choose two to four programmes from the same route family and compare the information that can support a real decision: supplied catalogue amounts, indicative timelines, route benefits, residence outcome, family inclusion, physical-presence expectations and due-diligence intensity. XIA does not preselect arbitrary programmes or imply that a residence or work route automatically grants citizenship. Missing and unverified costs remain clearly separated so the comparison can be reviewed responsibly with an advisor."
+      benefits={["User-selected programmes", "Like-for-like route families", "Missing data shown explicitly"]}
       contactContext="Programme Comparison"
       contactId="compare-programmes"
     >
@@ -210,7 +199,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
                 className="type-small inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-3 py-1.5 font-bold text-white"
               >
                 {p.country} — {p.title}
-                {selected.length > 1 && (
+                {(
                   <button
                     type="button"
                     aria-label={`Remove ${p.title}`}
@@ -228,7 +217,7 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           {selectedIds.length < MAX ? (
             <div className="block w-full sm:max-w-md">
-              <span className="type-caption mb-1.5 block font-normal text-white/60">Add a Programme (up to {MAX})</span>
+              <span className="type-caption mb-1.5 block font-normal text-white/60">{selectedTrack ? `Add another ${selectedTrack} programme` : `Select the first programme (up to ${MAX})`}</span>
               <GlassSelect
                 value=""
                 onChange={add}

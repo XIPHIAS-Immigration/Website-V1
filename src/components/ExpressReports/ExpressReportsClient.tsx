@@ -96,15 +96,15 @@ const initialForm: FormState = {
   country: "",
   program: "",
   goal: "not-sure",
-  profile: "professional",
-  priority: "stability",
+  profile: "",
+  priority: "",
   budget: "",
-  timeline: "12",
+  timeline: "",
   family: false,
   dependents: "0",
   age: "",
   occupation: "",
-  field: "technology",
+  field: "",
   education: "unknown",
   yearsExperience: "",
   languageTest: "not-provided",
@@ -394,8 +394,8 @@ export default function ExpressReportsClient({
   };
 
   return (
-    <main className="min-h-screen bg-[#071a3a] pb-24 pt-24 text-white">
-      <section className="border-b border-white/10 bg-[#071a3a]">
+    <main className="min-h-screen bg-primary pb-24 pt-24 text-white">
+      <section className="border-b border-white/10 bg-primary">
         <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
           <Link href="/reports" className="text-sm font-bold text-white/55 transition hover:text-white">&larr; Change report</Link>
           <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -413,7 +413,7 @@ export default function ExpressReportsClient({
         </div>
       </section>
 
-      <section id="express-report-intake" className="mx-auto max-w-screen-2xl bg-[#071a3a] px-4 py-10 sm:px-6 lg:px-8">
+      <section id="express-report-intake" className="mx-auto max-w-screen-2xl bg-primary px-4 py-10 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-3xl border border-white/15 bg-white/[0.035] shadow-2xl">
           <div className="grid lg:grid-cols-[0.72fr_1.28fr]">
             <aside className="border-b border-white/10 bg-black/15 p-6 sm:p-8 lg:border-b-0 lg:border-r">
@@ -434,30 +434,20 @@ export default function ExpressReportsClient({
                 <span className="text-xs text-white/40">{estimatedIntakeTime}</span>
               </div>
 
-              <div className="mt-7">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-white/40">Contact and delivery</p>
-                <div className="mt-4 grid gap-6 md:grid-cols-2">
-                  <Field label="Full name"><input className={inputClass} value={form.name} onChange={(event) => update("name", event.target.value)} autoComplete="name" /></Field>
-                  <Field label="Email address"><input className={inputClass} type="email" value={form.email} onChange={(event) => update("email", event.target.value)} autoComplete="email" /></Field>
-                  <Field label="Phone number" hint="Optional, including country code"><input className={inputClass} value={form.phone} onChange={(event) => update("phone", event.target.value)} autoComplete="tel" /></Field>
-                  <Field label="Immigration category"><select className={inputClass} value={form.track} onChange={(event) => update("track", event.target.value as FormState["track"])} disabled={selectedType === "us_visa_report"}><option value="skilled" className="bg-primary">Skilled migration</option><option value="residency" className="bg-primary">Residency</option><option value="citizenship" className="bg-primary">Citizenship</option><option value="corporate" className="bg-primary">Corporate mobility</option></select></Field>
-                  <input tabIndex={-1} aria-hidden="true" className="hidden" value={form.company} onChange={(event) => update("company", event.target.value)} autoComplete="off" />
-                </div>
-              </div>
-
               <datalist id="express-countries">{countries.map((country) => <option key={country} value={country} />)}</datalist>
               <datalist id="express-programmes">{matchingProgrammes.map((item) => <option key={item.id} value={item.title}>{item.country}</option>)}</datalist>
 
               <div className="mt-8 border-t border-white/10 pt-7">
                 <p className="mb-5 text-xs font-black uppercase tracking-[0.16em] text-white/40">Report information</p>
+                <div className="mb-6 max-w-md"><Field label="Immigration category"><select className={inputClass} value={form.track} onChange={(event) => update("track", event.target.value as FormState["track"])} disabled={selectedType === "us_visa_report"}><option value="skilled" className="bg-primary">Skilled migration</option><option value="residency" className="bg-primary">Residency</option><option value="citizenship" className="bg-primary">Citizenship</option><option value="corporate" className="bg-primary">Corporate mobility</option></select></Field></div>
               </div>
 
               {selectedType === "route_report" || selectedType === "premium_report" ? (
                 <div className="grid gap-6 md:grid-cols-2">
                   <Field label="Preferred destination" hint="Leave blank if you want a global comparison"><input list="express-countries" className={inputClass} value={form.country} onChange={(event) => update("country", event.target.value)} placeholder="For example Australia" /></Field>
                   <Field label="Primary objective"><select className={inputClass} value={form.goal} onChange={(event) => update("goal", event.target.value)}><option value="not-sure" className="bg-primary">Not sure - compare routes</option><option value="pr" className="bg-primary">Permanent residence</option><option value="work-visa" className="bg-primary">Work visa</option><option value="citizenship" className="bg-primary">Citizenship</option><option value="investment" className="bg-primary">Investment migration</option><option value="business-setup" className="bg-primary">Business setup</option><option value="family-migration" className="bg-primary">Family migration</option></select></Field>
-                  <Field label="Your profile"><select className={inputClass} value={form.profile} onChange={(event) => update("profile", event.target.value)}><option value="professional" className="bg-primary">Professional</option><option value="investor" className="bg-primary">Investor</option><option value="entrepreneur" className="bg-primary">Entrepreneur</option><option value="family" className="bg-primary">Family</option><option value="company" className="bg-primary">Company</option><option value="researcher" className="bg-primary">Researcher</option><option value="student" className="bg-primary">Student</option></select></Field>
-                  <Field label="Main decision priority"><select className={inputClass} value={form.priority} onChange={(event) => update("priority", event.target.value)}><option value="stability" className="bg-primary">Long-term stability</option><option value="speed" className="bg-primary">Speed</option><option value="cost" className="bg-primary">Lower cost</option><option value="mobility" className="bg-primary">Global mobility</option><option value="tax" className="bg-primary">Tax planning</option><option value="business" className="bg-primary">Business access</option></select></Field>
+                  <Field label="Your profile"><select className={inputClass} value={form.profile} onChange={(event) => update("profile", event.target.value)}><option value="" className="bg-primary">Select profile</option><option value="professional" className="bg-primary">Professional</option><option value="investor" className="bg-primary">Investor</option><option value="entrepreneur" className="bg-primary">Entrepreneur</option><option value="family" className="bg-primary">Family</option><option value="company" className="bg-primary">Company</option><option value="researcher" className="bg-primary">Researcher</option><option value="student" className="bg-primary">Student</option></select></Field>
+                  <Field label="Main decision priority"><select className={inputClass} value={form.priority} onChange={(event) => update("priority", event.target.value)}><option value="" className="bg-primary">Select priority</option><option value="stability" className="bg-primary">Long-term stability</option><option value="speed" className="bg-primary">Speed</option><option value="cost" className="bg-primary">Lower cost</option><option value="mobility" className="bg-primary">Global mobility</option><option value="tax" className="bg-primary">Tax planning</option><option value="business" className="bg-primary">Business access</option></select></Field>
                   <Field label="Indicative budget (USD)"><input className={inputClass} inputMode="numeric" value={form.budget} onChange={(event) => update("budget", event.target.value)} placeholder="For example 150000" /></Field>
                   <Field label="Preferred timeline (months)"><input className={inputClass} inputMode="numeric" value={form.timeline} onChange={(event) => update("timeline", event.target.value)} /></Field>
                   <label className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.04] p-4 text-sm font-bold text-white"><input type="checkbox" checked={form.family} onChange={(event) => update("family", event.target.checked)} className="size-4 accent-[#e1b923]" /> Include spouse or dependants</label>
@@ -482,7 +472,7 @@ export default function ExpressReportsClient({
                 <div className="grid gap-6 md:grid-cols-2">
                   {selectedType !== "us_visa_report" ? <Field label="Target country"><select className={inputClass} value={form.country} onChange={(event) => update("country", event.target.value)}><option value="" className="bg-primary">Global comparison</option><option value="United States" className="bg-primary">United States</option><option value="Australia" className="bg-primary">Australia</option><option value="Canada" className="bg-primary">Canada</option><option value="United Kingdom" className="bg-primary">United Kingdom</option></select></Field> : <Field label="Target country"><input className={inputClass} value="United States" disabled /></Field>}
                   <Field label="Occupation or role"><input className={inputClass} value={form.occupation} onChange={(event) => update("occupation", event.target.value)} placeholder="For example software architect" /></Field>
-                  <Field label="Professional field"><select className={inputClass} value={form.field} onChange={(event) => update("field", event.target.value)}><option value="technology" className="bg-primary">Technology</option><option value="science" className="bg-primary">Science</option><option value="business" className="bg-primary">Business</option><option value="healthcare" className="bg-primary">Healthcare</option><option value="academia" className="bg-primary">Academia</option><option value="arts" className="bg-primary">Arts</option><option value="sports" className="bg-primary">Sports</option><option value="other" className="bg-primary">Other</option></select></Field>
+                  <Field label="Professional field"><select className={inputClass} value={form.field} onChange={(event) => update("field", event.target.value)}><option value="" className="bg-primary">Select field</option><option value="technology" className="bg-primary">Technology</option><option value="science" className="bg-primary">Science</option><option value="business" className="bg-primary">Business</option><option value="healthcare" className="bg-primary">Healthcare</option><option value="academia" className="bg-primary">Academia</option><option value="arts" className="bg-primary">Arts</option><option value="sports" className="bg-primary">Sports</option><option value="other" className="bg-primary">Other</option></select></Field>
                   <Field label="Objective"><select className={inputClass} value={form.goal} onChange={(event) => update("goal", event.target.value)}><option value="not-sure" className="bg-primary">Not sure</option><option value="permanent-residency" className="bg-primary">Permanent residence</option><option value="temporary-work" className="bg-primary">Temporary work</option><option value="talent-visa" className="bg-primary">Talent visa</option><option value="founder" className="bg-primary">Founder route</option></select></Field>
                   <Field label="Age"><input className={inputClass} inputMode="numeric" value={form.age} onChange={(event) => update("age", event.target.value)} /></Field>
                   <Field label="Highest education"><select className={inputClass} value={form.education} onChange={(event) => update("education", event.target.value)}><option value="unknown" className="bg-primary">Select education</option><option value="bachelor" className="bg-primary">Bachelor&apos;s</option><option value="master" className="bg-primary">Master&apos;s</option><option value="phd" className="bg-primary">Doctorate / PhD</option></select></Field>
@@ -534,6 +524,17 @@ export default function ExpressReportsClient({
                   <Field label="Assessing body or authority"><input className={inputClass} value={form.assessingBody} onChange={(event) => update("assessingBody", event.target.value)} placeholder="Not provided" /></Field>
                 </div>
               ) : null}
+
+              <div className="mt-8 border-t border-white/10 pt-7">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-secondary">Contact and delivery</p>
+                <p className="mt-2 text-sm leading-6 text-white/55">Enter where the purchased report should be delivered. These details are collected after the report information.</p>
+                <div className="mt-4 grid gap-6 md:grid-cols-2">
+                  <Field label="Full name"><input className={inputClass} value={form.name} onChange={(event) => update("name", event.target.value)} autoComplete="name" /></Field>
+                  <Field label="Email address"><input className={inputClass} type="email" value={form.email} onChange={(event) => update("email", event.target.value)} autoComplete="email" /></Field>
+                  <Field label="Phone number" hint="Optional, including country code"><input className={inputClass} value={form.phone} onChange={(event) => update("phone", event.target.value)} autoComplete="tel" /></Field>
+                  <input tabIndex={-1} aria-hidden="true" className="hidden" value={form.company} onChange={(event) => update("company", event.target.value)} autoComplete="off" />
+                </div>
+              </div>
 
               <div className="mt-8 rounded-2xl border border-secondary/25 bg-secondary/[0.07] p-5">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

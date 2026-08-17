@@ -258,15 +258,15 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
   const verifiedUsdCosts = verifiedCosts.filter((item) => item.currency.toUpperCase() === "USD");
   const usesVerifiedCosts = verifiedCosts.length > 0 && verifiedUsdCosts.length === verifiedCosts.length;
   const total = usesVerifiedCosts ? verifiedUsdCosts.reduce((sum, item) => sum + item.amount, 0) : breakdown.totalUsd;
-  const perApplicant = Math.round(total / Math.max(1, breakdown.familySize));
+  const perApplicant = usesVerifiedCosts ? Math.round(total / Math.max(1, breakdown.familySize)) : 0;
   const govtItem = breakdown.lineItems.find((i) => i.key === "govt");
   const ddItem = breakdown.lineItems.find((i) => i.key === "due-diligence");
   const depItem = breakdown.lineItems.find((i) => i.key === "dependents");
   const serviceItem = breakdown.lineItems.find((i) => i.key === "service");
   const govtPlusDd = (govtItem?.amountUsd ?? 0) + (ddItem?.amountUsd ?? 0);
   const dependantCost = (depItem?.amountUsd ?? 0) + (ddItem ? Math.round((ddItem.amountUsd / breakdown.familySize) * breakdown.dependents) : 0);
-  // A 12% indicative contingency advisors typically reserve for FX, valuations and re-issuance.
-  const contingency = Math.round(total * 0.12);
+  // A contingency is calculated only when every supplied cost line is sourced in USD.
+  const contingency = usesVerifiedCosts ? Math.round(total * 0.12) : 0;
   const allInWithBuffer = total + contingency;
 
   // Single-applicant baseline (for the family-impact view).
@@ -331,13 +331,13 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       }) +
       sectionHeader({
         eyebrow: "Cost summary",
-        title: usesVerifiedCosts ? "Your sourced USD budget" : "Your indicative all-in budget",
-        desc: `An itemised estimate for ${program.title}${countryLabel ? ` (${countryLabel})` : ""}, sized for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}. Every figure is an advisory planning placeholder confirmed at review.`,
+        title: usesVerifiedCosts ? "Your sourced USD budget" : "Known catalogue amount and pending fees",
+        desc: usesVerifiedCosts ? `A sourced USD cost schedule for ${program.title}, sized for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}.` : `Only the amount present in the programme catalogue is shown. Government, due-diligence, dependant and professional fees remain pending verification and are excluded from the subtotal.`,
       }) +
       grid(3, [
-        card({ k: "Estimated total", v: usd(total), note: `Across ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}.` }),
-        card({ k: "Per applicant", v: usd(perApplicant), note: "Blended average per person in the application." }),
-        card({ k: "With 12% buffer", v: usd(allInWithBuffer), note: "Headroom for FX, valuations and re-issuance." }),
+        card({ k: usesVerifiedCosts ? "Sourced total" : "Known subtotal", v: total > 0 ? usd(total) : "Not provided", note: usesVerifiedCosts ? `Across ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}.` : "Excludes every pending fee line." }),
+        card({ k: "Per applicant", v: usesVerifiedCosts ? usd(perApplicant) : "Pending verification", note: usesVerifiedCosts ? "Blended average per person in the application." : "Not calculated from incomplete costs." }),
+        card({ k: "Planning buffer", v: usesVerifiedCosts ? usd(allInWithBuffer) : "Not calculated", note: usesVerifiedCosts ? "Includes a disclosed 12% planning buffer." : "Requires a complete sourced fee schedule." }),
         card({ k: "Programme", v: program.title, note: `${trackLabel} route.` }),
         card({ k: "Country", v: countryLabel, note: isFallback ? "Representative track-level estimate." : "Matched to a XIPHIAS programme." }),
         card({ k: "Indicative timeline", v: breakdown.timelineLabel, note: "Government processing varies by case." }),
@@ -350,7 +350,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
           })
         : callout({
             k: "How to read this budget",
-            text: usesVerifiedCosts ? "The headline total uses the advisor-entered cost items and recorded sources. Confirm that each item remains current before payment." : "The headline total uses an indicative internal planning model. It is not a government fee schedule or binding quote.",
+            text: usesVerifiedCosts ? "The headline total uses the advisor-entered cost items and recorded sources. Confirm that each item remains current before payment." : "No internal percentage or track-level fee assumptions have been added. Pending fees must be sourced before an all-in total can be calculated.",
           })),
     footer: foot("02"),
   });
@@ -362,14 +362,14 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
   const itemRows = reportLineItems.map((item) => [
     `<strong>${esc(item.label)}</strong>`,
     esc(item.note),
-    `<span class="num">${esc(usd(item.amountUsd))}</span>`,
-    pill(`${clampScore((item.amountUsd / Math.max(1, total)) * 100)}%`, "muted"),
+    `<span class="num">${esc("includedInKnownTotal" in item && !item.includedInKnownTotal ? "Pending verification" : usd(item.amountUsd))}</span>`,
+    "includedInKnownTotal" in item && !item.includedInKnownTotal ? pill("Pending", "warn") : pill(`${clampScore((item.amountUsd / Math.max(1, total)) * 100)}%`, "muted"),
   ]);
   itemRows.push([
-    `<strong>Estimated total</strong>`,
-    esc(`Indicative all-in cost for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}.`),
-    `<span class="num">${esc(usd(total))}</span>`,
-    pill("100%", "good"),
+    `<strong>${usesVerifiedCosts ? "Sourced total" : "Known subtotal"}</strong>`,
+    esc(usesVerifiedCosts ? `Sourced cost for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}.` : "Pending fee lines are excluded."),
+    `<span class="num">${esc(total > 0 ? usd(total) : "Not provided")}</span>`,
+    pill(usesVerifiedCosts ? "Complete" : "Incomplete", usesVerifiedCosts ? "good" : "warn"),
   ]);
 
   const tablePage = page({
@@ -381,9 +381,9 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
         desc: "A line-by-line view of the cost components, each shown as a share of your total so you can see what drives the budget.",
       }) +
       bigStats([
-        { k: "Estimated total", v: usd(total), n: `${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}` },
-        { k: "Per applicant", v: usd(perApplicant), n: "Blended average" },
-        { k: "With 12% buffer", v: usd(allInWithBuffer), n: "Plan against this" },
+        { k: usesVerifiedCosts ? "Sourced total" : "Known subtotal", v: total > 0 ? usd(total) : "Not provided", n: usesVerifiedCosts ? `${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}` : "Pending fees excluded" },
+        { k: "Per applicant", v: usesVerifiedCosts ? usd(perApplicant) : "Pending", n: usesVerifiedCosts ? "Blended average" : "Incomplete fee schedule" },
+        { k: "Planning buffer", v: usesVerifiedCosts ? usd(allInWithBuffer) : "Not calculated", n: usesVerifiedCosts ? "Disclosed 12% buffer" : "Complete costs required" },
         { k: "Indicative timeline", v: breakdown.timelineLabel, n: "Govt processing varies" },
       ]) +
       `<div class="spacer-16"></div>` +
@@ -418,9 +418,9 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       sectionHeader({
         eyebrow: "Composition",
         title: "What shapes your total",
-        desc: "Each bar shows a component as a percentage of the estimated total — useful for spotting where the budget concentrates.",
+        desc: usesVerifiedCosts ? "Each bar shows a sourced component as a percentage of the total." : "Only supplied catalogue amounts can be charted; pending fee lines are identified separately.",
       }) +
-      reportLineItems
+      reportLineItems.filter((item) => !("includedInKnownTotal" in item) || item.includedInKnownTotal)
         .map((item) =>
           scoreBar({
             label: item.label,
@@ -447,8 +447,8 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
     familyRows.push([
       `${deps + 1} ${deps + 1 === 1 ? "applicant" : "applicants"}${isCurrent ? " (your plan)" : ""}`,
       esc(`you + ${deps} ${deps === 1 ? "dependant" : "dependants"}`),
-      `<span class="num">${esc(usd(b.totalUsd))}</span>`,
-      isCurrent ? pill("Your plan", "good") : pill(`+${usd(b.totalUsd - soloTotal).replace("USD ", "$")}`, deps === 0 ? "muted" : "warn"),
+      `<span class="num">${esc(usesVerifiedCosts ? usd(b.totalUsd) : "Pending verification")}</span>`,
+      isCurrent ? pill("Your plan", "good") : pill(usesVerifiedCosts ? `+${usd(b.totalUsd - soloTotal).replace("USD ", "$")}` : "Pending", deps === 0 ? "muted" : "warn"),
     ]);
   }
 
@@ -462,22 +462,22 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       sectionHeader({
         eyebrow: "Family impact",
         title: "How family size moves the budget",
-        desc: "Adding dependants increases due-diligence and government add-on costs. This view models the total at several family sizes so you can plan with confidence.",
+        desc: usesVerifiedCosts ? "This view models the sourced total at several family sizes." : "Dependant costs cannot be modelled until a current programme-specific fee schedule is supplied.",
       }) +
       grid(3, [
-        card({ k: "Single applicant", v: usd(soloTotal), note: "Baseline cost for the main applicant alone." }),
-        card({ k: "Your family plan", v: usd(total), note: `You + ${breakdown.dependents} ${breakdown.dependents === 1 ? "dependant" : "dependants"}.` }),
-        card({ k: "Cost of dependants", v: usd(familyDelta), note: breakdown.dependents > 0 ? "Added by your dependants over the solo baseline." : "No dependants added in this plan." }),
+        card({ k: "Single applicant", v: usesVerifiedCosts ? usd(soloTotal) : "Pending verification", note: usesVerifiedCosts ? "Baseline cost for the main applicant alone." : "Current fees were not supplied." }),
+        card({ k: "Your family plan", v: usesVerifiedCosts ? usd(total) : "Pending verification", note: `You + ${breakdown.dependents} ${breakdown.dependents === 1 ? "dependant" : "dependants"}.` }),
+        card({ k: "Cost of dependants", v: usesVerifiedCosts ? usd(familyDelta) : "Pending verification", note: usesVerifiedCosts && breakdown.dependents > 0 ? "Added by your dependants over the solo baseline." : "Not calculated from assumptions." }),
       ]) +
       `<div class="spacer-16"></div>` +
       table({
-        head: ["Family size", "Composition", "Estimated total", "Vs. solo"],
+        head: ["Family size", "Composition", usesVerifiedCosts ? "Sourced total" : "Cost status", "Vs. solo"],
         rows: familyRows,
       }) +
       `<div class="spacer-16"></div>` +
       callout({
         k: "Dependant economics",
-        text: `Each dependant currently adds roughly ${usd(breakdown.dependents > 0 ? Math.round(dependantCost / breakdown.dependents) : (estimateCost(program, 1).totalUsd - soloTotal))} to your total through due-diligence and government add-ons. Confirm exact per-dependant schedules with your advisor.`,
+        text: usesVerifiedCosts ? `Each dependant adds roughly ${usd(breakdown.dependents > 0 ? Math.round(dependantCost / breakdown.dependents) : (estimateCost(program, 1).totalUsd - soloTotal))} across the supplied fee items. Reverify each source before payment.` : "No per-dependant amount has been invented. Obtain the current government, due-diligence and service schedules before calculating family impact.",
       }),
     footer: foot("05"),
   });
@@ -512,11 +512,11 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
         title: "What your budget readiness means",
         desc: "The score reflects only the financial facts and source material supplied for this case. It is not an approval prediction or a fee quote.",
       }) +
-      callout({ k: "Fee basis", text: usesVerifiedCosts ? `This total uses ${verifiedCosts.length} advisor-entered source item${verifiedCosts.length === 1 ? "" : "s"}. Reverify dated sources before payment.` : isFallback ? "This report uses a synthetic track-level planning model because no exact programme matched. Do not use its total as a quote." : "Government, due-diligence and professional-fee components are planning assumptions, not a current government fee schedule. Obtain a dated advisor quote before payment." }) +
+      callout({ k: "Fee basis", text: usesVerifiedCosts ? `This total uses ${verifiedCosts.length} advisor-entered source item${verifiedCosts.length === 1 ? "" : "s"}. Reverify dated sources before payment.` : isFallback ? "No exact programme or sourced fee schedule matched. The report therefore leaves every unsupplied amount pending instead of inventing a total." : "Only the catalogue amount is included. Government, due-diligence and professional fees require dated sources before an all-in budget can be calculated." }) +
       `<div class="spacer-16"></div>` +
       grid(2, [
         card({ k: "Readiness band", v: overallReadiness !== undefined ? `${overallReadiness} / 100` : "Not assessed", note: overallReadiness !== undefined ? pillBand(overallReadiness) : "Financial facts required" }),
-        card({ k: "Buffer recommended", v: usd(contingency), note: "12% indicative contingency over the headline total." }),
+        card({ k: "Buffer recommended", v: usesVerifiedCosts ? usd(contingency) : "Not calculated", note: usesVerifiedCosts ? "12% disclosed contingency over sourced costs." : "Requires a complete sourced fee schedule." }),
       ]) +
       `<div class="spacer-16"></div>` +
       ticks([
@@ -587,7 +587,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       steps([
         { title: "Confirm the programme", body: `Lock ${program.title}${countryLabel ? ` in ${countryLabel}` : ""} with an advisor and validate the current fee schedule.` },
         { title: "Verify the figures", body: "Advisor confirms government fees, due-diligence costs and dependant add-ons against today's published schedules." },
-        { title: "Stage your funds", body: `Plan against ${usd(allInWithBuffer)} (total plus a 12% buffer) and sequence payments across the milestones above.` },
+        { title: "Stage your funds", body: usesVerifiedCosts ? `Plan against ${usd(allInWithBuffer)} (sourced total plus a disclosed 12% buffer) and sequence payments across the milestones above.` : "First obtain dated government, due-diligence, dependant and service fee schedules; only then calculate a buffer and payment sequence." },
         { title: "Prepare evidence", body: "Assemble identity, civil and source-of-funds documentation so due diligence and filing run without delay." },
       ]) +
       `<div class="spacer-16"></div>` +
@@ -614,11 +614,11 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="eyebrow">Report summary</div>` +
       `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(closeHeading)}</h2>` +
       `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
-        `Your indicative all-in budget for ${program.title} is ${usd(total)} for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}. Plan against ${usd(allInWithBuffer)} with a buffer, then book an advisor review to confirm every figure before you commit funds.`,
+        usesVerifiedCosts ? `Your sourced USD budget for ${program.title} is ${usd(total)} for ${breakdown.familySize} ${breakdown.familySize === 1 ? "applicant" : "applicants"}. Reverify every dated source before committing funds.` : `A complete total for ${program.title} is not available from the supplied data. The report shows the known catalogue amount and leaves government, due-diligence, dependant and professional fees pending verification.`,
       )}</p>` +
       `<div class="spacer-24"></div>` +
       grid(3, [
-        card({ dark: true, k: "Estimated total", v: usd(total) }),
+        card({ dark: true, k: usesVerifiedCosts ? "Sourced total" : "Known subtotal", v: total > 0 ? usd(total) : "Not provided" }),
         card({ dark: true, k: "Budget readiness", v: overallReadiness !== undefined ? `${overallReadiness} / 100` : "Not assessed" }),
         card({ dark: true, k: "Next service", v: "Advisor budget review" }),
       ]) +

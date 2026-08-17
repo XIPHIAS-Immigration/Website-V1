@@ -340,7 +340,8 @@ export default function DueDiligenceClient() {
     <ToolShell
       eyebrow="XIA Immigration Due Diligence"
       title={<>Know the risks <span className="text-secondary">before you apply.</span></>}
-      subtitle="Review your identity, immigration history, evidence, funds and counterparties through an immigration-specific due-diligence framework. No contact details or documents are required for this preliminary scan."
+      subtitle={`Review identity consistency, immigration history, document integrity, source of funds, family evidence and relevant counterparties before an application or migration-linked investment. The free assessment explains the information supplied, identifies evidence gaps and enhanced-review triggers, and separates unanswered questions from declared concerns. It does not claim to perform police, sanctions, identity-database or government clearance checks. A detailed INR ${DUE_DILIGENCE_PRICE_INR} report is available only after the free result.`}
+      benefits={["Structured risk triage", "Evidence and chronology gaps", `Detailed INR ${DUE_DILIGENCE_PRICE_INR} report option`]}
       contactContext="Due Diligence"
       contactId="due-diligence"
       actions={
@@ -588,7 +589,7 @@ export default function DueDiligenceClient() {
             <p className="mt-5 text-xs leading-5 text-white/40">These percentages measure preparation from the supplied answers. They are not approval probabilities, eligibility scores or database clearances.</p>
           </div>
 
-          <section className="mt-6 overflow-hidden rounded-xl border border-secondary/40 bg-[#071a3a]/55">
+          <section className="mt-6 overflow-hidden rounded-xl border border-secondary/40 bg-black/10">
             <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
               <div className="p-5 sm:p-7 lg:p-8">
                 <div className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-secondary">

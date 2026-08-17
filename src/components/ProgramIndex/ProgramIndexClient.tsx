@@ -6,7 +6,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Check, FileDown, Gauge, Loader2 } from "lucide-react";
 
 import { CurrencyProvider } from "@/lib/CurrencyProvider";
-import { CurrencyGlassSelect } from "@/components/XiaTools/GlassSelect";
 import { ToolShell, IndicativeChip } from "@/components/XiaTools/ToolShell";
 import ProgramRankingClient from "./ProgramRankingClient";
 import { INDEX_DISCLAIMER, type ProgramIndexItem } from "@/lib/program-index";
@@ -26,9 +25,10 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
   const [report, setReport] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
 
-  const validReport = name.trim().length >= 2 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validReport = name.trim().length >= 2 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && consent;
 
   async function startReport() {
     if (!validReport || report.loading) return;
@@ -43,7 +43,7 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
           productType: "premium_report",
           productName: "XIPHIAS Program Index report",
           page: "/xiphias-program-index",
-          consent: true,
+          consent,
           answers: { programmesIndexed: programmes, countries },
         }),
       });
@@ -62,8 +62,8 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
     <ToolShell
       eyebrow="XIA · Program Index"
       title="The XIPHIAS Program Index."
-      subtitle="A documented composite benchmark across affordability, speed, presence, family, due-diligence and passport power — orientation only, not a ranking of guaranteed outcomes."
-      actions={<CurrencyGlassSelect />}
+      subtitle="Explore programmes within a selected route family using a transparent orientation benchmark across supplied capital, indicative timing, presence flexibility, family inclusion, due-diligence intensity and destination mobility context. Skilled, corporate, residence and citizenship routes are separated by default because they solve different objectives. Every row shows the completeness of its underlying catalogue data, and the index never treats a work or residence route as an automatic path to the destination passport."
+      benefits={["Route-family filters", "Visible data confidence", "Documented scoring method"]}
       contactContext="Programme Index"
       contactId="programme-index"
     >
@@ -140,6 +140,7 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
                 className="w-full rounded-lg border border-white/25 bg-black/10 px-3.5 py-3 text-[14px] text-white placeholder-white/50 outline-none focus:border-secondary"
               />
             </div>
+            <label className="mt-3 flex items-start gap-2 text-xs leading-5 text-white/60"><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} className="mt-0.5 size-4 accent-secondary" />I consent to these details being used for checkout, report generation and delivery.</label>
             <motion.button
               whileTap={{ scale: 0.98 }}
               type="button"

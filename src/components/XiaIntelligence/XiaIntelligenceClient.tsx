@@ -17,7 +17,6 @@ import {
   Landmark,
   MapPin,
   Route as RouteIcon,
-  Send,
   ShieldCheck,
   Sparkles,
   UploadCloud,
@@ -31,11 +30,14 @@ import {
   highSkillCompletion,
   scoreHighSkillRoutes,
   scoreProgrammeRoutes,
+  isHighSkillInputSufficient,
+  isRouteInputSufficient,
   type HighSkillEvidenceKey,
   type HighSkillInput,
   type RouteIntelligenceInput,
 } from "@/lib/xia-intelligence-model";
 import { BOOKING_ROUTE } from "@/lib/topmate";
+import { ToolShell } from "@/components/XiaTools/ToolShell";
 
 type Engine = "route" | "high-skill" | "investment" | "documents" | "workflow";
 type ProgrammeMatch = ReturnType<typeof scoreProgrammeRoutes>[number];
@@ -71,23 +73,23 @@ const defaultRouteInput: RouteIntelligenceInput = {
   goal: "not-sure",
   track: "all",
   destination: "",
-  profile: "investor",
-  budget: 250000,
-  timeline: 12,
-  family: true,
+  profile: "not-provided",
+  budget: 0,
+  timeline: 0,
+  family: false,
   presence: "any",
-  priority: "stability",
+  priority: "not-sure",
   notes: "",
 };
 
 const defaultHighSkillInput: HighSkillInput = {
-  targetCountry: "usa",
+  targetCountry: "global",
   goal: "not-sure",
-  field: "technology",
+  field: "not-provided",
   role: "",
-  age: 30,
+  age: 0,
   education: "unknown",
-  yearsExperience: 5,
+  yearsExperience: 0,
   languageTest: "not-provided",
   languageScore: 0,
   evidence: emptyEvidence,
@@ -97,6 +99,10 @@ const defaultHighSkillInput: HighSkillInput = {
   resumeFileName: "",
   resumeParseStatus: "not-provided",
   profileSummary: "",
+  currentStatus: "",
+  petitionerType: "",
+  proposedEndeavour: "",
+  visaHistory: "",
 };
 
 const routeGoalOptions: Array<{ value: RouteIntelligenceInput["goal"]; label: string }> = [
@@ -155,27 +161,6 @@ function numberInput(value: string, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function getBrowserIds() {
-  if (typeof window === "undefined") return { visitorId: "", sessionId: "" };
-
-  try {
-    const visitorKey = "xiphias_visitor_id";
-    const sessionKey = "xiphias_session_id";
-    const visitorId =
-      window.localStorage.getItem(visitorKey) ||
-      `visitor_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
-    const sessionId =
-      window.sessionStorage.getItem(sessionKey) ||
-      `session_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
-
-    window.localStorage.setItem(visitorKey, visitorId);
-    window.sessionStorage.setItem(sessionKey, sessionId);
-    return { visitorId, sessionId };
-  } catch {
-    return { visitorId: "", sessionId: "" };
-  }
-}
-
 function readinessScore(routeInput: RouteIntelligenceInput, highSkillInput: HighSkillInput) {
   const evidenceCount = Object.values(highSkillInput.evidence).filter(Boolean).length;
   const checks = [
@@ -195,7 +180,7 @@ function readinessScore(routeInput: RouteIntelligenceInput, highSkillInput: High
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="grid gap-2">
-      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>
+      <span className="text-sm font-medium text-white/85">{label}</span>
       {children}
     </label>
   );
@@ -205,7 +190,7 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-white/35 dark:focus:ring-primary/30 ${props.className || ""}`}
+      className={`h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 text-sm font-medium text-white shadow-sm outline-none transition placeholder:text-white/45 focus:border-secondary focus:ring-4 focus:ring-secondary/15 ${props.className || ""}`}
     />
   );
 }
@@ -214,7 +199,7 @@ function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-primary/30 ${props.className || ""}`}
+      className={`h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 text-sm font-medium text-white shadow-sm outline-none transition focus:border-secondary focus:ring-4 focus:ring-secondary/15 [&>option]:bg-primary ${props.className || ""}`}
     />
   );
 }
@@ -223,7 +208,7 @@ function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      className={`w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-white/35 dark:focus:ring-primary/30 ${props.className || ""}`}
+      className={`w-full resize-none rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-sm font-medium text-white shadow-sm outline-none transition placeholder:text-white/45 focus:border-secondary focus:ring-4 focus:ring-secondary/15 ${props.className || ""}`}
     />
   );
 }
@@ -237,14 +222,14 @@ function XiaHelpPanel() {
   ] as const;
 
   return (
-    <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+    <div className="mt-5 rounded-lg border border-white/15 bg-white/[0.05] p-4">
       <div className="flex items-center gap-3">
         <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary dark:bg-white/10 dark:text-white">
           <BrainCircuit className="size-5" />
         </span>
         <div>
-          <h2 className="type-card-title text-midnight_text dark:text-white">XIA help</h2>
-          <p className="type-small text-slate-500 dark:text-white/70">Choose where you want to go. These links are live.</p>
+          <h2 className="type-card-title text-white">XIA help</h2>
+          <p className="type-small text-white/70">Choose where you want to go. These links are live.</p>
         </div>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -252,13 +237,13 @@ function XiaHelpPanel() {
           <Link
             key={label}
             href={href}
-            className="group rounded-lg border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-md dark:border-slate-800 dark:bg-slate-950"
+            className="group rounded-lg border border-white/15 bg-black/10 p-4 transition hover:-translate-y-0.5 hover:border-secondary hover:bg-white/10"
           >
             <span className="flex items-center justify-between gap-3">
-              <span className="font-semibold text-midnight_text dark:text-white">{label}</span>
-              <ArrowRight className="size-4 text-primary transition group-hover:translate-x-1 dark:text-white" />
+              <span className="font-semibold text-white">{label}</span>
+              <ArrowRight className="size-4 text-secondary transition group-hover:translate-x-1" />
             </span>
-            <span className="mt-2 block text-sm leading-6 text-slate-600 dark:text-white/70">{copy}</span>
+            <span className="mt-2 block text-sm leading-6 text-white/70">{copy}</span>
           </Link>
         ))}
       </div>
@@ -271,7 +256,6 @@ export default function XiaIntelligenceClient({
   initialEngine = "route",
   initialRouteInput,
   initialHighSkillInput,
-  journeySource,
   lockedEngine = false,
   targetCountryLocked,
   title,
@@ -294,9 +278,9 @@ export default function XiaIntelligenceClient({
       initialHighSkillInput?.targetCountry ||
       defaultHighSkillInput.targetCountry,
   }));
-  const [contact, setContact] = useState<ContactInput>({ name: "", email: "", phone: "", consent: true });
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [contact, setContact] = useState<ContactInput>({ name: "", email: "", phone: "", consent: false });
   const [submitted, setSubmitted] = useState(false);
+  const [assessmentError, setAssessmentError] = useState("");
   const [showHelp, setShowHelp] = useState(false);
 
   const routeMatches = useMemo(
@@ -334,7 +318,7 @@ export default function XiaIntelligenceClient({
   const selectEngine = (next: Engine) => {
     setEngine(next);
     setSubmitted(false);
-    setSaveState("idle");
+    setAssessmentError("");
     if (next === "investment") {
       setRouteInput((current) => ({
         ...current,
@@ -345,140 +329,64 @@ export default function XiaIntelligenceClient({
     }
   };
 
-  const saveAssessment = async () => {
-    if (!contact.name.trim() && !contact.email.trim() && !contact.phone.trim()) {
-      setSaveState("error");
+  const generateAssessment = () => {
+    if ((engine === "route" || engine === "investment") && !isRouteInputSufficient(routeInput)) {
+      setAssessmentError("Add a destination, objective and profile. Investor and entrepreneur profiles also require a planning budget.");
+      setSubmitted(false);
       return;
     }
-
-    setSaveState("saving");
-    const { visitorId, sessionId } = getBrowserIds();
-    const routePayload = activeRouteMatches.slice(0, 5).map((match) => ({
-      title: match.title,
-      country: match.country,
-      track: match.track,
-      href: match.href,
-      score: match.fitScore,
-      reasons: match.reasons,
-      warnings: match.warnings,
-    }));
-    const highSkillPayload = highSkillMatches.slice(0, 5).map((match) => ({
-      title: match.title,
-      country: match.country,
-      visaFamily: match.visaFamily,
-      href: match.href,
-      score: match.fitScore,
-      tier: match.tier,
-      reasons: match.reasons,
-      gaps: match.gaps,
-      nextEvidence: match.nextEvidence,
-    }));
-
-    try {
-      const response = await fetch("/api/platform/xia-intelligence", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event: "lead",
-          engine,
-          routeInput,
-          highSkillInput,
-          routeMatches: routePayload,
-          highSkillMatches: highSkillPayload,
-          completion: engine === "high-skill" ? highSkillPercent : readiness.percent,
-          contact,
-          visitorId,
-          sessionId,
-          journeySource,
-          path: "/xia-intelligence",
-          referrer: document.referrer,
-        }),
-      });
-
-      setSaveState(response.ok ? "saved" : "error");
-    } catch {
-      setSaveState("error");
+    if (engine === "high-skill" && !isHighSkillInputSufficient(highSkillInput)) {
+      setAssessmentError("Add your role, education, experience and either a CV/profile summary or at least one evidence category.");
+      setSubmitted(false);
+      return;
     }
+    setAssessmentError("");
+    setSubmitted(true);
   };
 
   return (
-    <div className="xia-type-system min-h-screen bg-white pt-8 text-slate-950 transition-colors dark:bg-darkmode dark:text-white">
-      <section className="container py-10 lg:py-14">
+    <ToolShell
+      eyebrow="XIA Intelligence"
+      title={currentTitle}
+      subtitle={currentSubtitle}
+      benefits={["Personalised route fit", "Evidence and eligibility gaps", "Advisor-ready next steps"]}
+      contactContext={currentTitle}
+      contactId={`xia-${engine}`}
+    >
+      <section className="!bg-transparent py-4 lg:py-6">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className={`group/input-panel mx-auto rounded-xl border border-slate-200 bg-white shadow-cause-shadow transition-all duration-500 dark:border-slate-800 dark:bg-darklight ${
-            submitted ? "sticky top-20 z-30 max-w-screen-2xl p-4" : "max-w-screen-xl p-5 sm:p-7 lg:p-9"
-          }`}
+          className="mx-auto max-w-screen-xl rounded-xl border border-white/20 bg-black/10 p-5 shadow-cause-shadow sm:p-7 lg:p-9"
         >
-          {submitted ? (
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xs font-semibold text-primary dark:text-white">
-                  {currentTitle}
-                </p>
-                <h1 className="type-card-title mt-1 text-midnight_text dark:text-white">{compactSummary}</h1>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowHelp((value) => !value)}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
-                >
-                  <BrainCircuit className="size-4 text-primary dark:text-white" />
-                  XIA help
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSubmitted(true)}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-secondary px-4 text-sm font-semibold text-midnight_text transition hover:bg-[#f0cb3b]"
-                >
-                  Refresh
-                  <ArrowRight className="size-4" />
-                </button>
-              </div>
-            </div>
-          ) : (
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:border-primary/50 dark:bg-white/5 dark:text-white">
-                <Sparkles className="size-4" />
-                XIA assessment
-              </div>
-              <h1 className="type-section-title mt-4 text-midnight_text dark:text-white">
-                {currentTitle}
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/85">{currentSubtitle}</p>
+              <p className="type-caption uppercase text-secondary">Your information</p>
+              <h2 className="type-card-title mt-2 text-white">Please enter the required information below.</h2>
+              {submitted ? <p className="mt-2 text-sm text-white/70">Current assessment: {compactSummary}</p> : null}
             </div>
             <div className="space-y-3 md:max-w-sm">
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-100">
+              <div className="rounded-lg border border-secondary/35 bg-secondary/10 p-4 text-sm font-medium leading-6 text-white/85">
                 This assessment is a planning aid, not a final visa decision. Final strategy requires XIPHIAS advisor review.
               </div>
               <button
                 type="button"
                 onClick={() => setShowHelp((value) => !value)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                <BrainCircuit className="size-4 text-primary dark:text-white" />
+                <BrainCircuit className="size-4 text-secondary" />
                 XIA help
               </button>
             </div>
           </div>
-          )}
 
           {showHelp && <XiaHelpPanel />}
 
-          <div
-            className={
-              submitted
-                ? "mt-0 max-h-0 overflow-y-hidden opacity-0 transition-all duration-500 group-hover/input-panel:mt-3 group-hover/input-panel:max-h-[360px] group-hover/input-panel:overflow-y-auto group-hover/input-panel:opacity-100"
-                : ""
-            }
-          >
+          <div>
 
           {!lockedEngine ? (
-            <div className="mt-7 grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900 md:grid-cols-2 xl:grid-cols-5">
+            <div className="mt-7 grid gap-4 rounded-lg border border-white/15 bg-white/[0.04] p-3 md:grid-cols-2 xl:grid-cols-5">
               {suiteTabs.map((tab) => {
                 const Icon = tab.icon;
                 const active = engine === tab.key;
@@ -490,7 +398,7 @@ export default function XiaIntelligenceClient({
                     className={`flex items-start gap-4 rounded-lg p-4 text-left transition ${
                       active
                         ? "bg-primary text-white shadow-sm"
-                        : "bg-white text-slate-700 hover:bg-primary/10 dark:bg-slate-950 dark:text-white/75 dark:hover:bg-slate-800"
+                        : "bg-black/10 text-white/75 hover:bg-white/10"
                     }`}
                   >
                     <span className={`grid size-11 shrink-0 place-items-center rounded-lg ${active ? "bg-white/10 text-white" : "bg-primary/10 text-primary dark:bg-white/10 dark:text-white"}`}>
@@ -498,7 +406,7 @@ export default function XiaIntelligenceClient({
                     </span>
                     <span>
                       <span className="block text-base font-semibold">{tab.label}</span>
-                      <span className={`mt-1 block text-sm leading-5 ${active ? "text-white/85" : "text-slate-500 dark:text-white/82"}`}>
+                      <span className={`mt-1 block text-sm leading-5 ${active ? "text-white/85" : "text-white/60"}`}>
                         {tab.copy}
                       </span>
                     </span>
@@ -510,7 +418,7 @@ export default function XiaIntelligenceClient({
             <div className="mt-6">
               <Link
                 href="/#xia-intelligence"
-                className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-white/20 px-4 text-sm font-semibold text-white transition hover:border-secondary hover:bg-white/10"
               >
                 Open full XIA suite
               </Link>
@@ -534,23 +442,24 @@ export default function XiaIntelligenceClient({
 
           {engine === "workflow" && submitted && <WorkflowPanel />}
 
-          <div className="mt-7 flex flex-col gap-3 border-t border-slate-200 pt-6 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-slate-500 dark:text-white/70">
-              Results and X-Hub save options appear after you generate this assessment.
+          <div className="mt-7 flex flex-col gap-3 border-t border-white/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-white/70">
+              Results appear only after the minimum information has been supplied.
             </p>
             <button
               type="button"
-              onClick={() => setSubmitted(true)}
+              onClick={generateAssessment}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-secondary px-5 text-sm font-semibold text-midnight_text shadow-sm transition hover:bg-[#f0cb3b]"
             >
-              {submitted ? "Refresh assessment" : "Generate assessment"}
+              {submitted ? "Regenerate assessment" : "Generate assessment"}
               <ArrowRight className="size-4" />
             </button>
           </div>
+          {assessmentError ? <p className="mt-4 rounded-lg border border-secondary/40 bg-secondary/10 p-3 text-sm font-semibold text-white">{assessmentError}</p> : null}
           </div>
         </motion.div>
 
-        {submitted && (engine === "route" || engine === "investment") && <RouteShortlist matches={activeRouteMatches} />}
+        {submitted && (engine === "route" || engine === "investment") && (activeRouteMatches.length ? <RouteShortlist matches={activeRouteMatches} /> : <NoCompatibleResults />)}
         {submitted && engine === "high-skill" && <HighSkillShortlist matches={highSkillMatches} completion={highSkillPercent} />}
         {submitted && (engine === "route" || engine === "investment" || engine === "high-skill") && (
           <PremiumReportPanel
@@ -566,48 +475,8 @@ export default function XiaIntelligenceClient({
           />
         )}
 
-        {submitted && (
-        <section className="mx-auto mt-6 max-w-screen-xl rounded-xl border border-slate-200 bg-white p-5 shadow-cause-shadow dark:border-slate-800 dark:bg-darklight sm:p-7">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-            <div className="flex min-w-0 flex-1 items-center gap-3">
-              <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary dark:bg-white/10 dark:text-white">
-                <Send className="size-5" />
-              </span>
-              <div>
-                <h3 className="type-card-title text-midnight_text dark:text-white">Save this assessment into X-Hub</h3>
-                <p className="type-small text-slate-500 dark:text-white/70">Creates a lead and stores the shortlist for admin follow-up.</p>
-              </div>
-            </div>
-            <div className="grid flex-[2] gap-3 md:grid-cols-3">
-              <TextInput value={contact.name} onChange={(event) => setContact((prev) => ({ ...prev, name: event.target.value }))} placeholder="Name" />
-              <TextInput value={contact.email} onChange={(event) => setContact((prev) => ({ ...prev, email: event.target.value }))} placeholder="Email" />
-              <TextInput value={contact.phone} onChange={(event) => setContact((prev) => ({ ...prev, phone: event.target.value }))} placeholder="Phone / WhatsApp" />
-            </div>
-            <button
-              type="button"
-              onClick={saveAssessment}
-              disabled={saveState === "saving"}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-secondary px-5 text-sm font-semibold text-midnight_text shadow-sm transition hover:bg-[#f0cb3b] disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {saveState === "saving" ? "Saving..." : "Save"}
-              <ArrowRight className="size-4" />
-            </button>
-          </div>
-          <label className="mt-3 flex items-start gap-2 text-xs font-semibold leading-5 text-slate-500 dark:text-white/65">
-            <input
-              type="checkbox"
-              checked={contact.consent}
-              onChange={(event) => setContact((prev) => ({ ...prev, consent: event.target.checked }))}
-              className="mt-1 size-4 accent-[#d8ad1f]"
-            />
-            I agree that XIPHIAS may contact me about this assessment.
-          </label>
-          {saveState === "saved" && <p className="mt-3 text-sm font-semibold text-emerald-600 dark:text-emerald-300">Saved. This assessment is now available in X-Hub.</p>}
-          {saveState === "error" && <p className="mt-3 text-sm font-semibold text-amber-700 dark:text-amber-200">Add at least one contact detail before saving.</p>}
-        </section>
-        )}
       </section>
-    </div>
+    </ToolShell>
   );
 }
 
@@ -622,13 +491,13 @@ function RouteInputs({
 }) {
   return (
     <>
-      <div className="mt-7 flex items-center gap-3 border-t border-slate-200 pt-6 dark:border-white/10">
+      <div className="mt-7 flex items-center gap-3 border-t border-white/15 pt-6">
         {engine === "investment" ? <Landmark className="size-5 text-[#d8ad1f]" /> : <RouteIcon className="size-5 text-[#d8ad1f]" />}
         <div>
-          <h2 className="type-card-title text-midnight_text dark:text-white">
+          <h2 className="type-card-title text-white">
             {engine === "investment" ? "Investment & Residency Evaluator" : "Best Visa / Route Evaluator"}
           </h2>
-          <p className="text-sm text-slate-500 dark:text-white/70">
+          <p className="text-sm text-white/70">
             {engine === "investment" ? "Investor, Golden Visa, CBI, RBI and Business Mobility routes." : "PR, Work Visa, Citizenship, Investment, Business and Family Route matching."}
           </p>
         </div>
@@ -653,6 +522,7 @@ function RouteInputs({
         </Field>
         <Field label="Profile">
           <SelectInput value={input.profile} onChange={(event) => setInput((prev) => ({ ...prev, profile: event.target.value as RouteIntelligenceInput["profile"] }))}>
+            <option value="not-provided">Select your profile</option>
             <option value="investor">Investor</option>
             <option value="entrepreneur">Entrepreneur</option>
             <option value="professional">Skilled Professional</option>
@@ -674,6 +544,7 @@ function RouteInputs({
           <option value="high">High presence</option>
         </SelectInput>
         <SelectInput value={input.priority} onChange={(event) => setInput((prev) => ({ ...prev, priority: event.target.value as RouteIntelligenceInput["priority"] }))}>
+          <option value="not-sure">Select your main priority</option>
           <option value="stability">Stability</option>
           <option value="speed">Speed</option>
           <option value="cost">Cost control</option>
@@ -681,7 +552,7 @@ function RouteInputs({
           <option value="business">Business</option>
           <option value="tax">Tax planning</option>
         </SelectInput>
-        <label className="flex h-11 items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-white/88">
+        <label className="flex h-11 items-center gap-3 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-medium text-white/85">
           <input type="checkbox" checked={input.family} onChange={(event) => setInput((prev) => ({ ...prev, family: event.target.checked }))} className="size-4 accent-[#d8ad1f]" />
           Family
         </label>
@@ -710,15 +581,15 @@ function HighSkillInputs({
 
   return (
     <>
-      <div className="mt-7 flex items-center justify-between gap-3 border-t border-slate-200 pt-6 dark:border-white/10">
+      <div className="mt-7 flex items-center justify-between gap-3 border-t border-white/15 pt-6">
         <div className="flex items-center gap-3">
           <GraduationCap className="size-5 text-[#d8ad1f]" />
           <div>
-            <h2 className="type-card-title text-midnight_text dark:text-white">High-Skill Visa Evaluator</h2>
-            <p className="text-sm text-slate-500 dark:text-white/70">Evidence-led review for EB1A, EB2 NIW, O1A, H-1B, L1, Global Talent and PR pathways.</p>
+            <h2 className="type-card-title text-white">High-Skill Visa Evaluator</h2>
+            <p className="text-sm text-white/70">Evidence-led review for EB1A, EB2 NIW, O1A, H-1B, L1, Global Talent and PR pathways.</p>
           </div>
         </div>
-        <span className="hidden rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-white/10 dark:text-white/70 sm:inline-flex">{completion}% profile depth</span>
+        <span className="hidden rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-white/70 sm:inline-flex">{completion}% profile depth</span>
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-4">
         <Field label="Target">
@@ -726,11 +597,11 @@ function HighSkillInputs({
             <TextInput value={targetCountryLocked === "usa" ? "United States" : targetCountryLocked} disabled />
           ) : (
             <SelectInput value={input.targetCountry} onChange={(event) => setInput((prev) => ({ ...prev, targetCountry: event.target.value as HighSkillInput["targetCountry"] }))}>
+              <option value="global">Open globally</option>
               <option value="usa">United States</option>
               <option value="canada">Canada</option>
               <option value="uk">United Kingdom</option>
               <option value="australia">Australia</option>
-              <option value="global">Open globally</option>
             </SelectInput>
           )}
         </Field>
@@ -744,15 +615,16 @@ function HighSkillInputs({
           </SelectInput>
         </Field>
         <Field label="Field">
-          <SelectInput value={input.field} onChange={(event) => setInput((prev) => ({ ...prev, field: event.target.value as HighSkillInput["field"] }))}>
-            <option value="technology">Technology</option>
+            <SelectInput value={input.field} onChange={(event) => setInput((prev) => ({ ...prev, field: event.target.value as HighSkillInput["field"] }))}>
+            <option value="not-provided">Select field</option>
+              <option value="technology">Technology</option>
             <option value="science">Science</option>
             <option value="business">Business</option>
             <option value="healthcare">Healthcare</option>
             <option value="academia">Academia</option>
             <option value="arts">Arts</option>
             <option value="sports">Sports</option>
-            <option value="other">Other</option>
+            <option value="other">Other / not listed</option>
           </SelectInput>
         </Field>
         <Field label="Role">
@@ -787,7 +659,7 @@ function HighSkillInputs({
         <Field label="CV / evidence highlights">
           <TextArea rows={4} value={input.profileSummary} onChange={(event) => setInput((prev) => ({ ...prev, profileSummary: event.target.value }))} placeholder="Paste CV or evidence highlights, including achievements, responsibilities, employers, dates, and measurable impact." />
         </Field>
-        <label className="flex cursor-pointer flex-col justify-center gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-100">
+        <label className="flex cursor-pointer flex-col justify-center gap-3 rounded-lg border border-dashed border-secondary/60 bg-secondary/10 p-4 text-sm font-medium text-white">
           <UploadCloud className="size-6" />
           <span>{input.resumeFileName || "Attach CV for analysis"}</span>
           <span className="text-xs font-semibold opacity-75">{resumeMessage}</span>
@@ -821,9 +693,25 @@ function HighSkillInputs({
           />
         </label>
       </div>
+      {targetCountryLocked === "usa" ? (
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <Field label="Current location or US immigration status">
+            <TextInput value={input.currentStatus || ""} onChange={(event) => setInput((prev) => ({ ...prev, currentStatus: event.target.value }))} placeholder="Outside the US, H-1B, F-1, visitor, other..." />
+          </Field>
+          <Field label="Petitioner, employer or agent position">
+            <TextInput value={input.petitionerType || ""} onChange={(event) => setInput((prev) => ({ ...prev, petitionerType: event.target.value }))} placeholder="No petitioner, employer interest, own company, US agent..." />
+          </Field>
+          <Field label="Proposed work or US endeavour">
+            <TextArea rows={3} value={input.proposedEndeavour || ""} onChange={(event) => setInput((prev) => ({ ...prev, proposedEndeavour: event.target.value }))} placeholder="Describe the work you intend to pursue in the United States and its expected impact." />
+          </Field>
+          <Field label="Previous US applications or visa history">
+            <TextArea rows={3} value={input.visaHistory || ""} onChange={(event) => setInput((prev) => ({ ...prev, visaHistory: event.target.value }))} placeholder="Prior visas, petitions, refusals, status changes or Not provided." />
+          </Field>
+        </div>
+      ) : null}
       <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {evidenceKeys.map((key) => (
-          <label key={key} className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs font-medium text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-white/75">
+          <label key={key} className="flex items-start gap-2 rounded-lg border border-white/15 bg-white/[0.05] p-3 text-xs font-medium text-white/75">
             <input
               type="checkbox"
               checked={input.evidence[key]}
@@ -1036,8 +924,8 @@ function PremiumReportPanel({
   });
 
   const startCheckout = async () => {
-    if (!contact.name.trim() || !contact.email.trim()) {
-      setCheckout({ loading: false, error: "Please add your name and email to continue." });
+    if (!contact.name.trim() || !contact.email.trim() || !contact.consent) {
+      setCheckout({ loading: false, error: "Please add your name and email, then confirm consent to continue." });
       return;
     }
 
@@ -1059,6 +947,10 @@ function PremiumReportPanel({
           resumeFileName: highSkillInput.resumeFileName,
           resumeParseStatus: highSkillInput.resumeParseStatus,
           profileSummary: highSkillInput.profileSummary,
+          currentStatus: highSkillInput.currentStatus,
+          petitionerType: highSkillInput.petitionerType,
+          proposedEndeavour: highSkillInput.proposedEndeavour,
+          visaHistory: highSkillInput.visaHistory,
         }
       : {
           destination: routeInput.destination,
@@ -1213,6 +1105,15 @@ function PremiumReportPanel({
               className="h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-medium text-white outline-none transition placeholder:text-white/45 focus:border-[#d8ad1f]"
             />
           </div>
+          <label className="mt-4 flex items-start gap-2 text-xs leading-5 text-white/70">
+            <input
+              type="checkbox"
+              checked={contact.consent}
+              onChange={(event) => setContact((previous) => ({ ...previous, consent: event.target.checked }))}
+              className="mt-0.5 size-4 shrink-0 accent-secondary"
+            />
+            <span>I confirm these details are accurate and consent to their use for checkout, report generation and delivery.</span>
+          </label>
 
           <button
             type="button"
@@ -1333,10 +1234,10 @@ function ReportList({
 
 function RouteShortlist({ matches }: { matches: ReturnType<typeof scoreProgrammeRoutes> }) {
   return (
-    <section className="mx-auto mt-6 max-w-screen-2xl px-0">
+    <section className="mx-auto mt-6 max-w-screen-2xl !bg-transparent px-0">
       <div className="mb-4 px-1">
-        <p className="text-xs font-semibold text-primary dark:text-white">Matched Routes</p>
-        <h2 className="type-section-title mt-1 text-midnight_text dark:text-white">Recommended route directions</h2>
+        <p className="text-xs font-semibold text-secondary">Matched Routes</p>
+        <h2 className="type-section-title mt-1 text-white">Recommended route directions</h2>
       </div>
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {matches.map((match) => (
@@ -1345,10 +1246,10 @@ function RouteShortlist({ matches }: { matches: ReturnType<typeof scoreProgramme
             layout
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-cause-shadow transition hover:-translate-y-0.5 hover:border-primary dark:border-slate-800 dark:bg-darklight"
+            className="rounded-xl border border-white/20 bg-black/10 p-5 shadow-cause-shadow transition hover:-translate-y-0.5 hover:border-secondary"
           >
-            <ResultHeader title={match.title} country={match.country} label={match.track} score={match.fitScore} />
-            <p className="mt-4 min-h-16 text-sm leading-6 text-slate-600 dark:text-white/72">{match.summary}</p>
+            <ResultHeader title={match.title} country={match.country} label={match.track} score={match.fitScore} confidence={match.confidenceScore} />
+            <p className="mt-4 min-h-16 text-sm leading-6 text-white/72">{match.summary}</p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Metric icon={BadgeCheck} label="Capital" value={match.investmentLabel} />
               <Metric icon={BriefcaseBusiness} label="Timeline" value={match.timelineLabel} />
@@ -1362,6 +1263,18 @@ function RouteShortlist({ matches }: { matches: ReturnType<typeof scoreProgramme
   );
 }
 
+function NoCompatibleResults() {
+  return (
+    <section className="mx-auto mt-6 max-w-screen-xl rounded-xl border border-secondary/40 !bg-black/10 p-6 text-white sm:p-8">
+      <p className="type-caption uppercase text-secondary">No compatible route found</p>
+      <h2 className="type-card-title mt-2 text-white">The supplied destination, objective, profile and budget do not currently produce a responsible match.</h2>
+      <p className="type-small mt-3 max-w-3xl text-white/75">
+        Broaden the pathway or budget only if that reflects your real circumstances. XIA will not promote a skilled, entrepreneur or corporate route merely to fill the results.
+      </p>
+    </section>
+  );
+}
+
 function HighSkillShortlist({
   matches,
   completion,
@@ -1370,13 +1283,13 @@ function HighSkillShortlist({
   completion: number;
 }) {
   return (
-    <section className="mx-auto mt-6 max-w-screen-2xl px-0">
+    <section className="mx-auto mt-6 max-w-screen-2xl !bg-transparent px-0">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3 px-1">
         <div>
-          <p className="text-xs font-semibold text-primary dark:text-white">High-Skill Shortlist</p>
-          <h2 className="type-section-title mt-1 text-midnight_text dark:text-white">Recommended visa directions</h2>
+          <p className="text-xs font-semibold text-secondary">High-Skill Shortlist</p>
+          <h2 className="type-section-title mt-1 text-white">Recommended visa directions</h2>
         </div>
-        <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-white/10 dark:text-white/70">{completion}% profile depth</span>
+        <span className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-white/70">{completion}% profile depth</span>
       </div>
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {matches.map((match) => (
@@ -1385,10 +1298,10 @@ function HighSkillShortlist({
             layout
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-cause-shadow transition hover:-translate-y-0.5 hover:border-primary dark:border-slate-800 dark:bg-darklight"
+            className="rounded-xl border border-white/20 bg-black/10 p-5 shadow-cause-shadow transition hover:-translate-y-0.5 hover:border-secondary"
           >
             <ResultHeader title={match.title} country={match.country} label={match.visaFamily} score={match.fitScore} />
-            <p className="mt-4 min-h-16 text-sm leading-6 text-slate-600 dark:text-white/72">{match.summary}</p>
+            <p className="mt-4 min-h-16 text-sm leading-6 text-white/72">{match.summary}</p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Metric icon={ShieldCheck} label="Difficulty" value={match.difficulty.replace("-", " ")} />
               <Metric icon={BriefcaseBusiness} label="Timeline" value={match.timeline} />
@@ -1402,22 +1315,23 @@ function HighSkillShortlist({
   );
 }
 
-function ResultHeader({ title, country, label, score }: { title: string; country: string; label: string; score: number }) {
+function ResultHeader({ title, country, label, score, confidence }: { title: string; country: string; label: string; score: number; confidence?: number }) {
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
-        <span className="type-caption inline-flex rounded-full bg-primary/10 px-3 py-1 text-primary dark:bg-white/10 dark:text-white">
+        <span className="type-caption inline-flex rounded-full bg-white/10 px-3 py-1 text-white">
           {label}
         </span>
-        <h3 className="type-card-title mt-3 text-midnight_text dark:text-white">{title}</h3>
-        <div className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-slate-500 dark:text-white/65">
-          <MapPin className="size-4 text-primary dark:text-white" />
+        <h3 className="type-card-title mt-3 text-white">{title}</h3>
+        <div className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-white/65">
+          <MapPin className="size-4 text-secondary" />
           {country}
         </div>
       </div>
       <div className="rounded-lg bg-secondary px-3 py-2 text-center text-xl font-semibold text-midnight_text">
         {score}
         <div className="type-caption uppercase">fit</div>
+        {confidence != null ? <div className="mt-1 text-[9px] font-bold uppercase">{confidence}% confidence</div> : null}
       </div>
     </div>
   );
@@ -1425,10 +1339,10 @@ function ResultHeader({ title, country, label, score }: { title: string; country
 
 function Metric({ icon: Icon, label, value }: { icon: ComponentType<{ className?: string }>; label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.06]">
-      <Icon className="mb-2 size-4 text-primary dark:text-[#d8ad1f]" />
-      <div className="text-sm font-semibold text-midnight_text dark:text-white">{value}</div>
-      <div className="text-xs text-slate-500 dark:text-white/55">{label}</div>
+    <div className="rounded-lg bg-white/[0.06] p-3">
+      <Icon className="mb-2 size-4 text-secondary" />
+      <div className="text-sm font-semibold text-white">{value}</div>
+      <div className="text-xs text-white/55">{label}</div>
     </div>
   );
 }
@@ -1437,13 +1351,13 @@ function ReasonList({ reasons, warnings }: { reasons: string[]; warnings: string
   return (
     <div className="mt-4 grid gap-2 text-sm">
       {reasons.slice(0, 3).map((reason) => (
-        <div key={reason} className="flex gap-2 text-slate-600 dark:text-white/75">
+        <div key={reason} className="flex gap-2 text-white/75">
           <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-300" />
           <span>{reason}</span>
         </div>
       ))}
       {warnings.slice(0, 2).map((warning) => (
-        <div key={warning} className="flex gap-2 text-amber-700 dark:text-amber-100">
+        <div key={warning} className="flex gap-2 text-amber-100">
           <CircleAlert className="mt-0.5 size-4 shrink-0 text-[#d8ad1f]" />
           <span>{warning}</span>
         </div>
@@ -1455,10 +1369,10 @@ function ReasonList({ reasons, warnings }: { reasons: string[]; warnings: string
 function ResultActions({ href }: { href: string }) {
   return (
     <div className="mt-5 flex flex-wrap gap-2">
-      <Link href={href || "/contact"} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:brightness-110">
+      <Link href={href || "/contact"} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-secondary px-4 text-sm font-semibold text-primary transition hover:brightness-110">
         Open route <ArrowRight className="size-4" />
       </Link>
-      <Link href={BOOKING_ROUTE} className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900">
+      <Link href={BOOKING_ROUTE} className="inline-flex h-11 items-center justify-center rounded-lg border border-white/20 px-4 text-sm font-semibold text-white transition hover:border-secondary hover:bg-white/10">
         Advisor review
       </Link>
     </div>

@@ -2,21 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, CalendarClock, FileDown, Loader2, Minus, Plus, Users } from "lucide-react";
+import { ArrowRight, FileDown, Loader2, Minus, Plus, Users } from "lucide-react";
 
-import { CurrencyProvider, useCurrency } from "@/lib/CurrencyProvider";
-import { GlassSelect, CurrencyGlassSelect } from "@/components/XiaTools/GlassSelect";
-import { LeadGate } from "@/components/Eligibility/LeadGate";
-import type { AnswerMap, Track } from "@/lib/eligibility/types";
+import { GlassSelect } from "@/components/XiaTools/GlassSelect";
+import { ToolShell } from "@/components/XiaTools/ToolShell";
 import { estimateCost, COST_DISCLAIMER, type CostProgram } from "@/lib/cost-estimator";
-import { ToolShell, IndicativeChip } from "@/components/XiaTools/ToolShell";
-import { MeterBar } from "@/components/XiaTools/MeterBar";
-import { BOOKING_ROUTE } from "@/lib/topmate";
 import { getProductConfig } from "@/lib/payments/product-catalog";
 
 const COST_REPORT_PRICE_INR = getProductConfig("cost_report")?.priceInr ?? 499;
-
 const TRACKS = [
   { value: "all", label: "All" },
   { value: "citizenship", label: "Citizenship" },
@@ -24,332 +17,112 @@ const TRACKS = [
   { value: "skilled", label: "Skilled" },
   { value: "corporate", label: "Corporate" },
 ] as const;
-type TrackFilter = (typeof TRACKS)[number]["value"];
 
-const SPRING = { type: "spring" as const, stiffness: 360, damping: 30 };
+function usd(value: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+}
 
 export default function CostEstimatorClient({ programs }: { programs: CostProgram[] }) {
-  return (
-    <CurrencyProvider defaultCurrency="USD">
-      <Inner programs={programs} />
-    </CurrencyProvider>
-  );
-}
-
-function useMoney() {
-  const { currency, convert } = useCurrency();
-  return (usd: number) =>
-    new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 0 }).format(
-      convert(usd, "USD", currency),
-    );
-}
-
-function Inner({ programs }: { programs: CostProgram[] }) {
-  const reduce = useReducedMotion();
-  const money = useMoney();
-
-  const [trackFilter, setTrackFilter] = useState<TrackFilter>("all");
-  const filtered = useMemo(
-    () => programs.filter((p) => trackFilter === "all" || p.track === trackFilter),
-    [programs, trackFilter],
-  );
-  const [selectedId, setSelectedId] = useState(programs[0]?.id ?? "");
-  const selected = useMemo(
-    () => filtered.find((p) => p.id === selectedId) ?? filtered[0] ?? programs[0],
-    [filtered, selectedId, programs],
-  );
-
+  const [track, setTrack] = useState<(typeof TRACKS)[number]["value"]>("all");
+  const [selectedId, setSelectedId] = useState("");
   const [dependents, setDependents] = useState(0);
-  const breakdown = useMemo(() => (selected ? estimateCost(selected, dependents) : null), [selected, dependents]);
+  const [buyer, setBuyer] = useState({ name: "", email: "", phone: "", consent: false });
+  const [checkout, setCheckout] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [unlocked, setUnlocked] = useState(false);
-  const [pdf, setPdf] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
+  const filtered = useMemo(() => programs.filter((program) => track === "all" || program.track === track), [programs, track]);
+  const selected = programs.find((program) => program.id === selectedId);
+  const breakdown = selected ? estimateCost(selected, dependents) : null;
 
-  if (!selected || !breakdown) {
-    return (
-      <ToolShell eyebrow="XIA · Cost Estimator" title="Family Cost Estimator" subtitle="No Programmes are available right now.">
-        <div className="rounded-2xl border border-white/10 bg-black/10 p-8 text-white/70">No Programmes found.</div>
-      </ToolShell>
-    );
-  }
+  const changeTrack = (value: typeof track) => {
+    setTrack(value);
+    setSelectedId("");
+  };
 
-  async function submitLead() {
-    try {
-      await fetch("/api/platform/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          source: "programme_ai",
-          page: "/cost-estimator",
-          track: selected.track,
-          country: selected.country,
-          program: selected.title,
-          message: `Cost estimator: ${selected.title} · ${breakdown!.familySize} applicant(s) · ~${Math.round(breakdown!.totalUsd)} USD indicative`,
-          consent: true,
-          tags: ["cost-estimator", "xia-tools"],
-        }),
-      });
-    } catch {
-      /* soft capture — never block the UI on a network error */
-    } finally {
-      setUnlocked(true);
+  async function startCheckout() {
+    if (!selected || !breakdown) return;
+    if (!buyer.name.trim() || !buyer.email.trim() || !buyer.consent) {
+      setCheckout({ loading: false, error: "Add your name and email, then confirm consent to continue." });
+      return;
     }
-  }
-
-  async function startPdf() {
-    if (!name || !email) return;
-    setPdf({ loading: true, error: null });
+    setCheckout({ loading: true, error: null });
     try {
-      const res = await fetch("/api/payments/jiopay/create-checkout", {
+      const response = await fetch("/api/payments/jiopay/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          email,
-          phone,
+          ...buyer,
           productType: "cost_report",
-          productName: `Cost estimate — ${selected.title}`,
+          productName: `Cost and budget report — ${selected.title}`,
           track: selected.track,
           country: selected.country,
           program: selected.title,
           page: "/cost-estimator",
-          consent: true,
           answers: {
             program: selected.title,
             dependents,
-            familySize: breakdown!.familySize,
-            estimatedTotalUsd: Math.round(breakdown!.totalUsd),
+            familySize: breakdown.familySize,
+            knownCatalogueAmountUsd: breakdown.totalUsd,
+            costsPendingVerification: true,
           },
         }),
       });
-      const data = await res.json();
+      const data = await response.json().catch(() => ({}));
       if (data?.ok && data.checkoutUrl) {
         window.location.href = data.checkoutUrl as string;
         return;
       }
-      setPdf({ loading: false, error: data?.error || "Could not start checkout. Please try again." });
+      setCheckout({ loading: false, error: data?.error || "Could not start checkout. Please try again." });
     } catch {
-      setPdf({ loading: false, error: "Could not start checkout. Please try again." });
+      setCheckout({ loading: false, error: "Could not start checkout. Please try again." });
     }
   }
 
   return (
     <ToolShell
       eyebrow="XIA · Cost Estimator"
-      title="What will this route cost your family?"
-      subtitle="Pick a programme and your family size for an itemized, indicative estimate — government fees, due diligence, dependants and professional fees — ready for advisor review."
-      actions={<CurrencyGlassSelect />}
+      title="Build a Transparent Immigration Cost Plan"
+      subtitle="Select a programme and family size to see which financial information is actually available and which amounts still require verification. XIA displays catalogue investment figures separately from government charges, due-diligence costs, dependant fees and professional fees, so an incomplete fee schedule is never presented as a complete total. The result gives you a responsible starting budget, a clear list of unanswered cost questions and a direct route to a personalised cost report or advisor review."
+      benefits={["Supplied costs only", "Pending fees identified", "Family-specific questions"]}
+      contactContext="Cost Planning"
+      contactId="cost-estimator"
     >
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        {/* ── Controls ── */}
-        <div className="rounded-3xl border border-white/12 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-7">
-          <h2 className="type-caption uppercase text-white">1 · Choose a Programme</h2>
-
-          {/* Track tabs — layoutId active indicator */}
-          <div className="mt-3 flex flex-wrap gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
-            {TRACKS.map((t) => {
-              const active = trackFilter === t.value;
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setTrackFilter(t.value)}
-                  className="type-small relative rounded-lg px-3 py-2 font-bold transition-colors"
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="ce-track-active"
-                      className="absolute inset-0 rounded-lg bg-[#1c57b4]"
-                      transition={reduce ? { duration: 0 } : SPRING}
-                    />
-                  )}
-                  <span className={`relative ${active ? "text-white" : "text-white/55"}`}>{t.label}</span>
-                </button>
-              );
-            })}
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="rounded-xl border border-white/20 bg-black/10 p-5 sm:p-7">
+          <p className="type-caption uppercase text-secondary">Your information</p>
+          <h2 className="type-card-title mt-2 text-white">Choose the programme and family size to review.</h2>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {TRACKS.map((option) => <button key={option.value} type="button" onClick={() => changeTrack(option.value)} className={`rounded-lg px-3 py-2 text-sm font-bold ${track === option.value ? "bg-secondary text-primary" : "border border-white/15 bg-white/[0.05] text-white/70"}`}>{option.label}</button>)}
           </div>
-
-          {/* Programme select */}
-          <div className="mt-4">
-            <span className="type-small mb-1.5 block text-white/80">Programme</span>
-            <GlassSelect
-              value={selected.id}
-              onChange={setSelectedId}
-              searchable
-              options={filtered.map((p) => ({ value: p.id, label: `${p.country} — ${p.title}` }))}
-              placeholder="Select a Programme…"
-              ariaLabel="Select a Programme"
-            />
+          <div className="mt-5">
+            <span className="mb-2 block text-sm font-medium text-white/85">Programme</span>
+            <GlassSelect value={selectedId} onChange={setSelectedId} searchable options={filtered.map((program) => ({ value: program.id, label: `${program.country} — ${program.title}` }))} placeholder="Select a programme" ariaLabel="Select a programme" />
           </div>
+          <div className="mt-6 flex items-center justify-between rounded-lg border border-white/15 bg-white/[0.05] p-4">
+            <span className="flex items-center gap-2 text-sm text-white/80"><Users className="size-4 text-secondary" />Dependants besides you</span>
+            <div className="flex items-center gap-3"><button type="button" aria-label="Fewer dependants" onClick={() => setDependents((value) => Math.max(0, value - 1))} className="grid size-9 place-items-center rounded-lg border border-white/20"><Minus className="size-4" /></button><span className="w-5 text-center font-black">{dependents}</span><button type="button" aria-label="More dependants" onClick={() => setDependents((value) => Math.min(8, value + 1))} className="grid size-9 place-items-center rounded-lg border border-white/20"><Plus className="size-4" /></button></div>
+          </div>
+        </section>
 
-          {/* Dependents stepper */}
-          <div className="mt-6">
-            <h2 className="type-caption uppercase text-white">2 · Family Size</h2>
-            <div className="mt-3 flex items-center justify-between rounded-xl border border-white/12 bg-white/[0.03] px-4 py-3">
-              <span className="type-small flex items-center gap-2 text-white/80">
-                <Users className="size-4 text-secondary" /> Dependants (Besides You)
-              </span>
-              <div className="flex items-center gap-3">
-                <motion.button
-                  whileTap={{ scale: 0.94 }}
-                  type="button"
-                  aria-label="Fewer dependants"
-                  onClick={() => setDependents((d) => Math.max(0, d - 1))}
-                  className="grid size-9 place-items-center rounded-lg border border-white/15 bg-white/[0.04] text-white hover:bg-white/10"
-                >
-                  <Minus className="size-4" />
-                </motion.button>
-                <span className="w-6 text-center text-lg font-black tabular-nums">{dependents}</span>
-                <motion.button
-                  whileTap={{ scale: 0.94 }}
-                  type="button"
-                  aria-label="More dependants"
-                  onClick={() => setDependents((d) => Math.min(8, d + 1))}
-                  className="grid size-9 place-items-center rounded-lg border border-white/15 bg-white/[0.04] text-white hover:bg-white/10"
-                >
-                  <Plus className="size-4" />
-                </motion.button>
-              </div>
+        <section className="rounded-xl border border-white/20 bg-black/10 p-5 sm:p-7" aria-live="polite">
+          {!selected || !breakdown ? <div className="grid min-h-64 place-items-center text-center text-white/65"><div><p className="type-caption uppercase text-secondary">Cost review</p><p className="mt-3">Select a programme to view supplied and pending cost items.</p></div></div> : <>
+            <p className="type-caption uppercase text-secondary">Known catalogue amount</p>
+            <div className="mt-2 text-4xl font-black text-white">{breakdown.totalUsd > 0 ? usd(breakdown.totalUsd) : "Not provided"}</div>
+            <p className="mt-2 text-sm text-white/65">This is not an all-in total. Currency conversion is intentionally not applied without a live, dated FX source.</p>
+            <ul className="mt-6 divide-y divide-white/10 rounded-lg border border-white/15 bg-white/[0.04]">
+              {breakdown.lineItems.map((item) => <li key={item.key} className="flex items-start justify-between gap-4 p-4"><span><span className="block text-sm font-bold text-white">{item.label}</span><span className="mt-1 block text-xs leading-5 text-white/50">{item.note}</span></span><span className="shrink-0 text-sm font-black text-white">{item.includedInKnownTotal ? usd(item.amountUsd) : "Pending verification"}</span></li>)}
+            </ul>
+            <p className="mt-4 text-xs leading-5 text-white/55">{COST_DISCLAIMER}</p>
+            <Link href={selected.href} className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-secondary">Review programme information <ArrowRight className="size-4" /></Link>
+
+            <div className="mt-6 border-t border-white/15 pt-6">
+              <p className="type-caption uppercase text-secondary">Personalised report checkout</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">{(["name", "email", "phone"] as const).map((field) => <input key={field} className="h-11 rounded-lg border border-white/20 bg-white/10 px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-secondary" value={buyer[field]} onChange={(event) => setBuyer((current) => ({ ...current, [field]: event.target.value }))} placeholder={field === "phone" ? "Phone / WhatsApp" : field[0].toUpperCase() + field.slice(1)} type={field === "email" ? "email" : field === "phone" ? "tel" : "text"} />)}</div>
+              <label className="mt-3 flex items-start gap-2 text-xs leading-5 text-white/65"><input type="checkbox" checked={buyer.consent} onChange={(event) => setBuyer((current) => ({ ...current, consent: event.target.checked }))} className="mt-0.5 size-4 accent-secondary" />I confirm these details and consent to their use for checkout, report generation and delivery.</label>
+              <button type="button" onClick={startCheckout} disabled={checkout.loading} className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-secondary px-5 text-sm font-black text-primary disabled:opacity-60">{checkout.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}Buy full report · INR {COST_REPORT_PRICE_INR}</button>
+              {checkout.error ? <p className="mt-2 text-xs font-semibold text-amber-200">{checkout.error}</p> : null}
             </div>
-            <p className="type-caption mt-2 font-normal text-white/50">
-              Total applicants:{" "}
-              <span className="font-semibold text-white/75 tabular-nums">{breakdown.familySize}</span> (you + {dependents})
-            </p>
-          </div>
-
-          <Link
-            href={selected.href}
-            className="type-small mt-6 inline-flex items-center gap-2 font-bold text-secondary hover:text-white"
-          >
-            View the {selected.country} programme page
-            <ArrowRight className="size-4" />
-          </Link>
-        </div>
-
-        {/* ── Result ── */}
-        <div className="rounded-3xl border border-white/12 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-8">
-          {/* Free top-line (instant, no entrance animation on figures) */}
-          <p className="type-caption uppercase text-white">Indicative Total</p>
-          <div className="mt-2 flex flex-wrap items-end gap-x-4 gap-y-1">
-            <motion.span
-              key={breakdown.totalUsd}
-              initial={reduce ? false : { opacity: 0.4 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.25 }}
-              className="text-[clamp(2.2rem,5vw,3.4rem)] font-black leading-none tabular-nums text-white"
-            >
-              {money(breakdown.totalUsd)}
-            </motion.span>
-            <span className="type-small pb-1 text-white/60">
-              for {breakdown.familySize} {breakdown.familySize === 1 ? "applicant" : "applicants"}
-            </span>
-          </div>
-          <div className="type-small mt-3 flex flex-wrap items-center gap-2 text-white/70">
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-1.5">
-              <CalendarClock className="size-4 text-secondary" /> Timeline: {breakdown.timelineLabel}
-            </span>
-            <IndicativeChip />
-          </div>
-
-          {/* Gated detail */}
-          <div className="mt-6 min-h-[320px]">
-            <AnimatePresence mode="wait" initial={false}>
-              {!unlocked ? (
-                <motion.div
-                  key="gate"
-                  initial={reduce ? false : { opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  <p className="type-small mb-3 text-white/70">
-                    Unlock the full itemized breakdown — government fees, due diligence, dependant add-ons and service
-                    fees — by sharing where to send it.
-                  </p>
-                  <LeadGate
-                    track={selected.track as Track}
-                    answers={{} as AnswerMap}
-                    name={name}
-                    setName={setName}
-                    email={email}
-                    setEmail={setEmail}
-                    phone={phone}
-                    setPhone={setPhone}
-                    onSubmitAction={submitLead}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="detail"
-                  initial={reduce ? false : { opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  <h3 className="type-caption uppercase text-white">Itemized Estimate</h3>
-                  <ul className="mt-3 divide-y divide-white/10 rounded-2xl border border-white/12 bg-white/[0.03]">
-                    {breakdown.lineItems.map((item) => (
-                      <li key={item.key} className="px-4 py-3.5">
-                        <div className="flex items-start justify-between gap-4">
-                          <span className="min-w-0">
-                            <span className="type-small block font-bold text-white">{item.label}</span>
-                            <span className="type-caption mt-0.5 block font-normal text-white/50">{item.note}</span>
-                          </span>
-                          <span className="shrink-0 text-[15px] font-black tabular-nums text-white">
-                            {money(item.amountUsd)}
-                          </span>
-                        </div>
-                        <MeterBar
-                          value={item.amountUsd}
-                          max={breakdown.totalUsd}
-                          color="#e1b923"
-                          height="h-1"
-                          className="mt-2.5"
-                        />
-                      </li>
-                    ))}
-                    <li className="flex items-center justify-between gap-4 rounded-b-2xl bg-[#1c57b4]/20 px-4 py-3.5">
-                      <span className="text-[14px] font-black uppercase text-white">
-                        Estimated total
-                      </span>
-                      <span className="text-[18px] font-black tabular-nums text-white">{money(breakdown.totalUsd)}</span>
-                    </li>
-                  </ul>
-
-                  <p className="type-caption mt-3 font-normal text-white/50">{COST_DISCLAIMER}</p>
-
-                  {/* Paid PDF + advisor CTA */}
-                  <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                    <motion.button
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      onClick={startPdf}
-                      disabled={pdf.loading}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3.5 text-[14px] font-bold text-primary transition hover:bg-[#f0cb3b] disabled:opacity-60"
-                    >
-                      {pdf.loading ? <Loader2 className="size-4 animate-spin" /> : <FileDown className="size-4" />}
-                      Buy full report - INR {COST_REPORT_PRICE_INR}
-                    </motion.button>
-                    <Link
-                      href={BOOKING_ROUTE}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 px-5 py-3.5 text-[14px] font-semibold text-white transition hover:bg-white/10"
-                    >
-                      Discuss this route
-                      <ArrowRight className="size-4" />
-                    </Link>
-                  </div>
-                  {pdf.error && <p className="mt-2 text-[12.5px] text-rose-300">{pdf.error}</p>}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+          </>}
+        </section>
       </div>
     </ToolShell>
   );

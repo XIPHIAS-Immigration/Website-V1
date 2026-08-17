@@ -32,7 +32,7 @@ export default async function DeepAnalysisPage({
       journeySource={getJourneySource(params)}
       lockedEngine
       title="Deep Analysis"
-      subtitle="Explore your high-skill profile for free, or buy the full case-specific Deep Analysis report for INR 4,999. Advisor verification remains a separate step before filing."
+      subtitle="Build a detailed evidence-led view of your education, experience, role, achievements and supporting records across relevant high-skill immigration pathways. XIA uses only the information you provide to identify plausible routes, explain the evidence supporting each direction, highlight missing criteria and organise practical next steps. Incomplete profiles are not given artificial recommendations. A case-specific Deep Analysis report is available for INR 4,999, while final eligibility and filing strategy remain subject to advisor verification."
     />
   );
 }

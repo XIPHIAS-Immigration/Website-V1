@@ -33,7 +33,7 @@ export default async function RouteIntelligencePage({
       journeySource={getJourneySource(params)}
       lockedEngine
       title="Route Intelligence"
-      subtitle="A focused route-fit workspace for destination, capital, timeline, family, and presence preferences."
+      subtitle="Compare immigration pathways against your real destination, objective, applicant profile, available capital, timeline, family needs and physical-presence preference. XIA first removes routes that conflict with the selected profile or goal, then explains why the remaining pathways may fit, where mandatory requirements are not met and which information still affects confidence. The result is a focused shortlist for informed research and advisor verification—not a generic list of every programme in a country."
     />
   );
 }

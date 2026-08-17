@@ -20,7 +20,7 @@ export default function UsVisaIntelligencePage() {
       lockedEngine
       targetCountryLocked="usa"
       title="US Visa Intelligence"
-      subtitle="A US-focused visa intelligence page for EB1A, EB2 NIW, O1A, H-1B, L1, founder, employer, and evidence improvement guidance."
+      subtitle="Assess US visa directions against your professional record, intended work in the United States, petitioner or employer position, current status, previous visa history and available evidence. XIA compares the supplied facts with routes such as EB-1A, EB-2 NIW, O-1, H-1B and L-1, showing why a category may fit, which mandatory dependency is missing and what evidence should be strengthened. It does not assume acclaim, sponsorship or eligibility when those facts have not been provided."
     />
   );
 }

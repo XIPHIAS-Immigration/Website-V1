@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, FileText } from "lucide-react";
 import { getPublicReportProducts } from "@/lib/payments/report-store";
+import { ToolShell } from "@/components/XiaTools/ToolShell";
 
 export const dynamic = "force-dynamic";
 
@@ -19,25 +20,18 @@ export default function ReportsPage() {
   const products = getPublicReportProducts();
 
   return (
-    <main className="min-h-screen bg-[#071a3a] pb-24 pt-24 text-white">
-      <section className="border-b border-white/10 bg-[#071a3a]">
-        <div className="mx-auto max-w-screen-2xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-          <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-secondary">
-            <FileText className="size-4" /> XIPHIAS report store
-          </p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-black leading-tight sm:text-5xl">Choose one report and go straight to its form.</h1>
-          <p className="mt-5 max-w-3xl text-base leading-8 text-white/65">Prices are shown before you choose. Focused reports begin at INR 499, while the INR 4,999 Deep Analysis asks for more evidence because it produces the most detailed self-service assessment.</p>
-          <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold text-white/60">
-            {[
-              "1. Select your report",
-              "2. Enter the relevant information",
-              "3. Pay and download the PDF",
-            ].map((item) => <span key={item} className="rounded-full border border-white/15 px-4 py-2">{item}</span>)}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-screen-2xl bg-[#071a3a] px-4 py-12 sm:px-6 lg:px-8">
+    <ToolShell
+      eyebrow="XIA · Express Reports"
+      title="Choose One Report and Go Straight to Its Form"
+      subtitle="Select the exact immigration report you need, see its price and contents before starting, and complete only the information required to personalise that product. Focused reports begin at INR 499, while the INR 4,999 Deep Analysis requests deeper professional and evidence information. The journey remains three clear steps: choose a report, enter report-specific information, then pay securely and download the personalised PDF after verified payment. Missing facts remain explicitly Not provided."
+      benefits={["Prices shown before selection", "Report-specific intake", "Secure payment and PDF delivery"]}
+      contactContext="Express Reports"
+      contactId="express-report-store"
+    >
+      <div className="mb-8 flex flex-wrap gap-3 text-xs font-bold text-white/70">
+        {["1. Select your report", "2. Enter the relevant information", "3. Pay and download the PDF"].map((item) => <span key={item} className="rounded-full border border-white/20 bg-black/10 px-4 py-2">{item}</span>)}
+      </div>
+      <section className="!bg-transparent">
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {products.map((product) => (
             <article key={product.productType} className={`flex flex-col rounded-2xl border p-6 ${product.featured ? "border-secondary bg-secondary/[0.10]" : "border-white/15 bg-white/[0.04]"}`}>
@@ -61,6 +55,6 @@ export default function ReportsPage() {
           ))}
         </div>
       </section>
-    </main>
+    </ToolShell>
   );
 }
