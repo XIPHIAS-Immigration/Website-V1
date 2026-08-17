@@ -505,7 +505,7 @@ export const headerMenu: HeaderItem[] = [
     submenu: [
       { label: 'Start Your Journey',  href: '/eligibility#start' },
       { label: 'Immigration Reports',  href: '/reports' },
-      { label: 'XIA Intelligence',    href: '/xia-intelligence' },
+      { label: 'XIA Intelligence',    href: '/#xia-intelligence' },
       { label: 'Route Intelligence',  href: '/route-intelligence' },
       { label: 'Deep Analysis',       href: '/deep-analysis' },
       { label: 'US Visa Intelligence', href: '/us-visa-intelligence' },

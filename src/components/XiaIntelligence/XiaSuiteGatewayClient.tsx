@@ -16,7 +16,7 @@ import {
   Sparkles,
   FileText,
 } from "lucide-react";
-import { CharReveal, GradientText, Reveal, Stagger, StaggerItem, TextType, TiltCard } from "@/components/motion";
+import { GradientText, TextType, TiltCard } from "@/components/motion";
 
 const suiteOptions = [
   {
@@ -86,39 +86,33 @@ const suiteOptions = [
 
 const RING_ICONS = [Route, GraduationCap, BrainCircuit];
 
-export default function XiaSuiteGatewayClient() {
+export default function XiaSuiteGatewayClient({ embedded = false }: { embedded?: boolean }) {
   const reduce = useReducedMotion();
 
   return (
-    <main className="xia-type-system relative min-h-screen overflow-hidden bg-primary pt-24 font-sans text-white">
+    <section id={embedded ? "xia-intelligence" : undefined} aria-labelledby="xia-suite-heading" className={`xia-type-system relative scroll-mt-24 overflow-hidden bg-primary font-sans text-white ${embedded ? "py-16 sm:py-20" : "min-h-screen pb-24 pt-24"}`}>
 
       {/* ── Hero ── */}
       <section className="relative mx-auto max-w-screen-2xl bg-transparent px-4 pb-8 pt-8 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <Reveal>
-              <span className="type-caption inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-4 py-1.5 uppercase text-secondary">
-                <Sparkles className="size-3.5" /> XIA Intelligence Suite
-              </span>
-            </Reveal>
+            <span className="type-caption inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-4 py-1.5 uppercase text-secondary">
+              <Sparkles className="size-3.5" /> XIA Intelligence Suite
+            </span>
 
-            <h1 className="type-page-title mt-6">
-              <CharReveal text="Choose the assessment you want to run." />
-            </h1>
+            <h2 id="xia-suite-heading" className="type-page-title mt-6">
+              Choose the assessment you want to run.
+            </h2>
 
-            <Reveal delay={0.1}>
-              <p className="type-body mt-5 max-w-xl text-white/70">
-                Each module asks for the right details and prepares a focused, evidence-led route direction —{" "}
-                <GradientText colors={["#ffffff", "#e1b923", "#ffffff"]}>ready for XIPHIAS Advisor Review</GradientText>.
-              </p>
-            </Reveal>
+            <p className="type-body mt-5 max-w-xl text-white/70">
+              Each module asks for the right details and prepares a focused, evidence-led route direction —{" "}
+              <GradientText colors={["#ffffff", "#e1b923", "#ffffff"]}>ready for XIPHIAS Advisor Review</GradientText>.
+            </p>
 
-            <Reveal delay={0.18}>
-              <p className="type-small mt-6 inline-flex items-start gap-2.5 rounded-lg border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-amber-100">
-                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" />
-                An assessment aid — not a final visa decision. Eligibility and filing strategy require advisor review.
-              </p>
-            </Reveal>
+            <p className="type-small mt-6 inline-flex items-start gap-2.5 rounded-lg border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-amber-100">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" />
+              An assessment aid — not a final visa decision. Eligibility and filing strategy require advisor review.
+            </p>
           </div>
 
           {/* Animated AI core with the three modules orbiting */}
@@ -170,15 +164,13 @@ export default function XiaSuiteGatewayClient() {
 
       {/* ── Module cards ── */}
       <section className="relative mx-auto max-w-screen-2xl bg-transparent px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-        <Reveal>
-          <p className="type-caption uppercase text-white">Select a Module</p>
-        </Reveal>
+        <p className="type-caption uppercase text-white">Select a Module</p>
 
-        <Stagger className="mt-6 grid gap-5 md:grid-cols-3">
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
           {suiteOptions.map((option, index) => {
             const Icon = option.icon;
             return (
-              <StaggerItem key={option.href}>
+              <div key={option.href}>
                 <TiltCard className="h-full" max={7}>
                   <Link
                     href={option.href}
@@ -205,17 +197,15 @@ export default function XiaSuiteGatewayClient() {
                     </span>
                   </Link>
                 </TiltCard>
-              </StaggerItem>
+              </div>
             );
           })}
-        </Stagger>
+        </div>
 
-        <Reveal delay={0.1}>
-          <p className="type-small mt-6 rounded-lg border border-white/10 bg-white/[0.04] px-5 py-4 text-white/60">
-            After generation, the input area stays available at the top while your results remain the main focus.
-          </p>
-        </Reveal>
+        <p className="type-small mt-6 rounded-lg border border-white/10 bg-white/[0.04] px-5 py-4 text-white/60">
+          After generation, the input area stays available at the top while your results remain the main focus.
+        </p>
       </section>
-    </main>
+    </section>
   );
 }

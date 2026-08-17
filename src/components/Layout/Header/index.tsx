@@ -302,7 +302,7 @@ export default function Header() {
 
                 {/* XIA Intelligence — yellow CTA */}
                 <Link
-                  href="/xia-intelligence"
+                  href="/#xia-intelligence"
                   className="type-small hidden h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-secondary px-3.5 font-bold text-primary transition-colors duration-150 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
                   <Sparkles className="h-4 w-4 shrink-0" />

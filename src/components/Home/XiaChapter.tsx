@@ -57,7 +57,7 @@ export default function XiaChapter() {
 
           <Reveal delay={0.2}>
             <Link
-              href="/xia-intelligence"
+              href="/#xia-intelligence"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[14px] font-bold text-[#0a1c44] shadow-lg transition hover:gap-3 hover:bg-secondary"
             >
               Open XIA Intelligence

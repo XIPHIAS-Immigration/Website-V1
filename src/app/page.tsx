@@ -106,8 +106,8 @@ export default function Home() {
     <>
       <JsonLd id="home-service-jsonld" data={homeJsonLd} />
       <Hero />
-      <ImmigrationConsultantsOverview />
       <XiaIntelligencePreview />
+      <ImmigrationConsultantsOverview />
       {/* min-heights match measured mobile section heights so deferred mounting
           doesn't shift layout (keeps CLS ~0). */}
       <DeferOnView minHeight="1330px"><WhyChooseUs /></DeferOnView>

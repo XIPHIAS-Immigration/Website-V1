@@ -509,7 +509,7 @@ export default function XiaIntelligenceClient({
           ) : (
             <div className="mt-6">
               <Link
-                href="/xia-intelligence"
+                href="/#xia-intelligence"
                 className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-midnight_text transition hover:border-primary hover:bg-primary/10 dark:border-slate-700 dark:text-white dark:hover:bg-slate-900"
               >
                 Open full XIA suite

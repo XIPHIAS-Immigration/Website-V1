@@ -67,7 +67,7 @@ export default function XiaSection() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/xia-intelligence"
+                href="/#xia-intelligence"
                 className="inline-flex items-center gap-2 rounded-xl border border-primary/25 px-6 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary/5"
               >
                 Try XIA Intelligence

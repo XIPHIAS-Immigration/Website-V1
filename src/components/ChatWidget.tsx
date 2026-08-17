@@ -504,7 +504,7 @@ const GUIDE_OPTIONS: Record<GuideScreen, GuideOption[]> = {
       eyebrow: "Assessment",
       description: "Open the guided XIPHIAS route, deep analysis, and US visa assessment suite.",
       icon: "compass",
-      href: "/xia-intelligence",
+      href: "/#xia-intelligence",
     },
     {
       label: "Documents and process",

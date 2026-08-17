@@ -4,7 +4,7 @@ import { ArrowRight, Check, FileText, ShieldCheck } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate overflow-hidden bg-primary pt-28 text-white sm:pt-32">
+    <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-primary pt-28 text-white sm:pt-32">
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-60">
         <Image
           src="/images/hero/top-immigration-counsultent.webp"
@@ -18,7 +18,7 @@ export default function Hero() {
       </div>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-primary/80" />
 
-      <div className="mx-auto max-w-screen-2xl px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
         <div className="mx-auto max-w-5xl text-center">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f0c83f]">Immigration strategy, reports and advisory</p>
           <h1 id="home-hero-title" className="type-page-title mt-4">

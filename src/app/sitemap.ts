@@ -41,6 +41,7 @@ const BLOCKLIST: Array<string | RegExp> = [
   /^\/private(\/|$)/,
   /^\/payment(\/|$)/,
   /^\/registration(\/|$)/,
+  /^\/xia-intelligence$/,
   /^\/report-advisor-workflow(\/|$)/,
   /^\/australia-assesment-report(\/|$)/,
   /^\/canada-assesent-report(\/|$)/,

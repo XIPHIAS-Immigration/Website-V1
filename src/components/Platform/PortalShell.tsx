@@ -54,7 +54,7 @@ const navItems: NavItem[] = [
     roles: ["client", "staff", "admin"],
   },
   {
-    href: "/xia-intelligence",
+    href: "/#xia-intelligence",
     label: "XIA Intelligence",
     description: "Assessment suite",
     key: "xia-intelligence",
