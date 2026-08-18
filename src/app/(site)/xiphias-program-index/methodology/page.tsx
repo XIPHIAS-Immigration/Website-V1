@@ -20,7 +20,12 @@ export default function ProgramIndexMethodologyPage() {
     <ToolShell
       eyebrow="XIA · Program Index"
       title="How the Program Index is scored."
-      subtitle="A transparent composite, published so advisors and clients can see exactly what drives each score. Sub-scores are 0–100; the index is their weighted average."
+      subtitle="Understand exactly what drives the XIPHIAS Program Index. The methodology publishes every factor, weight and limitation so the benchmark can be interpreted responsibly."
+      steps={[
+        { title: "Review the six factors", description: "See how affordability, timing, presence, family, due diligence and destination mobility are defined." },
+        { title: "Understand the weighting", description: "Each factor produces a 0–100 sub-score and contributes its published percentage to the composite result." },
+        { title: "Check the limitations", description: "Use data-confidence indicators and the methodology disclaimer before comparing or acting on a ranking." },
+      ]}
       actions={
         <Link
           href="/xiphias-program-index"

@@ -33,7 +33,12 @@ export default async function RouteIntelligencePage({
       journeySource={getJourneySource(params)}
       lockedEngine
       title="Route Intelligence"
-      subtitle="Compare immigration pathways against your real destination, objective, applicant profile, available capital, timeline, family needs and physical-presence preference. XIA first removes routes that conflict with the selected profile or goal, then explains why the remaining pathways may fit, where mandatory requirements are not met and which information still affects confidence. The result is a focused shortlist for informed research and advisor verification—not a generic list of every programme in a country."
+      subtitle="Find immigration pathways that fit your destination, objective and practical circumstances. XIA removes conflicting routes first, then presents a focused shortlist with clear reasons, limitations and evidence gaps."
+      steps={[
+        { title: "Choose your destination and goal", description: "Tell us where you want to move and whether the objective is residence, work, citizenship, investment, business or family migration." },
+        { title: "Add the constraints that matter", description: "Provide your applicant profile, budget, timeline, family needs and preferred physical-presence level." },
+        { title: "Review compatible route directions", description: "Receive a filtered shortlist explaining possible fit, missing requirements and the confidence of each direction." },
+      ]}
     />
   );
 }

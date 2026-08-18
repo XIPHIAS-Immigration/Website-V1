@@ -81,7 +81,12 @@ export default function CostEstimatorClient({ programs }: { programs: CostProgra
     <ToolShell
       eyebrow="XIA · Cost Estimator"
       title="Build a Transparent Immigration Cost Plan"
-      subtitle="Select a programme and family size to see which financial information is actually available and which amounts still require verification. XIA displays catalogue investment figures separately from government charges, due-diligence costs, dependant fees and professional fees, so an incomplete fee schedule is never presented as a complete total. The result gives you a responsible starting budget, a clear list of unanswered cost questions and a direct route to a personalised cost report or advisor review."
+      subtitle="Build a responsible starting budget from amounts that are actually available. Known programme figures remain separate from government, due-diligence, dependant and professional charges that still require verification."
+      steps={[
+        { title: "Choose the programme", description: "Select the route you are considering and the number of accompanying dependants." },
+        { title: "Separate known and pending costs", description: "Review supplied catalogue amounts independently from fees that have not been verified." },
+        { title: "Request the detailed cost report", description: "Continue to a personalised budget report or speak with an advisor about the outstanding figures." },
+      ]}
       benefits={["Supplied costs only", "Pending fees identified", "Family-specific questions"]}
       contactContext="Cost Planning"
       contactId="cost-estimator"
