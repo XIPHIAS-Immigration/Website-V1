@@ -62,6 +62,11 @@ function money(item: FeeItem): string {
   return `${item.currency} ${item.amount.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
+function feeSource(item: FeeItem): string {
+  const source = item.source.replace(/\s+-\s+https?:\/\/\S+.*$/i, "").trim() || item.source.replace(/^https?:\/\/([^/]+).*$/i, "$1");
+  return [item.verifiedDate, source].filter(Boolean).join(" - ");
+}
+
 export function buildCrmPointsAssessmentFrontMatter(order: JiopayOrder): string {
   const a = (order.answers ?? {}) as Record<string, unknown>;
   const manual = text(a.calculationMode) === "manual_adviser";
@@ -164,8 +169,8 @@ export function buildCrmPointsAssessmentFrontMatter(order: JiopayOrder): string 
     footer: foot("Fees and required funds"),
     body:
       sectionHeader({ eyebrow: "Financial plan", title: "Fees and required funds", desc: "Amounts are separated by category so professional charges, government fees, third-party costs and required funds are not confused." }) +
-      (costs.length ? table({ head: ["Category", "Item", "Amount", "Verified / source"], rows: costs.map((item) => [esc(label(item.category)), esc(item.label), esc(money(item)), esc([item.verifiedDate, item.source].filter(Boolean).join(" - "))]) }) : callout({ k: "Fees", text: "No fee lines were entered for this report version." })) +
-      (funds.length ? `<div class="spacer-18"></div>` + sectionHeader({ title: "Proof of funds / available-funds requirement" }) + table({ head: ["Requirement", "Amount", "Verified / source"], rows: funds.map((item) => [esc(item.label), esc(money(item)), esc([item.verifiedDate, item.source].filter(Boolean).join(" - "))]) }) : "") +
+      (costs.length ? table({ head: ["Category", "Item", "Amount", "Verified / source"], rows: costs.map((item) => [esc(label(item.category)), esc(item.label), esc(money(item)), esc(feeSource(item))]) }) : callout({ k: "Fees", text: "No fee lines were entered for this report version." })) +
+      (funds.length ? `<div class="spacer-18"></div>` + sectionHeader({ title: "Proof of funds / available-funds requirement" }) + table({ head: ["Requirement", "Amount", "Verified / source"], rows: funds.map((item) => [esc(item.label), esc(money(item)), esc(feeSource(item))]) }) : "") +
       `<div class="spacer-16"></div>` +
       callout({ k: "Fee control", text: "Government and third-party fees can change. Reconfirm every amount before payment. Proof of funds is a financial requirement and is not a fee paid to XIPHIAS or the government." }),
   });

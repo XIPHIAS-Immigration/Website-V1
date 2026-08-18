@@ -5,6 +5,7 @@ import { getResidencyPrograms } from "@/lib/residency-content";
 import { getCitizenshipPrograms } from "@/lib/citizenship-content";
 import { getCorporatePrograms } from "@/lib/corporate-content";
 import { getAllContentCached } from "@/lib/content";
+import { attachProgrammeFeeSchedule } from "./programme-fees";
 
 // Cross-vertical programme resolver. Given a free-text country + programme (and an
 // optional track hint), it finds the best-matching programme across all four content
@@ -13,7 +14,21 @@ import { getAllContentCached } from "@/lib/content";
 
 export type Vertical = "skilled" | "residency" | "citizenship" | "corporate";
 
-export type FeeRow = { label?: string; amount?: number; currency?: string; when?: string; notes?: string; sourceLabel?: string };
+export type FeeStatus = "verified" | "website_estimate" | "pending";
+export type FeeRow = {
+  category?: "government" | "assessing_body" | "language_test" | "third_party" | "investment" | "proof_of_funds" | "other";
+  label?: string;
+  amount?: number;
+  currency?: string;
+  when?: string;
+  notes?: string;
+  sourceLabel?: string;
+  sourceUrl?: string;
+  effectiveFrom?: string;
+  checkedAt?: string;
+  status?: FeeStatus;
+};
+export type FeeCoverage = { status: FeeStatus; checkedAt?: string; effectiveFrom?: string; note: string };
 export type DocGroup = { group?: string; documents?: string[]; notes?: string };
 export type ProcessStep = { title?: string; description?: string };
 export type Faq = { q?: string; a?: string };
@@ -48,6 +63,7 @@ export type Dossier = {
   prices?: FeeRow[];
   proofOfFunds?: FeeRow[];
   governmentFees?: FeeRow[];
+  feeCoverage?: FeeCoverage;
   documentChecklist?: DocGroup[];
   projectList?: Project[];
   pointsGrid?: PointsRow[];
@@ -192,7 +208,7 @@ function scoredCandidates(opts: { country?: string; program?: string; track?: st
  */
 export function resolveProgramme(opts: { country?: string; program?: string; track?: string }): Dossier | null {
   const best = scoredCandidates(opts)[0];
-  return best ? attachBody(best.meta) : null;
+  return best ? attachProgrammeFeeSchedule(attachBody(best.meta)) : null;
 }
 
 /**
@@ -206,7 +222,7 @@ export function resolveProgrammes(opts: { country?: string; program?: string; tr
     const key = `${meta.vertical}:${slugOf(meta.programSlug) || norm(meta.title)}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push(attachBody(meta));
+    out.push(attachProgrammeFeeSchedule(attachBody(meta)));
     if (out.length >= limit) break;
   }
   return out;

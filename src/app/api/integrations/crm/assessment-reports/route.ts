@@ -33,6 +33,10 @@ const TEXT_LIMITS: Record<string, number> = {
   calculationMode: 40, visaSubclass: 20, dateOfBirth: 20, pointsTestDate: 20,
   englishProficiencyLevel: 40, qualificationLevel: 80, partnerCategory: 60,
   skillsAssessmentResult: 40, ruleSetVersion: 40, manualAssessmentReason: 1200,
+  educationDetails: 2000, crmLanguageProfile: 2000, occupationDetails: 2500,
+  spouseOccupationDetails: 1600, familyDetails: 1600, workDetails: 2000,
+  businessDetails: 2000, eligibilityAssessment: 5000, recordedPointsAssessment: 8000,
+  programmeCode: 80,
 };
 const NUMBER_FIELDS = [
   "age", "dependants", "timelineMonths", "yearsExperience", "languageScore",
@@ -155,17 +159,23 @@ function structuredReportCompleteness(answers: Record<string, unknown>) {
     && has("subclass190Points") && has("subclass491Points");
   const manualCalculation = calculationMode === "manual_adviser"
     && has("manualAssessmentReason") && has("claimedPointsTotal");
+  const route = normalizeText(`${answers.targetCountries ?? ""} ${answers.selectedProgrammes ?? ""} ${answers.goal ?? ""}`, 2000).toLowerCase();
+  const skilled = /(skilled|express entry|\b189\b|\b190\b|\b491\b|\bpnp\b|\bfsw\b|\bcec\b|employer|work permit|global talent|eb-?1|o-?1)/.test(route);
+  const pointsBased = /(australia|express entry|\b189\b|\b190\b|\b491\b|\bpnp\b|\bfsw\b|\bcec\b|points)/.test(route);
+  const investment = /(invest|golden visa|residency by|citizenship by|entrepreneur|corporate)/.test(route);
+  const sourceCalculation = calculationMode === "source_assessment"
+    && (has("recordedPointsAssessment") || has("eligibilityAssessment") || !pointsBased);
   const checks = [
     has("selectedProgrammes") && has("targetCountries"),
-    has("occupation") && (has("anzscoCode") || has("occupationCode")),
-    calculationMode === "manual_adviser" || (has("dateOfBirth") && has("pointsTestDate")),
-    calculationMode === "manual_adviser" || (["languageListening", "languageReading", "languageWriting", "languageSpeaking"].every(has)),
-    calculationMode === "manual_adviser" || (has("overseasExperienceMonths") && has("australianExperienceMonths")),
-    has("qualificationLevel") || has("education"),
-    has("assessingBody") && has("skillsAssessmentResult"),
-    Array.isArray(answers.feeItems) && answers.feeItems.length > 0,
-    has("profileSummary") && has("advisorRecommendation") && has("nextActions"),
-    has("factualSources") && (verifiedCalculation || manualCalculation),
+    !skilled || (has("occupation") && (has("anzscoCode") || has("occupationCode"))),
+    !skilled || has("education") || has("educationDetails"),
+    !skilled || has("languageDetails") || has("crmLanguageProfile"),
+    !skilled || has("yearsExperience") || has("occupationDetails"),
+    !skilled || has("assessingBody"),
+    !pointsBased || verifiedCalculation || manualCalculation || sourceCalculation,
+    !investment || has("availableFundsUsd") || has("businessDetails"),
+    has("profileSummary") || has("advisorRecommendation"),
+    has("advisorRecommendation") || has("nextActions"),
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
@@ -261,11 +271,11 @@ export async function POST(req: NextRequest) {
       "stateNominationPoints", "regionalSponsorshipPoints", "partnerPoints", "communityLanguagePoints"];
     answers.claimedPointsTotal = manualFields.reduce((sum, key) => sum + Math.max(0, optionalNumber(answers[key]) ?? 0), 0);
     answers.ruleSetVersion = "MANUAL";
+  } else if (calculationMode === "source_assessment") {
+    answers.ruleSetVersion = normalizeText(answers.ruleSetVersion, 40) || "CRM-ASSESSMENT";
   } else {
-    return NextResponse.json({ ok: false, error: "Select a supported calculation method." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Select the recorded CRM assessment or a supported calculation method." }, { status: 400 });
   }
-  if (!Array.isArray(answers.feeItems) || answers.feeItems.length === 0)
-    return NextResponse.json({ ok: false, error: "Add at least one fee or required-funds line with amount, currency and source." }, { status: 400 });
   const order = buildOrder(body, answers, productType, reference, name, email, phone);
   const completeness = structuredReportCompleteness(answers);
   if (mode === "email" && completeness < 60)

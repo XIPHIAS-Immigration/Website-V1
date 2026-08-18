@@ -237,6 +237,31 @@ export async function loadCountryImages(country?: string): Promise<string[]> {
   return assets.map((asset) => asset.uri);
 }
 
+/**
+ * Programme-aware ordering for strategy reports. Exact hero/programme assets are used
+ * first, then the correct vertical and finally the remaining country pool. The country
+ * loader still owns resolution, quality checks and safe brand fallback.
+ */
+export async function loadProgrammeImages(country?: string, programme?: { heroImage?: string; programSlug?: string; vertical?: string }): Promise<string[]> {
+  const assets = await loadCountryImageAssets(country);
+  if (!programme || assets.length < 2) return assets.map((asset) => asset.uri);
+  const hero = path.basename(programme.heroImage ?? "").replace(/\.[a-z0-9]+$/i, "").toLowerCase();
+  const programmeTokens = String(programme.programSlug ?? "").toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 2);
+  const vertical = String(programme.vertical ?? "").toLowerCase();
+  const score = (source: string) => {
+    const value = source.toLowerCase();
+    let result = 0;
+    if (hero && value.includes(hero)) result += 100;
+    result += programmeTokens.filter((token) => value.includes(token)).length * 12;
+    if (vertical && value.includes(`/images/${vertical}/`)) result += 8;
+    if (/\/cover\.[a-z0-9]+$/i.test(value)) result += 4;
+    return result;
+  };
+  return assets.map((asset, index) => ({ asset, index, score: score(asset.source) }))
+    .sort((left, right) => right.score - left.score || left.index - right.index)
+    .map((entry) => entry.asset.uri);
+}
+
 export type CountryImageAsset = {
   source: string;
   uri: string;

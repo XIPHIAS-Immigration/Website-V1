@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { Dossier } from "./programme";
+import type { Dossier, FeeRow } from "./programme";
 import { mdToHtml, proseLength, splitProseSections } from "./markdown";
 import {
   bigStats,
@@ -64,6 +64,11 @@ type DossierOpts = {
 function money(amount?: number, currency?: string): string {
   if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) return "On request";
   return `${currency || "USD"} ${Math.round(amount).toLocaleString("en-US")}`;
+}
+function feeSource(row: FeeRow): string {
+  if (!row) return "Source not recorded - verify before use";
+  const status = row.status === "verified" ? "Verified" : row.status === "website_estimate" ? "Website estimate - recheck" : "Pending";
+  return [status, row.checkedAt ? `checked ${row.checkedAt}` : "", row.sourceLabel, row.sourceUrl].filter(Boolean).join(" - ");
 }
 function titleCase(value: string): string {
   return value.replace(/\b\w/g, (c) => c.toUpperCase());
@@ -187,23 +192,28 @@ export function buildDossierPages(dossier: Dossier, opts: DossierOpts): string[]
   const prices = (dossier.prices ?? []).filter((r) => (r.label || "").trim()).slice(0, 14);
   const govFees = (dossier.governmentFees ?? []).filter((r) => (r.label || "").trim()).slice(0, 14);
   const pof = (dossier.proofOfFunds ?? []).filter((r) => (r.label || r.amount) != null).slice(0, 10);
-  if (want("costs") && (prices.length || govFees.length || pof.length || (dossier.minInvestment ?? 0) > 0)) {
+  if (want("costs") && (prices.length || govFees.length || pof.length || (dossier.minInvestment ?? 0) > 0 || dossier.feeCoverage)) {
+    const coverage = dossier.feeCoverage;
     const summary =
-      sectionHeader({ eyebrow: "Commercial view", title: "Indicative costs & fees", desc: "Programme, government and professional cost lines. Final quotation follows advisor verification." }) +
+      sectionHeader({ eyebrow: "Financial view", title: "Programme costs, government fees and required funds", desc: "Authority charges, programme costs and required funds are kept separate. XIPHIAS professional fees are not inferred from public programme data." }) +
       bigStats(
         [
           (dossier.minInvestment ?? 0) > 0 ? { k: "Investment from", v: money(dossier.minInvestment, dossier.currency) } : null,
           { k: "Timeline", v: dossier.timelineLabel || (dossier.timelineMonths ? `${dossier.timelineMonths} mo` : "To confirm") },
           typeof dossier.holdingPeriodMonths === "number" && dossier.holdingPeriodMonths > 0 ? { k: "Holding period", v: `${dossier.holdingPeriodMonths} mo` } : null,
         ].filter(Boolean) as { k: string; v: string }[],
-      );
+      ) +
+      (coverage ? `<div class="spacer-12"></div>` + callout({
+        k: coverage.status === "verified" ? "Fee source control" : coverage.status === "website_estimate" ? "Indicative values - recheck required" : "Fee schedule pending",
+        text: [coverage.note, coverage.effectiveFrom ? `Effective from ${coverage.effectiveFrom}.` : "", coverage.checkedAt ? `Last checked ${coverage.checkedAt}.` : ""].filter(Boolean).join(" "),
+      }) : "");
     const totalRows = prices.length + govFees.length + pof.length;
     if (totalRows <= 7) {
       let body = summary + `<div class="spacer-16"></div>`;
       if (prices.length)
-        body += `<h3 class="h-sub">Programme costs</h3>` + table({ head: ["Item", "Amount", "When / notes"], rows: prices.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc([r.when, r.notes].filter(Boolean).join(". "))]) });
+        body += `<h3 class="h-sub">Programme and third-party estimates</h3>` + table({ head: ["Item", "Amount", "Status / when / notes"], rows: prices.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc([r.status === "website_estimate" ? "Website estimate - recheck" : "", r.checkedAt ? `checked ${r.checkedAt}` : "", r.when, r.notes].filter(Boolean).join(". "))]) });
       if (govFees.length)
-        body += `<div class="spacer-8"></div><h3 class="h-sub">Government / statutory fees</h3>` + table({ head: ["Fee", "Amount", "Source"], rows: govFees.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc(r.sourceLabel || "Official schedule")]) });
+        body += `<div class="spacer-8"></div><h3 class="h-sub">Government / statutory fees</h3>` + table({ head: ["Fee", "Amount", "Source / status"], rows: govFees.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc(feeSource(r))]) });
       if (pof.length)
         body += `<div class="spacer-8"></div><h3 class="h-sub">Proof of funds</h3>` + table({ head: ["Requirement", "Amount", "Notes"], rows: pof.map((r) => [esc(r.label || "Maintained funds"), esc(money(r.amount, r.currency)), esc(r.notes || "")]) });
       addAuto("Costs", body, "Costs & fees", totalRows >= 6);
@@ -212,15 +222,15 @@ export function buildDossierPages(dossier: Dossier, opts: DossierOpts): string[]
       chunk(prices, 6).forEach((rows, i) =>
         addFull(
           "Costs",
-          sectionHeader({ eyebrow: i === 0 ? "Programme costs" : "Programme costs continued", title: i === 0 ? "Programme cost lines" : "Programme cost lines continued" }) +
-            table({ head: ["Item", "Amount", "When / notes"], rows: rows.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc([r.when, r.notes].filter(Boolean).join(". "))]) }),
+          sectionHeader({ eyebrow: i === 0 ? "Programme costs" : "Programme costs continued", title: i === 0 ? "Programme and third-party estimates" : "Programme estimates continued" }) +
+            table({ head: ["Item", "Amount", "Status / when / notes"], rows: rows.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc([r.status === "website_estimate" ? "Website estimate - recheck" : "", r.checkedAt ? `checked ${r.checkedAt}` : "", r.when, r.notes].filter(Boolean).join(". "))]) }),
         ),
       );
       chunk(govFees, 6).forEach((rows, i) =>
         addFull(
           "Costs",
           sectionHeader({ eyebrow: i === 0 ? "Government fees" : "Government fees continued", title: i === 0 ? "Government / statutory fees" : "Government / statutory fees continued" }) +
-            table({ head: ["Fee", "Amount", "Source"], rows: rows.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc(r.sourceLabel || "Official schedule")]) }),
+            table({ head: ["Fee", "Amount", "Source / status"], rows: rows.map((r) => [esc(r.label), esc(money(r.amount, r.currency)), esc(feeSource(r))]) }),
         ),
       );
       chunk(pof, 6).forEach((rows, i) =>

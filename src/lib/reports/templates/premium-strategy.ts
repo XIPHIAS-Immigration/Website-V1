@@ -3,7 +3,7 @@ import "server-only";
 import type { JiopayOrder } from "@/lib/payments/jiopay-store";
 import { resolveProgramme, resolveProgrammes, type Dossier } from "@/lib/reports/programme";
 import { buildDossierPages, programmeNarrativePages } from "../dossier-sections";
-import { loadCoverBg, loadCountryImages, loadLogo } from "../assets";
+import { loadCoverBg, loadProgrammeImages, loadLogo } from "../assets";
 import {
   bigStats,
   callout,
@@ -32,6 +32,7 @@ import { allocateReportImages, cleanReportPunctuation, depthFor } from "./report
 import { assessPersonalisation, buildClientCase, caseCoverProfileLine, factValue, reportBasis, verifiedDocumentReadiness } from "../client-case";
 import { buildCrmPointsAssessmentFrontMatter } from "./crm-points-assessment";
 import { buildCrmProfilePersonalisation } from "./crm-profile-personalisation";
+import { buildCrmDynamicPersonalisation } from "./crm-dynamic-personalisation";
 
 // The flagship eligibility report (product premium_report), rebuilt on the premium
 // framework so it shares the same full-page editorial design as the other reports and
@@ -146,13 +147,22 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const route = dossier?.title || (programName ? smartLabel(programName) : "Advisor-led route");
   const countryLabel = smartLabel(country) || dossier?.country || "Global mobility";
   const isCrmPointsAssessment = str(a.reportFormat) === "points-assessment";
-  const isDraft = clientCase.reviewStatus === "draft" && !isCrmPointsAssessment;
+  const isCrmDynamic = str(a.reportFormat) === "crm-dynamic";
+  const isCrmReport = isCrmPointsAssessment || isCrmDynamic;
+  const isDraft = clientCase.reviewStatus === "draft" && !isCrmReport;
   const crmOccupation = str(a.occupation);
   const crmOccupationCode = str(a.anzscoCode || a.occupationCode);
+  const crmRouteContext = `${country} ${programName} ${route}`.toLowerCase();
+  const crmOccupationCodeLabel = /australia|subclass\s*(189|190|491)|skilled independent|state nominated/.test(crmRouteContext)
+    ? "ANZSCO"
+    : /canada|express entry|provincial nominee|\bpnp\b|federal skilled|canadian experience/.test(crmRouteContext)
+      ? "NOC / TEER"
+      : "Occupation code";
 
   const logo = await loadLogo();
   const coverBg = await loadCoverBg();
-  const imgs = allocateReportImages(await loadCountryImages(country || dossier?.country), "premium_strategy", order.merchantTxnNo);
+  const programmeImages = await loadProgrammeImages(country || dossier?.country, dossier ?? undefined);
+  const imgs = isCrmDynamic ? programmeImages : allocateReportImages(programmeImages, "premium_strategy", order.merchantTxnNo);
 
   const explicitFit = factValue(clientCase.advisor.routeFitScore);
   const hasFamily = factValue(clientCase.family.included) === true;
@@ -187,9 +197,11 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const budgetLabel = budget > 0 ? `~ USD ${Math.round(budget).toLocaleString("en-US")}` : "To confirm at review";
   const benefits = (dossier?.benefits ?? []).map((b) => String(b ?? "").trim()).filter(Boolean).slice(0, 5);
   const tagline = dossier?.tagline || `An advisor-led ${route} strategy for ${countryLabel}.`;
-  const crmPersonalisation = isCrmPointsAssessment
-    ? buildCrmProfilePersonalisation({ clientCase, answers: a, dossier, route, countryLabel, timelineMonths })
-    : null;
+  const crmPersonalisation = isCrmDynamic
+    ? buildCrmDynamicPersonalisation({ clientCase, answers: a, dossier, route, countryLabel, timelineMonths })
+    : isCrmPointsAssessment
+      ? buildCrmProfilePersonalisation({ clientCase, answers: a, dossier, route, countryLabel, timelineMonths })
+      : null;
 
   // 1 — Cover
   const cover = coverPage({
@@ -200,10 +212,10 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     eyebrow: isDraft ? "Draft Sample · Unverified" : "Private Client Assessment",
     title: reportTitle,
     preparedFor: order.customer.name,
-    profileLine: isCrmPointsAssessment
-      ? [crmOccupation, crmOccupationCode ? `ANZSCO ${crmOccupationCode}` : ""].filter(Boolean).join(" | ") || caseCoverProfileLine(clientCase)
+    profileLine: isCrmReport
+      ? [crmOccupation, crmOccupationCode ? `${crmOccupationCodeLabel} ${crmOccupationCode}` : ""].filter(Boolean).join(" | ") || caseCoverProfileLine(clientCase)
       : caseCoverProfileLine(clientCase),
-    subtitle: isCrmPointsAssessment
+    subtitle: isCrmReport
       ? `${crmOccupation || "Skilled migration"}${crmOccupationCode ? ` (${crmOccupationCode})` : ""} - ${route} assessment for ${countryLabel}.`
       : isDraft
       ? `A preliminary planning example for ${countryLabel}. Not for filing or decision-making.`
@@ -227,7 +239,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         : dossier?.tagline || `XIPHIAS recommends an advisor-led ${route} evidence review before full filing preparation.`,
     }) +
     grid(2, crmPersonalisation
-      ? [crmPersonalisation.profileCards[0], crmPersonalisation.profileCards[1], crmPersonalisation.profileCards[2], crmPersonalisation.profileCards[5]].map((item) => card({ k: item.label, v: item.value, note: item.note }))
+      ? crmPersonalisation.profileCards.slice(0, 4).map((item) => card({ k: item.label, v: item.value, note: item.note }))
       : [
           card({ k: "Country", v: countryLabel }),
           card({ k: "Recommended route", v: route }),
@@ -271,10 +283,11 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const scorePage = splitPage({ header: head, footer: foot("03"), content: scoreContent, imageDataUri: nextImg(), capEyebrow: "Assessment dashboard", capTitle: "Readiness scorecard" });
 
   // 4 — Your profile at a glance (split)
+  const profileCards = crmPersonalisation?.profileCards ?? [];
   const profileContent =
     sectionHeader({ eyebrow: "Client profile", title: "Your profile at a glance", desc: crmPersonalisation ? "The qualification, employment, English, skills-assessment and points facts that shape every later section of this strategy." : "The inputs behind this recommendation — and what each one signals for your route." }) +
     grid(2, crmPersonalisation
-      ? crmPersonalisation.profileCards.map((item) => card({ k: item.label, v: item.value, note: item.note }))
+      ? profileCards.slice(0, 4).map((item) => card({ k: item.label, v: item.value, note: item.note }))
       : [
           card({ k: "Primary objective", v: goal || "Advisor-led plan", note: "The outcome your plan is optimised toward." }),
           card({ k: "Applicant profile", v: profileLabel, note: "Determines which programme families fit best." }),
@@ -291,6 +304,17 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         : `As a ${profileLabel.toLowerCase()} prioritising ${priorityLabel.toLowerCase()}, ${route} in ${countryLabel} is the route that best balances your objective, budget and timeline — detailed in full across this report.`,
     });
   const profilePage = splitPage({ header: head, footer: foot("04"), content: profileContent, imageDataUri: nextImg(), capEyebrow: "Private client", capTitle: profileLabel });
+  const profileContinuationPage = profileCards.length > 4
+    ? page({
+        header: head,
+        body:
+          sectionHeader({ eyebrow: "Client profile", title: "Recorded assessment facts (continued)", desc: "Additional recorded facts used throughout the points, evidence, risk and action sections." }) +
+          grid(2, profileCards.slice(4).map((item) => card({ k: item.label, v: item.value, note: item.note }))) +
+          `<div class="spacer-16"></div>` +
+          callout({ k: "What this means for you", text: "These facts drive the points, evidence, risk controls and actions throughout this report." }),
+        footer: foot("Profile continued"),
+      })
+    : "";
 
   // 5 — How this strategy was built (split, methodology)
   const methodologyContent =
@@ -336,9 +360,10 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       grid(3, [
         card({ k: "Recommended route", v: route }),
         card({
-          k: isCrmPointsAssessment ? "Recorded points" : "Route fit",
+          k: isCrmPointsAssessment ? "Recorded points" : isCrmDynamic ? "Assessment" : "Route fit",
           v: isCrmPointsAssessment
             ? `${num(a.claimedPointsTotal) ?? 0} points`
+            : isCrmDynamic ? "CRM assessment" 
             : fit !== undefined ? `${fit} / 100` : "Not assessed",
           note: isCrmPointsAssessment ? `${route} calculation` : fit !== undefined ? fitWord(fit) : "Advisor review required",
         }),
@@ -353,6 +378,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // descriptive eligibility list: this is a personal "can you evidence it?" tracker).
   const reqs = (dossier?.requirements ?? []).map((r) => String(r ?? "").trim()).filter(Boolean).slice(0, 6);
   const disq = (dossier?.disqualifiers ?? []).map((d) => String(d ?? "").trim()).filter(Boolean).slice(0, 2);
+  const personalisedEligibilityRows = crmPersonalisation?.eligibilityRows ?? [];
   const selfCheckPage = (crmPersonalisation?.eligibilityRows.length || reqs.length)
     ? page({
         header: head,
@@ -365,7 +391,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
           table({
             head: crmPersonalisation ? ["Requirement", "Recorded profile", "Evidence to show", "Status"] : ["Requirement", "Your status", "Evidence to show"],
             rows: crmPersonalisation
-              ? crmPersonalisation.eligibilityRows.map((row) => [esc(row.requirement), esc(row.profile), esc(row.evidence), pill(row.status, row.tone)])
+              ? personalisedEligibilityRows.slice(0, 4).map((row) => [esc(row.requirement), esc(row.profile), esc(row.evidence), pill(row.status, row.tone)])
               : reqs.map((r) => [esc(r), pill("Confirm", "warn"), `<span class="muted">To prepare</span>`]),
           }) +
           `<div class="spacer-16"></div>` +
@@ -374,6 +400,20 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
             ? `<div class="spacer-8"></div>` + callout({ k: "Refusal risks to review", text: disq.join("; ") })
             : ""),
         footer: foot("07"),
+      })
+    : "";
+  const selfCheckContinuationPage = personalisedEligibilityRows.length > 4
+    ? page({
+        header: head,
+        body:
+          sectionHeader({ eyebrow: "Eligibility self-check", title: "Requirement evidence (continued)", desc: `Remaining programme tests for ${route}, tied to the recorded client profile and evidence required.` }) +
+          table({
+            head: ["Requirement", "Recorded profile", "Evidence to show", "Status"],
+            rows: personalisedEligibilityRows.slice(4).map((row) => [esc(row.requirement), esc(row.profile), esc(row.evidence), pill(row.status, row.tone)]),
+          }) +
+          `<div class="spacer-16"></div>` +
+          callout({ k: "Approval control", text: "Close every mandatory requirement before final client delivery or filing preparation." }),
+        footer: foot("Eligibility continued"),
       })
     : "";
 
@@ -430,7 +470,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         desc: `A premium strategy should state not only why ${route} fits, but also what must be true before you commit time and capital.`,
       }) +
       grid(2, crmPersonalisation
-        ? [crmPersonalisation.profileCards[1], crmPersonalisation.profileCards[2], crmPersonalisation.profileCards[3], crmPersonalisation.profileCards[4]].map((item) => card({ k: `${item.label} gate`, v: item.value, note: item.note }))
+        ? crmPersonalisation.profileCards.slice(1, 5).map((item) => card({ k: `${item.label} gate`, v: item.value, note: item.note }))
         : [
             card({ k: "Eligibility gate", v: "Evidence confirmed", note: "Every mandatory criterion is mapped to a current, independently verifiable document." }),
             card({ k: "Financial gate", v: budget > 0 ? budgetLabel : "Budget confirmed", note: "Government, professional, relocation and contingency costs fit your available funds." }),
@@ -452,6 +492,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     footer: foot("Decision framework"),
   });
 
+  const personalisedAssumptionRows = crmPersonalisation?.assumptionRows ?? [];
   const assumptionsPage = page({
     header: head,
     body:
@@ -462,7 +503,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       }) +
       table({
         head: ["Planning assumption", "Current basis", "Advisor confirmation"],
-        rows: (crmPersonalisation?.assumptionRows ?? [
+        rows: (crmPersonalisation ? personalisedAssumptionRows.slice(0, 5) : [
           ["Destination", countryLabel, "Confirm jurisdiction and intended place of settlement"],
           ["Primary route", route, "Confirm current eligibility and programme availability"],
           ["Objective", goal || "Advisor-led plan", "Confirm the status and long-term outcome sought"],
@@ -475,8 +516,20 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       callout({ k: "Change control", text: "Re-score the strategy if employment, family composition, available funds, destination, immigration history or the intended filing date changes materially." }),
     footer: foot("Assumptions"),
   });
+  const assumptionsContinuationPage = personalisedAssumptionRows.length > 5
+    ? page({
+        header: head,
+        body:
+          sectionHeader({ eyebrow: "Strategy assumptions", title: "Profile assumptions (continued)", desc: "Additional client facts that directly affect programme positioning, evidence and timing." }) +
+          table({ head: ["Planning assumption", "Current basis", "Confirmation"], rows: personalisedAssumptionRows.slice(5).map((row) => row.map(esc)) }) +
+          `<div class="spacer-16"></div>` +
+          callout({ k: "Version control", text: "Generate a new report version whenever one of these recorded facts changes materially." }),
+        footer: foot("Assumptions continued"),
+      })
+    : "";
 
   const evidenceRequirements = (dossier?.requirements ?? []).map((item) => String(item ?? "").trim()).filter(Boolean).slice(0, 6);
+  const personalisedEvidenceRows = crmPersonalisation?.evidenceRows ?? [];
   const evidenceBlueprintPage = page({
     header: head,
     body:
@@ -488,7 +541,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       table({
         head: ["Evidence workstream", "Proof standard", "Owner", "Status"],
         rows: crmPersonalisation
-          ? crmPersonalisation.evidenceRows.map((row) => [esc(row[0]), esc(row[1]), esc(row[2]), pill(row[3], /verified|available|recorded/i.test(row[3]) ? "good" : "warn")])
+          ? personalisedEvidenceRows.slice(0, 5).map((row) => [esc(row[0]), esc(row[1]), esc(row[2]), pill(row[3], /verified|available|recorded/i.test(row[3]) ? "good" : "warn")])
           : (evidenceRequirements.length ? evidenceRequirements : [
               "Identity and immigration history",
               "Education and professional standing",
@@ -506,12 +559,27 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       callout({ k: "Evidence rule", text: "Do not treat a document as complete merely because it exists. It must prove the specific legal or programme test, agree with the rest of the file and remain valid on the filing date." }),
     footer: foot("Evidence blueprint"),
   });
+  const evidenceContinuationPage = personalisedEvidenceRows.length > 5
+    ? page({
+        header: head,
+        body:
+          sectionHeader({ eyebrow: "Evidence ownership", title: "Evidence blueprint (continued)", desc: `Remaining evidence workstreams for ${route}.` }) +
+          table({
+            head: ["Evidence workstream", "Proof standard", "Owner", "Status"],
+            rows: personalisedEvidenceRows.slice(5).map((row) => [esc(row[0]), esc(row[1]), esc(row[2]), pill(row[3], /verified|available|recorded/i.test(row[3]) ? "good" : "warn")]),
+          }) +
+          `<div class="spacer-16"></div>` +
+          callout({ k: "Consistency control", text: "Names, dates, duties, amounts and family details must agree across every document and form." }),
+        footer: foot("Evidence continued"),
+      })
+    : "";
 
   const riskInputs = [
     ...(dossier?.disqualifiers ?? []),
     ...(dossier?.riskNotes ?? []),
     ...(dossier?.complianceNotes ?? []),
   ].map((item) => String(item ?? "").trim()).filter(Boolean).slice(0, 6);
+  const personalisedRiskRows = crmPersonalisation?.riskRows ?? [];
   const riskRegisterPage = page({
     header: head,
     body:
@@ -523,7 +591,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       table({
         head: ["Risk", "Control", "Decision gate"],
         rows: crmPersonalisation
-          ? crmPersonalisation.riskRows.map((row) => row.map(esc))
+          ? personalisedRiskRows.slice(0, 5).map((row) => row.map(esc))
           : (riskInputs.length ? riskInputs : [
               "Eligibility evidence is incomplete or inconsistent",
               "Government rules or intake conditions change",
@@ -540,6 +608,17 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
       callout({ k: "Escalation rule", text: "Any unresolved mandatory criterion, adverse immigration fact, unexplained funds movement or contradictory record must be escalated before a filing date is agreed." }),
     footer: foot("Risk register"),
   });
+  const riskContinuationPage = personalisedRiskRows.length > 5
+    ? page({
+        header: head,
+        body:
+          sectionHeader({ eyebrow: "Risk register", title: "Risk controls (continued)", desc: `Additional programme and case risks to resolve before proceeding with ${route}.` }) +
+          table({ head: ["Risk", "Control", "Decision gate"], rows: personalisedRiskRows.slice(5).map((row) => row.map(esc)) }) +
+          `<div class="spacer-16"></div>` +
+          callout({ k: "Escalation rule", text: "Do not proceed while a mandatory eligibility, integrity, funds or documentary issue remains unresolved." }),
+        footer: foot("Risks continued"),
+      })
+    : "";
 
   const financialControlPage = page({
     header: head,
@@ -726,6 +805,57 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
     footer: foot("Next steps"),
   });
 
+  const submissionQualityPage = isCrmDynamic
+    ? page({
+        header: head,
+        body:
+          sectionHeader({ eyebrow: "Application quality", title: "Build a decision-ready submission pack", desc: `Presentation and consistency controls for ${route} in ${countryLabel}.` }) +
+          grid(2, [
+            card({ k: "Identity consistency", v: "One verified identity", note: "Names, dates of birth, passport details and civil records must agree across the application." }),
+            card({ k: "Profile consistency", v: "Facts match evidence", note: crmOccupation ? `The recorded ${crmOccupation} profile must match duties, dates and supporting records.` : "Employment, education or business facts must match their supporting records." }),
+            card({ k: "Document quality", v: "Legible and complete", note: "Use full documents, accepted translations and certification where required." }),
+            card({ k: "Form control", v: "Final cross-check", note: "Reconcile every form response with the evidence pack before submission." }),
+          ]) +
+          `<div class="spacer-16"></div>` +
+          ticks([
+            "Use consistent names, dates, addresses, travel history and family information throughout the file.",
+            "Explain genuine differences or gaps directly; do not leave a case officer to infer the reason.",
+            "Confirm that employment duties, qualification details and programme codes support the selected route.",
+            "Check issue dates, expiry dates, signatures, translations and document completeness before upload.",
+            "Retain a final indexed copy of every submitted form, document and payment record.",
+          ]) +
+          `<div class="spacer-16"></div>` +
+          callout({ k: "Final quality gate", text: `Submit ${route} only after the application form, evidence index, fee schedule and client facts reconcile without material contradiction.` }),
+        footer: foot("Submission quality"),
+      })
+    : "";
+
+  const postSubmissionPage = isCrmDynamic
+    ? page({
+        header: head,
+        body:
+          sectionHeader({ eyebrow: "After submission", title: "Decision-stage and response plan", desc: `What to control after a ${route} application is filed.` }) +
+          table({
+            head: ["Stage", "Action", "Control"],
+            rows: [
+              ["Acknowledgement", "Store the submission receipt, application number and paid-fee evidence", "Confirm the filed package matches the retained copy"],
+              ["Biometrics / medical / police", "Track every instruction and validity date", "Book promptly and retain completion evidence"],
+              ["Information request", "Respond against the exact question and deadline", "Check consistency with the original submission"],
+              ["Material change", "Report changes in employment, family, contact details, travel or status when required", "Reassess route impact before responding"],
+              ["Decision", "Review conditions, validity, activation and next formalities", "Record the outcome and update the client action plan"],
+            ].map((row) => row.map(esc)),
+          }) +
+          `<div class="spacer-16"></div>` +
+          callout({
+            k: "Client action",
+            text: hasFamily
+              ? "Keep every family member's passport, contact, civil-status and travel information current until the matter is formally completed."
+              : "Keep passport, contact, employment, residence and travel information current until the matter is formally completed.",
+          }),
+        footer: foot("Post-submission controls"),
+      })
+    : "";
+
   const closingEyebrow = crmPersonalisation ? "Advisor recommendation" : "Report conclusion";
   const closingHeading = isDraft
     ? "Complete verification before choosing a route"
@@ -751,9 +881,10 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
         card({ dark: true, k: "Route", v: route }),
         card({
           dark: true,
-          k: isCrmPointsAssessment ? "Recorded points" : "Route fit",
+          k: isCrmPointsAssessment ? "Recorded points" : isCrmDynamic ? "Assessment" : "Route fit",
           v: isCrmPointsAssessment
             ? `${num(a.claimedPointsTotal) ?? 0} points`
+            : isCrmDynamic ? "CRM assessment"
             : fit !== undefined ? `${fit} / 100` : "Not assessed",
         }),
         card({ dark: true, k: "Next service", v: "Advisor strategy call" }),
@@ -774,25 +905,32 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   // duplicate generic score filler. The structured six-page assessment front matter is
   // followed by programme-specific dossier, evidence, financial, family, scenario,
   // timeline, service, recognition and testimonial pages (normally 30-36 pages).
-  const bodyHtml = cleanReportPunctuation((isCrmPointsAssessment
+  const bodyHtml = cleanReportPunctuation((isCrmReport
     ? [
         cover,
-        basisPage,
+        ...(isCrmPointsAssessment ? [basisPage] : []),
         execPage,
         profilePage,
+        profileContinuationPage,
         whyFitsPage,
         selfCheckPage,
+        selfCheckContinuationPage,
         ...dossierPages,
         decisionPage,
         assumptionsPage,
+        assumptionsContinuationPage,
         evidenceBlueprintPage,
+        evidenceContinuationPage,
         riskRegisterPage,
+        riskContinuationPage,
         financialControlPage,
         familyPlanningPage,
         scenarioPage,
         milestonePage,
         roadmapPage,
         advisorPrepPage,
+        submissionQualityPage,
+        postSubmissionPage,
         deliversPage,
         engagementPage,
         ...companyPages,

@@ -147,6 +147,34 @@ test("CRM assessment accepts structured verified case and points inputs", () => 
   assert.match(source, /optionalBoolean/);
 });
 
+test("CRM report desk can use the recorded assessment without forcing Australia or a manual fee table", () => {
+  assert.match(source, /calculationMode === "source_assessment"/);
+  assert.match(source, /recordedPointsAssessment/);
+  assert.match(source, /eligibilityAssessment/);
+  assert.doesNotMatch(source, /if \(!Array\.isArray\(answers\.feeItems\)[\s\S]*?Add at least one fee/);
+});
+
+test("CRM dynamic reports use programme-aware personalisation and imagery", () => {
+  const premium = fs.readFileSync("src/lib/reports/templates/premium-strategy.ts", "utf8");
+  const dynamic = fs.readFileSync("src/lib/reports/templates/crm-dynamic-personalisation.ts", "utf8");
+  const assets = fs.readFileSync("src/lib/reports/assets.ts", "utf8");
+  assert.match(premium, /reportFormat\) === "crm-dynamic"/);
+  assert.match(premium, /buildCrmDynamicPersonalisation/);
+  assert.match(dynamic, /routeFamily/);
+  assert.match(dynamic, /dossier\?\.requirements/);
+  assert.match(dynamic, /dossier\?\.processSteps/);
+  assert.match(premium, /profileCards\.slice\(0, 4\)/);
+  assert.match(premium, /profileContinuationPage/);
+  assert.match(premium, /personalisedEligibilityRows\.slice\(0, 4\)/);
+  assert.match(premium, /selfCheckContinuationPage/);
+  assert.match(premium, /crmOccupationCodeLabel/);
+  assert.match(premium, /NOC \/ TEER/);
+  assert.match(premium, /profileLine: isCrmReport/);
+  assert.doesNotMatch(dynamic, /Not applicable or incomplete|Complete in the assessment profile|Complete in client profile/);
+  assert.match(assets, /loadProgrammeImages/);
+  assert.match(assets, /programme\.programSlug/);
+});
+
 test("CRM integration never invents favourable client scores or a paid order", () => {
   assert.doesNotMatch(source, /routeFitScore\s*:/);
   assert.doesNotMatch(source, /evidenceStrengthScore\s*:/);
