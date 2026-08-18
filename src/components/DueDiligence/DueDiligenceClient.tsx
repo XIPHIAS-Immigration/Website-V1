@@ -344,9 +344,9 @@ export default function DueDiligenceClient() {
       steps={[
         { title: "Complete the free risk intake", description: "Provide identity, immigration, document and financial information across four short sections." },
         { title: "Review declared risks and gaps", description: "Receive a preliminary result based only on your answers, with enhanced-review triggers clearly separated." },
-        { title: `Choose whether to unlock the INR ${DUE_DILIGENCE_PRICE_INR} report`, description: "After seeing the free result, continue to the expanded paid intake and personalised PDF if you need deeper preparation." },
+        { title: `Choose whether to unlock the ₹${DUE_DILIGENCE_PRICE_INR} report`, description: "After seeing the free result, continue to the expanded paid intake and personalised PDF if you need deeper preparation." },
       ]}
-      benefits={["Structured risk triage", "Evidence and chronology gaps", `Detailed INR ${DUE_DILIGENCE_PRICE_INR} report option`]}
+      benefits={["Structured risk triage", "Evidence and chronology gaps", `Detailed ₹${DUE_DILIGENCE_PRICE_INR} report option`]}
       contactContext="Due Diligence"
       contactId="due-diligence"
       actions={
@@ -598,7 +598,7 @@ export default function DueDiligenceClient() {
             <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
               <div className="p-5 sm:p-7 lg:p-8">
                 <div className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-secondary">
-                  <CreditCard className="size-4" /> Paid next step - INR {DUE_DILIGENCE_PRICE_INR}
+                  <CreditCard className="size-4" /> Paid next step - ₹{DUE_DILIGENCE_PRICE_INR}
                 </div>
                 <h2 className="type-section-title mt-4 text-white">Continue with the full due-diligence intake and report.</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-white/65">
@@ -617,12 +617,12 @@ export default function DueDiligenceClient() {
                   ))}
                 </div>
                 <p className="mt-5 text-xs leading-5 text-white/40">
-                  The INR {DUE_DILIGENCE_PRICE_INR} report is an evidence-planning and declared-risk assessment. Third-party database, police, court, sanctions, identity and document-authenticity fees are not included and no clearance is implied.
+                  The ₹{DUE_DILIGENCE_PRICE_INR} report is an evidence-planning and declared-risk assessment. Third-party database, police, court, sanctions, identity and document-authenticity fees are not included and no clearance is implied.
                 </p>
               </div>
               <div className="border-t border-white/15 bg-white/[0.045] p-5 sm:p-7 lg:border-l lg:border-t-0">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">Secure JioPay checkout</p>
-                <p className="mt-2 text-3xl font-black text-white">INR {DUE_DILIGENCE_PRICE_INR}</p>
+                <p className="mt-2 text-3xl font-black text-white">₹{DUE_DILIGENCE_PRICE_INR}</p>
                 <div className="mt-5 space-y-4">
                   <TextInput label="Full name*" value={buyer.name} onChange={(event) => setBuyer((current) => ({ ...current, name: event.target.value }))} autoComplete="name" />
                   <TextInput label="Email address*" type="email" value={buyer.email} onChange={(event) => setBuyer((current) => ({ ...current, email: event.target.value }))} autoComplete="email" />
@@ -634,10 +634,10 @@ export default function DueDiligenceClient() {
                   </label>
                   <button type="button" onClick={startPaidDueDiligence} disabled={checkout.loading} className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-secondary px-5 text-sm font-black text-primary transition hover:bg-[#f0cb3b] disabled:cursor-wait disabled:opacity-70">
                     {checkout.loading ? <LoaderCircle className="size-4 animate-spin" /> : <CreditCard className="size-4" />}
-                    {checkout.loading ? "Starting secure checkout..." : `Pay INR ${DUE_DILIGENCE_PRICE_INR} and continue`}
+                    {checkout.loading ? "Starting secure checkout..." : `Pay ₹${DUE_DILIGENCE_PRICE_INR} and continue`}
                   </button>
                   {checkout.error ? <p className="text-xs font-semibold leading-5 text-red-200" role="alert">{checkout.error}</p> : null}
-                  <p className="text-center text-[11px] leading-5 text-white/35">The server enforces the INR {DUE_DILIGENCE_PRICE_INR} catalogue price.</p>
+                  <p className="text-center text-[11px] leading-5 text-white/35">The server enforces the ₹{DUE_DILIGENCE_PRICE_INR} catalogue price.</p>
                 </div>
               </div>
             </div>

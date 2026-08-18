@@ -563,7 +563,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
       `<div class="spacer-24"></div>` +
       sectionHeader({ title: "Cost risk & due diligence" }) +
       grid(2, [
-        card({ k: "Currency & FX", v: "Hold a buffer", note: "Government fees are often set in local currency; FX swings can move your INR/USD total." }),
+        card({ k: "Currency & FX", v: "Hold a buffer", note: "Government fees are often set in local currency; FX swings can move your ₹/USD total." }),
         card({ k: "Schedules change", v: "Verify before paying", note: "Government fee schedules and quotas change; confirm current figures before any payment." }),
         card({ k: "Source of funds", v: "Evidence early", note: "Investment and many residency routes require a clean, documented funds trail before approval." }),
         card({ k: "Hidden costs", v: "Plan extras", note: "Translation, apostille, medicals, travel and property valuation sit outside this core estimate." }),

@@ -182,7 +182,7 @@ export default function AdminDetailedReportForm() {
             <Label title="Number of dependants"><input name="dependants" type="number" min="0" max="20" className={inputClass} /></Label>
             <Label title="Budget USD"><input name="budgetUsd" inputMode="decimal" className={inputClass} /></Label>
             <Label title="Available funds USD"><input name="availableFundsUsd" inputMode="decimal" className={inputClass} /></Label>
-            <Label title="Preferred currency"><input name="preferredCurrency" placeholder="INR, USD, AED..." className={inputClass} /></Label>
+            <Label title="Preferred currency"><input name="preferredCurrency" placeholder="₹ (Indian Rupee), USD, AED..." className={inputClass} /></Label>
             <Label title="Current immigration status"><input name="currentImmigrationStatus" className={inputClass} /></Label>
           </div>
           <Label title="Family details"><textarea name="familyMembers" rows={2} className={inputClass} /></Label>

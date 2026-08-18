@@ -99,9 +99,9 @@ export default function RegistrationCheckout({ priceInr }: { priceInr: number })
       {error ? <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700" role="alert">{error}</p> : null}
       <button type="button" onClick={submit} disabled={submitting} className="mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#d8ad1f] px-6 text-base font-black text-[#071a3a] transition hover:bg-[#efc939] disabled:cursor-wait disabled:opacity-70">
         {submitting ? <LoaderCircle className="size-5 animate-spin" /> : <CreditCard className="size-5" />}
-        {submitting ? "Starting secure checkout..." : `Register and pay INR ${priceInr.toLocaleString("en-IN")}`}
+        {submitting ? "Starting secure checkout..." : `Register and pay ₹${priceInr.toLocaleString("en-IN")}`}
       </button>
-      <p className="mt-3 text-center text-xs font-semibold text-slate-500">INR 5,000 including GST. Deep Analysis report included.</p>
+      <p className="mt-3 text-center text-xs font-semibold text-slate-500">₹5,000 including GST. Deep Analysis report included.</p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-slate-400"><span className="inline-flex items-center gap-1"><ShieldCheck className="size-3.5" /> Server-enforced price</span><span className="inline-flex items-center gap-1"><Check className="size-3.5" /> Secure JioPay checkout</span></div>
     </section>
   );

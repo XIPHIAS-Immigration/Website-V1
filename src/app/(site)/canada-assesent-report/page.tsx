@@ -729,7 +729,7 @@ function buildReportHtml(args: {
                       <tr>
                         <td style="padding:14px;font-family:Arial,Roboto,sans-serif;color:#2A3443;">
                           <div style="font-weight:900;color:${ink};font-size:13px;line-height:18px;margin-bottom:8px;">
-                            Estimated total (FSW): INR 2,65,500
+                            Estimated total (FSW): ₹2,65,500
                           </div>
 
                           <div style="font-size:12px;color:#445064;line-height:17px;margin-bottom:12px;">
@@ -748,7 +748,7 @@ function buildReportHtml(args: {
                                   </tr>
                                   <tr>
                                     <td style="padding:10px 12px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:12px;line-height:18px;">
-                                      Consultation &amp; representation fee: INR 1,18,000 (incl. tax) + WES assessment fee (CAD 250–300).
+                                      Consultation &amp; representation fee: ₹1,18,000 (incl. tax) + WES assessment fee (CAD 250–300).
                                     </td>
                                   </tr>
                                 </table>
@@ -766,7 +766,7 @@ function buildReportHtml(args: {
                                   </tr>
                                   <tr>
                                     <td style="padding:10px 12px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:12px;line-height:18px;">
-                                      INR 1,18,000 payable after ITA/provincial nomination; includes consultation &amp; representation.
+                                      ₹1,18,000 payable after ITA/provincial nomination; includes consultation &amp; representation.
                                     </td>
                                   </tr>
                                 </table>
@@ -784,7 +784,7 @@ function buildReportHtml(args: {
                                   </tr>
                                   <tr>
                                     <td style="padding:10px 12px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:12px;line-height:18px;">
-                                      INR 29,500 (optional) payable only if Provincial Nomination Program is required for faster results.
+                                      ₹29,500 (optional) payable only if Provincial Nomination Program is required for faster results.
                                     </td>
                                   </tr>
                                 </table>

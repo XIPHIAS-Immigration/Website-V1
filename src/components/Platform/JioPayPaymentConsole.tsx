@@ -148,7 +148,7 @@ export default function JioPayPaymentConsole() {
             />
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Amount INR</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Amount (₹)</span>
             <input
               value={form.amountInr}
               onChange={(event) => setField("amountInr", event.target.value)}

@@ -139,7 +139,7 @@ export function GlassSelect({
 
 const CURRENCIES: GlassOption[] = [
   { value: "USD", label: "USD $" },
-  { value: "INR", label: "INR ₹" },
+  { value: "INR", label: "₹ Indian Rupee" },
   { value: "AED", label: "AED د.إ" },
   { value: "EUR", label: "EUR €" },
 ];

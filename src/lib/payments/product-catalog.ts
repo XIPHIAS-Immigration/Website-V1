@@ -9,7 +9,7 @@
 // can be safely imported from both API routes and shared libs. Prices are in INR and
 // are intended to be edited here in one place.
 
-export type FulfillmentKind = "report" | "registration" | "custom";
+export type FulfillmentKind = "report" | "registration" | "consultation" | "custom";
 
 // Distinct report templates — one per product surface (see Phase 2 report builders).
 export type ReportKind =
@@ -60,7 +60,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   premium_report: {
     productType: "premium_report",
     label: "XIPHIAS Personal Immigration Strategy Report",
-    priceInr: priceOf(1000),
+    priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "premium_strategy",
     emailSubject: "Your XIPHIAS Personal Immigration Strategy Report",
@@ -87,7 +87,7 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
   us_visa_report: {
     productType: "us_visa_report",
     label: "XIPHIAS US Visa Strategy Report",
-    priceInr: priceOf(1000),
+    priceInr: priceOf(499),
     fulfillment: "report",
     reportKind: "us_visa",
     emailSubject: "Your XIPHIAS US Visa Strategy Report",
@@ -138,6 +138,14 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
     fulfillment: "registration",
     emailSubject: "Your XIPHIAS client CRM registration is ready",
     fileSlug: "Registration",
+  },
+  senior_consultation: {
+    productType: "senior_consultation",
+    label: "XIPHIAS Senior Advisor Strategy Consultation",
+    priceInr: priceOf(25000),
+    fulfillment: "consultation",
+    emailSubject: "Your XIPHIAS consultation is confirmed",
+    fileSlug: "Senior-Advisor-Consultation",
   },
   // Staff-created custom-amount links (X-Hub admin console). Amount comes from the request
   // and is only honoured when the caller is an authenticated staff/admin portal user.

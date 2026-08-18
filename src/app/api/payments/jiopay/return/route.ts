@@ -14,6 +14,7 @@ import { createOrderStatusGrant, createReportDownloadGrant } from "@/lib/payment
 import { recordJiopayPurchaseInCrm } from "@/lib/crm/save-payment";
 import { fulfillJiopayOrder } from "@/lib/payments/fulfillment";
 import { getProductConfig, isReportProduct } from "@/lib/payments/product-catalog";
+import { releaseConsultationSlot } from "@/lib/consultations/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export const dynamic = "force-dynamic";
 type Payload = Record<string, unknown>;
 
 function customerReturnPath(productType?: string) {
+  if (productType === "senior_consultation") return "/payment/jiopay/return";
   return getProductConfig(productType)?.requiresIntake
     ? "/due-diligence-intelligence/paid"
     : "/payment/jiopay/return";
@@ -127,6 +129,10 @@ async function handleReturn(req: NextRequest) {
         },
       },
     );
+
+    if (status === "failed" && existingOrder?.productType === "senior_consultation") {
+      releaseConsultationSlot(merchantTxnNo, "jiopay_browser_return_failed");
+    }
 
     const repo = getPlatformRepository();
     const lead = repo.listLeads().find((item) => item.tags.includes(`payment:${merchantTxnNo}`));

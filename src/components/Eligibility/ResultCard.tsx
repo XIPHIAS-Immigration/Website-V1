@@ -20,13 +20,13 @@ type Props = {
 };
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
-const DETAILED_REPORT_PRICE_INR = getProductConfig("registration")?.priceInr ?? 4999;
+const DETAILED_REPORT_PRICE_INR = getProductConfig("registration")?.priceInr ?? 5000;
 const DETAILED_REPORT_PAYMENT_URL = "/registration";
 
 function formatInr(value: string | number) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
-  if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
-  return `INR ${numeric.toLocaleString("en-IN")}`;
+  if (!Number.isFinite(numeric) || numeric <= 0) return `₹${value}`;
+  return `₹${numeric.toLocaleString("en-IN")}`;
 }
 
 export function ResultCard({ track, result, name, email, phone, answers, onBackAction }: Props) {

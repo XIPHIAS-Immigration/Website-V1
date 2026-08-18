@@ -6,6 +6,17 @@ import { sendPlatformEmail, getPlatformRecipient } from "@/lib/platform/email";
 import { createReportDownloadGrant, ensurePaidReportArtifact, reportDownloadUrl } from "@/lib/payments/report-delivery";
 import { finalizeCrmJiopayPayment } from "@/lib/payments/crm-jiopay";
 import { provisionCrmPaidRegistration } from "@/lib/payments/crm-registration";
+import {
+  confirmConsultationSlot,
+  getConsultationBooking,
+  updateConsultationEmailStatus,
+} from "@/lib/consultations/store";
+import {
+  consultationCalendarAttachment,
+  consultationConfirmationEmailHtml,
+  formatConsultationDate,
+  formatConsultationTime,
+} from "@/lib/consultations/confirmation";
 
 export type FulfillmentStatus =
   | "missing_order"
@@ -16,6 +27,9 @@ export type FulfillmentStatus =
   | "report_failed"
   | "registration_delegated"
   | "registration_skipped"
+  | "consultation_confirmed"
+  | "consultation_conflict"
+  | "consultation_failed"
   | "custom_noted"
   | "crm_finalized"
   | "crm_failed";
@@ -63,7 +77,7 @@ function reportDeliveryEmailHtml(args: {
             <tr><td style="padding:10px;font-weight:800;">Report</td><td style="padding:10px;">${escapeHtml(args.productName)}</td></tr>
             <tr><td style="padding:10px;font-weight:800;">Country focus</td><td style="padding:10px;">${escapeHtml(args.country || "Advisor shortlist")}</td></tr>
             <tr><td style="padding:10px;font-weight:800;">Programme</td><td style="padding:10px;">${escapeHtml(args.program || "Personalised recommendation")}</td></tr>
-            <tr><td style="padding:10px;font-weight:800;">Amount paid</td><td style="padding:10px;">INR ${escapeHtml(args.amountInr.toLocaleString("en-IN"))}</td></tr>
+            <tr><td style="padding:10px;font-weight:800;">Amount paid</td><td style="padding:10px;">₹${escapeHtml(args.amountInr.toLocaleString("en-IN"))}</td></tr>
             <tr><td style="padding:10px;font-weight:800;">Payment reference</td><td style="padding:10px;">${escapeHtml(args.reference)}</td></tr>
           </table>
           <p style="margin:22px 0 0;text-align:center;">
@@ -134,13 +148,93 @@ async function fulfillJiopayOrderOnce(
 
   // Idempotency via the event log (survives the webhook re-stamping status to "paid" on replay).
   const alreadyFulfilled = order.events?.some(
-    (event) => event.type === "report_delivered" || event.type === "registration_provisioned",
+    (event) => event.type === "report_delivered" || event.type === "registration_provisioned" || event.type === "consultation_confirmed",
   );
   if (alreadyFulfilled) return { status: "already_fulfilled" };
 
   if (product.fulfillment === "report") return fulfillReport(order, product, opts);
   if (product.fulfillment === "registration") return fulfillRegistration(order, opts);
+  if (product.fulfillment === "consultation") return fulfillConsultation(order, product);
   return fulfillCustom(order);
+}
+
+async function fulfillConsultation(
+  order: JiopayOrder,
+  product: ProductConfig,
+): Promise<FulfillmentResult> {
+  const result = confirmConsultationSlot(order.merchantTxnNo);
+  if (!result.ok) {
+    const booking = result.booking || getConsultationBooking(order.merchantTxnNo);
+    await sendPlatformEmail({
+      to: getPlatformRecipient("general"),
+      subject: `URGENT: paid consultation needs scheduling — ${order.customer.name}`,
+      label: "XIPHIAS Consultation Desk",
+      html: `<p>A verified ₹${order.amountInr.toLocaleString("en-IN")} consultation payment could not automatically confirm the selected slot.</p><p>Reference: <strong>${escapeHtml(order.merchantTxnNo)}</strong></p><p>Requested slot: ${escapeHtml(booking ? `${formatConsultationDate(booking.dateISO)}, ${formatConsultationTime(booking.timeISO)} ${booking.timezone}` : "Not available")}</p><p>Please contact ${escapeHtml(order.customer.name)} at ${escapeHtml(order.customer.email)}${order.customer.phone ? ` / ${escapeHtml(order.customer.phone)}` : ""} and arrange the consultation.</p>`,
+    }).catch(() => undefined);
+    await sendPlatformEmail({
+      to: order.customer.email,
+      subject: "Your XIPHIAS consultation payment is confirmed",
+      replyTo: getPlatformRecipient("general"),
+      label: "XIPHIAS Immigration",
+      html: `<p>Dear <strong>${escapeHtml(order.customer.name)}</strong>,</p><p>Your ₹${order.amountInr.toLocaleString("en-IN")} payment is confirmed. The selected slot needs a final scheduling check, and our consultation desk will contact you shortly.</p><p>Reference: <strong>${escapeHtml(order.merchantTxnNo)}</strong></p>`,
+    }).catch(() => undefined);
+    updateJiopayOrder(order.merchantTxnNo, { status: "paid" }, {
+      type: "consultation_conflict",
+      at: new Date().toISOString(),
+      data: { reason: result.reason },
+    });
+    return { status: "consultation_conflict", detail: result.reason };
+  }
+
+  try {
+    const booking = result.booking;
+    const calendar = consultationCalendarAttachment(booking);
+    const mail = await sendPlatformEmail({
+      to: order.customer.email,
+      subject: product.emailSubject,
+      replyTo: getPlatformRecipient("general"),
+      label: "XIPHIAS Immigration",
+      html: consultationConfirmationEmailHtml(booking, order.amountInr),
+      attachments: [{
+        filename: `XIPHIAS-Consultation-${booking.dateISO}.ics`,
+        content: calendar,
+        contentType: "text/calendar; charset=utf-8; method=PUBLISH",
+      }],
+    });
+    if (mail.status !== "sent") {
+      throw new Error(mail.status === "failed" ? mail.reason : `Email skipped: ${mail.reason}`);
+    }
+
+    await sendPlatformEmail({
+      to: getPlatformRecipient("general"),
+      subject: `New paid consultation: ${booking.customer.name} — ${booking.dateISO} ${booking.timeISO}`,
+      replyTo: booking.customer.email,
+      label: "XIPHIAS Consultation Desk",
+      html: `<p>A ₹${order.amountInr.toLocaleString("en-IN")} senior-advisor consultation is confirmed.</p><p><strong>${escapeHtml(booking.customer.name)}</strong><br>${escapeHtml(booking.customer.email)}${booking.customer.phone ? `<br>${escapeHtml(booking.customer.phone)}` : ""}</p><p>${escapeHtml(formatConsultationDate(booking.dateISO))}, ${escapeHtml(formatConsultationTime(booking.timeISO))} (${escapeHtml(booking.timezone)})</p><p>Focus: ${escapeHtml(booking.focus || "Not provided")}<br>Country: ${escapeHtml(booking.country || "Not provided")}<br>Notes: ${escapeHtml(booking.notes || "Not provided")}</p><p>Reference: ${escapeHtml(order.merchantTxnNo)}</p>`,
+      attachments: [{
+        filename: `XIPHIAS-Consultation-${booking.dateISO}.ics`,
+        content: calendar,
+        contentType: "text/calendar; charset=utf-8; method=PUBLISH",
+      }],
+    }).catch(() => undefined);
+
+    updateConsultationEmailStatus(order.merchantTxnNo, "confirmation_sent");
+    updateJiopayOrder(order.merchantTxnNo, { status: "provisioned" }, {
+      type: "consultation_confirmed",
+      at: new Date().toISOString(),
+      data: { dateISO: booking.dateISO, timeISO: booking.timeISO, timezone: booking.timezone, mail },
+    });
+    return { status: "consultation_confirmed", mail };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "Consultation confirmation failed.";
+    updateConsultationEmailStatus(order.merchantTxnNo, `confirmation_failed: ${detail}`);
+    updateJiopayOrder(order.merchantTxnNo, { status: "paid" }, {
+      type: "consultation_confirmation_failed",
+      at: new Date().toISOString(),
+      data: { error: detail },
+    });
+    return { status: "consultation_failed", detail };
+  }
 }
 
 async function fulfillReport(
@@ -163,7 +257,7 @@ async function fulfillReport(
         to: order.customer.email,
         subject: "Continue your XIPHIAS Due Diligence Report",
         label: "XIPHIAS Immigration",
-        html: `<p>Hi <strong>${escapeHtml(order.customer.name)}</strong>,</p><p>Your INR ${escapeHtml(order.amountInr)} payment is confirmed. Complete the secure paid due-diligence intake to generate your personalised report.</p><p><a href="${escapeHtml(url.toString())}">Continue due diligence</a></p><p>This link is valid for seven days. No report will be generated until the paid intake is submitted.</p>`,
+        html: `<p>Hi <strong>${escapeHtml(order.customer.name)}</strong>,</p><p>Your ₹${escapeHtml(order.amountInr.toLocaleString("en-IN"))} payment is confirmed. Complete the secure paid due-diligence intake to generate your personalised report.</p><p><a href="${escapeHtml(url.toString())}">Continue due diligence</a></p><p>This link is valid for seven days. No report will be generated until the paid intake is submitted.</p>`,
       });
       updateJiopayOrder(order.merchantTxnNo, {}, {
         type: "intake_invitation_sent",
@@ -211,7 +305,7 @@ async function fulfillReport(
       to: getPlatformRecipient("general"),
       subject: `Report delivered: ${order.customer.name} — ${product.label}`,
       label: "XIPHIAS Platform",
-      html: `<p>Paid report <strong>${escapeHtml(product.label)}</strong> delivered to ${escapeHtml(order.customer.email)}. Ref: ${escapeHtml(order.merchantTxnNo)}, amount INR ${order.amountInr}.</p>`,
+      html: `<p>Paid report <strong>${escapeHtml(product.label)}</strong> delivered to ${escapeHtml(order.customer.email)}. Ref: ${escapeHtml(order.merchantTxnNo)}, amount ₹${order.amountInr.toLocaleString("en-IN")}.</p>`,
     }).catch(() => undefined);
 
     updateJiopayOrder(
@@ -242,6 +336,8 @@ async function fulfillRegistration(
   // A verified registration purchase is owned by the India CRM. X-Hub is not
   // involved in client onboarding for this product.
   if (process.env.JIOPAY_AUTO_PROVISION === "false") return { status: "registration_skipped", detail: "auto_provision_disabled" };
+  const registrationBaseAmount = Math.round((order.amountInr / 1.18) * 100) / 100;
+  const registrationGstAmount = Math.round((order.amountInr - registrationBaseAmount) * 100) / 100;
 
   updateJiopayOrder(order.merchantTxnNo, { status: "processing" }, {
     type: "registration_provisioning_started",
@@ -265,9 +361,9 @@ async function fulfillRegistration(
               <p>Dear <strong>${escapeHtml(order.customer.name)}</strong>,</p>
               <p>Your payment has been verified and client ID <strong>${registration.clientId}</strong> has been created in the XIPHIAS India CRM.</p>
               <table style="width:100%;border-collapse:collapse;background:#f8fbff;border:1px solid #dbe7f3">
-                <tr><td style="padding:10px;font-weight:800">Registration and Deep Analysis</td><td style="padding:10px">INR 4,236.44</td></tr>
-                <tr><td style="padding:10px;font-weight:800">GST (18%)</td><td style="padding:10px">INR 762.56</td></tr>
-                <tr><td style="padding:10px;font-weight:800">Total paid</td><td style="padding:10px">INR 4,999.00</td></tr>
+                <tr><td style="padding:10px;font-weight:800">Registration and Deep Analysis</td><td style="padding:10px">₹${registrationBaseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td></tr>
+                <tr><td style="padding:10px;font-weight:800">GST (18%)</td><td style="padding:10px">₹${registrationGstAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td></tr>
+                <tr><td style="padding:10px;font-weight:800">Total paid</td><td style="padding:10px">₹${order.amountInr.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td></tr>
                 <tr><td style="padding:10px;font-weight:800">CRM status</td><td style="padding:10px">REGISTERED / PAID</td></tr>
                 <tr><td style="padding:10px;font-weight:800">Deep Analysis</td><td style="padding:10px">Included — pending profile intake and adviser review</td></tr>
                 <tr><td style="padding:10px;font-weight:800">Payment reference</td><td style="padding:10px">${escapeHtml(order.merchantTxnNo)}</td></tr>
@@ -284,7 +380,7 @@ async function fulfillRegistration(
       to: getPlatformRecipient("general"),
       subject: `Paid CRM registration: ${order.customer.name} — client ${registration.clientId}`,
       label: "XIPHIAS Platform",
-      html: `<p>India CRM client <strong>${registration.clientId}</strong> is REGISTERED and INR 4,999 including GST is PAID.</p><p>Deep Analysis is included and pending profile intake/adviser review. Payment ref: ${escapeHtml(order.merchantTxnNo)}.</p>`,
+      html: `<p>India CRM client <strong>${registration.clientId}</strong> is REGISTERED and ₹${order.amountInr.toLocaleString("en-IN")} including GST is PAID.</p><p>Deep Analysis is included and pending profile intake/adviser review. Payment ref: ${escapeHtml(order.merchantTxnNo)}.</p>`,
     }).catch(() => undefined);
 
     updateJiopayOrder(

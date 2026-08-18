@@ -2,8 +2,13 @@ import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { JiopayOrder } from "@/lib/payments/jiopay-store";
+import { getProductConfig } from "@/lib/payments/product-catalog";
 
 type GatewayPayload = Record<string, unknown>;
+
+const REGISTRATION_PRICE_INR = getProductConfig("registration")?.priceInr ?? 5000;
+const REGISTRATION_BASE_AMOUNT = Math.round((REGISTRATION_PRICE_INR / 1.18) * 100) / 100;
+const REGISTRATION_GST_AMOUNT = Math.round((REGISTRATION_PRICE_INR - REGISTRATION_BASE_AMOUNT) * 100) / 100;
 
 export type CrmPaidRegistrationResult = {
   ok: true;
@@ -50,8 +55,8 @@ export async function provisionCrmPaidRegistration(
   gatewayPayload: GatewayPayload,
 ): Promise<CrmPaidRegistrationResult> {
   if (order.productType !== "registration") throw new Error("Order is not a paid registration.");
-  if (Math.abs(order.amountInr - 4999) > 0.01) {
-    throw new Error("Paid registration total must be INR 4,999 including GST.");
+  if (Math.abs(order.amountInr - REGISTRATION_PRICE_INR) > 0.01) {
+    throw new Error(`Paid registration total must be ₹${REGISTRATION_PRICE_INR.toLocaleString("en-IN")} including GST.`);
   }
 
   const body = JSON.stringify({
@@ -73,9 +78,9 @@ export async function provisionCrmPaidRegistration(
     track: order.track || "skilled",
     targetCountry: order.country || "",
     primaryGoal: order.program || "Full immigration assessment",
-    baseAmount: 4236.44,
-    gstAmount: 762.56,
-    totalAmount: 4999,
+    baseAmount: REGISTRATION_BASE_AMOUNT,
+    gstAmount: REGISTRATION_GST_AMOUNT,
+    totalAmount: REGISTRATION_PRICE_INR,
     currency: "INR",
     deepAnalysisIncluded: true,
   });

@@ -59,9 +59,9 @@ const DEFAULT_IMPROVEMENT_ROWS = [
 ];
 
 const DEFAULT_SERVICE_PRODUCTS = [
-  ["EB-2 NIW Strategy + Evidence Matrix", "INR 35,000", "Advisor-led route validation, NIW prong mapping and evidence gap report."],
-  ["US High-Skill Documentation Pack", "INR 75,000 - 1,25,000", "CV direction, exhibit index, recommendation letter briefs and document preparation support."],
-  ["EB-2 NIW Filing Coordination", "INR 1,50,000 - 3,00,000", "Case preparation coordination. Attorney, USCIS, courier, translation and third-party fees separate."],
+  ["EB-2 NIW Strategy + Evidence Matrix", "₹35,000", "Advisor-led route validation, NIW prong mapping and evidence gap report."],
+  ["US High-Skill Documentation Pack", "₹75,000 - ₹1,25,000", "CV direction, exhibit index, recommendation letter briefs and document preparation support."],
+  ["EB-2 NIW Filing Coordination", "₹1,50,000 - ₹3,00,000", "Case preparation coordination. Attorney, USCIS, courier, translation and third-party fees separate."],
   ["Advisor Strategy Call", "Included after package selection", "Route, risk, document and next-step review with the advisory desk."],
 ];
 
@@ -854,25 +854,25 @@ function normaliseServiceProducts(input, doc) {
 
   if (isHighSkill) {
     return [
-      [`${routeName} Strategy + Evidence Matrix`, "INR 35,000", "Advisor-led route validation, evidence mapping and case-positioning review."],
-      ["High-Skill Documentation Pack", "INR 75,000 - 1,25,000", "CV direction, document index, recommendation letter briefs and evidence preparation support."],
-      [`${routeName} Filing Coordination`, "INR 1,50,000 - 3,00,000", "Case preparation coordination. Government, attorney, courier, translation and third-party fees separate."],
+      [`${routeName} Strategy + Evidence Matrix`, "₹35,000", "Advisor-led route validation, evidence mapping and case-positioning review."],
+      ["High-Skill Documentation Pack", "₹75,000 - ₹1,25,000", "CV direction, document index, recommendation letter briefs and evidence preparation support."],
+      [`${routeName} Filing Coordination`, "₹1,50,000 - ₹3,00,000", "Case preparation coordination. Government, attorney, courier, translation and third-party fees separate."],
       ["Advisor Strategy Call", "Included after package selection", "Route, risk, document and next-step review with the advisory desk."],
     ];
   }
 
   if (isInvestment) {
     return [
-      [`${routeName} Route Strategy`, "INR 50,000", "Country, programme, family, timeline, tax and presence review before onboarding."],
-      ["Investment Documentation Pack", "INR 1,00,000 - 2,00,000", "Source-of-funds checklist, document index, due-diligence preparation and advisor review."],
+      [`${routeName} Route Strategy`, "₹50,000", "Country, programme, family, timeline, tax and presence review before onboarding."],
+      ["Investment Documentation Pack", "₹1,00,000 - ₹2,00,000", "Source-of-funds checklist, document index, due-diligence preparation and advisor review."],
       [`${routeName} Application Coordination`, "Quote after route confirmation", "End-to-end coordination scope depends on government route, agent, property/fund and family size."],
       ["Advisor Strategy Call", "Included after package selection", "Route, risk, document and next-step review with the advisory desk."],
     ];
   }
 
   return [
-    [`${routeName} Route Strategy`, "INR 35,000 - 50,000", "Advisor-led route validation, eligibility review and next-step plan."],
-    ["Document Readiness Pack", "INR 75,000 - 1,25,000", "Document checklist, gap review, evidence organization and advisor preparation support."],
+    [`${routeName} Route Strategy`, "₹35,000 - ₹50,000", "Advisor-led route validation, eligibility review and next-step plan."],
+    ["Document Readiness Pack", "₹75,000 - ₹1,25,000", "Document checklist, gap review, evidence organization and advisor preparation support."],
     [`${routeName} Application Coordination`, "Quote after route confirmation", "Application coordination scope depends on country, route, family size and third-party requirements."],
     ["Advisor Strategy Call", "Included after package selection", "Route, risk, document and next-step review with the advisory desk."],
   ];

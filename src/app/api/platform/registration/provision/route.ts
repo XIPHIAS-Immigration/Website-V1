@@ -58,7 +58,7 @@ function escapeHtml(value: unknown) {
 function formatInr(value: unknown) {
   const numeric = Number(String(value ?? "").replace(/[^\d.]/g, ""));
   const amount = Number.isFinite(numeric) && numeric > 0 ? numeric : DEFAULT_PRICE_INR;
-  return `INR ${amount.toLocaleString("en-IN")}`;
+  return `₹${amount.toLocaleString("en-IN")}`;
 }
 
 function safeAnswers(input: unknown) {

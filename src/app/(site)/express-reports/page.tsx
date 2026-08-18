@@ -9,7 +9,7 @@ import { getProductConfig } from "@/lib/payments/product-catalog";
 import { getProgrammeExplorerData } from "@/lib/programme-explorer";
 
 export const metadata: Metadata = {
-  title: "Personalised Immigration Reports from INR 499",
+  title: "Personalised Immigration Reports from ₹499",
   description:
     "Buy a focused immigration route, cost, programme comparison, document, high-skill, US visa or due-diligence report through secure JioPay checkout.",
   alternates: { canonical: "/express-reports" },

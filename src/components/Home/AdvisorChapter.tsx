@@ -58,7 +58,7 @@ export default function AdvisorChapter() {
           <Reveal delay={0.35}>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
-                href="/booking?plan=paid"
+                href="/personal-booking#schedule"
                 className="inline-flex items-center gap-2 rounded-full bg-secondary px-7 py-3.5 text-[14px] font-bold text-[#0a1c44] shadow-lg transition hover:gap-3 hover:bg-[#f0cb3b]"
               >
                 Book a private consultation

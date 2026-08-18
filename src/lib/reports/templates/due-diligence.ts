@@ -114,7 +114,7 @@ export async function buildDueDiligenceReport(order: JiopayOrder): Promise<Buffe
         `<div class="spacer-16"></div>` +
         callout({
           k: "What was purchased",
-          text: `This INR ${order.amountInr.toLocaleString("en-IN")} product provides a deeper immigration-specific due-diligence intake, explainable risk mapping, evidence inventory and personalised action report. It does not include third-party KYC, sanctions, police, court, bank, employer, institution or document-authenticity fees.`,
+          text: `This ₹${order.amountInr.toLocaleString("en-IN")} product provides a deeper immigration-specific due-diligence intake, explainable risk mapping, evidence inventory and personalised action report. It does not include third-party KYC, sanctions, police, court, bank, employer, institution or document-authenticity fees.`,
         }) +
         `<div class="spacer-16"></div>` +
         sectionHeader({ eyebrow: "Case objective", title: "What the applicant wants reviewed" }) +
@@ -346,7 +346,7 @@ export async function buildDueDiligenceReport(order: JiopayOrder): Promise<Buffe
         `<div class="spacer-16"></div>` +
         callout({
           k: "Verification boundary",
-          text: `This INR ${order.amountInr.toLocaleString("en-IN")} report analyses the applicant's paid intake, highlights contradictions and missing evidence, and provides a prioritised preparation plan. It is not a third-party screening or document-authenticity clearance.`,
+          text: `This ₹${order.amountInr.toLocaleString("en-IN")} report analyses the applicant's paid intake, highlights contradictions and missing evidence, and provides a prioritised preparation plan. It is not a third-party screening or document-authenticity clearance.`,
         }) +
         `<div class="spacer-16"></div>` +
         disclaimer("No passport, biometric, document-authenticity, police, court, sanctions, PEP, enforcement, adverse-media, employer, institution, bank, registry, assessing-authority or government system was queried for this report. All facts remain client-supplied until separately verified."),
