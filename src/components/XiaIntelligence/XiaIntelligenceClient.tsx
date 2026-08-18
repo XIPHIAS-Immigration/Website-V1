@@ -548,27 +548,38 @@ function RouteInputs({
         </Field>
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
-        <TextInput type="number" value={input.budget} onChange={(event) => setInput((prev) => ({ ...prev, budget: numberInput(event.target.value, 0) }))} placeholder="Capital USD" />
-        <TextInput type="number" value={input.timeline} onChange={(event) => setInput((prev) => ({ ...prev, timeline: numberInput(event.target.value, 0) }))} placeholder="Timeline months" />
-        <SelectInput value={input.presence} onChange={(event) => setInput((prev) => ({ ...prev, presence: event.target.value as RouteIntelligenceInput["presence"] }))}>
-          <option value="any">Any presence</option>
-          <option value="low">Low presence</option>
-          <option value="moderate">Moderate presence</option>
-          <option value="high">High presence</option>
-        </SelectInput>
-        <SelectInput value={input.priority} onChange={(event) => setInput((prev) => ({ ...prev, priority: event.target.value as RouteIntelligenceInput["priority"] }))}>
-          <option value="not-sure">Select your main priority</option>
-          <option value="stability">Stability</option>
-          <option value="speed">Speed</option>
-          <option value="cost">Cost control</option>
-          <option value="mobility">Mobility</option>
-          <option value="business">Business</option>
-          <option value="tax">Tax planning</option>
-        </SelectInput>
-        <label className="flex h-11 items-center gap-3 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-medium text-white/85">
-          <input type="checkbox" checked={input.family} onChange={(event) => setInput((prev) => ({ ...prev, family: event.target.checked }))} className="size-4 accent-[#d8ad1f]" />
-          Family
-        </label>
+        <Field label="Planning budget (USD)">
+          <TextInput type="number" min="0" value={input.budget} onChange={(event) => setInput((prev) => ({ ...prev, budget: numberInput(event.target.value, 0) }))} placeholder="For example, 250000" />
+        </Field>
+        <Field label="Target timeline (months)">
+          <TextInput type="number" min="0" value={input.timeline} onChange={(event) => setInput((prev) => ({ ...prev, timeline: numberInput(event.target.value, 0) }))} placeholder="For example, 10" />
+        </Field>
+        <Field label="Physical presence">
+          <SelectInput value={input.presence} onChange={(event) => setInput((prev) => ({ ...prev, presence: event.target.value as RouteIntelligenceInput["presence"] }))}>
+            <option value="any">Any presence</option>
+            <option value="low">Low presence</option>
+            <option value="moderate">Moderate presence</option>
+            <option value="high">High presence</option>
+          </SelectInput>
+        </Field>
+        <Field label="Main priority">
+          <SelectInput value={input.priority} onChange={(event) => setInput((prev) => ({ ...prev, priority: event.target.value as RouteIntelligenceInput["priority"] }))}>
+            <option value="not-sure">Select your main priority</option>
+            <option value="stability">Stability</option>
+            <option value="speed">Speed</option>
+            <option value="cost">Cost control</option>
+            <option value="mobility">Mobility</option>
+            <option value="business">Business</option>
+            <option value="tax">Tax planning</option>
+          </SelectInput>
+        </Field>
+        <div className="grid gap-2">
+          <span className="text-sm font-medium text-white/85">Family included</span>
+          <label className="flex h-11 items-center gap-3 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-medium text-white/85">
+            <input type="checkbox" checked={input.family} onChange={(event) => setInput((prev) => ({ ...prev, family: event.target.checked }))} className="size-4 accent-[#d8ad1f]" />
+            Yes
+          </label>
+        </div>
       </div>
       <div className="mt-4">
         <Field label="Profile notes">

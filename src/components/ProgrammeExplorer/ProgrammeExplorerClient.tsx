@@ -861,7 +861,7 @@ function ProgrammeCard({ item, rank }: { item: ScoredItem; rank: number }) {
           <ArrowRight className="size-4" />
         </Link>
         <Link
-          href={`${BOOKING_ROUTE}?plan=paid`}
+          href={BOOKING_ROUTE}
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-black text-[#071936] transition hover:border-[#d8ad1f] hover:bg-amber-50 dark:border-white/[0.12] dark:text-white dark:hover:bg-[#d8ad1f]/[0.12]"
         >
           Advisor review

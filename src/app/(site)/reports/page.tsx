@@ -7,13 +7,13 @@ import { ToolShell } from "@/components/XiaTools/ToolShell";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Immigration Reports from INR 499 | XIPHIAS",
+  title: "Immigration Reports from ₹499 | XIPHIAS",
   description: "Choose a focused XIPHIAS immigration report, complete only the relevant intake, pay securely and receive a personalised PDF.",
   alternates: { canonical: "/reports" },
 };
 
 function price(value: number) {
-  return `INR ${value.toLocaleString("en-IN")}`;
+  return `₹${value.toLocaleString("en-IN")}`;
 }
 
 export default function ReportsPage() {

@@ -3,7 +3,7 @@ import "server-only";
 import { scoreAssessment } from "@/lib/eligibility/scoring";
 import { isTrack, type Track } from "@/lib/eligibility/types";
 import { Programs } from "@/lib/eligibility/programCatalog";
-import { TOPMATE_BOOKING_URL } from "@/lib/topmate";
+import { BOOKING_PAID_ROUTE } from "@/lib/topmate";
 import type { XiaRecommendation, XiaRequest } from "./types";
 import { listCountryOfferings, retrieveContent } from "./content-rag";
 import { getImmigrationKnowledgeContext, type ImmigrationKnowledgeContext } from "./immigration-knowledge";
@@ -18,7 +18,7 @@ type CatalogProgram = {
   track?: Track;
 };
 
-const TOPMATE = TOPMATE_BOOKING_URL;
+const CONSULTATION_BOOKING = BOOKING_PAID_ROUTE;
 
 function flattenPrograms(): CatalogProgram[] {
   return (Object.entries(Programs) as [Track, ReadonlyArray<CatalogProgram>][])
@@ -211,7 +211,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
         : [],
       actions: handoff
         ? [
-            { label: "Book advisor call", href: TOPMATE, type: "primary" },
+            { label: "Book advisor call", href: CONSULTATION_BOOKING, type: "primary" },
             { label: "Check eligibility first", href: "/eligibility", type: "secondary" },
           ]
         : [
@@ -248,7 +248,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       recommendedPrograms,
       actions: [
         { label: "Run eligibility check", href: "/eligibility", type: "primary" },
-        { label: "Book consultation on Topmate", href: TOPMATE, type: "secondary" },
+        { label: "Schedule a consultation", href: CONSULTATION_BOOKING, type: "secondary" },
       ],
       sources: groups.map((group) => ({ label: group.label, href: group.href })),
       evidence: [],
@@ -271,7 +271,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
               country: "Step 2",
               reason: "Have an advisor verify gaps before filing or investment steps.",
               score: 86,
-              href: TOPMATE,
+              href: CONSULTATION_BOOKING,
             },
           ]
         : intent === "risk_review"
@@ -281,7 +281,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
               country: "Risk check",
               reason: "Review source of funds, background, PEP/sanctions exposure, and mismatch flags.",
               score: 90,
-              href: TOPMATE,
+              href: CONSULTATION_BOOKING,
             },
             {
               name: "Run eligibility check",
@@ -301,10 +301,10 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
         : [
             {
               name: "Book consultation",
-              country: "Topmate",
+              country: "XIPHIAS",
               reason: "Use the existing booking flow for paid advisor consultation.",
               score: 95,
-              href: TOPMATE,
+              href: CONSULTATION_BOOKING,
             },
             {
               name: "Check eligibility first",
@@ -322,11 +322,11 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       ? "Here is the cleanest document-preparation path."
           : intent === "risk_review"
           ? "Risk review should be handled with advisor verification."
-          : "You can book directly through the current Topmate flow.",
+          : "You can choose a live appointment and pay through the XIPHIAS consultation scheduler.",
       criteria: [
         "This is a workflow response, not a content search.",
         "Sensitive eligibility and risk decisions require advisor verification.",
-        "The booking/payment flow stays on Topmate.",
+        "The booking and JioPay payment flow stays on the XIPHIAS website.",
         ...knowledgeCriteria(knowledgeContext).slice(0, 2),
       ],
       confidence: workflowCards[0]?.score ?? 85,
@@ -335,11 +335,11 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       recommendedPrograms: workflowCards,
       actions: [
         { label: "Run eligibility check", href: "/eligibility", type: "primary" },
-        { label: "Book consultation on Topmate", href: TOPMATE, type: "secondary" },
+        { label: "Schedule a consultation", href: CONSULTATION_BOOKING, type: "secondary" },
       ],
       sources: [
         { label: "Eligibility check", href: "/eligibility" },
-        { label: "Topmate booking", href: TOPMATE },
+        { label: "XIPHIAS consultation booking", href: CONSULTATION_BOOKING },
       ],
       evidence: [],
     };
@@ -389,7 +389,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
           ],
       actions: [
         { label: "Run eligibility check", href: "/eligibility", type: "primary" },
-        { label: "Book consultation on Topmate", href: TOPMATE, type: "secondary" },
+        { label: "Schedule a consultation", href: CONSULTATION_BOOKING, type: "secondary" },
       ],
       sources: uniqueSources([
         ...knowledgeContext.topDocs.slice(0, 3).map((doc) => ({ label: doc.title, href: doc.href })),
@@ -481,7 +481,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
 
   const actions = [
     { label: "Run eligibility check", href: "/eligibility", type: "primary" as const },
-    { label: "Book consultation on Topmate", href: TOPMATE, type: "secondary" as const },
+    { label: "Schedule a consultation", href: CONSULTATION_BOOKING, type: "secondary" as const },
   ];
 
   if (intent === "partnership") {
@@ -503,7 +503,7 @@ export function getXiaRecommendation(request: XiaRequest): XiaRecommendation {
       ...content.chunks.slice(0, 5).map((chunk) => ({ label: chunk.title, href: chunk.href })),
       ...knowledgeContext.topDocs.slice(0, 3).map((doc) => ({ label: doc.title, href: doc.href })),
       { label: "Eligibility scoring", href: "/eligibility" },
-      { label: "Personal consultation", href: TOPMATE },
+      { label: "Personal consultation", href: CONSULTATION_BOOKING },
     ]),
     evidence: content.chunks.slice(0, 3).map((chunk) => ({
       title: chunk.title,

@@ -27,11 +27,11 @@ export async function GET(req: NextRequest) {
   const product = getProductConfig(order.productType);
   if (!product) return NextResponse.json({ ok: false, error: "Unknown purchased product." }, { status: 400 });
 
-  const completed = order.events.some((event) => event.type === "report_delivered" || event.type === "registration_provisioned");
+  const completed = order.events.some((event) => event.type === "report_delivered" || event.type === "registration_provisioned" || event.type === "consultation_confirmed");
   const registrationEvent = order.events.find((event) => event.type === "registration_provisioned");
   const crmAccessUrl = typeof registrationEvent?.data?.accessUrl === "string" ? registrationEvent.data.accessUrl : undefined;
   const waitingForIntake = product.requiresIntake && order.answers?.paidIntakeCompleted !== true;
-  const failureEvents = order.events.filter((event) => event.type === "report_failed" || event.type === "registration_failed");
+  const failureEvents = order.events.filter((event) => event.type === "report_failed" || event.type === "registration_failed" || event.type === "consultation_confirmation_failed");
   const latestStart = Math.max(eventTime(order, "report_generation_started"), eventTime(order, "registration_provisioning_started"));
   const processingStale = order.status === "processing" && latestStart > 0 && Date.now() - latestStart > 2 * 60 * 1000;
   const retryEligible = !completed && !waitingForIntake && failureEvents.length < 3 && (order.status === "paid" || processingStale);
@@ -63,7 +63,9 @@ export async function GET(req: NextRequest) {
             : "pending";
   const message = stage === "ready"
     ? product.fulfillment === "registration"
-      ? "Your India CRM client ID is registered, INR 5,000 including GST is recorded as paid, and secure access was sent to your checkout email."
+      ? "Your India CRM client ID is registered, ₹5,000 including GST is recorded as paid, and secure access was sent to your checkout email."
+      : product.fulfillment === "consultation"
+        ? "Your senior-advisor consultation is confirmed. The appointment details and calendar invitation were sent to your checkout email."
       : "Your personalised PDF is ready and has been sent to your checkout email."
     : stage === "action_required"
       ? "Payment is confirmed. Complete the secure paid intake to generate the report."
@@ -74,6 +76,8 @@ export async function GET(req: NextRequest) {
           : stage === "processing"
             ? product.fulfillment === "registration"
               ? "Payment is confirmed. Your India CRM client, paid receipt and secure access are being created."
+              : product.fulfillment === "consultation"
+                ? "Payment is confirmed. Your consultation slot and calendar invitation are being finalised."
               : "Payment is confirmed. Your personalised report is being generated."
             : "Waiting for verified payment confirmation.";
 

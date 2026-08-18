@@ -168,7 +168,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 function priceLabel(value: number) {
-  return `INR ${value.toLocaleString("en-IN")}`;
+  return `₹${value.toLocaleString("en-IN")}`;
 }
 
 function isHighSkill(type: ProductType) {

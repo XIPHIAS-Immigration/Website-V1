@@ -5,6 +5,8 @@ import ReportAutoDownload from "@/components/payments/ReportAutoDownload";
 import OrderFulfillmentStatus from "@/components/payments/OrderFulfillmentStatus";
 import { getJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getProductConfig } from "@/lib/payments/product-catalog";
+import { getConsultationBooking } from "@/lib/consultations/store";
+import { formatConsultationDate, formatConsultationTime } from "@/lib/consultations/confirmation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,6 +41,8 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
   const product = getProductConfig(storedOrder?.productType);
   const isRegistration = product?.fulfillment === "registration";
   const isReport = product?.fulfillment === "report";
+  const isConsultation = product?.fulfillment === "consultation";
+  const consultation = isConsultation && order ? getConsultationBooking(order) : null;
   const success = status === "success";
   const failed = status === "failed";
   const downloadUrl =
@@ -60,6 +64,8 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
       ? "Payment received"
       : isRegistration
         ? "Registration payment received"
+        : isConsultation
+          ? "Consultation payment received"
         : "Payment response received"
     : failed
       ? "Payment was not completed"
@@ -69,6 +75,8 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
       ? "JioPay returned a successful response. Your payment is being recorded in CRM and the usual invoice or receipt confirmation will be sent to your registered email."
       : isRegistration
         ? "JioPay returned a successful response. XIPHIAS is creating your India CRM client record, paid receipt and secure client access. The included Deep Analysis begins after you complete your CRM profile."
+        : isConsultation
+          ? "Your verified payment is being matched to the consultation slot you selected. Confirmation and a calendar invitation will be sent to your email."
         : "JioPay returned a successful response. XIPHIAS will verify and record your purchase, prepare the personalised PDF, and email a secure copy to the address used at checkout."
     : failed
       ? checkoutMessage ||
@@ -104,6 +112,14 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
           </div>
         </div>
 
+        {consultation ? (
+          <div className="mt-5 rounded-xl border border-[#d8b650]/40 bg-[#fff9e8] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6a0a]">Selected consultation</p>
+            <p className="mt-2 text-lg font-semibold text-[#071a3a]">{formatConsultationDate(consultation.dateISO)}</p>
+            <p className="mt-1 text-sm text-[#536277]">{formatConsultationTime(consultation.timeISO)} · {consultation.durationMinutes} minutes · {consultation.timezone}</p>
+          </div>
+        ) : null}
+
         {fulfillmentStatusUrl ? <OrderFulfillmentStatus statusUrl={fulfillmentStatusUrl} /> : null}
         {downloadUrl && <ReportAutoDownload downloadUrl={downloadUrl} />}
 
@@ -124,6 +140,13 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
               <FileText className="size-4" aria-hidden="true" />
               Client CRM login
             </a>
+          ) : isConsultation ? (
+            <Link
+              href="/personal-booking"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f5fbc] px-5 py-3 text-sm font-semibold text-white"
+            >
+              Return to consultations
+            </Link>
           ) : (
             <Link
               href="/reports"

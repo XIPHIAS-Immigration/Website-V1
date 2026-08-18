@@ -35,6 +35,7 @@ function shouldSkipPath(pathname: string) {
   if (p.startsWith("/xia-intelligence")) return true;
   if (p.startsWith("/programme-explorer")) return true;
   if (p.startsWith("/payment") || p.startsWith("/registration")) return true;
+  if (p.startsWith("/personal-booking") || p === "/booking") return true;
   return false;
 }
 

@@ -119,7 +119,7 @@ export default function Home() {
 
       <DeferOnView minHeight="1010px">
         <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
-          <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
+          <AdvisorConsultationCard bookingHref="/personal-booking#schedule" />
         </section>
       </DeferOnView>
 

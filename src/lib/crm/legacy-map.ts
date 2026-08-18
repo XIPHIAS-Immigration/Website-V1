@@ -93,7 +93,7 @@ export const legacyCrmModules: LegacyCrmModule[] = [
     views: 63,
     responsibility: "Invoices, receipts, refunds, expenses, commissions, outstanding amounts, and approvals.",
     migrationPriority: "p3",
-    target: "Read-only finance history first. Active website payments remain with Topmate unless changed.",
+    target: "Read-only finance history first. Active consultation payments use the XIPHIAS JioPay scheduler.",
   },
   {
     area: "Administration",
@@ -180,7 +180,7 @@ export const legacyCrmSchemaGroups: LegacyCrmSchemaGroup[] = [
   {
     label: "Finance history",
     tables: ["tbl_InvoiceDetails", "tbl_Receipt", "tbl_Refund", "tbl_OnlinePayments", "tbl_PayuResponse", "tbl_FeeMaster"],
-    hubLink: "Invoice/payment history only; Topmate remains live checkout",
+    hubLink: "Invoice/payment history only; the XIPHIAS JioPay scheduler handles consultation checkout",
   },
 ];
 

@@ -5,7 +5,7 @@ import { ArrowRight, Check, FileText, ShieldCheck } from "lucide-react";
 export default function Hero() {
   return (
     <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-primary pt-28 text-white sm:pt-32">
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-60">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-50">
         <Image
           src="/images/hero/top-immigration-counsultent.webp"
           alt=""
@@ -16,7 +16,7 @@ export default function Hero() {
           sizes="100vw"
         />
       </div>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-primary/80" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-primary/80 via-primary/90 to-primary" />
 
       <div className="mx-auto w-full max-w-[1600px] px-4 pb-[clamp(3rem,7vh,7rem)] sm:px-6 lg:px-10">
         <div className="mx-auto max-w-7xl text-center">
@@ -38,14 +38,14 @@ export default function Hero() {
               href="/registration"
               className="inline-flex min-h-[clamp(3.5rem,calc(3rem+1.3vw),4.5rem)] items-center justify-center gap-2.5 rounded-md bg-[#d8ad1f] px-[clamp(1.5rem,2.2vw,2.75rem)] text-[clamp(1rem,calc(0.85rem+0.25vw),1.2rem)] font-black text-primary shadow-[0_12px_30px_rgba(216,173,31,0.25)] transition hover:bg-[#efc939]"
             >
-              Register for full assessment — INR 5,000 incl. GST
+              Register for full assessment — ₹5,000
               <ArrowRight className="size-[clamp(1.25rem,1.5vw,1.5rem)]" aria-hidden="true" />
             </Link>
             <Link
               href="/reports"
               className="inline-flex min-h-[clamp(3.5rem,calc(3rem+1.3vw),4.5rem)] items-center justify-center gap-2.5 rounded-md border border-white/35 bg-white/10 px-[clamp(1.5rem,2.2vw,2.75rem)] text-[clamp(1rem,calc(0.85rem+0.25vw),1.2rem)] font-black text-white transition hover:bg-white/15"
             >
-              Choose a report — from INR 499
+              Choose a report — from ₹499
               <FileText className="size-[clamp(1.25rem,1.5vw,1.5rem)]" aria-hidden="true" />
             </Link>
           </div>

@@ -945,7 +945,7 @@ export default async function ProgramPage(props: {
 
             {/* ADVISOR SPOTLIGHT */}
             <section id="advisor" className="scroll-mt-28">
-              <AdvisorConsultationCard bookingHref="/booking?plan=paid" />
+              <AdvisorConsultationCard bookingHref="/personal-booking#schedule" />
             </section>
 
             {/* spacer for mobile floating nav */}

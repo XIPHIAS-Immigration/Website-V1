@@ -54,7 +54,7 @@ export default function AdminProvisionClientForm() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Manual payment confirmation</p>
           <h2 className="mt-1 text-xl font-black">Provision a client Hub account</h2>
           <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Use this after you manually confirm the INR 1,000 Topmate payment. It creates the client login,
+            Use this after you manually confirm the ₹1,000 Topmate payment. It creates the client login,
             opens a case, adds onboarding documents, and records the payment reference.
           </p>
         </div>

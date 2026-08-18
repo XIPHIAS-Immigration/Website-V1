@@ -158,7 +158,7 @@ export default function Leadership() {
                   <ArrowRight />
                 </Link>
                 <Link
-                  href="/booking"
+                  href="/personal-booking#schedule"
                   prefetch={false}
                   className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-blue-700 ring-1 ring-blue-300 transition hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:bg-white/5 dark:text-blue-200 dark:ring-blue-800/60 dark:hover:bg-blue-950/20"
                   aria-label="Book a Consultation"

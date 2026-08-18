@@ -20,7 +20,7 @@ const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
 const MAX_JSON_KB = 64;
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PRICE_INR = 4999;
+const DEFAULT_REPORT_PRICE_INR = 5000;
 
 const rlBucket: Map<string, number[]> =
   (global as any).__eligibilityRL__ ?? new Map<string, number[]>();
@@ -67,8 +67,8 @@ function absoluteUrl(pathOrUrl: string, siteUrl = getSiteUrl()) {
 
 function formatInr(value: string | number) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
-  if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
-  return `INR ${numeric.toLocaleString("en-IN")}`;
+  if (!Number.isFinite(numeric) || numeric <= 0) return `₹${value}`;
+  return `₹${numeric.toLocaleString("en-IN")}`;
 }
 
 function safeAnswers(input: unknown) {

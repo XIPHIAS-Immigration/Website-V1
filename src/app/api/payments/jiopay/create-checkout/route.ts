@@ -14,6 +14,7 @@ import { getCurrentPortalUser } from "@/lib/platform/auth";
 import { resolveCheckoutPrice } from "@/lib/payments/product-catalog";
 import { PAYMENTS_DISABLED, PAYMENTS_COMING_SOON_LABEL } from "@/lib/payments/payments-status";
 import { protectPublicLead } from "@/lib/security/public-lead-security";
+import { holdConsultationSlot, releaseConsultationSlot } from "@/lib/consultations/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  let consultationReference = "";
   try {
     const productType = normalizeText(body.productType, 60) || DEFAULT_PRODUCT_TYPE;
     const portalUser = await getCurrentPortalUser();
@@ -103,11 +105,35 @@ export async function POST(req: NextRequest) {
 
     const config = getJiopayConfig(req);
     const merchantTxnNo = makeJiopayTxnNo();
-    const productName = normalizeText(body.productName, 120) || product.label;
+    const productName = product.fulfillment === "consultation"
+      ? product.label
+      : normalizeText(body.productName, 120) || product.label;
     const track = resolveTrack(body.track);
     const country = normalizeText(body.country, 80) || undefined;
     const program = normalizeText(body.program, 140) || undefined;
     const page = normalizeText(body.page, 240) || req.headers.get("referer") || "/xia-intelligence";
+    const answers = safeAnswers(body.answers);
+
+    if (product.fulfillment === "consultation") {
+      const dateISO = normalizeText(answers?.dateISO, 10);
+      const timeISO = normalizeText(answers?.timeISO, 5);
+      const hold = holdConsultationSlot({
+        reference: merchantTxnNo,
+        dateISO,
+        timeISO,
+        customer: { name, email, phone: phone || undefined },
+        country: normalizeText(answers?.country, 80) || country,
+        focus: normalizeText(answers?.focus, 140),
+        notes: normalizeText(answers?.notes, 1_000),
+      });
+      if (!hold.ok) {
+        const message = hold.reason === "slot_unavailable"
+          ? "That consultation slot is no longer available. Please select another time."
+          : "Please select a valid consultation date and time.";
+        return NextResponse.json({ ok: false, error: message, code: hold.reason }, { status: hold.reason === "slot_unavailable" ? 409 : 400 });
+      }
+      consultationReference = merchantTxnNo;
+    }
 
     const repo = getPlatformRepository();
     const lead = repo.createLead({
@@ -133,7 +159,7 @@ export async function POST(req: NextRequest) {
       direction: "inbound",
       from: name,
       to: "XIPHIAS",
-      body: `Jiopay checkout initiated for ${productName}. Amount INR ${amountInr.toLocaleString("en-IN")}. Ref: ${merchantTxnNo}`,
+      body: `Jiopay checkout initiated for ${productName}. Amount ₹${amountInr.toLocaleString("en-IN")}. Ref: ${merchantTxnNo}`,
     });
 
     const result = await initiateJiopaySale(
@@ -159,7 +185,7 @@ export async function POST(req: NextRequest) {
       track,
       country,
       program,
-      answers: safeAnswers(body.answers),
+      answers,
       status: result.checkoutUrl ? "checkout_created" : "initiated",
       checkoutUrl: result.checkoutUrl || undefined,
       lastResponseCode: String(result.responsePayload.responseCode ?? result.status),
@@ -179,6 +205,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!result.ok || !result.checkoutUrl) {
+      if (consultationReference) releaseConsultationSlot(consultationReference, "jiopay_checkout_not_created");
       return NextResponse.json(
         {
           ok: false,
@@ -199,6 +226,7 @@ export async function POST(req: NextRequest) {
       jiopay: publicJiopayPayload(result.responsePayload),
     });
   } catch (error) {
+    if (consultationReference) releaseConsultationSlot(consultationReference, "checkout_error");
     return NextResponse.json(
       {
         ok: false,

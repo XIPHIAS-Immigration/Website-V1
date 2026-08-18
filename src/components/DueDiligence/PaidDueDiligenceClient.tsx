@@ -98,7 +98,7 @@ export default function PaidDueDiligenceClient({ order, expires, token }: { orde
     <ToolShell
       eyebrow="XIA Paid Immigration Due Diligence"
       title="Complete Your Full Due-Diligence Intake"
-      subtitle={`Your verified INR ${DUE_DILIGENCE_PRICE_INR} payment gives you access to the expanded evidence intake and personalised immigration due-diligence PDF.`}
+      subtitle={`Your verified ₹${DUE_DILIGENCE_PRICE_INR} payment gives you access to the expanded evidence intake and personalised immigration due-diligence PDF.`}
       steps={[
         { title: "Confirm the paid assessment", description: "The payment reference and customer details are checked before the expanded intake is displayed." },
         { title: "Provide detailed case evidence", description: "Complete identity, immigration, financial, family and verification sections with the information actually available." },
@@ -114,7 +114,7 @@ export default function PaidDueDiligenceClient({ order, expires, token }: { orde
         <div className="space-y-6">
           <section className="rounded-xl border border-secondary/35 bg-black/10 p-5 sm:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">Payment confirmed</p><h2 className="mt-2 text-2xl font-black text-white">{summary.customer.name}</h2><p className="mt-2 text-sm text-white/55">Reference {summary.reference} - INR {summary.amountInr}</p></div>
+              <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">Payment confirmed</p><h2 className="mt-2 text-2xl font-black text-white">{summary.customer.name}</h2><p className="mt-2 text-sm text-white/55">Reference {summary.reference} - ₹{summary.amountInr}</p></div>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/35 bg-secondary/10 px-3 py-1.5 text-xs font-bold text-secondary"><LockKeyhole className="size-4" /> Secure paid intake</span>
             </div>
           </section>
@@ -171,7 +171,7 @@ export default function PaidDueDiligenceClient({ order, expires, token }: { orde
                 {step === 3 ? <div className="grid gap-6 md:grid-cols-2">
                   <Field label="Source of wealth" helper="How total wealth was accumulated.">{textArea("sourceOfWealth")}</Field>
                   <Field label="Source of funds" helper="The exact money intended for this immigration objective.">{textArea("sourceOfFunds")}</Field>
-                  <Field label="Available funds and currency">{textInput("availableFunds", "For example INR 25,000,000")}</Field>
+                  <Field label="Available funds and currency">{textInput("availableFunds", "For example ₹25,000,000")}</Field>
                   <Field label="Annual income and currency">{textInput("annualIncome")}</Field>
                   <Field label="How long have the funds been held?">{textInput("fundsHeldPeriod")}</Field>
                   <Field label="Large or unusual deposits">{textArea("largeDeposits", "Enter None or describe amount, date and origin.")}</Field>

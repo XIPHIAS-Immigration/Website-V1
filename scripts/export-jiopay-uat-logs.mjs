@@ -71,7 +71,7 @@ lines.push("XIPHIAS IMMIGRATION - JIOPAY UAT SIGN-OFF LOGS");
 lines.push(`Generated At: ${new Date().toISOString()}`);
 lines.push(`Merchant Transaction No: ${order.merchantTxnNo}`);
 lines.push(`Lead ID: ${order.leadId || "-"}`);
-lines.push(`Amount INR: ${order.amountInr}`);
+lines.push(`Amount: ₹${order.amountInr}`);
 lines.push(`Order Status: ${order.status}`);
 lines.push(`Store Path: ${storePath}`);
 lines.push("");

@@ -35,8 +35,8 @@ const PRODUCTS = {
 };
 
 const EXPECTED_PRICES = {
-  premium_report: 1000,
-  us_visa_report: 1000,
+  premium_report: 499,
+  us_visa_report: 499,
   deep_analysis_report: 4999,
   route_report: 499,
   cost_report: 499,

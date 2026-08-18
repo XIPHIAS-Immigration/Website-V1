@@ -21,7 +21,7 @@ const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigratio
 const REPORT_TITLE = "Assessment Preview Report";
 const DETAILED_REPORT_TITLE = "Detailed Personal Mobility Report";
 const DEFAULT_SITE_URL = "https://www.xiphiasimmigration.com";
-const DEFAULT_REPORT_PRICE_INR = 4999;
+const DEFAULT_REPORT_PRICE_INR = 5000;
 const PDF_LOGO_BASE64 = process.env.PDF_LOGO_BASE64 || "";
 
 const FOOTER_ADDRESS =
@@ -115,8 +115,8 @@ function absoluteUrl(pathOrUrl: string, siteUrl = getSiteUrl()) {
 
 function formatInr(value: string | number) {
   const numeric = Number(String(value).replace(/[^\d.]/g, ""));
-  if (!Number.isFinite(numeric) || numeric <= 0) return `INR ${value}`;
-  return `INR ${numeric.toLocaleString("en-IN")}`;
+  if (!Number.isFinite(numeric) || numeric <= 0) return `₹${value}`;
+  return `₹${numeric.toLocaleString("en-IN")}`;
 }
 
 function titleCase(value: string) {

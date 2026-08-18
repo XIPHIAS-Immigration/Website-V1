@@ -12,6 +12,7 @@ import { getJiopayOrder, updateJiopayOrder } from "@/lib/payments/jiopay-store";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { fulfillJiopayOrder } from "@/lib/payments/fulfillment";
 import { recordJiopayPurchaseInCrm } from "@/lib/crm/save-payment";
+import { releaseConsultationSlot } from "@/lib/consultations/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -138,11 +139,16 @@ export async function POST(req: NextRequest) {
         if (fulfillment.status === "report_failed") {
           throw new Error(fulfillment.detail || "Paid report delivery failed.");
         }
+        if (fulfillment.status === "consultation_failed") {
+          throw new Error(fulfillment.detail || "Consultation confirmation failed.");
+        }
         if (fulfillment.status === "crm_failed") {
           throw new Error(fulfillment.detail || "CRM payment finalization failed.");
         }
         if (crmError) throw crmError;
       }
+    } else if (order?.productType === "senior_consultation") {
+      releaseConsultationSlot(merchantTxnNo, "jiopay_webhook_not_successful");
     }
 
     const responsePayload = {
