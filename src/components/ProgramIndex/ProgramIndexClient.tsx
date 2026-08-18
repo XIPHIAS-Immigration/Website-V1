@@ -62,7 +62,12 @@ function Inner({ programs }: { programs: ProgramIndexItem[] }) {
     <ToolShell
       eyebrow="XIA · Program Index"
       title="The XIPHIAS Program Index."
-      subtitle="Explore programmes within a selected route family using a transparent orientation benchmark across supplied capital, indicative timing, presence flexibility, family inclusion, due-diligence intensity and destination mobility context. Skilled, corporate, residence and citizenship routes are separated by default because they solve different objectives. Every row shows the completeness of its underlying catalogue data, and the index never treats a work or residence route as an automatic path to the destination passport."
+      subtitle="Explore programmes through a transparent orientation benchmark while keeping different route families separate. Each ranking shows its data confidence and the factors behind the score."
+      steps={[
+        { title: "Choose a route family", description: "Filter skilled, corporate, residence and citizenship programmes so unlike objectives are not mixed by default." },
+        { title: "Set your decision priorities", description: "Review supplied capital, timing, presence, family, due-diligence and destination-mobility factors." },
+        { title: "Inspect the ranking and confidence", description: "See the factor scores, underlying data completeness and published methodology before using the index for orientation." },
+      ]}
       benefits={["Route-family filters", "Visible data confidence", "Documented scoring method"]}
       contactContext="Programme Index"
       contactId="programme-index"

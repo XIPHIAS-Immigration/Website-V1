@@ -37,7 +37,7 @@ import {
   type RouteIntelligenceInput,
 } from "@/lib/xia-intelligence-model";
 import { BOOKING_ROUTE } from "@/lib/topmate";
-import { ToolShell } from "@/components/XiaTools/ToolShell";
+import { ToolShell, type ToolStep } from "@/components/XiaTools/ToolShell";
 
 type Engine = "route" | "high-skill" | "investment" | "documents" | "workflow";
 type ProgrammeMatch = ReturnType<typeof scoreProgrammeRoutes>[number];
@@ -53,6 +53,7 @@ type XiaIntelligenceClientProps = {
   targetCountryLocked?: HighSkillInput["targetCountry"];
   title?: string;
   subtitle?: string;
+  steps?: ToolStep[];
 };
 
 type ContactInput = {
@@ -260,6 +261,7 @@ export default function XiaIntelligenceClient({
   targetCountryLocked,
   title,
   subtitle,
+  steps,
 }: XiaIntelligenceClientProps) {
   const [engine, setEngine] = useState<Engine>(initialEngine);
   const [routeInput, setRouteInput] = useState<RouteIntelligenceInput>(() => ({
@@ -308,6 +310,17 @@ export default function XiaIntelligenceClient({
   const currentSubtitle =
     subtitle ||
     "Choose the assessment type, add the important details, and XIPHIAS will prepare route-fit guidance for advisor review.";
+  const currentSteps: ToolStep[] = steps || (engine === "high-skill"
+    ? [
+        { title: "Build your professional profile", description: "Add your destination, role, education, experience and immigration objective." },
+        { title: "Map your supporting evidence", description: "Record achievements, sponsorship position, CV details and route-specific dependencies." },
+        { title: "Review plausible visa directions", description: "See which routes warrant deeper review, why they may fit and what is still missing." },
+      ]
+    : [
+        { title: "Set your migration objective", description: "Choose the destination, desired outcome and the applicant profile that describes you." },
+        { title: "Add practical constraints", description: "Provide budget, timeline, family and physical-presence preferences so unsuitable routes can be removed." },
+        { title: "Review your focused shortlist", description: "See compatible directions, confidence limits, evidence gaps and advisor-ready next actions." },
+      ]);
   const compactSummary =
     engine === "high-skill"
       ? `${highSkillInput.role || "Profile"} - ${highSkillInput.targetCountry.toUpperCase()} - ${highSkillPercent}% depth`
@@ -349,6 +362,7 @@ export default function XiaIntelligenceClient({
       eyebrow="XIA Intelligence"
       title={currentTitle}
       subtitle={currentSubtitle}
+      steps={currentSteps}
       benefits={["Personalised route fit", "Evidence and eligibility gaps", "Advisor-ready next steps"]}
       contactContext={currentTitle}
       contactId={`xia-${engine}`}
@@ -358,18 +372,21 @@ export default function XiaIntelligenceClient({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="mx-auto max-w-screen-xl rounded-xl border border-white/20 bg-black/10 p-5 shadow-cause-shadow sm:p-7 lg:p-9"
+          className="rounded-2xl border border-white/20 bg-black/10 p-5 shadow-cause-shadow sm:p-7 lg:p-9"
         >
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div>
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="max-w-2xl">
               <p className="type-caption uppercase text-secondary">Your information</p>
-              <h2 className="type-card-title mt-2 text-white">Please enter the required information below.</h2>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">Build your assessment profile</h2>
+              <p className="mt-2 text-sm leading-6 text-white/65">Complete the fields below, then generate the assessment. XIA will not recommend a route until the minimum required facts are available.</p>
               {submitted ? <p className="mt-2 text-sm text-white/70">Current assessment: {compactSummary}</p> : null}
             </div>
-            <div className="space-y-3 md:max-w-sm">
-              <div className="rounded-lg border border-secondary/35 bg-secondary/10 p-4 text-sm font-medium leading-6 text-white/85">
-                This assessment is a planning aid, not a final visa decision. Final strategy requires XIPHIAS advisor review.
-              </div>
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              {lockedEngine ? (
+                <Link href="/#xia-intelligence" className="inline-flex h-11 items-center justify-center rounded-lg border border-white/25 px-4 text-sm font-semibold text-white transition hover:bg-white/10">
+                  View all XIA tools
+                </Link>
+              ) : null}
               <button
                 type="button"
                 onClick={() => setShowHelp((value) => !value)}
@@ -379,6 +396,11 @@ export default function XiaIntelligenceClient({
                 XIA help
               </button>
             </div>
+          </div>
+
+          <div className="mt-5 flex gap-3 rounded-xl border border-secondary/35 bg-secondary/10 p-4 text-sm font-medium leading-6 text-white/85">
+            <ShieldCheck className="mt-0.5 size-5 shrink-0 text-secondary" aria-hidden="true" />
+            <p>This is a planning assessment based on the information you provide, not a visa decision or legal clearance. Final eligibility and filing strategy require XIPHIAS advisor verification.</p>
           </div>
 
           {showHelp && <XiaHelpPanel />}
@@ -414,16 +436,7 @@ export default function XiaIntelligenceClient({
                 );
               })}
             </div>
-          ) : (
-            <div className="mt-6">
-              <Link
-                href="/#xia-intelligence"
-                className="inline-flex h-11 items-center justify-center rounded-lg border border-white/20 px-4 text-sm font-semibold text-white transition hover:border-secondary hover:bg-white/10"
-              >
-                Open full XIA suite
-              </Link>
-            </div>
-          )}
+          ) : null}
 
           {(engine === "route" || engine === "investment") && (
             <RouteInputs engine={engine} input={routeInput} setInput={setRouteInput} />

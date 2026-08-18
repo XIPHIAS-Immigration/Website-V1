@@ -38,7 +38,12 @@ export default function DocumentReadinessClient() {
     <ToolShell
       eyebrow="XIA · Document Readiness"
       title="Document and Evidence Readiness"
-      subtitle="Review the actual condition of the identity, civil, education, employment, financial and family evidence relevant to your intended immigration route. XIA separates documents that are ready from those that are missing, expired, incomplete, awaiting translation or needing verification, giving you a practical collection plan before report purchase or advisor review. No document is assumed to exist when you have not provided its status."
+      subtitle="Understand which immigration documents are ready, which need attention and which have not yet been reviewed. Every status comes from your answers—XIA never assumes that missing evidence exists."
+      steps={[
+        { title: "Identify the route", description: "Add the destination and programme so the document review has the right immigration context." },
+        { title: "Mark each evidence status", description: "Record whether identity, civil, education, employment, financial and family documents are current, partial, expired or unavailable." },
+        { title: "Receive a collection plan", description: "See ready items, remediation work and unreviewed categories before report purchase or advisor handoff." },
+      ]}
       benefits={["Document-level status", "Missing and remediation list", "Programme-aware advisor handoff"]}
       contactContext="Document Readiness"
       contactId="document-readiness"

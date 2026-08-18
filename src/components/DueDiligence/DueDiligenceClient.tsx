@@ -340,7 +340,12 @@ export default function DueDiligenceClient() {
     <ToolShell
       eyebrow="XIA Immigration Due Diligence"
       title={<>Know the risks <span className="text-secondary">before you apply.</span></>}
-      subtitle={`Review identity consistency, immigration history, document integrity, source of funds, family evidence and relevant counterparties before an application or migration-linked investment. The free assessment explains the information supplied, identifies evidence gaps and enhanced-review triggers, and separates unanswered questions from declared concerns. It does not claim to perform police, sanctions, identity-database or government clearance checks. A detailed INR ${DUE_DILIGENCE_PRICE_INR} report is available only after the free result.`}
+      subtitle="Run a structured pre-application review of identity, immigration history, document integrity, source of funds and relevant relationships. The free result separates declared concerns, unanswered questions and matters requiring enhanced review."
+      steps={[
+        { title: "Complete the free risk intake", description: "Provide identity, immigration, document and financial information across four short sections." },
+        { title: "Review declared risks and gaps", description: "Receive a preliminary result based only on your answers, with enhanced-review triggers clearly separated." },
+        { title: `Choose whether to unlock the INR ${DUE_DILIGENCE_PRICE_INR} report`, description: "After seeing the free result, continue to the expanded paid intake and personalised PDF if you need deeper preparation." },
+      ]}
       benefits={["Structured risk triage", "Evidence and chronology gaps", `Detailed INR ${DUE_DILIGENCE_PRICE_INR} report option`]}
       contactContext="Due Diligence"
       contactId="due-diligence"

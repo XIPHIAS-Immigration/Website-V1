@@ -23,14 +23,16 @@ export default function ReportsPage() {
     <ToolShell
       eyebrow="XIA · Express Reports"
       title="Choose One Report and Go Straight to Its Form"
-      subtitle="Select the exact immigration report you need, see its price and contents before starting, and complete only the information required to personalise that product. Focused reports begin at INR 499, while the INR 4,999 Deep Analysis requests deeper professional and evidence information. The journey remains three clear steps: choose a report, enter report-specific information, then pay securely and download the personalised PDF after verified payment. Missing facts remain explicitly Not provided."
+      subtitle="Choose the immigration report that matches your question, see its price before starting and complete one report-specific form. Missing facts remain clearly marked instead of being invented."
+      steps={[
+        { title: "Choose a report", description: "Compare the purpose, inclusions, page range and fixed price of every available report." },
+        { title: "Enter the relevant information", description: "Complete the intake designed for that report—lower-priced reports request fewer details than Deep Analysis." },
+        { title: "Pay securely and download", description: "Proceed through JioPay and receive the personalised PDF after payment verification." },
+      ]}
       benefits={["Prices shown before selection", "Report-specific intake", "Secure payment and PDF delivery"]}
       contactContext="Express Reports"
       contactId="express-report-store"
     >
-      <div className="mb-8 flex flex-wrap gap-3 text-xs font-bold text-white/70">
-        {["1. Select your report", "2. Enter the relevant information", "3. Pay and download the PDF"].map((item) => <span key={item} className="rounded-full border border-white/20 bg-black/10 px-4 py-2">{item}</span>)}
-      </div>
       <section className="!bg-transparent">
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {products.map((product) => (

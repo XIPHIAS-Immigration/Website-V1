@@ -20,7 +20,12 @@ export default function UsVisaIntelligencePage() {
       lockedEngine
       targetCountryLocked="usa"
       title="US Visa Intelligence"
-      subtitle="Assess US visa directions against your professional record, intended work in the United States, petitioner or employer position, current status, previous visa history and available evidence. XIA compares the supplied facts with routes such as EB-1A, EB-2 NIW, O-1, H-1B and L-1, showing why a category may fit, which mandatory dependency is missing and what evidence should be strengthened. It does not assume acclaim, sponsorship or eligibility when those facts have not been provided."
+      subtitle="Assess US visa directions against your professional record, intended work, petitioner position and available evidence. The result distinguishes possible routes from missing mandatory dependencies and unsupported claims."
+      steps={[
+        { title: "Define your US objective", description: "Add your intended work, current immigration position, petitioner or employer situation and preferred outcome." },
+        { title: "Map your professional evidence", description: "Record qualifications, experience, recognition, publications, leadership, sponsorship and previous visa history." },
+        { title: "Compare relevant US categories", description: "Review why EB-1A, EB-2 NIW, O-1, H-1B, L-1 or another direction may or may not warrant detailed assessment." },
+      ]}
     />
   );
 }

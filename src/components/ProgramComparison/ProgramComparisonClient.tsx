@@ -179,7 +179,12 @@ function Inner({ programs }: { programs: ComparableProgram[] }) {
     <ToolShell
       eyebrow="XIA · Compare Programs"
       title="Compare Programmes on the Numbers That Matter."
-      subtitle="Choose two to four programmes from the same route family and compare the information that can support a real decision: supplied catalogue amounts, indicative timelines, route benefits, residence outcome, family inclusion, physical-presence expectations and due-diligence intensity. XIA does not preselect arbitrary programmes or imply that a residence or work route automatically grants citizenship. Missing and unverified costs remain clearly separated so the comparison can be reviewed responsibly with an advisor."
+      subtitle="Compare two to four programmes from the same route family using decision-relevant facts. XIA keeps missing costs visible and never presents residence or work permission as automatic citizenship."
+      steps={[
+        { title: "Select the first programme", description: "Your first choice establishes the route family so later choices remain comparable." },
+        { title: "Add up to three alternatives", description: "Compare supplied costs, timelines, benefits, family inclusion, presence expectations and due-diligence intensity." },
+        { title: "Review the trade-offs", description: "Use the side-by-side result to identify missing information and the questions to take to an advisor." },
+      ]}
       benefits={["User-selected programmes", "Like-for-like route families", "Missing data shown explicitly"]}
       contactContext="Programme Comparison"
       contactId="compare-programmes"

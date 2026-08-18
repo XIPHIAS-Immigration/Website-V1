@@ -32,7 +32,12 @@ export default async function DeepAnalysisPage({
       journeySource={getJourneySource(params)}
       lockedEngine
       title="Deep Analysis"
-      subtitle="Build a detailed evidence-led view of your education, experience, role, achievements and supporting records across relevant high-skill immigration pathways. XIA uses only the information you provide to identify plausible routes, explain the evidence supporting each direction, highlight missing criteria and organise practical next steps. Incomplete profiles are not given artificial recommendations. A case-specific Deep Analysis report is available for INR 4,999, while final eligibility and filing strategy remain subject to advisor verification."
+      subtitle="Turn your professional history and supporting evidence into a structured high-skill immigration review. XIA identifies plausible directions, evidence strengths and critical gaps without treating incomplete information as eligibility."
+      steps={[
+        { title: "Describe your professional profile", description: "Add your role, field, education, experience, destination and intended immigration outcome." },
+        { title: "Record evidence and achievements", description: "Supply CV details, awards, publications, leadership, recognition, sponsorship and other evidence that genuinely applies." },
+        { title: "Review routes and evidence priorities", description: "See which high-skill directions warrant deeper review and what should be documented before an advisor assessment." },
+      ]}
     />
   );
 }

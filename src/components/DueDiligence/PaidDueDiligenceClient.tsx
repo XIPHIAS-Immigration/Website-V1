@@ -95,7 +95,19 @@ export default function PaidDueDiligenceClient({ order, expires, token }: { orde
   };
 
   return (
-    <ToolShell eyebrow="XIA Paid Immigration Due Diligence" title="Complete your full due-diligence intake." subtitle={`Your INR ${DUE_DILIGENCE_PRICE_INR} payment unlocks this expanded assessment and personalised PDF report.`} contactContext="Paid Due Diligence">
+    <ToolShell
+      eyebrow="XIA Paid Immigration Due Diligence"
+      title="Complete Your Full Due-Diligence Intake"
+      subtitle={`Your verified INR ${DUE_DILIGENCE_PRICE_INR} payment gives you access to the expanded evidence intake and personalised immigration due-diligence PDF.`}
+      steps={[
+        { title: "Confirm the paid assessment", description: "The payment reference and customer details are checked before the expanded intake is displayed." },
+        { title: "Provide detailed case evidence", description: "Complete identity, immigration, financial, family and verification sections with the information actually available." },
+        { title: "Generate and download the report", description: "Receive the personalised PDF with declared risks, missing evidence and verification boundaries made explicit." },
+      ]}
+      benefits={["Expanded evidence intake", "Personalised due-diligence PDF", "Clear verification boundaries"]}
+      contactContext="Paid Due Diligence"
+      contactId="paid-due-diligence"
+    >
       {loading ? <div className="grid min-h-80 place-items-center rounded-xl border border-white/15 bg-black/10"><LoaderCircle className="size-8 animate-spin text-secondary" aria-label="Loading paid intake" /></div> : error && !summary ? (
         <div className="rounded-xl border border-red-300/30 bg-red-400/10 p-6 text-red-100"><AlertTriangle className="size-6" /><h2 className="mt-3 text-xl font-bold">Paid intake unavailable</h2><p className="mt-2 text-sm leading-6">{error}</p></div>
       ) : summary ? (
