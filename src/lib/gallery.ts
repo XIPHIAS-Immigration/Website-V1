@@ -114,6 +114,19 @@ const GALLERY_FILES: GallerySource[] = [
   { file: "Image_20260611_142135_855.jpeg", w: 3024, h: 4032 },
   { file: "Image_20260611_142136_216.jpeg", w: 4032, h: 3024 },
   { file: "Image_20260611_142136_782.jpeg", w: 4032, h: 3024 },
+  { file: "new/dubaisem1.jpeg", w: 960, h: 1280 },
+  { file: "new/IMG_2334.jpg", w: 6000, h: 4000 },
+  { file: "new/IMG_2393.jpg", w: 6000, h: 4000 },
+  { file: "new/IMG_2422.jpg", w: 6000, h: 4000 },
+  { file: "new/IMG_2459.jpg", w: 6000, h: 4000 },
+  { file: "new/IMG_2512.jpg", w: 6000, h: 4000 },
+  { file: "new/IMG_4093.jpg", w: 3024, h: 4032 },
+  { file: "new/IMG_4165.jpg", w: 4032, h: 3024 },
+  { file: "new/IMG_4173.jpg", w: 4032, h: 3024 },
+  { file: "new/IMG_4175.jpg", w: 4032, h: 3024 },
+  { file: "new/IMG_4206.jpg", w: 4032, h: 3024 },
+  { file: "new/sem3.jpeg", w: 1280, h: 960 },
+  { file: "new/sem4.jpeg", w: 1280, h: 960 },
 ];
 
 function toGalleryItem(
