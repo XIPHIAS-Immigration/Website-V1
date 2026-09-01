@@ -343,7 +343,7 @@ export async function buildCompareReport(order: JiopayOrder): Promise<Buffer> {
     country: best ? best.p.country : "Global",
     route: `${programmes.length} selected programme${programmes.length === 1 ? "" : "s"}`,
   });
-  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Candidate profile"), basis: reportBasis(clientCase, personalisation) });
 
   const cheapest = [...programmes].sort((x, y) => x.investmentUsd - y.investmentUsd)[0];
   const fastest = [...programmes].sort((x, y) => x.timelineMonths - y.timelineMonths)[0];

@@ -11,10 +11,14 @@ const number = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
 };
-const money = (value: number | undefined, currency = "USD") =>
-  value === undefined ? "Confirm against the current quotation" : currency + " " + Math.round(value).toLocaleString("en-US");
+const money = (value: number | undefined, currency = "USD") => value === undefined
+  ? "Confirm against the current quotation"
+  : currency + " " + new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 
-type AnswerFee = { category: string; label: string; amount: number; currency: string; verifiedDate: string; source: string };
+type AnswerFee = { category: string; label: string; amount: number; currency: string; appliesTo: string; verifiedDate: string; source: string };
 
 function answerFees(value: unknown): AnswerFee[] {
   if (!Array.isArray(value)) return [];
@@ -23,8 +27,8 @@ function answerFees(value: unknown): AnswerFee[] {
     const label = text(row.label);
     const amount = number(row.amount);
     const currency = text(row.currency).toUpperCase();
-    if (!label || amount === undefined || amount <= 0 || !currency) return [];
-    return [{ category: text(row.category), label, amount, currency, verifiedDate: text(row.verifiedDate), source: text(row.source) }];
+    if (!label || amount === undefined || amount < 0 || !currency) return [];
+    return [{ category: text(row.category), label, amount, currency, appliesTo: text(row.appliesTo ?? row.when), verifiedDate: text(row.verifiedDate), source: text(row.source) }];
   });
 }
 
@@ -159,10 +163,11 @@ export function buildCrmDynamicPersonalisation(args: {
   financialCards.push(...suppliedFees.slice(0, 4).map((fee) => ({
     label: fee.label,
     value: money(fee.amount, fee.currency),
-    note: [fee.verifiedDate ? "Checked " + fee.verifiedDate : "", fee.source].filter(Boolean).join(" - ") || "Reconfirm before payment.",
+    note: [fee.appliesTo, fee.verifiedDate ? "Checked " + fee.verifiedDate : "", fee.source].filter(Boolean).join(" - ") || "Reconfirm before payment.",
   })));
   const suppliedLabels = new Set(suppliedFees.map((fee) => fee.label.toLowerCase()));
-  financialCards.push(...dossierFees.filter((fee) => !suppliedLabels.has((fee.label || "").toLowerCase())).slice(0, Math.max(0, 4 - suppliedFees.length)).map((fee) => ({
+  const usableDossierFees = !suppliedFees.length || dossier?.feeCoverage?.status === "verified" ? dossierFees : [];
+  financialCards.push(...usableDossierFees.filter((fee) => !suppliedLabels.has((fee.label || "").toLowerCase())).slice(0, Math.max(0, 4 - suppliedFees.length)).map((fee) => ({
     label: fee.label || "Programme cost",
     value: money(fee.amount, fee.currency || dossier?.currency || "USD"),
     note: [fee.status === "verified" ? "Verified" : fee.status === "website_estimate" ? "Website estimate - recheck" : "", fee.checkedAt ? "checked " + fee.checkedAt : "", fee.sourceLabel, fee.when, fee.notes].filter(Boolean).join(" - ") || "Confirm the current amount.",

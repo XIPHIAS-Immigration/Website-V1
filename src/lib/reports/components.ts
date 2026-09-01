@@ -75,19 +75,141 @@ export function reportBasisBanner(opts: {
   gates?: { label: string; status: "confirmed" | "review" | "missing"; detail: string }[];
 }): string {
   const label = opts.reviewStatus === "verified"
-    ? "Verified case file"
+    ? "Verified"
     : opts.reviewStatus === "advisor-reviewed"
-      ? "Advisor-reviewed case file"
-      : "Draft case file";
+      ? "Reviewed"
+      : "Draft";
   const tone = opts.reviewStatus === "verified" ? "good" : opts.reviewStatus === "advisor-reviewed" ? "warn" : "muted";
-  const limitations = (opts.limitations ?? []).slice(0, 2);
-  const gates = (opts.gates ?? []).filter((gate) => gate.status !== "confirmed").slice(0, 3);
-  return `<div class="callout" style="margin-bottom:12px;">
-    <div class="callout__k">${pill(label, tone)} &nbsp; Personalisation basis</div>
-    <p>${esc(`${opts.completeness}% of the core case profile is captured; ${opts.confirmedFacts} core facts are advisor-confirmed or verified.`)}</p>
-    ${limitations.length ? `<p><strong>Open limitations:</strong> ${esc(limitations.join(" · "))}</p>` : ""}
-    ${gates.length ? `<p><strong>Open gates:</strong> ${esc(gates.map((gate) => `${gate.label} (${gate.status})`).join(" · "))}</p>` : ""}
-  </div>`;
+  return `<div style="margin-bottom:12px;">${pill(label, tone)}</div>`;
+}
+
+function clientDisplayValue(value?: string): string | undefined {
+  const clean = value?.replace(/\s+/g, " ").trim();
+  if (!clean || /^(?:not[- ]?provided|not supplied|none supplied|advisor to define)$/i.test(clean)) return undefined;
+  return clean;
+}
+
+function clientEducationLabel(value?: string): string | undefined {
+  const clean = clientDisplayValue(value);
+  if (!clean) return undefined;
+  if (/^bachelor$/i.test(clean)) return "Bachelor's degree";
+  if (/^master$/i.test(clean)) return "Master's degree";
+  if (/^phd$/i.test(clean)) return "Doctorate (PhD)";
+  if (/^unknown$/i.test(clean)) return undefined;
+  return clean;
+}
+
+function clientLanguageSummary(value?: string): string | undefined {
+  const clean = clientDisplayValue(value);
+  if (!clean) return undefined;
+  const dimensions = ["speaking", "reading", "writing", "listening"];
+  const line = (language: "English" | "French") => {
+    const segment = clean.match(new RegExp(`${language}\\s*-\\s*([^.]*)`, "i"))?.[1];
+    if (!segment) return undefined;
+    const scores = dimensions.map((dimension) => {
+      const score = segment.match(new RegExp(`${dimension}\\s*:\\s*(?:Level\\s*)?([^,.;]+)`, "i"))?.[1]?.trim();
+      return score ? `${dimension[0].toUpperCase()}${dimension.slice(1)} ${score}` : undefined;
+    }).filter(Boolean);
+    return scores.length ? `${language}: ${scores.join(" / ")}` : undefined;
+  };
+  const lines = [line("English"), line("French")].filter(Boolean);
+  return lines.length ? lines.join("\n") : clean;
+}
+
+function clientStrategyParts(value?: string): { intro?: string; actions: string[] } {
+  const clean = clientDisplayValue(value)
+    ?.replace(/\bWe have to be in\b/gi, "The recommended objective is to enter")
+    .replace(/\bto work with client'?s timeline\b/gi, "to align with the intended timeline")
+    .replace(/\bTo be in the pool\b/gi, "To enter the pool")
+    .replace(/\bapprox\.?\b/gi, "approximately")
+    .replace(/\bassesing\b/gi, "assessing")
+    .replace(/\bresponsibilties\b/gi, "responsibilities")
+    .replace(/\bClient can be prepare for\b/gi, "Prepare for");
+  if (!clean) return { actions: [] };
+  const matches = [...clean.matchAll(/(?:^|\s)(\d+)[.)]\s+/g)];
+  if (!matches.length) return { intro: clean, actions: [] };
+  const firstIndex = matches[0].index ?? 0;
+  const introText = clean.slice(0, firstIndex)
+    .replace(/[\s:-]+$/, "")
+    .replace(/\bExpress Entry\s*\/\s*PNP\b/gi, "Express Entry or Provincial Nominee Program (PNP)")
+    .replace(/\bby end of\b/gi, "by the end of")
+    .replace(/[.,;:]?\s*To enter the pool\s*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const intro = introText ? `${introText.replace(/[.!?]+$/, "")}.` : undefined;
+  const actions = matches.map((match, index) => {
+    const start = (match.index ?? 0) + match[0].length;
+    const end = index + 1 < matches.length ? matches[index + 1].index : clean.length;
+    return clean.slice(start, end).trim().replace(/[.;]+$/, "");
+  }).filter(Boolean);
+  return { intro, actions };
+}
+
+function clientActionSentence(value: string): string {
+  const clean = value
+    .replace(/\bAssesment\b/gi, "Assessment")
+    .replace(/\bassesing\b/gi, "assessing")
+    .replace(/\bresponsibilties\b/gi, "responsibilities")
+    .replace(/\bclient'?s occupation\b/gi, "the candidate's occupation")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[.;]+$/, "");
+  return clean ? `${clean}.` : "";
+}
+
+function pointFrom(text: string, label: string): string | undefined {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text.match(new RegExp(`(?:^|\\s)${escaped}\\s*:?\\s*(-?\\d+(?:\\.\\d+)?)`, "i"))?.[1];
+}
+
+function canadaPointsTables(value?: string, header?: string, footer?: string): string {
+  const clean = clientDisplayValue(value);
+  if (!clean) return "";
+  const marker = clean.search(/Core Human Capital Maximum/i);
+  if (marker < 0 || !/Selection Factor Points/i.test(clean)) return "";
+  const fsw = clean.slice(0, marker);
+  const crs = clean.slice(marker);
+  const rows = (segment: string, fields: Array<[string, string]>) => fields
+    .map(([label, key]) => [label, pointFrom(segment, key)] as const)
+    .filter((entry): entry is readonly [string, string] => entry[1] !== undefined)
+    .map(([label, points]) => [esc(label), esc(points)]);
+  const fswRows = rows(fsw, [
+    ["Age", "Age"],
+    ["Education", "Education Level"],
+    ["Work experience", "Experience"],
+    ["First official language", "First language"],
+    ["Second official language", "Second language"],
+    ["Arranged employment", "Employment job offer"],
+    ["Adaptability", "Adaptability"],
+    ["FSW total", "Total"],
+  ]);
+  const crsRows = rows(crs, [
+    ["Age", "Age"],
+    ["Education", "Education"],
+    ["First official language", "First language"],
+    ["Second official language", "Second language"],
+    ["Education and language", "Education and language"],
+    ["Education and Canadian work", "Education and Canadian work"],
+    ["Foreign work and language", "Foreign work and language"],
+    ["Foreign work and Canadian work", "Foreign work and Canadian work"],
+    ["CRS total", "Total"],
+  ]);
+  if (!fswRows.length && !crsRows.length) return "";
+  const fswPage = fswRows.length ? page({
+    header,
+    footer,
+    body:
+      sectionHeader({ eyebrow: "Points assessment", title: "Federal Skilled Worker selection factors" }) +
+      table({ head: ["Factor", "Points"], rows: fswRows }),
+  }) : "";
+  const crsPage = crsRows.length ? page({
+    header,
+    footer,
+    body:
+      sectionHeader({ eyebrow: "Points assessment", title: "Express Entry ranking score" }) +
+      table({ head: ["CRS factor", "Points"], rows: crsRows }),
+  }) : "";
+  return fswPage + crsPage;
 }
 
 export function reportBasisPage(opts: {
@@ -96,93 +218,34 @@ export function reportBasisPage(opts: {
   basis: Parameters<typeof reportBasisBanner>[0];
 }): string {
   const basis = opts.basis;
-  const gates = basis.gates ?? [];
-  const tone = (status: "confirmed" | "review" | "missing"): PillTone => status === "confirmed" ? "good" : status === "review" ? "warn" : "bad";
-  const rows = gates.map((gate) => [esc(gate.label), pill(gate.status === "confirmed" ? "Confirmed" : gate.status === "review" ? "Review" : "Missing", tone(gate.status)), esc(gate.detail.length > 150 ? `${gate.detail.slice(0, 147)}...` : gate.detail)]);
-  const professionalAssessmentPage = page({
-    header: opts.header,
-    footer: opts.footer,
-    body:
-      sectionHeader({
-        eyebrow: "Professional assessment",
-        title: "CPA and assessing body",
-        desc: "These case-specific fields are populated from the submitted assessment data and must be reviewed whenever the proposed occupation, programme or professional pathway changes.",
-      }) +
-      grid(2, [
-        card({
-          k: "CPA",
-          v: basis.cpa || "Not provided",
-          note: basis.cpa ? "Recorded candidate assessment position" : "Add the candidate assessment result to the case data.",
-        }),
-        card({
-          k: "Assessing body",
-          v: basis.assessingBody || "Not provided",
-          note: basis.assessingBody ? "Recorded authority for the proposed professional pathway" : "Add the relevant assessing authority to the case data.",
-        }),
-        card({ k: "Occupation code", v: basis.anzscoCode || "Not provided", note: "NOC, ANZSCO or other adviser-confirmed occupation code." }),
-        card({ k: "Skills-assessment status", v: basis.skillsAssessment || "Not provided" }),
-        card({ k: "Language evidence", v: [basis.languageTest, basis.languageScore !== undefined ? String(basis.languageScore) : "", basis.languageDetails].filter(Boolean).join(" | ") || "Not provided" }),
-        card({ k: "Claimed points", v: basis.claimedPointsTotal !== undefined ? String(basis.claimedPointsTotal) : "Not provided", note: "Adviser-entered total; not silently recalculated by the report." }),
-      ]) +
-      `<div class="spacer-24"></div>` +
-      callout({
-        k: "Assessment control",
-        text: "The CPA and assessing body shown here are report inputs, not a substitute for a formal assessment outcome. Confirm that both remain aligned with the candidate's actual occupation, qualifications, evidence and selected immigration route before filing.",
-      }),
-  });
-  const verificationPage = page({
-    header: opts.header,
-    footer: opts.footer,
-    body:
-      sectionHeader({
-        eyebrow: "Case basis & verification",
-        title: "What this report knows, and what remains open",
-        desc: `${basis.completeness}% of the core case profile is captured. Conclusions are limited to the facts and evidence statuses recorded below.`,
-      }) +
-      (rows.length ? table({ head: ["Eligibility gate", "Status", "Recorded basis"], rows }) : callout({ k: "No gates recorded", text: "Complete the client case before relying on this report." })),
-  });
-  const advisorPage = page({
-    header: opts.header,
-    footer: opts.footer,
-    body:
-      sectionHeader({
-        eyebrow: "Advisor-authored content",
-        title: "Client-specific risks, actions and sources",
-        desc: "These entries come from the advisor report desk and are stored with this report version. They supplement, rather than replace, current programme rules.",
-      }) +
-      (basis.executiveSummary ? callout({ k: "Client-specific executive summary", text: basis.executiveSummary }) : "") +
-      `<div class="spacer-16"></div>` +
-      (basis.recommendation ? callout({ k: "Advisor recommendation", text: basis.recommendation }) : "") +
-      `<div class="spacer-16"></div>` +
-      grid(2, [
-        card({ k: "Client-specific risks", v: (basis.customRisks ?? []).length ? (basis.customRisks ?? []).slice(0, 4).join("; ") : "None supplied", note: "Only risks recorded for this client are shown." }),
-        card({ k: "Client-specific next actions", v: (basis.nextActions ?? []).length ? (basis.nextActions ?? []).slice(0, 4).join("; ") : "Advisor to define", note: "Actions should be tied to evidence or an open gate." }),
-        card({ k: "Advisor notes", v: basis.advisorNotes || "None supplied" }),
-        card({ k: "Factual sources", v: (basis.sources ?? []).length ? `${(basis.sources ?? []).length} source reference${(basis.sources ?? []).length === 1 ? "" : "s"} recorded` : "No sources recorded", note: (basis.sources ?? []).slice(0, 2).join(" · ") }),
-      ]) +
-      `<div class="spacer-24"></div>` +
-      callout({ k: "Version control", text: "If any client fact, family detail, programme rule, cost, document status or immigration history changes, create a new report version and repeat advisor review." }),
-  });
 
-  type RecordedDetail = { label: string; value?: string };
+  type RecordedDetail = { label: string; value?: string; wide?: boolean };
   const money = (value?: number) => value === undefined ? undefined : `USD ${value.toLocaleString("en-US")}`;
+  const languageTest = clientDisplayValue(basis.languageTest);
+  const languageDetails = clientLanguageSummary(basis.languageDetails);
+  const language = [languageTest, basis.languageScore !== undefined ? String(basis.languageScore) : undefined, languageDetails].filter(Boolean).join(" | ") || undefined;
   const details: RecordedDetail[] = [
-    { label: "Occupation", value: basis.occupation },
-    { label: "Education", value: basis.education },
+    { label: "Occupation", value: clientDisplayValue(basis.occupation) },
+    { label: "Occupation code", value: clientDisplayValue(basis.anzscoCode) },
+    { label: "Education", value: clientEducationLabel(basis.education) },
     { label: "Work experience", value: basis.yearsExperience === undefined ? undefined : `${basis.yearsExperience} years` },
-    { label: "Professional recognition / Washington Accord / RPL", value: basis.professionalRecognition },
-    { label: "Adviser-entered points breakdown", value: basis.pointsAssessment },
-    { label: "Employer or business", value: basis.employerOrBusiness },
+    { label: "Assessing body", value: clientDisplayValue(basis.assessingBody) },
+    { label: "Skills-assessment status", value: clientDisplayValue(basis.skillsAssessment) },
+    { label: "Language", value: language, wide: true },
+    { label: "Professional assessment", value: clientDisplayValue(basis.cpa) },
+    { label: "Professional recognition", value: clientDisplayValue(basis.professionalRecognition) },
+    { label: "Points", value: basis.claimedPointsTotal === undefined ? undefined : String(basis.claimedPointsTotal) },
+    { label: "Employer or business", value: clientDisplayValue(basis.employerOrBusiness) },
     { label: "Family included", value: basis.familyIncluded === undefined ? undefined : basis.familyIncluded ? "Yes" : "No" },
     { label: "Dependants", value: basis.dependants === undefined ? undefined : String(basis.dependants) },
     { label: "Confirmed budget", value: money(basis.budgetUsd) },
     { label: "Available funds", value: money(basis.availableFundsUsd) },
-    { label: "Source of funds", value: basis.sourceOfFunds },
-    { label: "Current immigration status", value: basis.currentImmigrationStatus },
-    { label: "Immigration and visa history", value: basis.immigrationHistory },
-    { label: "Visa refusals / cancellations", value: basis.refusals },
-    { label: "Medical declarations", value: basis.medicalNotes },
-    { label: "Character / police declarations", value: basis.characterNotes },
+    { label: "Source of funds", value: clientDisplayValue(basis.sourceOfFunds) },
+    { label: "Current immigration status", value: clientDisplayValue(basis.currentImmigrationStatus) },
+    { label: "Immigration and visa history", value: clientDisplayValue(basis.immigrationHistory) },
+    { label: "Visa refusals / cancellations", value: clientDisplayValue(basis.refusals) },
+    { label: "Medical declarations", value: clientDisplayValue(basis.medicalNotes) },
+    { label: "Character / police declarations", value: clientDisplayValue(basis.characterNotes) },
   ].filter((entry) => Boolean(entry.value));
 
   const expanded: RecordedDetail[] = [];
@@ -193,7 +256,7 @@ export function reportBasisPage(opts: {
       continue;
     }
     for (let start = 0, part = 1; start < value.length; start += 1200, part += 1) {
-      expanded.push({ label: `${detail.label}${part > 1 ? " (continued)" : ""}`, value: value.slice(start, start + 1200) });
+      expanded.push({ label: `${detail.label}${part > 1 ? " (continued)" : ""}`, value: value.slice(start, start + 1200), wide: true });
     }
   }
 
@@ -202,7 +265,7 @@ export function reportBasisPage(opts: {
   let chars = 0;
   for (const detail of expanded) {
     const nextChars = detail.value?.length ?? 0;
-    if (current.length && (current.length >= 4 || chars + nextChars > 1800)) {
+    if (current.length && (current.length >= 8 || chars + nextChars > 1600)) {
       groups.push(current);
       current = [];
       chars = 0;
@@ -212,23 +275,50 @@ export function reportBasisPage(opts: {
   }
   if (current.length) groups.push(current);
 
+  const profileCard = (detail: RecordedDetail) => {
+    const value = detail.value ?? "";
+    const lines = value.split(/\n+/).map((item) => item.trim()).filter(Boolean);
+    const valueHtml = lines.length > 1
+      ? lines.map((item) => `<span class="profile-card__line">${esc(item)}</span>`).join("")
+      : esc(value);
+    const wide = detail.wide || value.length > 150;
+    return `<div class="card profile-card${wide ? " profile-card--wide" : ""}">
+      <div class="card__k">${esc(detail.label)}</div>
+      <div class="card__v profile-card__v">${valueHtml}</div>
+    </div>`;
+  };
+
   const recordedPages = groups.map((group, index) => page({
     header: opts.header,
     footer: opts.footer,
     body:
       sectionHeader({
-        eyebrow: "Recorded assessment evidence",
-        title: index === 0 ? "Client facts used in this report" : "Client facts (continued)",
-        desc: "These values are reproduced from the versioned CRM assessment snapshot. Blank fields are not invented or inferred.",
+        eyebrow: "Candidate profile",
+        title: index === 0 ? "Profile and assessment summary" : "Profile summary (continued)",
       }) +
-      (group.length === 1
-        ? card({ k: group[0].label, v: group[0].value || "Not provided" })
-        : grid(2, group.map((detail) => card({ k: detail.label, v: detail.value || "Not provided" })))) +
-      `<div class="spacer-16"></div>` +
-      callout({ k: "Versioned evidence", text: "Changes to any of these facts require a new report version and a fresh adviser review before client delivery." }),
+      `<div class="grid grid-2 profile-grid">${group.map(profileCard).join("")}</div>`,
   })).join("");
 
-  return professionalAssessmentPage + recordedPages + verificationPage + advisorPage;
+  const pointsPage = canadaPointsTables(basis.pointsAssessment, opts.header, opts.footer);
+  const strategy = clientStrategyParts(basis.recommendation);
+  const priorityActions = ((basis.nextActions ?? []).filter(Boolean).length
+    ? (basis.nextActions ?? []).filter(Boolean).slice(0, 5)
+    : strategy.actions.slice(0, 5)).map(clientActionSentence).filter(Boolean);
+  const recommendations = [
+    basis.executiveSummary ? callout({ k: "Assessment summary", text: basis.executiveSummary }) : "",
+    strategy.intro ? callout({ k: "Recommended strategy", text: strategy.intro }) : "",
+    priorityActions.length
+      ? `<div class="strategy-actions"><h3 class="h-sub">Immediate priorities</h3>${steps(priorityActions.map((body, index) => ({ title: `Priority ${index + 1}`, body })))}</div>`
+      : "",
+    (basis.customRisks ?? []).length ? card({ k: "Key considerations", v: (basis.customRisks ?? []).slice(0, 4).join("; ") }) : "",
+  ].filter(Boolean);
+  const recommendationPage = recommendations.length ? page({
+    header: opts.header,
+    footer: opts.footer,
+    body: sectionHeader({ eyebrow: "Strategy", title: "Recommended pathway and next steps" }) + `<div class="strategy-page">${recommendations.join('<div class="spacer-16"></div>')}</div>`,
+  }) : "";
+
+  return recordedPages + pointsPage + recommendationPage;
 }
 
 export function coverPage(opts: {

@@ -31,16 +31,36 @@ test("templates with readiness claims use the shared verified case model", () =>
   }
 });
 
-test("all paid templates inherit dynamic CPA and assessing-body content", () => {
+test("all paid templates show supplied assessment fields without internal report-production wording", () => {
   const components = read("src/lib/reports/components.ts");
-  assert.match(components, /CPA and assessing body/);
-  assert.match(components, /basis\.cpa/);
-  assert.match(components, /basis\.assessingBody/);
+  assert.match(components, /clientDisplayValue\(basis\.cpa\)/);
+  assert.match(components, /clientDisplayValue\(basis\.assessingBody\)/);
+  assert.doesNotMatch(components, /CPA and assessing body/);
+  assert.doesNotMatch(components, /versioned CRM assessment snapshot/);
+  assert.doesNotMatch(components, /Adviser-entered points breakdown/);
+  assert.doesNotMatch(components, /Assessment control/);
+  assert.match(components, /clientLanguageSummary/);
+  assert.match(components, /profile-card--wide/);
+  assert.match(components, /clientStrategyParts/);
+  assert.match(components, /Immediate priorities/);
+  assert.match(components, /Provincial Nominee Program \(PNP\)/);
+  assert.match(components, /To enter the pool\\s\*\$/);
+  assert.match(components, /clientActionSentence/);
+  assert.match(components, /Assesment/);
+  assert.match(components, /the candidate's occupation/);
+  const theme = read("src/lib/reports/theme.ts");
+  assert.match(theme, /\.strategy-page\s*\{[^}]*justify-content:\s*flex-start/s);
+  assert.doesNotMatch(theme, /\.strategy-page\s*\{[^}]*justify-content:\s*center/s);
 
   for (const name of ["premium-strategy", "route", "deep-analysis", "us-visa", "cost", "compare", "docs"]) {
     const source = read(`src/lib/reports/templates/${name}.ts`);
     assert.match(source, /reportBasisPage/);
   }
+
+  const deepAnalysis = read("src/lib/reports/templates/deep-analysis.ts");
+  assert.doesNotMatch(deepAnalysis, /current model ranks|profile completeness|profile depth captured/i);
+  assert.doesNotMatch(deepAnalysis, /CV intelligence|extraction status|profile text analysed|verification boundary/i);
+  assert.doesNotMatch(deepAnalysis, /premium buyers|how your route ranking was built|automated report was generated/i);
 });
 
 test("all eight paid templates place supplied occupation and ANZSCO context on the cover", () => {

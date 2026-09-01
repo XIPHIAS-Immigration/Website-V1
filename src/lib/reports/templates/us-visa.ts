@@ -304,7 +304,7 @@ export async function buildUsVisaReport(order: JiopayOrder): Promise<Buffer> {
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · US Visa Strategy", label);
   const head = runningHeader(reportTitle, { country: "United States", route: top?.title });
-  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Candidate profile"), basis: reportBasis(clientCase, personalisation) });
 
   const avgUsFit = ranked.length
     ? ranked.reduce((sum, r) => sum + r.fitScore, 0) / ranked.length

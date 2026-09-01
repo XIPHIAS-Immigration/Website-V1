@@ -368,7 +368,7 @@ export function buildClientCase(order: JiopayOrder): ClientCase {
       languageTest: fact(text(a.languageTest) || undefined, meta("languageTest")),
       languageScore: fact(numberValue(a.languageScore ?? a.ielts), meta("languageScore")),
       languageDetails: fact(text(a.languageDetails) || undefined, meta("languageDetails")),
-      skillsAssessment: fact(text(a.skillsAssessment) || undefined, meta("skillsAssessment")),
+      skillsAssessment: fact(text(a.skillsAssessment ?? a.skillsAssessmentResult) || undefined, meta("skillsAssessment")),
       cpa: fact(
         text(
           a.cpa ??

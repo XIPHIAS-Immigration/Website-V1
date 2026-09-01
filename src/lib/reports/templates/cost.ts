@@ -251,7 +251,7 @@ export async function buildCostReport(order: JiopayOrder): Promise<Buffer> {
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Cost & Budget", label);
   const head = runningHeader(reportTitle, { country: countryLabel, route: program.title });
-  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Candidate profile"), basis: reportBasis(clientCase, personalisation) });
 
   // ── Derived budgeting figures ───────────────────────────────────────────────
   const verifiedCosts = clientCase.finances.verifiedCosts.value ?? [];

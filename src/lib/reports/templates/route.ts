@@ -158,7 +158,7 @@ export async function buildRouteReport(order: JiopayOrder): Promise<Buffer> {
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Route Intelligence", label);
   const head = runningHeader(reportTitle, { country: input.destination ? smartLabel(input.destination) : "Global", route: top?.title });
-  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
+  const basisPage = reportBasisPage({ header: head, footer: foot("Candidate profile"), basis: reportBasis(clientCase, personalisation) });
 
   const avgTop3 = scored.slice(0, 3).reduce((sum, r) => sum + r.fitScore, 0) / Math.max(1, Math.min(3, scored.length));
 

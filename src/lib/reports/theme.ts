@@ -119,6 +119,15 @@ export const REPORT_CSS = `
   .grid { display: grid; gap: 5mm; }
   .grid-2 { grid-template-columns: 1fr 1fr; }
   .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .profile-grid { flex: 1; grid-auto-flow: row dense; grid-auto-rows: minmax(30mm, 1fr); }
+  .profile-card { min-height: 30mm; }
+  .profile-card--wide { grid-column: 1 / -1; }
+  .profile-card__v { font-size: 13pt; line-height: 1.28; }
+  .profile-card__line { display: block; }
+  .profile-card__line + .profile-card__line { margin-top: 2.5mm; padding-top: 2.5mm; border-top: .22mm solid ${BRAND.line}; }
+  .pathway-grid { flex: 1; grid-auto-rows: minmax(34mm, 1fr); }
+  .strategy-page { display: flex; flex: 1; flex-direction: column; justify-content: flex-start; padding-top: 4mm; }
+  .strategy-actions { width: 100%; }
   .card {
     border: .22mm solid ${BRAND.line}; border-radius: 2mm; padding: 5mm 5.5mm;
     background: #fff;

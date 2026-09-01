@@ -183,7 +183,7 @@ export async function buildPremiumStrategyReport(order: JiopayOrder): Promise<Bu
   const nextImg = (): string | undefined => (imgs.length ? imgs[panel++ % imgs.length] : undefined);
   const basisPage = isCrmPointsAssessment
     ? buildCrmPointsAssessmentFrontMatter(order)
-    : reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
+    : reportBasisPage({ header: head, footer: foot("Candidate profile"), basis: reportBasis(clientCase, personalisation) });
 
   const goal = goalLabel(a.goals ?? a.objective ?? a.goal ?? order.track);
   const profileKey = str(a.profile ?? a.applicantProfile).toLowerCase();
