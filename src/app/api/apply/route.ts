@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { NextResponse, type NextRequest } from "next/server";
 import nodemailer from "nodemailer";
+import { saveCandidateToHrms } from "@/lib/crm/save-candidate";
 import { getPlatformRepository } from "@/lib/platform/repository";
 import { captureVisitorEvent } from "@/lib/platform/visitor-analytics";
 import { protectPublicLead } from "@/lib/security/public-lead-security";
@@ -135,6 +136,10 @@ export async function POST(req: NextRequest) {
         referrer: req.headers.get("referer") || undefined,
         consent: true,
         tags: ["career-application", role].filter(Boolean),
+        // This route submits the candidate to HRMS itself, with the resume
+        // attached, so the shared CRM mirror must not capture them again.
+        // Job applications no longer enter the sales enquiry list.
+        crmMirror: "skip",
       });
       leadId = lead.id;
       repo.createConversation({
@@ -165,6 +170,33 @@ export async function POST(req: NextRequest) {
       console.error("[apply] X-Hub lead capture failed:", leadError);
     }
 
+    // Convert the resume once: HRMS stores it, nodemailer attaches it.
+    const resumeBytes = Buffer.from(await resume.arrayBuffer());
+
+    // Job applications go to HR in HRMS, not to the sales enquiry list.
+    try {
+      await saveCandidateToHrms({
+        name,
+        email,
+        phone,
+        position: role || "General application",
+        coverNote: [message, `LinkedIn: ${linkedin}`].filter(Boolean).join(" | "),
+        source: "CAREERS",
+        ip:
+          req.headers.get("cf-connecting-ip") ||
+          (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+          undefined,
+        resume: {
+          fileName: resume.name,
+          contentType: resume.type || "application/octet-stream",
+          data: resumeBytes,
+        },
+      });
+    } catch (hrmsError) {
+      // HR still gets the email below, so the application is never lost.
+      console.error("[apply] HRMS candidate capture failed:", hrmsError);
+    }
+
     // SMTP config
     const host = process.env.SMTP_HOST;
     const port = Number(process.env.SMTP_PORT || 587);
@@ -185,8 +217,8 @@ export async function POST(req: NextRequest) {
       socketTimeout: 20_000,
     });
 
-    // Convert resume to Buffer for nodemailer attachment
-    const resumeBuffer = Buffer.from(await resume.arrayBuffer());
+    // Resume bytes were already read above for the HRMS submission.
+    const resumeBuffer = resumeBytes;
 
     // ✅ Send to BOTH: HR + Immigration
     // Optional override via env:

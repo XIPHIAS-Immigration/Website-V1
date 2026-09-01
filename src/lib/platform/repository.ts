@@ -35,6 +35,11 @@ type CreateUserInput = Omit<PlatformUser, "id" | "createdAt"> & {
 type CreateLeadInput = Omit<PlatformLead, "id" | "status" | "tags" | "createdAt" | "updatedAt"> & {
   status?: PlatformLead["status"];
   tags?: string[];
+  /**
+   * "skip" when the calling route writes the record into the legacy CRM or HRMS
+   * itself, so saveLeadToCrm does not capture it a second time.
+   */
+  crmMirror?: "skip";
 };
 
 type UpsertClientProfileInput = Omit<ClientProfile, "id" | "createdAt" | "updatedAt"> & {

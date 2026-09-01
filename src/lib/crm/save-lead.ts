@@ -1,6 +1,8 @@
 import "server-only";
 
 import { crmSql, getLiveCrmPool, isLiveCrmConfigured } from "@/lib/crm/live-sql";
+import { classifyJobApplication } from "@/lib/crm/job-application";
+import { saveCandidateToHrms } from "@/lib/crm/save-candidate";
 import { protectCrmMirror } from "@/lib/security/public-lead-security";
 
 // tbl_Enquiry.ENT_DATE is varchar(50), not a date column.
@@ -48,6 +50,35 @@ export async function saveLeadToCrm(lead: Record<string, any>): Promise<void> {
   if (!security.ok) {
     console.warn("[x-hub] CRM mirror blocked:", lead?.id, security.reason);
     return;
+  }
+
+  // Routes that submit the candidate to HRMS themselves (the careers form, which
+  // also has the resume) set this so the applicant is not captured twice.
+  if (lead?.crmMirror === "skip") return;
+
+  // Job applications belong to HR in HRMS, not in the sales enquiry list.
+  const verdict = classifyJobApplication(lead);
+  if (verdict.isJobApplication) {
+    try {
+      const candidateId = await saveCandidateToHrms({
+        name,
+        email,
+        phone: text(lead?.phone),
+        position: verdict.position,
+        coverNote: text(lead?.message),
+        source: "WEBSITE_ENQUIRY",
+        ip: text(lead?.ip),
+      });
+      if (candidateId) {
+        console.log("[x-hub] Lead routed to HRMS as candidate:", lead?.id, verdict.reason);
+        return;
+      }
+      // Incomplete details for HRMS (no usable phone, say). Fall through so the
+      // submission is still captured as an enquiry rather than being dropped.
+      console.warn("[x-hub] HRMS rejected candidate, keeping as enquiry:", lead?.id);
+    } catch (error) {
+      console.error("[x-hub] HRMS routing failed, keeping as enquiry:", lead?.id, error);
+    }
   }
 
   // ENQUIRY is the only free-text column, so fold the context into it.
