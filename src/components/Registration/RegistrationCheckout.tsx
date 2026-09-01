@@ -101,7 +101,7 @@ export default function RegistrationCheckout({ priceInr }: { priceInr: number })
         {submitting ? <LoaderCircle className="size-5 animate-spin" /> : <CreditCard className="size-5" />}
         {submitting ? "Starting secure checkout..." : `Register and pay ₹${priceInr.toLocaleString("en-IN")}`}
       </button>
-      <p className="mt-3 text-center text-xs font-semibold text-slate-500">₹5,000 including GST. Deep Analysis report included.</p>
+      <p className="mt-3 text-center text-xs font-semibold text-slate-500">₹4,999 including GST. Deep Analysis report included.</p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-slate-400"><span className="inline-flex items-center gap-1"><ShieldCheck className="size-3.5" /> Server-enforced price</span><span className="inline-flex items-center gap-1"><Check className="size-3.5" /> Secure JioPay checkout</span></div>
     </section>
   );

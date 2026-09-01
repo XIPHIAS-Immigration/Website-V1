@@ -38,7 +38,7 @@ export default function Hero() {
               href="/registration"
               className="inline-flex min-h-[clamp(3.5rem,calc(3rem+1.3vw),4.5rem)] items-center justify-center gap-2.5 rounded-md bg-[#d8ad1f] px-[clamp(1.5rem,2.2vw,2.75rem)] text-[clamp(1rem,calc(0.85rem+0.25vw),1.2rem)] font-black text-primary shadow-[0_12px_30px_rgba(216,173,31,0.25)] transition hover:bg-[#efc939]"
             >
-              Register for full assessment — ₹5,000
+              Register for full assessment — ₹4,999
               <ArrowRight className="size-[clamp(1.25rem,1.5vw,1.5rem)]" aria-hidden="true" />
             </Link>
             <Link

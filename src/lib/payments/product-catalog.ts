@@ -129,12 +129,12 @@ export const PRODUCT_CATALOG: Record<string, ProductConfig> = {
     emailSubject: "Your XIPHIAS Immigration Due Diligence Report",
     fileSlug: "Immigration-Due-Diligence-Report",
   },
-  // India CRM registration with Deep Analysis. INR 5,000 is inclusive of GST.
+  // India CRM registration with Deep Analysis. INR 4,999 is inclusive of GST.
   // The fixed all-inclusive amount is enforced by both the website and CRM.
   registration: {
     productType: "registration",
     label: "XIPHIAS Full Assessment Registration and Deep Analysis",
-    priceInr: priceOf(5000),
+    priceInr: priceOf(4999),
     fulfillment: "registration",
     emailSubject: "Your XIPHIAS client CRM registration is ready",
     fileSlug: "Registration",

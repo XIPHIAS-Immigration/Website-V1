@@ -43,7 +43,7 @@ const EXPECTED_PRICES = {
   compare_report: 499,
   docs_report: 499,
   due_diligence_report: 499,
-  registration: 5000,
+  registration: 4999,
 };
 
 test("fixed product prices match the approved catalogue", () => {

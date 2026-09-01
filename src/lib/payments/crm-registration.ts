@@ -6,7 +6,7 @@ import { getProductConfig } from "@/lib/payments/product-catalog";
 
 type GatewayPayload = Record<string, unknown>;
 
-const REGISTRATION_PRICE_INR = getProductConfig("registration")?.priceInr ?? 5000;
+const REGISTRATION_PRICE_INR = getProductConfig("registration")?.priceInr ?? 4999;
 const REGISTRATION_BASE_AMOUNT = Math.round((REGISTRATION_PRICE_INR / 1.18) * 100) / 100;
 const REGISTRATION_GST_AMOUNT = Math.round((REGISTRATION_PRICE_INR - REGISTRATION_BASE_AMOUNT) * 100) / 100;
 
