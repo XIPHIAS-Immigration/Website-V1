@@ -59,7 +59,7 @@ export type HighSkillEvidenceKey =
   | "recommendations";
 
 export type HighSkillInput = {
-  targetCountry: "usa" | "canada" | "uk" | "australia" | "global";
+  targetCountry: "usa" | "canada" | "uk" | "australia" | "hong-kong" | "global";
   goal: "permanent-residency" | "temporary-work" | "talent-visa" | "founder" | "not-sure";
   field: "not-provided" | "technology" | "science" | "business" | "arts" | "healthcare" | "academia" | "sports" | "other";
   role: string;
@@ -358,6 +358,21 @@ export const highSkillRoutes: HighSkillVisaRoute[] = [
     requiresSponsor: true, permanent: false, settlementPathway: true, goals: ["temporary-work", "talent-visa", "permanent-residency"], fields: ["sports"], languageRelevant: true,
     officialUrl: "https://www.gov.uk/sportsperson-visa",
     evidenceWeights: { awards: 18, media: 12, criticalRole: 10, employerSponsor: 16, recommendations: 10 }, keywords: ["uk", "united kingdom", "sportsperson", "athlete", "coach", "endorsement"],
+  }),
+
+  defineRoute({
+    id: "hong-kong-qmas-gpt", title: "Hong Kong Quality Migrant Admission Scheme", country: "Hong Kong", countryKey: "hong-kong",
+    visaFamily: "General Points Test talent admission route", href: "/skilled/hong-kong/quality-migrant-admission-scheme",
+    summary: "Talent admission route using twelve objective General Points Test criteria, with a prevailing threshold of six criteria.",
+    bestFor: ["highly skilled professionals", "international specialists", "finance and trade professionals", "technology professionals"],
+    timeline: "Application, assessment and selection dependent", difficulty: "high",
+    requiresSponsor: false, permanent: false, settlementPathway: true,
+    goals: ["permanent-residency", "temporary-work", "talent-visa", "founder", "not-sure"],
+    languageRelevant: true,
+    officialUrl: "https://www.immd.gov.hk/eng/services/visas/assessment-routes.html",
+    evidenceWeights: { advancedDegree: 8, criticalRole: 8, highSalary: 8, leadership: 6, businessImpact: 6, recommendations: 4 },
+    keywords: ["hong kong", "qmas", "quality migrant", "general points test", "finance", "international trade", "technology", "talent"],
+    lastVerified: "2026-08-20",
   }),
 
   defineRoute({

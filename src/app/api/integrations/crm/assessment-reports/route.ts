@@ -7,6 +7,7 @@ import type { JiopayOrder } from "@/lib/payments/jiopay-store";
 import { generateReportPdf } from "@/lib/payments/report-router";
 import { beginCrmAssessmentEmail, completeCrmAssessmentEmail, failCrmAssessmentEmail } from "@/lib/reports/crm-assessment-idempotency";
 import { calculateAustraliaPoints } from "@/lib/reports/australia-points";
+import { resolveProgramme } from "@/lib/reports/programme";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +18,7 @@ const ALLOWED_PRODUCTS = new Set([
   "premium_report", "route_report", "deep_analysis_report", "us_visa_report",
   "cost_report", "compare_report", "docs_report",
 ]);
-const ALLOWED_MODES = new Set(["preview", "download", "email", "internal-review"]);
+const ALLOWED_MODES = new Set(["preview", "download", "email", "internal-review", "fee-coverage"]);
 const TEXT_LIMITS: Record<string, number> = {
   nationality: 100, currentCountry: 100, maritalStatus: 60, goal: 160, track: 40,
   targetCountries: 500, selectedProgrammes: 1000, fallbackProgrammes: 600, priority: 80,
@@ -47,7 +48,7 @@ const NUMBER_FIELDS = [
   "languageListening", "languageReading", "languageWriting", "languageSpeaking",
   "overseasExperienceMonths", "australianExperienceMonths", "basePointsTotal",
   "subclass189Points", "subclass190Points", "subclass491Points", "employmentPointsCapAdjustment",
-  "specialistEducationPoints",
+  "specialistEducationPoints", "qmasCriteriaMet", "qmasLegacyScore",
 ] as const;
 const BOOLEAN_FIELDS = [
   "familyIncluded", "specialistEducation", "professionalYearCompleted", "australianStudyCompleted",
@@ -110,7 +111,7 @@ function textList(value: unknown, max: number) {
 
 function cleanFeeItems(value: unknown) {
   if (!Array.isArray(value)) return [];
-  const categories = new Set(["government", "assessing_body", "language_test", "professional", "third_party", "proof_of_funds", "other"]);
+  const categories = new Set(["government", "assessing_body", "language_test", "professional", "third_party", "investment", "proof_of_funds", "other"]);
   return value.slice(0, 20).map((item) => {
     const row = item && typeof item === "object" ? item as Record<string, unknown> : {};
     const category = normalizeText(row.category, 40).toLowerCase();
@@ -120,6 +121,7 @@ function cleanFeeItems(value: unknown) {
       label: normalizeText(row.label, 180),
       amount,
       currency: normalizeText(row.currency, 8).toUpperCase(),
+      appliesTo: normalizeText(row.appliesTo ?? row.when, 240),
       verifiedDate: normalizeText(row.verifiedDate, 20),
       source: normalizeText(row.source, 500),
     };
@@ -145,6 +147,15 @@ function cleanAnswers(body: Payload, reviewStatus: "draft" | "advisor-reviewed")
     if (value !== undefined) answers[key] = value;
   }
   answers.feeItems = cleanFeeItems(body.feeItems);
+  if (body.qmasCriteria && typeof body.qmasCriteria === "object" && !Array.isArray(body.qmasCriteria)) {
+    const supplied = body.qmasCriteria as Record<string, unknown>;
+    const criteria: Record<string, boolean | null> = {};
+    for (let id = 1; id <= 12; id += 1) {
+      const value = optionalBoolean(supplied[String(id)] ?? supplied[`criterion${id}`]);
+      criteria[String(id)] = value === undefined ? null : value;
+    }
+    answers.qmasCriteria = criteria;
+  }
   if (Array.isArray(body.documentInventory)) answers.documentInventory = body.documentInventory.slice(0, 200);
   if (reviewStatus === "advisor-reviewed") answers.verifiedAt = normalizeText(body.reviewedAt, 60) || new Date().toISOString();
   return answers;
@@ -161,7 +172,7 @@ function structuredReportCompleteness(answers: Record<string, unknown>) {
     && has("manualAssessmentReason") && has("claimedPointsTotal");
   const route = normalizeText(`${answers.targetCountries ?? ""} ${answers.selectedProgrammes ?? ""} ${answers.goal ?? ""}`, 2000).toLowerCase();
   const skilled = /(skilled|express entry|\b189\b|\b190\b|\b491\b|\bpnp\b|\bfsw\b|\bcec\b|employer|work permit|global talent|eb-?1|o-?1)/.test(route);
-  const pointsBased = /(australia|express entry|\b189\b|\b190\b|\b491\b|\bpnp\b|\bfsw\b|\bcec\b|points)/.test(route);
+  const pointsBased = /(australia|express entry|hong kong|qmas|quality migrant|\b189\b|\b190\b|\b491\b|\bpnp\b|\bfsw\b|\bcec\b|points)/.test(route);
   const investment = /(invest|golden visa|residency by|citizenship by|entrepreneur|corporate)/.test(route);
   const sourceCalculation = calculationMode === "source_assessment"
     && (has("recordedPointsAssessment") || has("eligibilityAssessment") || !pointsBased);
@@ -258,6 +269,39 @@ export async function POST(req: NextRequest) {
 
   const reviewStatus = mode === "email" ? "advisor-reviewed" : "draft";
   const answers = cleanAnswers(body, reviewStatus);
+  if (mode === "fee-coverage") {
+    const targets = textList(body.targetCountries, 500);
+    const programmes = textList(body.selectedProgrammes, 1000);
+    const track = normalizeText(body.track, 40);
+    const requestedRoutes = programmes.length ? programmes : new Array(Math.max(targets.length, 1)).fill("");
+    const dossiers = requestedRoutes.map((program, index) => resolveProgramme({
+      ...(targets[index] || targets[0] ? { country: targets[index] || targets[0] } : {}),
+      ...(program ? { program } : {}),
+      ...(track ? { track } : {}),
+    }));
+    const matchedDossiers = dossiers.filter((item): item is NonNullable<typeof item> => Boolean(item));
+    const statuses = dossiers.map((item) => item?.feeCoverage?.status ?? "pending");
+    const status = statuses.some((item) => item === "pending")
+      ? "pending"
+      : statuses.every((item) => item === "verified") ? "verified" : "website_estimate";
+    const feeCount = matchedDossiers.reduce((total, dossier) => total + (dossier.governmentFees?.length ?? 0) + (dossier.prices?.length ?? 0), 0);
+    const note = status === "verified"
+      ? "A current source-backed fee schedule is available for every selected programme."
+      : status === "website_estimate"
+        ? "At least one selected programme has only indicative website values. Add dated official overrides before final client delivery."
+        : "At least one selected programme has no matching source-backed fee schedule. Add its dated charges and required-funds items in CRM.";
+    return NextResponse.json({
+      ok: true,
+      matched: matchedDossiers.length === dossiers.length,
+      status,
+      country: [...new Set(matchedDossiers.map((item) => item.country).filter(Boolean))].join(", ") || targets.join(", "),
+      programme: matchedDossiers.map((item) => item.title).filter(Boolean).join("; ") || programmes.join("; "),
+      note,
+      checkedAt: matchedDossiers.map((item) => item.feeCoverage?.checkedAt).filter(Boolean).sort()[0] ?? "",
+      effectiveFrom: matchedDossiers.map((item) => item.feeCoverage?.effectiveFrom).filter(Boolean).sort()[0] ?? "",
+      feeCount,
+    });
+  }
   const calculationMode = normalizeText(answers.calculationMode, 40).toLowerCase();
   if (calculationMode === "australia_verified") {
     const calculated = calculateAustraliaPoints(answers);

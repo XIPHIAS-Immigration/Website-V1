@@ -85,3 +85,18 @@ test("sponsor evidence materially improves sponsor-led route readiness", () => {
 test("paused Canada Start-Up Visa is not in the paid recommendation catalogue", () => {
   assert.ok(!model.highSkillRoutes.some((route) => /start[- ]?up visa/i.test(route.title)));
 });
+
+test("Hong Kong QMAS is a first-class current route", () => {
+  const routes = model.scoreHighSkillRoutes(input({
+    targetCountry: "hong-kong",
+    goal: "talent-visa",
+    field: "business",
+    role: "Finance operations specialist",
+    profileSummary: "Seven years in finance, international trade and multinational enterprises.",
+  }));
+  assert.equal(routes.length, 1);
+  assert.equal(routes[0].id, "hong-kong-qmas-gpt");
+  assert.equal(routes[0].country, "Hong Kong");
+  assert.match(routes[0].officialUrl, /immd\.gov\.hk/);
+  assert.equal(routes[0].requiresSponsor, false);
+});

@@ -154,6 +154,18 @@ test("CRM report desk can use the recorded assessment without forcing Australia 
   assert.doesNotMatch(source, /if \(!Array\.isArray\(answers\.feeItems\)[\s\S]*?Add at least one fee/);
 });
 
+test("CRM report desk checks country-neutral fee coverage and accepts documented overrides", () => {
+  assert.match(source, /"fee-coverage"/);
+  assert.match(source, /resolveProgramme/);
+  assert.match(source, /statuses\.some/);
+  assert.match(source, /status,/);
+  assert.match(source, /"investment"/);
+  assert.match(source, /"proof_of_funds"/);
+  assert.match(source, /appliesTo/);
+  assert.match(source, /verifiedDate/);
+  assert.match(source, /source:/);
+});
+
 test("CRM dynamic reports use programme-aware personalisation and imagery", () => {
   const premium = fs.readFileSync("src/lib/reports/templates/premium-strategy.ts", "utf8");
   const dynamic = fs.readFileSync("src/lib/reports/templates/crm-dynamic-personalisation.ts", "utf8");

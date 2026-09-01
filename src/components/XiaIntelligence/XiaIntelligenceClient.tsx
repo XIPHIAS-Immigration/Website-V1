@@ -814,6 +814,7 @@ function formatTargetCountry(country: HighSkillInput["targetCountry"]) {
     canada: "Canada",
     uk: "United Kingdom",
     australia: "Australia",
+    "hong-kong": "Hong Kong",
     global: "Global route review",
   };
 

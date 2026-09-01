@@ -42,8 +42,9 @@ import {
 import { renderReportPdf } from "../render";
 import { buildCompanyProfilePages } from "../company-profile";
 import { assessPersonalisation, buildClientCase, caseCoverProfileLine, referenceMatches, reportBasis } from "../client-case";
+import { buildQmasAssessment, type QmasAssessment } from "../qmas-assessment";
 
-const TARGET_COUNTRIES = new Set(["usa", "canada", "uk", "australia", "global"]);
+const TARGET_COUNTRIES = new Set(["usa", "canada", "uk", "australia", "hong-kong", "global"]);
 const GOALS = new Set(["permanent-residency", "temporary-work", "talent-visa", "founder", "not-sure"]);
 const FIELDS = new Set(["technology", "science", "business", "arts", "healthcare", "academia", "sports", "other"]);
 const EDUCATION = new Set(["unknown", "bachelor", "master", "phd"]);
@@ -57,9 +58,10 @@ const COUNTRY_LABELS: Record<HighSkillInput["targetCountry"], string> = {
   canada: "Canada",
   uk: "United Kingdom",
   australia: "Australia",
+  "hong-kong": "Hong Kong",
   global: "Open globally",
 };
-const SPECIFIC_COUNTRIES: HighSkillInput["targetCountry"][] = ["usa", "canada", "uk", "australia"];
+const SPECIFIC_COUNTRIES: HighSkillInput["targetCountry"][] = ["usa", "canada", "uk", "australia", "hong-kong"];
 
 function str(value: unknown): string {
   return typeof value === "string" ? value.trim() : value == null ? "" : String(value).trim();
@@ -158,6 +160,7 @@ function normTargetCountry(value: unknown): HighSkillInput["targetCountry"] {
   const raw = str(value).toLowerCase();
   if (/united states|america|^us$|u\.s\./.test(raw)) return "usa";
   if (/united kingdom|britain|england|^gb$/.test(raw)) return "uk";
+  if (/hong\s*kong|qmas|quality\s+migrant/.test(raw)) return "hong-kong";
   return pickEnum(raw, TARGET_COUNTRIES, "global") as HighSkillInput["targetCountry"];
 }
 
@@ -166,6 +169,7 @@ function normCountryText(value: unknown): string {
     .toLowerCase()
     .replace(/united states of america|united states|america|u\.s\.a\.|u\.s\./g, "usa")
     .replace(/united kingdom|great britain|britain|england|u\.k\./g, "uk")
+    .replace(/hong\s*kong|qmas|quality\s+migrant/g, "hong kong")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }
@@ -175,6 +179,7 @@ function routeMatchesTarget(route: ScoredHighSkillRoute, target: HighSkillInput[
   const country = normCountryText(route.country);
   if (target === "usa") return country === "usa";
   if (target === "uk") return country === "uk";
+  if (target === "hong-kong") return country === "hong kong";
   return country.includes(target);
 }
 
@@ -330,6 +335,37 @@ function countryIntelligence(input: HighSkillInput): {
       ],
     };
   }
+  if (input.targetCountry === "hong-kong") {
+    return {
+      title: "Hong Kong Quality Migrant Admission Scheme intelligence",
+      routeLens:
+        "QMAS is assessed through its prerequisites and either the current twelve-criterion General Points Test or the separate Achievement-based Points Test. The General Points Test currently requires at least six criteria, but meeting the threshold does not itself guarantee approval.",
+      ecosystem: [
+        "The General Points Test uses twelve binary criteria across age, academic qualifications, language proficiency, work experience, annual income and business ownership.",
+        "The prevailing General Points Test threshold is six out of twelve and may change without prior notice.",
+        "No Hong Kong employment offer is required before a QMAS application is submitted.",
+        "Applications meeting the prerequisites and threshold remain subject to selection and an individual Immigration Department decision.",
+      ],
+      filingLenses: [
+        "Are all four QMAS prerequisites supported by current documents?",
+        "Which of the twelve General Points Test criteria are supported, indicated or still unconfirmed?",
+        "Does each claimed work-experience criterion have employer, role and duration evidence?",
+        "Are education, language, income and business-ownership claims supported at the exact official standard?",
+      ],
+      documents: [
+        "Passport, civil-status records, academic awards and third-party or institutional qualification-verification evidence.",
+        "Language evidence and detailed employment records showing role level, duration, employer standing, specified-field work and international exposure.",
+        "Financial-resource evidence for the applicant and dependants, plus income, tax or business records for any criteria claimed under those aspects.",
+        "Character and immigration declarations, translations and any additional records requested through the online application process.",
+      ],
+      risks: [
+        "Six criteria is the submission threshold, not a promise of selection or approval.",
+        "An indicated criterion should not be counted as supported until the underlying document meets the official definition.",
+        "The former numerical points worksheet is not the current General Points Test and must be displayed separately.",
+        "The threshold, fees, eligible-university list and Immigration Department procedures may change after the report date.",
+      ],
+    };
+  }
   return {
     title: `${country} high-skill immigration intelligence`,
     routeLens:
@@ -358,6 +394,10 @@ function countryIntelligence(input: HighSkillInput): {
 
 function buildHighSkillInput(order: JiopayOrder): HighSkillInput {
   const a = (order.answers ?? {}) as Record<string, unknown>;
+  const targetSource = [order.country, a.targetCountry, a.country, order.program, a.selectedProgrammes]
+    .map(str)
+    .find(Boolean);
+  const targetCountry = normTargetCountry(targetSource);
 
   const evidence = EVIDENCE_KEYS.reduce((acc, key) => {
     acc[key] = toBool(a[key] ?? a[`evidence_${key}`]);
@@ -365,9 +405,9 @@ function buildHighSkillInput(order: JiopayOrder): HighSkillInput {
   }, {} as Record<HighSkillEvidenceKey, boolean>);
 
   return {
-    targetCountry: normTargetCountry(order.country ?? a.targetCountry ?? a.country),
+    targetCountry,
     goal: pickEnum(a.goal, GOALS, "not-sure") as HighSkillInput["goal"],
-    field: pickEnum(a.field, FIELDS, "technology") as HighSkillInput["field"],
+    field: pickEnum(a.field, FIELDS, targetCountry === "hong-kong" ? "other" : "technology") as HighSkillInput["field"],
     role: str(a.role ?? a.profile ?? a.occupation) || "High-skill professional",
     age: toInt(a.age, 0),
     education: pickEnum(a.education, EDUCATION, "unknown") as HighSkillInput["education"],
@@ -380,8 +420,41 @@ function buildHighSkillInput(order: JiopayOrder): HighSkillInput {
     patentCount: toInt(a.patentCount ?? a.patents, 0),
     resumeFileName: str(a.resumeFileName ?? a.cv),
     resumeParseStatus: pickEnum(a.resumeParseStatus, RESUME_STATUSES, "not-provided") as HighSkillInput["resumeParseStatus"],
-    profileSummary: str(a.profileSummary ?? a.summary ?? a.notes ?? a.goals),
+    profileSummary: [a.profileSummary, a.workDetails, a.occupationDetails, a.employerOrBusiness, a.summary, a.notes, a.goals]
+      .map(str)
+      .filter(Boolean)
+      .join(" "),
   };
+}
+
+function optionalNumeric(value: unknown): number | undefined {
+  if (value === null || value === undefined || value === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function qmasAssessmentFor(order: JiopayOrder, input: HighSkillInput): QmasAssessment {
+  const answers = (order.answers ?? {}) as Record<string, unknown>;
+  const criteria = answers.qmasCriteria && typeof answers.qmasCriteria === "object" && !Array.isArray(answers.qmasCriteria)
+    ? answers.qmasCriteria as Record<string, boolean | null | undefined>
+    : undefined;
+  return buildQmasAssessment({
+    age: input.age || undefined,
+    education: str(answers.qualificationLevel ?? answers.educationDetails ?? answers.education) || input.education,
+    yearsExperience: input.yearsExperience || undefined,
+    languageTest: str(answers.languageTest) || input.languageTest,
+    languageScore: optionalNumeric(answers.languageScore) ?? input.languageScore,
+    languageDetails: [answers.languageDetails, answers.crmLanguageProfile].map(str).filter(Boolean).join(" "),
+    profileSummary: input.profileSummary,
+    workDetails: str(answers.workDetails),
+    employerOrBusiness: str(answers.employerOrBusiness),
+    pointsAssessment: [answers.pointsAssessment, answers.recordedPointsAssessment].map(str).filter(Boolean).join(" "),
+    eligibilityAssessment: str(answers.eligibilityAssessment),
+    claimedPointsTotal: optionalNumeric(answers.claimedPointsTotal),
+    qmasCriteriaMet: optionalNumeric(answers.qmasCriteriaMet),
+    qmasLegacyScore: optionalNumeric(answers.qmasLegacyScore),
+    qmasCriteria: criteria,
+  });
 }
 
 function tierTone(tier: ScoredHighSkillRoute["tier"]): PillTone {
@@ -594,11 +667,162 @@ function dossierForPaidReport(dossier: Dossier, route: ScoredHighSkillRoute): Do
   return prepared;
 }
 
+function qmasStatusLabel(status: QmasAssessment["criteria"][number]["status"]): string {
+  if (status === "supported") return "Supported";
+  if (status === "indicated") return "Indicated";
+  if (status === "not-supported") return "Not supported";
+  return "Unconfirmed";
+}
+
+function qmasStatusTone(status: QmasAssessment["criteria"][number]["status"]): PillTone {
+  if (status === "supported") return "good";
+  if (status === "indicated") return "warn";
+  if (status === "not-supported") return "bad";
+  return "muted";
+}
+
+function buildQmasPages(
+  assessment: QmasAssessment,
+  input: HighSkillInput,
+  header: string,
+  footer: (label: string) => string,
+): string[] {
+  const scoreBasis = assessment.scoreBasis === "recorded"
+    ? "Recorded assessment position"
+    : "Evidence-aligned assessment position";
+  const legacy = assessment.legacyScore === undefined ? "Not recorded" : `${assessment.legacyScore} / 195`;
+  const criterionRows = (from: number, to: number) => assessment.criteria
+    .filter((criterion) => criterion.id >= from && criterion.id <= to)
+    .map((criterion) => [
+      esc(String(criterion.id)),
+      `<strong>${esc(criterion.aspect)}</strong><br/><span class="muted">${esc(criterion.criterion)}</span>`,
+      pill(qmasStatusLabel(criterion.status), qmasStatusTone(criterion.status)),
+      esc(criterion.detail),
+    ]);
+
+  return [
+    page({
+      header,
+      footer: footer("QMAS score and outlook"),
+      body:
+        sectionHeader({
+          eyebrow: "Verified assessment position",
+          title: "QMAS score and profile outlook",
+          desc: "The current General Points Test uses twelve binary criteria. The prevailing threshold is six criteria; the assessment below separates the current framework from any former numerical worksheet.",
+        }) +
+        grid(2, [
+          card({ k: "Current criteria score", v: `${assessment.criteriaMet} / 12`, note: scoreBasis }),
+          card({ k: "Prevailing threshold", v: `${assessment.threshold} / 12`, note: "Current General Points Test threshold" }),
+          card({ k: "Probability outlook", v: assessment.outlook, note: "Qualitative profile outlook, not an approval percentage" }),
+          card({ k: "Assessment assurance", v: assessment.assurance, note: "Based on the recorded and indicated profile evidence" }),
+          card({ k: "Former worksheet score", v: legacy, note: "Shown separately because the numerical framework is no longer current" }),
+          card({ k: "Professional profile", v: titleCase(input.role), note: `${input.yearsExperience || "Unconfirmed"} years of experience recorded` }),
+        ]) +
+        `<div class="spacer-16"></div>` +
+        callout({
+          k: "Client position",
+          text: assessment.criteriaMet >= assessment.threshold
+            ? `The recorded profile aligns with ${assessment.criteriaMet} of 12 criteria and reaches the prevailing six-criterion threshold. This supports a positive progression outlook, while the final decision remains with the Hong Kong Immigration Department.`
+            : `The currently recorded profile aligns with ${assessment.criteriaMet} of 12 criteria. Additional documentary support is required before the prevailing six-criterion threshold can be presented as met.`,
+        }),
+    }),
+    page({
+      header,
+      footer: footer("QMAS criteria 1-6"),
+      body:
+        sectionHeader({
+          eyebrow: "General Points Test",
+          title: "Current criteria 1 to 6",
+          desc: "Supported means directly evidenced from structured case facts. Indicated means the profile points toward the criterion but the official documentary standard still needs confirmation.",
+        }) +
+        table({ head: ["#", "Aspect and criterion", "Position", "Recorded basis"], rows: criterionRows(1, 6) }),
+    }),
+    page({
+      header,
+      footer: footer("QMAS criteria 7-12"),
+      body:
+        sectionHeader({
+          eyebrow: "General Points Test",
+          title: "Current criteria 7 to 12",
+          desc: "Employment, income and business criteria are counted only where the relevant duration, employer standing, financial threshold or ownership record is supported.",
+        }) +
+        table({ head: ["#", "Aspect and criterion", "Position", "Recorded basis"], rows: criterionRows(7, 12) }),
+    }),
+    page({
+      header,
+      footer: footer("QMAS prerequisites"),
+      body:
+        sectionHeader({
+          eyebrow: "Baseline eligibility",
+          title: "Prerequisites before points-test assessment",
+          desc: "All prerequisites remain mandatory even where the General Points Test threshold is reached.",
+        }) +
+        table({
+          head: ["Prerequisite", "Official requirement", "Case treatment"],
+          rows: [
+            ["Age", "Applicant must be aged 18 or above at application", input.age >= 18 ? `Recorded age ${input.age}` : "Age must be confirmed"],
+            ["Financial resources", "Ability to support the applicant and dependants without public assistance", "Confirm current personal net-worth and supporting records"],
+            ["Good character", "No criminal or adverse immigration record in Hong Kong or elsewhere", "Confirm declarations and required records"],
+            ["Academic background", "Normally a first degree from a recognised institution, subject to the published exceptions", educationLabel(input.education)],
+          ].map((row) => row.map(esc)),
+        }),
+    }),
+    page({
+      header,
+      footer: footer("QMAS programme design"),
+      body:
+        sectionHeader({
+          eyebrow: "Programme structure",
+          title: "How the Quality Migrant Admission Scheme works",
+          desc: "QMAS is designed for highly skilled or talented applicants seeking to settle in Hong Kong. A local job offer is not required before application.",
+        }) +
+        grid(2, [
+          card({ k: "Assessment route", v: "General Points Test", note: "Twelve current binary criteria" }),
+          card({ k: "Passing threshold", v: "6 / 12", note: "Subject to change without prior notice" }),
+          card({ k: "Job offer", v: "Not required", note: "No prior Hong Kong offer is required for QMAS" }),
+          card({ k: "Selection", v: "Individual assessment", note: "Threshold alignment does not guarantee approval" }),
+          card({ k: "Family", v: "Eligible dependants", note: "Subject to the dependant policy and supporting records" }),
+          card({ k: "Long-term pathway", v: "Residence progression", note: "Subject to continued eligibility and Hong Kong residence law" }),
+        ]) +
+        `<div class="spacer-16"></div>` +
+        disclaimer("The threshold, eligible-university list, fees and application procedures must be rechecked against the Immigration Department website immediately before submission."),
+    }),
+    page({
+      header,
+      footer: footer("QMAS official basis"),
+      body:
+        sectionHeader({
+          eyebrow: "Official programme basis",
+          title: "Current rules used by this template",
+          desc: "The QMAS branch is tied to official Hong Kong Immigration Department sources rather than an Australia, Canada or generic high-skill scoring table.",
+        }) +
+        table({
+          head: ["Source", "Coverage"],
+          rows: [
+            ["QMAS assessment routes", "Twelve General Points Test criteria and the prevailing 6/12 threshold"],
+            ["QMAS frequently asked questions", "Prerequisites, criteria definitions, eligible universities and application treatment"],
+            ["QMAS Guidance Notes ID(E) 982", "Forms, evidence, declarations and application requirements"],
+            ["Hong Kong Immigration Department fee tables", "Current application and visa or extension charges"],
+          ].map((row) => row.map(esc)),
+        }) +
+        `<div class="spacer-16"></div>` +
+        ticks([
+          "https://www.immd.gov.hk/eng/services/visas/assessment-routes.html",
+          "https://www.immd.gov.hk/eng/faq/QMAS.html",
+          "https://www.immd.gov.hk/pdforms/id(e)982.pdf",
+          "https://www.immd.gov.hk/eng/services/fee-tables/index.html",
+        ]),
+    }),
+  ];
+}
+
 export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffer> {
   const depth = depthFor("deep_analysis");
   const clientCase = buildClientCase(order);
   const personalisation = assessPersonalisation(clientCase);
   const input = buildHighSkillInput(order);
+  const isQmas = input.targetCountry === "hong-kong";
+  const qmasAssessment = isQmas ? qmasAssessmentFor(order, input) : undefined;
   const allScored = scoreHighSkillRoutes(input);
   const selected = clientCase.objective.selectedProgrammes.value ?? [];
   const selectedRoutes = selected.flatMap((name) => {
@@ -700,7 +924,8 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
   const ref = order.merchantTxnNo;
   const foot = (label: string) => runningFooter("XIPHIAS Immigration Private Limited · Deep Analysis", label);
   const head = runningHeader(reportTitle, { country: COUNTRY_LABELS[input.targetCountry], route: top?.title });
-  const basisPage = reportBasisPage({ header: head, footer: foot("Case basis"), basis: reportBasis(clientCase, personalisation) });
+  const qmasPages = qmasAssessment ? buildQmasPages(qmasAssessment, input, head, foot) : [];
+  const basisPage = reportBasisPage({ header: head, footer: foot("Candidate profile"), basis: reportBasis(clientCase, personalisation) });
 
   const avgTop3 = scored.slice(0, 3).reduce((sum, r) => sum + r.fitScore, 0) / Math.max(1, Math.min(3, scored.length));
   const totalEvidenceCategories = highSkillRoutes.reduce(
@@ -755,32 +980,36 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     preparedFor: order.customer.name,
     profileLine: caseCoverProfileLine(clientCase),
     subtitle:
-      input.targetCountry === "global"
+      isQmas
+        ? "A personalised Hong Kong Quality Migrant Admission Scheme analysis using the current General Points Test framework."
+        : input.targetCountry === "global"
         ? "An evidence-led analysis of your high-skill profile, ranking the visa routes that best match your achievements, recognition and target."
         : `An evidence-led ${COUNTRY_LABELS[input.targetCountry]} analysis of your high-skill profile, route fit, evidence strength and filing readiness.`,
-    chips: [
-      `Target: ${COUNTRY_LABELS[input.targetCountry]}`,
-      `Field: ${titleCase(input.field)}`,
-      `Goal: ${goalLabel(input.goal)}`,
-    ],
-    fitScore: top?.fitScore,
-    fitLabel: top ? fitLabel(top.fitScore) : undefined,
+    chips: isQmas && qmasAssessment
+      ? ["Hong Kong QMAS", `${qmasAssessment.criteriaMet} / 12 criteria aligned`, qmasAssessment.assurance]
+      : [
+          `Target: ${COUNTRY_LABELS[input.targetCountry]}`,
+          `Field: ${titleCase(input.field)}`,
+          `Goal: ${goalLabel(input.goal)}`,
+        ],
+    fitScore: isQmas ? undefined : top?.fitScore,
+    fitLabel: isQmas ? undefined : top ? fitLabel(top.fitScore) : undefined,
     countryLabel: COUNTRY_LABELS[input.targetCountry],
     dateLabel: dateLabel(),
   });
 
   // 2. Profile snapshot
-  const briefCards = grid(3, [
+  const briefCards = `<div class="grid grid-3 pathway-grid">${[
     card({ k: "Target country", v: COUNTRY_LABELS[input.targetCountry] }),
     card({ k: "Primary goal", v: goalLabel(input.goal) }),
     card({ k: "Field", v: titleCase(input.field) }),
     card({ k: "Role", v: titleCase(input.role) }),
     card({ k: "Age", v: input.age > 0 ? `${input.age} years` : "To confirm" }),
-    card({ k: "Education", v: educationLabel(input.education) }),
-    card({ k: "Experience", v: input.yearsExperience > 0 ? `${input.yearsExperience} years` : "To confirm" }),
-    card({ k: "Language evidence", v: languageLabel(input) }),
-    card({ k: "CV analysis", v: resumeStatusLabel(input), note: input.resumeFileName || "Profile based on submitted answers." }),
-  ]);
+    card({ k: "Primary route", v: top?.title ?? "To confirm" }),
+    card({ k: "Visa family", v: top?.visaFamily ?? "To confirm" }),
+    card({ k: "Indicative timeline", v: top?.timeline ?? "To confirm" }),
+    card({ k: "Pathway type", v: top ? (top.permanent ? "Permanent residence" : top.settlementPathway ? "Temporary to settlement" : "Temporary") : "To confirm" }),
+  ].join("")}</div>`;
   const briefPage = page({
     header: head,
     body:
@@ -789,61 +1018,12 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
         title: top ? `${COUNTRY_LABELS[input.targetCountry]} · ${top.title}` : COUNTRY_LABELS[input.targetCountry],
       }) +
       sectionHeader({
-        eyebrow: "Profile snapshot",
-        title: "The profile this analysis is built on",
-        desc: "Your high-skill routes are ranked against approved XIPHIAS visa intelligence using the inputs below. The advisor review confirms final evidence positioning.",
+        eyebrow: "Pathway overview",
+        title: "Candidate pathway overview",
+        desc: "Key profile and pathway details for the selected destination.",
       }) +
-      briefCards +
-      `<div class="spacer-8"></div>` +
-      scoreBar({ label: "Profile depth captured", value: completion, tag: completion >= 70 ? "Strong detail provided" : "Add detail to sharpen the analysis" }) +
-      `<div class="spacer-8"></div>` +
-      callout({
-        k: "Headline read",
-        text: top
-          ? `${selectedRoutes.length ? "The advisor-selected route begins with" : "The current model ranks"} ${top.title} (${top.country}) at ${clampScore(top.fitScore)}/100 from ${personalisation.completeness}% core profile completeness. Treat the score as directional until the evidence claims and route criteria are verified.`
-          : "Provide more profile detail with an advisor to surface a stronger ranked shortlist of high-skill routes.",
-      }),
+      briefCards,
     footer: foot("02"),
-  });
-
-  const cvText = input.profileSummary.trim();
-  const researchOutput = input.publicationCount > 0 || input.citationCount > 0
-    ? `${input.publicationCount > 0 ? `${input.publicationCount} publication${input.publicationCount === 1 ? "" : "s"}` : "Publication count not supplied"} · ${input.citationCount > 0 ? `${input.citationCount} citation${input.citationCount === 1 ? "" : "s"}` : "Citation count not supplied"}`
-    : input.evidence.publications || input.evidence.citations
-      ? "Research or recognition signal selected"
-      : "Not stated";
-  const innovationOutput = input.patentCount > 0
-    ? `${input.patentCount} patent${input.patentCount > 1 ? "s" : ""}`
-    : input.evidence.patents
-      ? "Patent, IP or innovation signal selected"
-      : "Not stated";
-  const cvPage = page({
-    header: head,
-    body:
-      sectionHeader({
-        eyebrow: "CV intelligence",
-        title: "How your submitted career record shaped this analysis",
-        desc: "The report uses the extracted CV text and assessment evidence as profile signals. An advisor still verifies every material claim against the original document.",
-      }) +
-      grid(3, [
-        card({ k: "CV source", v: input.resumeFileName || "Manual summary" }),
-        card({ k: "Extraction status", v: resumeStatusLabel(input) }),
-        card({ k: "Profile text analysed", v: cvText ? `${cvText.length.toLocaleString("en-IN")} characters` : "No text supplied" }),
-        card({ k: "Research output", v: researchOutput, note: input.publicationCount || input.citationCount ? undefined : "A count was not supplied in the assessment." }),
-        card({ k: "Innovation", v: innovationOutput, note: input.patentCount ? undefined : "A patent count was not supplied in the assessment." }),
-        card({ k: "Evidence flags", v: `${signals.evidenceSelected.length} of ${EVIDENCE_KEYS.length}` }),
-      ]) +
-      `<div class="spacer-16"></div>` +
-      `<h3 class="h-sub">Profile extract used for route matching</h3>` +
-      `<div class="prose"><p>${cvText ? esc(cvText.slice(0, 1_400)).replace(/\n/g, "<br/>") : "No CV text was available. Route scoring is based only on the structured assessment answers and must be treated as preliminary."}</p></div>` +
-      `<div class="spacer-16"></div>` +
-      callout({
-        k: "Verification boundary",
-        text: input.resumeParseStatus === "parsed"
-          ? "Text extraction succeeded. Formatting, tables, images, signatures and scanned attachments are not treated as verified evidence until an advisor reviews the original CV and supporting documents."
-          : "No machine-readable CV was confirmed. Paste the full career record or provide an OCR-readable file before treating this as a document-personalised assessment.",
-      }),
-    footer: foot("CV intelligence"),
   });
 
   // 3. Profile-signal scorecard
@@ -947,11 +1127,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
         head: ["Visa route", "Country", "Family", "Fit", "Tier", "Difficulty", "Pathway"],
         rows: pageRows,
       }) +
-      `<div class="spacer-16"></div>` +
-      callout({
-        k: "How to read this ranking",
-        text: "Fit scores are directional signals from your profile and evidence. Your dedicated readiness scorecard and evidence-gap map show exactly where to focus before filing.",
-      }),
+      `<div class="spacer-16"></div>`,
     footer: foot(index === 0 ? "05" : `05.${index + 1}`),
   }));
 
@@ -966,15 +1142,15 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     title: countryIntel.title,
     desc: countryIntel.routeLens,
     content:
-      `<h3 class="h-sub">How this destination should be read</h3>` +
+      `<h3 class="h-sub">Strategic advantages</h3>` +
       ticks(countryIntel.ecosystem) +
       `<div class="spacer-16"></div>` +
       callout({
-        k: "Scope correction",
+        k: "Country focus",
         text:
           input.targetCountry === "global"
-            ? "Because the target is open globally, this report can compare countries. If a buyer selects a country, the report narrows to that country only."
-            : `Because the buyer selected ${COUNTRY_LABELS[input.targetCountry]}, this report does not add ${outsideCountryLabels(input.targetCountry)} alternatives unless the advisor later changes the target.`,
+            ? "The current scope compares suitable destinations globally."
+            : `The current strategy is focused on ${COUNTRY_LABELS[input.targetCountry]}; alternatives outside this destination are excluded.`,
       }),
   });
 
@@ -988,7 +1164,13 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       }) +
       grid(2, [
         card({ k: "Destination", v: COUNTRY_LABELS[input.targetCountry], note: "All route analysis in this report is scoped to this selected country." }),
-        card({ k: "Primary route", v: top?.title ?? "To confirm", note: top ? `${top.tier} · ${clampScore(top.fitScore)}/100 fit` : "Advisor review required." }),
+        card({
+          k: "Primary route",
+          v: top?.title ?? "To confirm",
+          note: isQmas && qmasAssessment
+            ? `${qmasAssessment.criteriaMet}/12 current criteria · ${qmasAssessment.outlook}`
+            : top ? `${top.tier} · ${clampScore(top.fitScore)}/100 fit` : "Advisor review required.",
+        }),
         card({ k: "Evidence style", v: top?.requiresSponsor ? "Sponsor + profile proof" : "Applicant evidence proof", note: top?.requiresSponsor ? "Employer control is a key filing dependency." : "Independent achievement evidence carries the case." }),
         card({ k: "Advisor task", v: "Verify current rules", note: "Official criteria, fees, occupations, invitations and processing windows are confirmed before filing." }),
       ]) +
@@ -1050,7 +1232,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
           sectionHeader({
             eyebrow: "EOI and nomination controls",
             title: "Submission gates that change the case strategy",
-            desc: "A premium report should show not only what to prove, but when the evidence becomes locked, what deadlines follow, and which claims must remain consistent across every stage.",
+            desc: "This section sets out what to prove, when the evidence becomes fixed, the deadlines that follow, and the claims that must remain consistent across every stage.",
           }) +
           grid(2, [
             card({ k: "Before EOI", v: "Lock the claim set", note: "Home Affairs states that information cannot be added to the EOI after submission. Review facts, dates, achievements and attachments before filing." }),
@@ -1078,7 +1260,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
             desc: "The strongest file keeps each claim, source document, referee statement and contribution outcome aligned from the first EOI through the final visa application.",
           }) +
           table({
-            head: ["Evidence workstream", "What the buyer should prepare", "Advisor quality test"],
+            head: ["Evidence workstream", "What the applicant should prepare", "Advisor quality test"],
             rows: [
               ["Achievement record", "Awards, patents, products, publications, funding, revenue, adoption and leadership proof", "Independent, dated, attributable and material to the field"],
               ["Referee strategy", "Two credible sources where a state nomination pathway expects them, plus Form 1000 nominator positioning where relevant", "Authority, direct knowledge, independence and criterion-specific detail"],
@@ -1112,53 +1294,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       `<div class="spacer-16"></div>` +
       callout({
         k: "Advisor decision gate",
-        text: `The filing should move forward only after the ${COUNTRY_LABELS[input.targetCountry]} route, evidence standard, document set, timing and current government requirements are verified against the buyer's actual CV and documents.`,
-      }),
-  });
-
-  // Premium value framing helps a paid report feel consultative, not like a quiz result.
-  const valuePage = featurePage({
-    header: head,
-    footer: foot("06"),
-    imageDataUri: roleImg("evidence-review") ?? nextImg(),
-    imageAlt: "Advisor and applicant reviewing an evidence portfolio",
-    eyebrow: "Deep analysis scope",
-    title: "What you receive beyond a free eligibility score",
-    desc: "This report is designed as a working advisory brief: it ranks route fit, explains trade-offs, turns evidence into a case plan, and prepares the advisor review.",
-    content:
-      grid(2, [
-        card({ k: "Route intelligence", v: "Ranked shortlist", note: "Your routes are compared by country fit, goal fit, evidence fit, sponsor dependency, timeline and permanence." }),
-        card({ k: "Evidence engineering", v: "Case-building plan", note: "Each signal is converted into document, proof and narrative actions instead of a generic checklist." }),
-        card({ k: "Risk control", v: "Pre-filing review map", note: "The report identifies weak points that should be resolved before paying government or third-party fees." }),
-        card({ k: "Advisor handoff", v: "Ready for review", note: "The output gives the advisory desk a structured starting point for a faster, sharper strategy call." }),
-      ]) +
-      `<div class="spacer-16"></div>` +
-      callout({
-        k: "Why this matters at this price point",
-        text: "Premium buyers are not paying for a longer PDF; they are paying for route judgment, evidence prioritisation, risk awareness, and a clear next move. This template is built around those decisions.",
-      }),
-  });
-
-  const methodologyPage = featurePage({
-    header: head,
-    footer: foot("07"),
-    imageDataUri: roleImg("critical-technology-research") ?? nextImg(),
-    imageAlt: "Critical-technology researchers reviewing a prototype",
-    eyebrow: "Scoring logic",
-    title: "How your route ranking was built",
-    desc: "The scoring model reads the profile as a visa officer or reviewing advisor would: objective eligibility first, then evidence strength, then strategic fit.",
-    content:
-      steps([
-        { title: "Normalise the profile", body: "Country, goal, field, role, education, experience, language score and evidence flags are converted into a clean high-skill profile." },
-        { title: "Score each route family", body: "Each high-skill route is scored against its own evidence weights, sponsor requirements, country focus, permanence and difficulty." },
-        { title: "Separate fit from readiness", body: "A high fit route can still need evidence work. The report therefore shows both route-fit and evidence gaps." },
-        { title: "Check same-country route lenses", body: "Where the destination has multiple route families, the report keeps those inside the selected country and separates talent, points-tested, sponsor-led and staged options." },
-        { title: "Prepare advisor verification", body: "The final filing decision is made only after current rules, document quality and evidence consistency are reviewed by XIPHIAS." },
-      ]) +
-      `<div class="spacer-16"></div>` +
-      callout({
-        k: "Important distinction",
-        text: "This is a planning analysis, not a visa-office decision. Its value is in showing what to file, what not to file yet, and what to build before an advisor commits to a route.",
+        text: `The filing should move forward only after the ${COUNTRY_LABELS[input.targetCountry]} route, evidence standard, document set, timing and current government requirements are verified against the applicant's CV and documents.`,
       }),
   });
 
@@ -1168,7 +1304,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       sectionHeader({
         eyebrow: index === 0 ? "Decision matrix" : "Decision matrix continued",
         title: index === 0 ? "How your shortlisted routes compare strategically" : "Strategic route comparison (continued)",
-        desc: "A premium route decision is not just the highest score. It weighs evidence burden, sponsor control, permanence, difficulty and time sensitivity.",
+        desc: "The comparison weighs evidence burden, sponsor control, permanence, difficulty and time sensitivity alongside route fit.",
       }) +
       table({
         head: ["Route", "Strategic posture", "Control point", "Main caution"],
@@ -1296,27 +1432,6 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     ];
   });
 
-  const reportScopePage = page({
-    header: head,
-    body:
-      sectionHeader({
-        eyebrow: "Your decision record",
-        title: `How this analysis is structured for ${order.customer.name}`,
-        desc: "Each section below connects the supplied profile to a decision that must be made before filing. Missing or unverified facts remain explicit rather than being replaced with assumptions.",
-      }) +
-      table({
-        head: ["Decision area", "This report uses", "Result"],
-        rows: [
-          ["Primary route", top?.title ?? "Not confirmed", top ? `${clampScore(top.fitScore)}/100 (${top.tier})` : "More profile evidence required"],
-          ["Destination", COUNTRY_LABELS[input.targetCountry], "Route comparisons remain within the stated country focus"],
-          ["Professional profile", `${titleCase(input.role || input.field)}; ${input.yearsExperience} years indicated`, "Matched against route-specific professional and evidence signals"],
-          ["Evidence position", `${Object.values(input.evidence).filter(Boolean).length} evidence signals indicated`, "Converted into strengths, gaps and a preparation sequence"],
-          ["Advisor handoff", "Open criteria, inconsistencies and verification questions", "A focused brief for current-rule and document review"],
-        ].map((row) => row.map(esc)),
-      }),
-    footer: foot("Decision record"),
-  });
-
   const advisorPrepPage = featurePage({
     header: head,
     footer: foot("Advisor prep"),
@@ -1349,7 +1464,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       sectionHeader({
         eyebrow: "Roadmap",
         title: "From paid analysis to filing-ready strategy",
-        desc: "A premium assessment should lead to motion. This sequence converts the report into advisor review, evidence build, and route commitment.",
+        desc: "This sequence moves the case through advisor review, evidence preparation and route commitment.",
       }) +
       table({
         head: ["Window", "Focus", "Output"],
@@ -1541,13 +1656,35 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     footer: foot("Risk controls"),
   });
 
-  const summaryHeading = !top
-    ? "Complete the profile before deciding"
-    : top.tier === "Strong"
-      ? "Validate the leading route"
-      : top.tier === "Possible"
-        ? "Strengthen the case before deciding"
-        : "Build the evidence before filing";
+  const summaryHeading = isQmas && qmasAssessment
+    ? qmasAssessment.criteriaMet >= qmasAssessment.threshold
+      ? "Positive QMAS assessment position"
+      : "Additional QMAS evidence required"
+    : !top
+      ? "Complete the profile before deciding"
+      : top.tier === "Strong"
+        ? "Validate the leading route"
+        : top.tier === "Possible"
+          ? "Strengthen the case before deciding"
+          : "Build the evidence before filing";
+  const summaryText = isQmas && qmasAssessment
+    ? qmasAssessment.criteriaMet >= qmasAssessment.threshold
+      ? `The recorded profile aligns with ${qmasAssessment.criteriaMet} of 12 current QMAS criteria and reaches the prevailing threshold. The qualitative outlook is ${qmasAssessment.outlook.toLowerCase()}, with ${qmasAssessment.assurance.toLowerCase()} assessment assurance. Final selection and approval remain with the Hong Kong Immigration Department.`
+      : `The recorded profile currently aligns with ${qmasAssessment.criteriaMet} of 12 QMAS criteria. The remaining criteria and all prerequisites should be supported before the application is presented as threshold-aligned.`
+    : top
+      ? `Your profile points most strongly to ${top.title} in ${top.country} (${clampScore(top.fitScore)}/100, ${top.tier.toLowerCase()}). The next step is an advisor review to confirm criteria and build your evidence plan.`
+      : "Add profile and evidence detail with an advisor to lock a strong primary high-skill route.";
+  const summaryCards = isQmas && qmasAssessment
+    ? [
+        card({ dark: true, k: "Primary route", v: "Hong Kong QMAS" }),
+        card({ dark: true, k: "Current score", v: `${qmasAssessment.criteriaMet} / 12` }),
+        card({ dark: true, k: "Assessment assurance", v: qmasAssessment.assurance }),
+      ]
+    : [
+        card({ dark: true, k: "Primary route", v: top?.title ?? "To confirm" }),
+        card({ dark: true, k: "Fit score", v: top ? `${clampScore(top.fitScore)} / 100` : "To confirm" }),
+        card({ dark: true, k: "Next service", v: "Advisor evidence review" }),
+      ];
 
   // 9. Report summary (dark close)
   const summaryPage = page({
@@ -1555,21 +1692,13 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     body:
       `<div class="eyebrow">Report summary</div>` +
       `<h2 class="h-section" style="color:#fff;margin-top:8px;">${esc(summaryHeading)}</h2>` +
-      `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(
-        top
-          ? `Your profile points most strongly to ${top.title} in ${top.country} (${clampScore(top.fitScore)}/100, ${top.tier.toLowerCase()}). The next step is an advisor review to confirm criteria and build your evidence plan.`
-          : "Add profile and evidence detail with an advisor to lock a strong primary high-skill route.",
-      )}</p>` +
+      `<p class="lead" style="margin-top:10px;max-width:150mm;">${esc(summaryText)}</p>` +
       `<div class="spacer-24"></div>` +
-      grid(3, [
-        card({ dark: true, k: "Primary route", v: top?.title ?? "To confirm" }),
-        card({ dark: true, k: "Fit score", v: top ? `${clampScore(top.fitScore)} / 100` : "To confirm" }),
-        card({ dark: true, k: "Next service", v: "Advisor evidence review" }),
-      ]) +
+      grid(3, summaryCards) +
       `<div class="spacer-24"></div>` +
       `<div class="callout"><div class="callout__k">Talk to the advisory desk</div><p>XIPHIAS Immigration Advisory Desk · immigration@xiphias.in · www.xiphiasimmigration.com</p></div>` +
       disclaimer(
-        "This automated report was generated from your submitted profile and XIPHIAS high-skill visa intelligence. It has not been independently verified by an advisor. It is not legal advice and does not guarantee any government, immigration or visa-office decision. Fit scores and signal strengths are directional and must be confirmed by a XIPHIAS advisor before filing or payment of any government or third-party fees.",
+        "This assessment has not been independently verified by an advisor. Immigration criteria, fees, occupation lists, invitation settings and processing practices can change. Confirm the recorded facts, supporting evidence and current official requirements with a qualified advisor before filing or paying government or third-party fees. No assessment can guarantee a government decision.",
       ),
     footer: runningFooter(`Reference ${ref}`, "Private client advisory report"),
   });
@@ -1591,11 +1720,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     cover,
     basisPage,
     briefPage,
-    cvPage,
-    scorecardPage,
-    scorecardDetailPage,
-    topPage,
-    ...comparePages,
+    ...(isQmas ? qmasPages : [scorecardPage, scorecardDetailPage, topPage, ...comparePages]),
     countryOverviewPage,
     countryFilingPage,
     countryDocumentsPage,
@@ -1603,21 +1728,14 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     australiaSubmissionPage,
     australiaEvidenceControlPage,
     countryRiskPage,
-    valuePage,
-    methodologyPage,
     ...routeMatrixPages,
     altPage,
-    ...routeDeepDivePages,
+    ...(isQmas ? [] : routeDeepDivePages),
     gapPage,
     gapMorePage,
     gapFollowupPage,
     ...evidenceArchitecturePages,
-    reportScopePage,
-    advisorPrepPage,
-    planPage,
-    riskDueDiligencePage,
-    ninetyDayPage,
-    xiphiasHelpPage,
+    ...(isQmas ? [] : [advisorPrepPage, planPage, riskDueDiligencePage, ninetyDayPage, xiphiasHelpPage]),
     ...dossierPages,
     ...buildCompanyProfilePages({ header: head, footer: foot }),
     summaryPage,
