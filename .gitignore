@@ -51,3 +51,4 @@ next-env.d.ts
 # local report generation, candidate data, and PDF QA artifacts
 /tmp/
 /output/pdf/
+/.next.interrupted*/
