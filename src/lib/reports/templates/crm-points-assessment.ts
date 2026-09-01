@@ -76,11 +76,17 @@ export function buildCrmPointsAssessmentFrontMatter(order: JiopayOrder): string 
   const occupationCode = text(a.anzscoCode ?? a.occupationCode);
   const programme = text(a.selectedProgrammes) || (subclass.match(/^\d+$/) ? `Subclass ${subclass}` : "Programme not entered");
   const assessmentResult = text(a.skillsAssessmentResult || a.skillsAssessment).toLowerCase();
-  const mandatoryGatesComplete = manual || (point(a.agePoints) > 0 && ["competent", "proficient", "superior"].includes(text(a.englishProficiencyLevel))
-    && assessmentResult.includes("positive") && Boolean(occupationCode));
-  const resultLabel = total < 65 ? "Below points threshold" : mandatoryGatesComplete ? "Points threshold and recorded gates met" : "Points threshold met; requirements incomplete";
-  const title = "Australia Skilled Migration Assessment";
-  const head = runningHeader(title, { country: "Australia", route: programme });
+  // Canada is scored on the Federal Skilled Worker selection grid: six factors, pass mark 67.
+  // Australia keeps the points-tested subclass behaviour and its 65-point threshold.
+  const isCanada = /canada/i.test(text(a.targetCountries));
+  const passMark = isCanada ? 67 : 65;
+  const mandatoryGatesComplete = manual || (isCanada
+    ? point(a.agePoints) > 0 && point(a.englishPoints) > 0 && Boolean(occupationCode)
+    : point(a.agePoints) > 0 && ["competent", "proficient", "superior"].includes(text(a.englishProficiencyLevel))
+      && assessmentResult.includes("positive") && Boolean(occupationCode));
+  const resultLabel = total < passMark ? "Below points threshold" : mandatoryGatesComplete ? "Points threshold and recorded gates met" : "Points threshold met; requirements incomplete";
+  const title = isCanada ? "Canada Express Entry Assessment" : "Australia Skilled Migration Assessment";
+  const head = runningHeader(title, { country: isCanada ? "Canada" : "Australia", route: programme });
   const foot = (section: string) => runningFooter("XIPHIAS Immigration Private Limited", section);
 
   const profilePage = page({
@@ -89,8 +95,8 @@ export function buildCrmPointsAssessmentFrontMatter(order: JiopayOrder): string 
     body:
       sectionHeader({ eyebrow: "Client assessment", title: occupationCode ? `${occupation} (${occupationCode})` : occupation, desc: text(a.executiveSummary) || text(a.profileSummary) || `Assessment prepared for ${order.customer.name}.` }) +
       bigStats([
-        { k: `Subclass ${subclass}`, v: String(total), n: resultLabel },
-        { k: "Assessing authority", v: text(a.assessingBody) || "Not entered", n: text(a.skillsAssessmentResult || a.skillsAssessment) || "Status not entered" },
+        { k: isCanada ? `FSW grid (pass ${passMark})` : `Subclass ${subclass}`, v: String(total), n: resultLabel },
+        { k: isCanada ? "Credential assessment" : "Assessing authority", v: text(a.assessingBody) || "Not entered", n: text(a.skillsAssessmentResult || a.skillsAssessment) || "Status not entered" },
         { k: "Calculation", v: manual ? "Manual" : "Verified engine", n: manual ? "Manager review required" : text(a.ruleSetVersion) },
       ]) +
       `<div class="spacer-16"></div>` +
@@ -98,16 +104,27 @@ export function buildCrmPointsAssessmentFrontMatter(order: JiopayOrder): string 
         card({ k: "Applicant", v: order.customer.name }),
         card({ k: "Selected pathway", v: programme }),
         card({ k: "Qualification", v: text(a.education) || label(text(a.qualificationLevel)) || "Not entered" }),
-        card({ k: "English", v: [text(a.languageTest), text(a.englishProficiencyLevel) && label(text(a.englishProficiencyLevel))].filter(Boolean).join(" - ") || "Not entered" }),
+        card({ k: "English", v: [text(a.languageTest), text(a.englishProficiencyLevel) ? label(text(a.englishProficiencyLevel)) : text(a.languageDetails)].filter(Boolean).join(" - ") || "Not entered" }),
       ]) +
       `<div class="spacer-16"></div>` +
-      callout({ k: "Assessment position", text: total >= 65
+      callout({ k: "Assessment position", text: total >= passMark
         ? mandatoryGatesComplete
-          ? `The recorded profile reaches ${total} points for the selected pathway. An invitation is not guaranteed and current occupation, invitation and nomination settings still apply.`
+          ? isCanada
+            ? `The recorded profile reaches ${total} points against the ${passMark}-point pass mark, so it meets the Federal Skilled Worker eligibility test. Eligibility is not an invitation: ranking in the Express Entry pool is decided separately by the Comprehensive Ranking System.`
+            : `The recorded profile reaches ${total} points for the selected pathway. An invitation is not guaranteed and current occupation, invitation and nomination settings still apply.`
           : `The calculation reaches ${total} points, but one or more mandatory requirements are not recorded as complete. Do not lodge an Expression of Interest until those requirements are confirmed.`
-        : `The recorded profile totals ${total} points. It does not currently reach the 65-point minimum for the selected points-tested pathway.` }),
+        : `The recorded profile totals ${total} points. It does not currently reach the ${passMark}-point minimum for the selected points-tested pathway.` }),
   });
 
+  // Canada Federal Skilled Worker selection grid - the six statutory factors, 100 points, pass mark 67.
+  const canadaRows: string[][] = [
+    ["Age", number(a.age) === undefined ? text(a.ageBasis) || "Recorded date of birth" : `${number(a.age)} years`, "Maximum 12 points", String(point(a.agePoints))],
+    ["Education", text(a.education) || "Not entered", "Maximum 25 points", String(point(a.qualificationPoints))],
+    ["Official language proficiency", [text(a.languageTest), text(a.languageDetails)].filter(Boolean).join(" - ") || "Not entered", "Maximum 28 points", String(point(a.englishPoints))],
+    ["Skilled work experience", text(a.yearsExperience) ? `${text(a.yearsExperience)} years of skilled experience` : "Not entered", "Maximum 15 points", String(point(a.overseasExperiencePoints))],
+    ["Arranged employment in Canada", text(a.arrangedEmployment) || "None recorded", "Maximum 10 points", String(point(a.arrangedEmploymentPoints))],
+    ["Adaptability", text(a.adaptabilityBasis) || "None recorded", "Maximum 10 points", String(point(a.adaptabilityPoints))],
+  ];
   const systemRows: string[][] = [
     ["Age", number(a.age) === undefined ? "Not entered" : `${number(a.age)} years on ${text(a.pointsTestDate)}`, "Official age bracket", String(point(a.agePoints))],
     ["English", [text(a.languageTest), [a.languageListening, a.languageReading, a.languageWriting, a.languageSpeaking].map(number).filter((value) => value !== undefined).join(" / "), label(text(a.englishProficiencyLevel))].filter(Boolean).join(" - "), "Lowest component determines level", String(point(a.englishPoints))],
@@ -136,27 +153,36 @@ export function buildCrmPointsAssessmentFrontMatter(order: JiopayOrder): string 
     footer: foot("Points allocation"),
     body:
       sectionHeader({ eyebrow: manual ? "Manual adviser assessment" : "Verified points engine", title: "Points allocation", desc: manual ? text(a.manualAssessmentReason) : "Each score is calculated from the recorded fact and the applicable bracket. The server calculates the total; it is not typed independently." }) +
-      `<div class="compact-table">${table({ head: ["Factor", "Recorded fact", "Applied rule", "Points"], rows: [...(manual ? manualRows : systemRows), ["<strong>Total</strong>", "", "", `<strong>${total}</strong>`]] })}</div>` +
+      `<div class="compact-table">${table({ head: ["Factor", "Recorded fact", "Applied rule", "Points"], rows: [...(manual ? manualRows : isCanada ? canadaRows : systemRows), ["<strong>Total</strong>", "", "", `<strong>${total}</strong>`]] })}</div>` +
       `<div class="spacer-12"></div>` +
-      callout({ k: "Important", text: "The 65-point threshold is a minimum requirement, not an invitation guarantee. Occupation eligibility, skills assessment, English, invitation rounds and state or regional criteria remain separate requirements." }),
+      callout({ k: "Important", text: isCanada
+        ? `The ${passMark}-point pass mark is an eligibility test, not an invitation. Ranking in the Express Entry pool is set by the separate Comprehensive Ranking System score.`
+        : "The 65-point threshold is a minimum requirement, not an invitation guarantee. Occupation eligibility, skills assessment, English, invitation rounds and state or regional criteria remain separate requirements." }),
   });
 
   const scenarioPage = page({
     header: head,
     footer: foot("Pathway comparison"),
     body:
-      sectionHeader({ eyebrow: "Pathway comparison", title: "189, 190 and 491 points position", desc: manual ? "Only the selected manual total is authoritative for this report version." : "The same verified base profile is shown with the statutory nomination additions for comparison." }) +
-      grid(3, [
-        card({ k: "Subclass 189", v: number(a.subclass189Points) === undefined ? "Not calculated" : `${point(a.subclass189Points)} points`, note: "No state or regional nomination points." }),
-        card({ k: "Subclass 190", v: number(a.subclass190Points) === undefined ? "Not calculated" : `${point(a.subclass190Points)} points`, note: "Includes 5 state-nomination points when nomination is obtained." }),
-        card({ k: "Subclass 491", v: number(a.subclass491Points) === undefined ? "Not calculated" : `${point(a.subclass491Points)} points`, note: "Includes 15 regional nomination or eligible-family sponsorship points when obtained." }),
-      ]) +
+      (isCanada
+        ? sectionHeader({ eyebrow: "Eligibility position", title: "Selection grid against the pass mark", desc: "The Federal Skilled Worker grid decides eligibility only. Ranking for an invitation is a separate calculation." }) +
+          grid(3, [
+            card({ k: "Recorded total", v: `${total} points`, note: `Out of 100 on the selection grid.` }),
+            card({ k: "Pass mark", v: `${passMark} points`, note: total >= passMark ? `Cleared by ${total - passMark} point${total - passMark === 1 ? "" : "s"}.` : `Short by ${passMark - total} point${passMark - total === 1 ? "" : "s"}.` }),
+            card({ k: "Comprehensive Ranking System", v: "Separate score", note: "Out of 1200. Decides invitation rank once the profile is in the pool." }),
+          ])
+        : sectionHeader({ eyebrow: "Pathway comparison", title: "189, 190 and 491 points position", desc: manual ? "Only the selected manual total is authoritative for this report version." : "The same verified base profile is shown with the statutory nomination additions for comparison." }) +
+          grid(3, [
+            card({ k: "Subclass 189", v: number(a.subclass189Points) === undefined ? "Not calculated" : `${point(a.subclass189Points)} points`, note: "No state or regional nomination points." }),
+            card({ k: "Subclass 190", v: number(a.subclass190Points) === undefined ? "Not calculated" : `${point(a.subclass190Points)} points`, note: "Includes 5 state-nomination points when nomination is obtained." }),
+            card({ k: "Subclass 491", v: number(a.subclass491Points) === undefined ? "Not calculated" : `${point(a.subclass491Points)} points`, note: "Includes 15 regional nomination or eligible-family sponsorship points when obtained." }),
+          ])) +
       `<div class="spacer-20"></div>` +
       sectionHeader({ title: "Recorded pathway requirements" }) +
       table({ head: ["Requirement", "Recorded position"], rows: [
-        ["Nominated occupation", esc([occupation, occupationCode].filter(Boolean).join(" - "))],
-        ["Skills assessment", esc([text(a.assessingBody), text(a.skillsAssessmentResult || a.skillsAssessment)].filter(Boolean).join(" - ") || "Not entered")],
-        ["English", esc([text(a.languageTest), label(text(a.englishProficiencyLevel))].filter(Boolean).join(" - ") || "Not entered")],
+        [isCanada ? "Occupation and NOC code" : "Nominated occupation", esc([occupation, occupationCode].filter(Boolean).join(" - "))],
+        [isCanada ? "Credential assessment" : "Skills assessment", esc([text(a.assessingBody), text(a.skillsAssessmentResult || a.skillsAssessment)].filter(Boolean).join(" - ") || "Not entered")],
+        ["English", esc([text(a.languageTest), text(a.englishProficiencyLevel) ? label(text(a.englishProficiencyLevel)) : text(a.languageDetails)].filter(Boolean).join(" - ") || "Not entered")],
         ["Selected programme", esc(programme)],
       ] }),
   });
