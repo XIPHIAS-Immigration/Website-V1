@@ -1,78 +1,116 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, FileText, ShieldCheck } from "lucide-react";
+import { ArrowRight, FileText, ShieldCheck, Sparkles } from "lucide-react";
+
+// Popular destination chips — every link is a live programme page.
+const DESTINATIONS: { name: string; flag: string; href: string }[] = [
+  { name: "Canada", flag: "canada.png", href: "/skilled/canada" },
+  { name: "Australia", flag: "Australia.png", href: "/skilled/australia" },
+  { name: "USA", flag: "USA.png", href: "/skilled/usa" },
+  { name: "UK", flag: "uk.png", href: "/skilled/united-kingdom" },
+  { name: "Portugal", flag: "Portugal.png", href: "/residency/portugal" },
+  { name: "Greece", flag: "Greece.png", href: "/residency/greece" },
+  { name: "UAE", flag: "UAE.png", href: "/residency/uae" },
+  { name: "New Zealand", flag: "New-zeland.png", href: "/skilled/new-zealand" },
+];
+
+const STEPS: [string, string][] = [
+  ["01", "Choose a report"],
+  ["02", "Enter your details"],
+  ["03", "Pay & download"],
+];
 
 export default function Hero() {
   return (
-    <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-primary pt-28 text-white sm:pt-32">
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-50">
+    <section id="main-banner" aria-labelledby="home-hero-title" className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-primary pt-28 text-white sm:pt-32">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-100">
         <Image
           src="/images/hero/top-immigration-counsultent.webp"
           alt=""
           fill
           priority
           fetchPriority="high"
-          className="object-cover object-center"
+          className="object-cover object-[35%_center]"
           sizes="100vw"
         />
       </div>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-primary/80 via-primary/90 to-primary" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-primary/90 via-primary/55 to-primary/95" />
 
-      <div className="mx-auto w-full max-w-[1600px] px-4 pb-[clamp(3rem,7vh,7rem)] sm:px-6 lg:px-10">
-        <div className="mx-auto max-w-7xl text-center">
-          <p className="text-[clamp(0.75rem,calc(0.68rem+0.18vw),0.95rem)] font-bold uppercase tracking-[0.18em] text-[#f0c83f]">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 pb-[clamp(1.5rem,3vh,2.5rem)] sm:px-6 lg:px-10">
+        {/* Main block — vertically centred in the remaining space. */}
+        <div className="mx-auto my-auto w-full max-w-7xl py-[clamp(1.5rem,4vh,3rem)] text-center">
+          <p className="text-[clamp(0.75rem,calc(0.68rem+0.18vw),1rem)] font-bold uppercase tracking-[0.18em] text-[#f0c83f] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
             Immigration strategy, reports and advisory
           </p>
           <h1
             id="home-hero-title"
-            className="mt-[clamp(1rem,2vh,1.5rem)] text-[clamp(2.5rem,calc(2rem+2.1vw),4.75rem)] font-bold leading-[1.06] tracking-normal"
+            className="mt-[clamp(1.25rem,3vh,2rem)] text-[clamp(2.5rem,calc(2rem+2.1vw),5rem)] font-bold leading-[1.12] tracking-normal drop-shadow-[0_3px_16px_rgba(0,0,0,0.55)]"
           >
-            Best Immigration Consultant in India
+            Top Immigration Consultants in India
           </h1>
-          <p className="mx-auto mt-[clamp(1.25rem,2.5vh,1.75rem)] max-w-4xl text-[clamp(1rem,calc(0.85rem+0.3vw),1.35rem)] font-normal leading-[1.65] text-white/75">
+          <p className="mx-auto mt-[clamp(1.5rem,3.5vh,2.25rem)] max-w-4xl text-[clamp(1rem,calc(0.85rem+0.3vw),1.45rem)] font-normal leading-[1.75] text-white/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
             Explore skilled migration, residency, citizenship, investment and corporate mobility routes across 50+ countries—with a clear way to register or buy the exact report you need.
           </p>
 
-          <div className="mt-[clamp(2rem,4.5vh,3rem)] flex flex-col justify-center gap-4 sm:flex-row">
+          {/* Compact pill actions — nav-pill scale, not billboards. */}
+          <div className="mt-[clamp(2rem,5vh,3rem)] flex flex-wrap items-center justify-center gap-[clamp(0.75rem,1vw,1.25rem)]">
             <Link
               href="/registration"
-              className="inline-flex min-h-[clamp(3.5rem,calc(3rem+1.3vw),4.5rem)] items-center justify-center gap-2.5 rounded-md bg-[#d8ad1f] px-[clamp(1.5rem,2.2vw,2.75rem)] text-[clamp(1rem,calc(0.85rem+0.25vw),1.2rem)] font-black text-primary shadow-[0_12px_30px_rgba(216,173,31,0.25)] transition hover:bg-[#efc939]"
+              className="inline-flex min-h-[clamp(3rem,calc(2.8rem+0.5vw),3.5rem)] items-center justify-center gap-2 rounded-full bg-[#d8ad1f] px-[clamp(1.5rem,2vw,2.5rem)] text-[clamp(0.95rem,calc(0.86rem+0.18vw),1.15rem)] font-black text-primary shadow-[0_12px_30px_rgba(216,173,31,0.25)] transition hover:bg-[#efc939]"
             >
               Register for full assessment — ₹4,999
-              <ArrowRight className="size-[clamp(1.25rem,1.5vw,1.5rem)]" aria-hidden="true" />
+              <ArrowRight className="size-[1.15em]" aria-hidden="true" />
             </Link>
             <Link
               href="/reports"
-              className="inline-flex min-h-[clamp(3.5rem,calc(3rem+1.3vw),4.5rem)] items-center justify-center gap-2.5 rounded-md border border-white/35 bg-white/10 px-[clamp(1.5rem,2.2vw,2.75rem)] text-[clamp(1rem,calc(0.85rem+0.25vw),1.2rem)] font-black text-white transition hover:bg-white/15"
+              className="inline-flex min-h-[clamp(3rem,calc(2.8rem+0.5vw),3.5rem)] items-center justify-center gap-2 rounded-full border border-white/35 bg-white/10 px-[clamp(1.5rem,2vw,2.5rem)] text-[clamp(0.95rem,calc(0.86rem+0.18vw),1.15rem)] font-black text-white backdrop-blur-sm transition hover:bg-white/15"
             >
               Choose a report — from ₹499
-              <FileText className="size-[clamp(1.25rem,1.5vw,1.5rem)]" aria-hidden="true" />
+              <FileText className="size-[1.15em]" aria-hidden="true" />
+            </Link>
+            <Link
+              href="/xia-intelligence"
+              className="inline-flex min-h-[clamp(3rem,calc(2.8rem+0.5vw),3.5rem)] items-center justify-center gap-2 rounded-full border border-[#f0c83f]/55 bg-[#f0c83f]/10 px-[clamp(1.5rem,2vw,2.5rem)] text-[clamp(0.95rem,calc(0.86rem+0.18vw),1.15rem)] font-black text-[#f0c83f] backdrop-blur-sm transition hover:bg-[#f0c83f]/20"
+            >
+              <Sparkles className="size-[1.15em]" aria-hidden="true" />
+              XIA Intelligence
             </Link>
           </div>
 
-          <div className="mx-auto mt-[clamp(2.25rem,5vh,3.5rem)] grid max-w-5xl gap-4 text-left sm:grid-cols-3">
-            {[
-              ["01", "Choose", "See every report and price"],
-              ["02", "Enter details", "Only information the report needs"],
-              ["03", "Pay & download", "Secure JioPay and PDF delivery"],
-            ].map(([number, title, copy]) => (
-              <div
-                key={number}
-                className="flex min-h-[clamp(6.5rem,calc(5rem+2.8vw),8.75rem)] flex-col justify-center rounded-lg border border-white/15 bg-black/15 p-[clamp(1rem,1.5vw,1.625rem)] backdrop-blur-sm"
+          {/* Popular destinations — functional filler, every chip is a live page. */}
+          <p className="mt-[clamp(2.25rem,5.5vh,3.5rem)] text-[clamp(0.7rem,calc(0.64rem+0.12vw),0.85rem)] font-bold uppercase tracking-[0.22em] text-white/50">
+            Popular destinations
+          </p>
+          <div className="mx-auto mt-[clamp(0.875rem,2vh,1.25rem)] flex max-w-5xl flex-wrap items-center justify-center gap-[clamp(0.625rem,0.9vw,1rem)]">
+            {DESTINATIONS.map((destination) => (
+              <Link
+                key={destination.name}
+                href={destination.href}
+                className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-black/25 py-[clamp(0.5rem,0.7vw,0.75rem)] pl-[clamp(0.625rem,0.8vw,0.875rem)] pr-[clamp(1rem,1.2vw,1.375rem)] text-[clamp(0.85rem,calc(0.78rem+0.16vw),1.05rem)] font-bold text-white/85 backdrop-blur-md transition hover:border-[#f0c83f]/60 hover:bg-black/40 hover:text-white"
               >
-                <p className="text-[clamp(0.75rem,calc(0.68rem+0.12vw),0.875rem)] font-black text-[#f0c83f]">{number}</p>
-                <p className="mt-2 flex items-center gap-2.5 text-[clamp(0.95rem,calc(0.8rem+0.22vw),1.125rem)] font-black">
-                  <Check className="size-[clamp(1rem,1.2vw,1.25rem)] text-[#f0c83f]" />
-                  {title}
-                </p>
-                <p className="mt-1.5 text-[clamp(0.8rem,calc(0.72rem+0.16vw),1rem)] leading-6 text-white/60">{copy}</p>
-              </div>
+                <span className="relative h-[1.35em] w-[1.9em] shrink-0 overflow-hidden rounded-[0.25em] ring-1 ring-white/25">
+                  <Image src={`/images/flags/${destination.flag}`} alt="" fill sizes="40px" className="object-cover" />
+                </span>
+                {destination.name}
+              </Link>
             ))}
           </div>
+        </div>
 
-          <p className="mt-[clamp(1.5rem,3vh,2rem)] inline-flex items-center gap-2.5 text-[clamp(0.75rem,calc(0.68rem+0.12vw),0.875rem)] font-semibold text-white/60">
-            <ShieldCheck className="size-[clamp(1rem,1.2vw,1.25rem)] text-emerald-300" /> Catalogue prices are enforced by the server; missing information is never invented.
-          </p>
+        {/* Slim orientation strip pinned to the hero's bottom edge. */}
+        <div className="mx-auto w-full max-w-6xl border-t border-white/15 pt-[clamp(0.875rem,2vh,1.375rem)] text-center">
+          <div className="flex flex-wrap items-center justify-center gap-x-[clamp(1.25rem,2.2vw,2.5rem)] gap-y-2">
+            {STEPS.map(([number, title]) => (
+              <p key={number} className="flex items-center gap-2 text-[clamp(0.8rem,calc(0.74rem+0.14vw),0.95rem)] font-bold text-white/75">
+                <span className="font-black text-[#f0c83f]">{number}</span>
+                {title}
+              </p>
+            ))}
+            <p className="flex items-center gap-2 text-[clamp(0.75rem,calc(0.7rem+0.12vw),0.9rem)] font-semibold text-white/55">
+              <ShieldCheck className="size-[1.3em] text-emerald-300" aria-hidden="true" />
+              Server-enforced catalogue prices
+            </p>
+          </div>
         </div>
       </div>
     </section>

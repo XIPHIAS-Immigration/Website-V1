@@ -98,6 +98,9 @@ function buildRouteInput(order: JiopayOrder): RouteIntelligenceInput {
     goal: pickEnum(a.goal, GOALS, "not-sure") as RouteIntelligenceInput["goal"],
     track: pickEnum(order.track ?? a.track, TRACKS, "all") as RouteIntelligenceInput["track"],
     destination: str(order.country ?? a.destination ?? a.country),
+    // Orders placed before nationality became compulsory carry no answer for
+    // it. "not-provided" satisfies input sufficiency and excludes nothing.
+    nationality: str(a.nationality) || "not-provided",
     profile: pickEnum(a.profile, PROFILES, "professional") as RouteIntelligenceInput["profile"],
     budget: toInt(a.budget ?? a.budgetUsd, 0),
     timeline: toInt(a.timeline ?? a.timelineMonths, 0),

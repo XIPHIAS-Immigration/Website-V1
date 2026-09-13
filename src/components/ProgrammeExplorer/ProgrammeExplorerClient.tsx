@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+
+import { nationalityExcludesCountry } from "@/lib/xia-intelligence-model";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -626,7 +628,7 @@ function DeepAssessmentModal({
               </div>
 
               <div className="mt-3 space-y-3">
-                <Field label="Nationality">
+                <Field label="Nationality (required)">
                   <input
                     value={input.nationality}
                     onChange={(event) => update("nationality", event.target.value)}
@@ -908,15 +910,19 @@ export default function ProgrammeExplorerClient({ data }: { data: ProgrammeExplo
   const [assistantOpen, setAssistantOpen] = useState(false);
   const lastTrackedPayload = useRef("");
 
+  const nationalityMissing = !input.nationality.trim();
   const scored = useMemo(
     () =>
       data.items
+        // Never suggest programmes of the applicant's own country.
+        .filter((item) => !nationalityExcludesCountry(input.nationality, item.country, item.countrySlug))
         .map((item) => scoreProgramme(item, input))
         .sort((a, b) => b.fitScore - a.fitScore || a.title.localeCompare(b.title)),
     [data.items, input],
   );
 
-  const topItems = scored.slice(0, 9);
+  // Nationality is a compulsory search parameter: no shortlist until provided.
+  const topItems = nationalityMissing ? [] : scored.slice(0, 9);
   const spotlight = topItems[0];
   const completion = deepProfileCompletion(input);
   const assessmentInput = useMemo(() => publicAssessmentInput(input), [input]);
@@ -1188,6 +1194,16 @@ export default function ProgrammeExplorerClient({ data }: { data: ProgrammeExplo
                 </div>
               </Field>
 
+              <Field label="Nationality (required)">
+                <input
+                  value={input.nationality}
+                  onChange={(event) => update("nationality", event.target.value)}
+                  list="programme-explorer-countries"
+                  placeholder="India, Egypt, UAE..."
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#1f5bb8] focus:ring-4 focus:ring-blue-100 dark:border-white/10 dark:bg-[#071936] dark:text-white dark:placeholder:text-white/35 dark:focus:ring-[#d8ad1f]/20"
+                />
+              </Field>
+
               <Field label="Profile type">
                 <SelectField value={input.profile} onChange={(value) => update("profile", value as Inputs["profile"])}>
                   {profileOptions.map((option) => (
@@ -1373,6 +1389,15 @@ export default function ProgrammeExplorerClient({ data }: { data: ProgrammeExplo
                     className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#1f5bb8] focus:ring-4 focus:ring-blue-100 dark:border-white/10 dark:bg-[#071936] dark:text-white dark:placeholder:text-white/35"
                   />
                 </Field>
+                <Field label="Nationality (required)">
+                  <input
+                    value={input.nationality}
+                    onChange={(event) => update("nationality", event.target.value)}
+                    list="programme-explorer-countries"
+                    placeholder="Your passport country"
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#1f5bb8] focus:ring-4 focus:ring-blue-100 dark:border-white/10 dark:bg-[#071936] dark:text-white dark:placeholder:text-white/35"
+                  />
+                </Field>
                 <Field label="Profile">
                   <SelectField value={input.profile} onChange={(value) => update("profile", value as Inputs["profile"])}>
                     {profileOptions.map((option) => (
@@ -1424,11 +1449,20 @@ export default function ProgrammeExplorerClient({ data }: { data: ProgrammeExplo
                   </p>
                 </div>
 
-                <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-                  {topItems.map((item, index) => (
-                    <ProgrammeCard key={item.id} item={item} rank={index} />
-                  ))}
-                </div>
+                {nationalityMissing ? (
+                  <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white p-8 text-center dark:border-white/15 dark:bg-[#06152d]">
+                    <p className="text-sm font-black text-[#071936] dark:text-white">Add your nationality to see programme matches</p>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-white/80">
+                      Nationality is a required search detail: it removes programmes of your own country from the shortlist, so an Indian or Egyptian applicant never wastes time on Indian or Egyptian inbound routes.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+                    {topItems.map((item, index) => (
+                      <ProgrammeCard key={item.id} item={item} rank={index} />
+                    ))}
+                  </div>
+                )}
               </main>
 
               <aside className="space-y-5">

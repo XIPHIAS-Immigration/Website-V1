@@ -74,6 +74,7 @@ const defaultRouteInput: RouteIntelligenceInput = {
   goal: "not-sure",
   track: "all",
   destination: "",
+  nationality: "",
   profile: "not-provided",
   budget: 0,
   timeline: 0,
@@ -85,6 +86,7 @@ const defaultRouteInput: RouteIntelligenceInput = {
 
 const defaultHighSkillInput: HighSkillInput = {
   targetCountry: "global",
+  nationality: "",
   goal: "not-sure",
   field: "not-provided",
   role: "",
@@ -344,12 +346,12 @@ export default function XiaIntelligenceClient({
 
   const generateAssessment = () => {
     if ((engine === "route" || engine === "investment") && !isRouteInputSufficient(routeInput)) {
-      setAssessmentError("Add a destination, objective and profile. Investor and entrepreneur profiles also require a planning budget.");
+      setAssessmentError("Add a destination, your nationality, objective and profile. Investor and entrepreneur profiles also require a planning budget.");
       setSubmitted(false);
       return;
     }
     if (engine === "high-skill" && !isHighSkillInputSufficient(highSkillInput)) {
-      setAssessmentError("Add your role, education, experience and either a CV/profile summary or at least one evidence category.");
+      setAssessmentError("Add your nationality, role, education, experience and either a CV/profile summary or at least one evidence category.");
       setSubmitted(false);
       return;
     }
@@ -526,6 +528,9 @@ function RouteInputs({
         <Field label="Country focus">
           <TextInput value={input.destination} onChange={(event) => setInput((prev) => ({ ...prev, destination: event.target.value }))} placeholder="Canada, Portugal, UAE..." />
         </Field>
+        <Field label="Nationality (required)">
+          <TextInput value={input.nationality} onChange={(event) => setInput((prev) => ({ ...prev, nationality: event.target.value }))} placeholder="India, Egypt, UAE..." />
+        </Field>
         <Field label="Pathway">
           <SelectInput value={input.track} onChange={(event) => setInput((prev) => ({ ...prev, track: event.target.value as Vertical | "all" }))}>
             {routeTracks.map((option) => (
@@ -628,6 +633,9 @@ function HighSkillInputs({
               <option value="australia">Australia</option>
             </SelectInput>
           )}
+        </Field>
+        <Field label="Nationality (required)">
+          <TextInput value={input.nationality} onChange={(event) => setInput((prev) => ({ ...prev, nationality: event.target.value }))} placeholder="India, Egypt, UAE..." />
         </Field>
         <Field label="Goal">
           <SelectInput value={input.goal} onChange={(event) => setInput((prev) => ({ ...prev, goal: event.target.value as HighSkillInput["goal"] }))}>
@@ -958,6 +966,7 @@ function PremiumReportPanel({
     const answers: Record<string, unknown> = highSkillMode
       ? {
           targetCountry: highSkillInput.targetCountry,
+          nationality: highSkillInput.nationality,
           goal: highSkillInput.goal,
           field: highSkillInput.field,
           role: highSkillInput.role,
@@ -979,6 +988,7 @@ function PremiumReportPanel({
         }
       : {
           destination: routeInput.destination,
+          nationality: routeInput.nationality,
           goal: routeInput.goal,
           track: routeInput.track,
           profile: routeInput.profile,

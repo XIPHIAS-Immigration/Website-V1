@@ -25,6 +25,7 @@ const evidenceKeys = Object.keys(model.evidenceLabels);
 function input(overrides = {}) {
   return {
     targetCountry: "canada",
+    nationality: "India",
     goal: "permanent-residency",
     field: "technology",
     role: "Senior technology professional",
@@ -99,4 +100,29 @@ test("Hong Kong QMAS is a first-class current route", () => {
   assert.equal(routes[0].country, "Hong Kong");
   assert.match(routes[0].officialUrl, /immd\.gov\.hk/);
   assert.equal(routes[0].requiresSponsor, false);
+});
+
+test("nationality is compulsory for high-skill scoring", () => {
+  assert.equal(model.isHighSkillInputSufficient(input({ nationality: "" })), false);
+  assert.equal(model.scoreHighSkillRoutes(input({ nationality: "" })).length, 0);
+  assert.equal(model.isHighSkillInputSufficient(input()), true);
+});
+
+test("applicants never see routes into their own country", () => {
+  const scored = model.scoreHighSkillRoutes(input({ targetCountry: "global", nationality: "American" }));
+  assert.ok(scored.length > 0);
+  assert.ok(scored.every((route) => route.countryKey !== "usa"));
+  const canadian = model.scoreHighSkillRoutes(input({ targetCountry: "global", nationality: "Canada" }));
+  assert.ok(canadian.every((route) => route.countryKey !== "canada"));
+});
+
+test("nationality matching handles demonyms without substring false positives", () => {
+  assert.equal(model.nationalityExcludesCountry("Indian", "India", "india"), true);
+  assert.equal(model.nationalityExcludesCountry("Egyptian", "Egypt", "egypt"), true);
+  assert.equal(model.nationalityExcludesCountry("American", "United States", "usa"), true);
+  assert.equal(model.nationalityExcludesCountry("British", "United Kingdom", "uk"), true);
+  // "us" must not exclude aUStralia, and unknown values exclude nothing
+  assert.equal(model.nationalityExcludesCountry("us", "Australia", "australia"), false);
+  assert.equal(model.nationalityExcludesCountry("not-provided", "India", "india"), false);
+  assert.equal(model.nationalityExcludesCountry("", "India", "india"), false);
 });

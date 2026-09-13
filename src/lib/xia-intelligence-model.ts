@@ -4,6 +4,10 @@ export type RouteIntelligenceInput = {
   goal: "not-sure" | "pr" | "work-visa" | "citizenship" | "investment" | "business-setup" | "family-migration";
   track: Vertical | "all";
   destination: string;
+  /** Applicant's nationality (country of passport). Compulsory: programmes of
+   *  the applicant's own country are excluded — an Indian national has no use
+   *  for India's inbound programmes. */
+  nationality: string;
   profile: "not-provided" | "investor" | "entrepreneur" | "professional" | "family" | "company" | "remote" | "researcher" | "student";
   budget: number;
   timeline: number;
@@ -60,8 +64,15 @@ export type HighSkillEvidenceKey =
 
 export type HighSkillInput = {
   targetCountry: "usa" | "canada" | "uk" | "australia" | "hong-kong" | "global";
+  /** Applicant's nationality (country of passport). Compulsory: routes into
+   *  the applicant's own country are excluded from suggestions. */
+  nationality: string;
   goal: "permanent-residency" | "temporary-work" | "talent-visa" | "founder" | "not-sure";
   field: "not-provided" | "technology" | "science" | "business" | "arts" | "healthcare" | "academia" | "sports" | "other";
+  /** Free-text discipline for DISPLAY only, e.g. "Electrical Engineer". `field` stays a fixed
+   *  enum because route matching and wording branch on it; this is what the reader actually sees,
+   *  so a specialist is not flattened to "Technology". */
+  fieldLabel?: string;
   role: string;
   age: number;
   education: "unknown" | "bachelor" | "master" | "phd";
@@ -460,6 +471,43 @@ function tokenise(value: string) {
     .slice(0, 16);
 }
 
+/** Demonyms and shorthand people actually type, mapped to programme country names. */
+const NATIONALITY_ALIASES: Record<string, string> = {
+  usa: "united states", us: "united states", america: "united states", american: "united states", "united states of america": "united states",
+  uk: "united kingdom", gb: "united kingdom", britain: "united kingdom", "great britain": "united kingdom", british: "united kingdom", england: "united kingdom", english: "united kingdom",
+  uae: "united arab emirates", emirati: "united arab emirates", emirates: "united arab emirates",
+  indian: "india", egyptian: "egypt", pakistani: "pakistan", bangladeshi: "bangladesh", nigerian: "nigeria",
+  filipino: "philippines", philippine: "philippines", chinese: "china", nepali: "nepal", nepalese: "nepal",
+  "sri lankan": "sri lanka", srilankan: "sri lanka", canadian: "canada", australian: "australia",
+  german: "germany", french: "france", portuguese: "portugal", greek: "greece", turkish: "turkey", turkiye: "turkey",
+  italian: "italy", spanish: "spain", irish: "ireland", dutch: "netherlands", maltese: "malta", cypriot: "cyprus",
+  singaporean: "singapore", vietnamese: "vietnam", "south african": "south africa", kenyan: "kenya", ghanaian: "ghana",
+  hongkonger: "hong kong", "hong konger": "hong kong", "hong kong sar": "hong kong",
+  saudi: "saudi arabia", "saudi arabian": "saudi arabia", qatari: "qatar", kuwaiti: "kuwait", omani: "oman", bahraini: "bahrain",
+};
+
+function canonicalCountry(value: string): string {
+  const v = normalize(value);
+  if (!v) return "";
+  return NATIONALITY_ALIASES[v] ?? v;
+}
+
+/**
+ * True when a programme/route country is the applicant's own nationality and
+ * must therefore be excluded from suggestions. Matches canonical names, common
+ * demonyms via the alias table, and a trailing-"n" demonym stem so unlisted
+ * cases such as "Austrian" -> "Austria" still resolve. Unknown or "not
+ * provided" nationalities never exclude anything.
+ */
+export function nationalityExcludesCountry(nationality: string, country: string, countrySlug = ""): boolean {
+  const nat = canonicalCountry(nationality);
+  if (!nat || nat === "not provided") return false;
+  const targets = [canonicalCountry(country), canonicalCountry(countrySlug.replace(/-/g, " "))].filter(Boolean);
+  if (!targets.length) return false;
+  const stem = nat.endsWith("n") && nat.length >= 5 ? nat.slice(0, -1) : "";
+  return targets.some((target) => target === nat || (Boolean(stem) && target === stem));
+}
+
 function clamp(value: number, min = 20, max = 98) {
   return Math.min(max, Math.max(min, value));
 }
@@ -507,6 +555,7 @@ function goalCompatibility(item: ProgrammeRouteSource, input: RouteIntelligenceI
 export function routeInputCompletion(input: RouteIntelligenceInput) {
   const checks = [
     Boolean(input.destination.trim()),
+    Boolean(input.nationality?.trim()),
     input.goal !== "not-sure",
     input.profile !== "not-provided",
     input.track !== "all",
@@ -520,6 +569,7 @@ export function routeInputCompletion(input: RouteIntelligenceInput) {
 export function isRouteInputSufficient(input: RouteIntelligenceInput) {
   return Boolean(
     input.destination.trim() &&
+      input.nationality?.trim() &&
       input.goal !== "not-sure" &&
       input.profile !== "not-provided" &&
       ((input.profile !== "investor" && input.profile !== "entrepreneur") || input.budget > 0),
@@ -540,6 +590,8 @@ export function scoreProgrammeRoutes(items: ProgrammeRouteSource[], input: Route
     );
 
   const compatibleItems = items.filter((item) => {
+    // Never suggest the applicant's own country's programmes.
+    if (nationalityExcludesCountry(input.nationality, item.country, item.countrySlug)) return false;
     if (destination && !isExactDestination(item)) return false;
     if (input.track !== "all" && item.track !== input.track) return false;
     if (!goalCompatibility(item, input)) return false;
@@ -669,6 +721,7 @@ export function scoreProgrammeRoutes(items: ProgrammeRouteSource[], input: Route
 export function highSkillCompletion(input: HighSkillInput) {
   const checks = [
     Boolean(input.role.trim()),
+    Boolean(input.nationality?.trim()),
     input.education !== "unknown",
     input.yearsExperience > 0,
     (input.languageTest !== "not-provided" && input.languageScore > 0) || input.targetCountry === "usa",
@@ -680,7 +733,7 @@ export function highSkillCompletion(input: HighSkillInput) {
 }
 
 export function isHighSkillInputSufficient(input: HighSkillInput) {
-  const identityReady = Boolean(input.role.trim()) && input.field !== "not-provided" && input.education !== "unknown" && input.yearsExperience > 0;
+  const identityReady = Boolean(input.role.trim()) && Boolean(input.nationality?.trim()) && input.field !== "not-provided" && input.education !== "unknown" && input.yearsExperience > 0;
   const evidenceReady = input.profileSummary.trim().length > 30 || input.resumeFileName.trim().length > 0 || Object.values(input.evidence).some(Boolean);
   return identityReady && evidenceReady;
 }
@@ -700,7 +753,11 @@ export function scoreHighSkillRoutes(input: HighSkillInput): ScoredHighSkillRout
   const notes = normalize(`${input.role} ${input.field} ${input.profileSummary} ${input.proposedEndeavour || ""} ${input.petitionerType || ""}`);
 
   const countryRoutes = highSkillRoutes.filter(
-    (route) => route.status === "active" && (input.targetCountry === "global" || route.countryKey === input.targetCountry),
+    (route) =>
+      route.status === "active" &&
+      (input.targetCountry === "global" || route.countryKey === input.targetCountry) &&
+      // Never suggest routes into the applicant's own country.
+      !nationalityExcludesCountry(input.nationality, route.country, route.countryKey),
   );
   const goalRoutes = input.goal === "not-sure" ? countryRoutes : countryRoutes.filter((route) => route.goals.includes(input.goal));
   const goalPool = goalRoutes.length ? goalRoutes : countryRoutes;

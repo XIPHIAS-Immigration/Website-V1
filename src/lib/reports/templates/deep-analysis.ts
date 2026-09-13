@@ -53,6 +53,99 @@ const RESUME_STATUSES = new Set(["not-provided", "parsed", "needs-review"]);
 
 const EVIDENCE_KEYS = Object.keys(evidenceLabels) as HighSkillEvidenceKey[];
 
+/**
+ * Reference notes for the Canada provincial pathways table. Deliberately limited to the
+ * durable shape of each program - its name and whether a job offer is normally needed -
+ * because streams, occupation lists and intake windows change often and are confirmed
+ * against the province's published criteria at filing time.
+ */
+const CANADA_PROVINCE_PATHWAYS: Record<string, { program: string; jobOffer: string; note: string }> = {
+  ontario: {
+    program: "Ontario Immigrant Nominee Program (OINP)",
+    jobOffer: "Not for the Express Entry streams",
+    note: "Human Capital Priorities issues notifications of interest directly to Express Entry candidates, with periodic draws aimed at technology occupations.",
+  },
+  alberta: {
+    program: "Alberta Advantage Immigration Program (AAIP)",
+    jobOffer: "Not for the Alberta Express Entry stream",
+    note: "Selects candidates from the federal pool, frequently below the federal cut-off. A connection to Alberta - work history, study, family or an offer - strengthens selection.",
+  },
+  "british columbia": {
+    program: "BC Provincial Nominee Program - Skills Immigration",
+    jobOffer: "Yes, for most skilled streams",
+    note: "Normally requires an indeterminate full-time offer from a BC employer. Technology occupations are invited regularly through targeted draws.",
+  },
+  "nova scotia": {
+    program: "Nova Scotia Nominee Program (NSNP)",
+    jobOffer: "Not for Labour Market Priorities",
+    note: "The Labour Market Priorities stream issues letters of interest to Express Entry candidates in targeted occupations without requiring a job offer.",
+  },
+  // Quebec runs its own selection under the Canada-Quebec Accord: no PNP, and it does not draw
+  // from the federal Express Entry pool. It is listed here deliberately rather than omitted,
+  // because staff do name it as a target and a silent omission reads as "no comment" rather
+  // than "this one works differently".
+  quebec: {
+    program: "Quebec Skilled Worker selection (Arrima expression of interest, leading to a CSQ)",
+    jobOffer: "Not required, but French is decisive",
+    note: "Quebec selects independently of Express Entry under the Canada-Quebec Accord, so a federal pool profile does not feed it and the 600-point nomination bonus does not apply. Selection weighs French proficiency heavily; candidates without French are rarely invited.",
+  },
+  "newfoundland and labrador": {
+    program: "Newfoundland and Labrador Provincial Nominee Program (NLPNP)",
+    jobOffer: "Yes for Express Entry Skilled Worker; not for Priority Skills",
+    note: "The Express Entry Skilled Worker category normally requires an offer from a provincial employer. Priority Skills NL admits selected in-demand candidates without one.",
+  },
+  saskatchewan: {
+    program: "Saskatchewan Immigrant Nominee Program (SINP)",
+    jobOffer: "Not for the Express Entry sub-category",
+    note: "International Skilled Worker draws select from the federal pool against an in-demand occupation list, without a job offer in that sub-category.",
+  },
+  manitoba: {
+    program: "Manitoba Provincial Nominee Program (MPNP)",
+    jobOffer: "Not always, but a Manitoba connection is expected",
+    note: "Prioritises candidates with an established connection to Manitoba through work, study, family or a formal invitation.",
+  },
+  "new brunswick": {
+    program: "New Brunswick Provincial Nominee Program (NBPNP)",
+    jobOffer: "Usually yes",
+    note: "Most skilled-worker streams are employer-driven and expect a New Brunswick job offer or a completed information session.",
+  },
+  "prince edward island": {
+    program: "PEI Provincial Nominee Program",
+    jobOffer: "Usually yes",
+    note: "Express Entry and labour-impact streams are largely employer-led, so a PEI offer is generally expected.",
+  },
+};
+
+/**
+ * Province names reach us as free text typed by sales staff, so "Newfoundland & Labrador",
+ * "NEWFOUNDLAND AND LABRADOR" and "British  Columbia" all have to resolve to the same key.
+ * Without this the lookup silently falls back to generic wording and the province looks
+ * researched when it is not.
+ */
+const normaliseProvinceKey = (name: string): string =>
+  name
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[.,]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const PROVINCE_ALIASES: Record<string, string> = {
+  nl: "newfoundland and labrador",
+  newfoundland: "newfoundland and labrador",
+  bc: "british columbia",
+  ns: "nova scotia",
+  pei: "prince edward island",
+  qc: "quebec",
+  québec: "quebec",
+  on: "ontario",
+};
+
+const lookupProvince = (name: string) => {
+  const key = normaliseProvinceKey(name);
+  return CANADA_PROVINCE_PATHWAYS[key] ?? CANADA_PROVINCE_PATHWAYS[PROVINCE_ALIASES[key] ?? ""];
+};
+
 const COUNTRY_LABELS: Record<HighSkillInput["targetCountry"], string> = {
   usa: "United States",
   canada: "Canada",
@@ -406,8 +499,12 @@ function buildHighSkillInput(order: JiopayOrder): HighSkillInput {
 
   return {
     targetCountry,
+    // Legacy orders carry no nationality answer; the sentinel excludes nothing.
+    nationality: str(a.nationality) || "not-provided",
     goal: pickEnum(a.goal, GOALS, "not-sure") as HighSkillInput["goal"],
     field: pickEnum(a.field, FIELDS, targetCountry === "hong-kong" ? "other" : "technology") as HighSkillInput["field"],
+    // The enum above drives route matching and wording; this is the human label shown to the reader.
+    fieldLabel: str(a.fieldLabel) || undefined,
     role: str(a.role ?? a.profile ?? a.occupation) || "High-skill professional",
     age: toInt(a.age, 0),
     education: pickEnum(a.education, EDUCATION, "unknown") as HighSkillInput["education"],
@@ -989,7 +1086,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       ? ["Hong Kong QMAS", `${qmasAssessment.criteriaMet} / 12 criteria aligned`, qmasAssessment.assurance]
       : [
           `Target: ${COUNTRY_LABELS[input.targetCountry]}`,
-          `Field: ${titleCase(input.field)}`,
+          `Field: ${input.fieldLabel || titleCase(input.field)}`,
           `Goal: ${goalLabel(input.goal)}`,
         ],
     fitScore: isQmas ? undefined : top?.fitScore,
@@ -1002,7 +1099,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
   const briefCards = `<div class="grid grid-3 pathway-grid">${[
     card({ k: "Target country", v: COUNTRY_LABELS[input.targetCountry] }),
     card({ k: "Primary goal", v: goalLabel(input.goal) }),
-    card({ k: "Field", v: titleCase(input.field) }),
+    card({ k: "Field", v: input.fieldLabel || titleCase(input.field) }),
     card({ k: "Role", v: titleCase(input.role) }),
     card({ k: "Age", v: input.age > 0 ? `${input.age} years` : "To confirm" }),
     card({ k: "Primary route", v: top?.title ?? "To confirm" }),
@@ -1194,6 +1291,66 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
       }),
     footer: foot("Country documents"),
   });
+
+  // Provincial pathways: the provinces the advisor is targeting, as a table. Canada only,
+  // and only when targetProvinces was supplied - nothing is invented for the client.
+  const provinceList = str((order.answers as Record<string, unknown> | undefined)?.targetProvinces)
+    .split(/[,;/]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+  /*
+   * The page box is a fixed height, so a long province table overflows and the surplus rows are
+   * clipped SILENTLY - a client asked for five provinces and Nova Scotia simply vanished from the
+   * rendered table while still appearing elsewhere in the report. Chunk the rows across as many
+   * pages as needed instead. Four rows per page is what fits once the notes wrap.
+   */
+  const PROVINCE_ROWS_PER_PAGE = 4;
+  const provinceChunks: string[][] = [];
+  for (let i = 0; i < provinceList.length; i += PROVINCE_ROWS_PER_PAGE) {
+    provinceChunks.push(provinceList.slice(i, i + PROVINCE_ROWS_PER_PAGE));
+  }
+  const provincesPage = input.targetCountry === "canada" && provinceList.length
+    ? provinceChunks
+        .map((chunk, chunkIndex) => {
+          const isLast = chunkIndex === provinceChunks.length - 1;
+          const multi = provinceChunks.length > 1;
+          return page({
+            header: head,
+            body:
+              sectionHeader({
+                eyebrow: "Provincial pathways",
+                title: multi
+                  ? `Provinces under consideration (${chunkIndex + 1} of ${provinceChunks.length})`
+                  : "Provinces under consideration",
+                desc: chunkIndex === 0
+                  ? "Each provincial nominee program runs its own streams and criteria. A nomination adds 600 points to the Comprehensive Ranking System score, which in practice secures an invitation to apply. Streams, occupation lists and intake windows change frequently, so eligibility is confirmed against the province's published criteria at the time of filing."
+                  : "Continued from the previous page.",
+              }) +
+              table({
+                head: ["Province / territory", "Nominee program", "Job offer normally required?", "How it is used for this profile"],
+                rows: chunk.map((name) => {
+                  const meta = lookupProvince(name);
+                  return [
+                    esc(name),
+                    esc(meta?.program ?? "Provincial Nominee Program"),
+                    esc(meta?.jobOffer ?? "Confirm against the current streams"),
+                    esc(meta?.note ?? "Advisor confirms the open streams, occupation eligibility and intake position before the profile is registered."),
+                  ];
+                }),
+              }) +
+              (isLast
+                ? `<div class="spacer-16"></div>` +
+                  callout({
+                    k: "How this is worked",
+                    text: "The federal Express Entry profile is created first, because several of these programs select candidates directly from the federal pool. Registering interest with more than one province widens the number of draws the profile is exposed to without affecting the federal application.",
+                  })
+                : ""),
+            footer: foot("Provincial pathways"),
+          });
+        })
+        .join("")
+    : "";
 
   const australiaPriorityPage = input.targetCountry === "australia" && includesNiv
     ? page({
@@ -1724,6 +1881,7 @@ export async function buildDeepAnalysisReport(order: JiopayOrder): Promise<Buffe
     countryOverviewPage,
     countryFilingPage,
     countryDocumentsPage,
+    provincesPage,
     australiaPriorityPage,
     australiaSubmissionPage,
     australiaEvidenceControlPage,

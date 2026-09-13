@@ -218,6 +218,18 @@ export default async function EventDetailPage({ params }: PageProps) {
                   {paragraph}
                 </p>
               ))}
+              {event.link ? (
+                <p className="pt-1">
+                  <a
+                    href={event.link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-bold text-primary transition hover:bg-primary/10 dark:border-white/25 dark:bg-white/10 dark:text-white"
+                  >
+                    {event.link.label || "View the official event page"} ↗
+                  </a>
+                </p>
+              ) : null}
             </div>
           </div>
         </section>

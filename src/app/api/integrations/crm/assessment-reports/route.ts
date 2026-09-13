@@ -38,6 +38,22 @@ const TEXT_LIMITS: Record<string, number> = {
   spouseOccupationDetails: 1600, familyDetails: 1600, workDetails: 2000,
   businessDetails: 2000, eligibilityAssessment: 5000, recordedPointsAssessment: 8000,
   programmeCode: 80,
+  // Comma-separated provinces/territories the advisor is targeting, e.g. "Ontario, Alberta".
+  // Rendered as the provincial pathways table in the Canada deep-analysis report.
+  targetProvinces: 400,
+  // Professional field, shown as "Field" on the candidate profile page and used to select
+  // field-specific wording. Must be one of the templates' FIELDS enum: technology, science,
+  // business, arts, healthcare, academia, sports, other. This was MISSING from the whitelist
+  // until 08-Sep-2026, so cleanAnswers stripped it and every report silently fell back to the
+  // "technology" default - a clinical psychologist was labelled Technology. `industry` is the
+  // documented fallback the templates read when `field` is absent, so it is allowed through too.
+  field: 60, industry: 120,
+  // Free-text form of the work-experience duration, e.g. "10+ years". A plain number cannot express
+  // the bands consultants use, and this overrides the "{n} years" the numeric field renders.
+  yearsExperienceLabel: 60,
+  // Human-readable discipline for the Field card, e.g. "Electrical Engineer". `field` above stays
+  // the enum that drives wording; this is what the reader sees.
+  fieldLabel: 80,
 };
 const NUMBER_FIELDS = [
   "age", "dependants", "timelineMonths", "yearsExperience", "languageScore",

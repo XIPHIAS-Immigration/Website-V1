@@ -52,7 +52,7 @@ export default function ImmigrationConsultantsOverview() {
               id="immigration-consultants-overview"
               className="type-section-title mt-3 max-w-2xl"
             >
-              Immigration consultants in India for global opportunities
+              Top immigration consultants in India for global opportunities
             </h2>
             <div className="type-body mt-5 max-w-2xl space-y-4 text-zinc-700 dark:text-zinc-300">
               <p>

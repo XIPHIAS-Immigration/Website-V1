@@ -2,6 +2,27 @@ import type { EventRecord } from "@/types/events";
 
 export const EVENTS: EventRecord[] = [
   {
+    "slug": "21st-global-investment-immigration-summit-ires-2026-05-23-del",
+    "title": "21st Global Investment Immigration Summit & International Real Estate Expo",
+    "date": "2026-05-23",
+    "location": "Le Méridien, New Delhi, India",
+    "summary": "Participated as an Exhibitor Sponsor at the 21st Global Investment Immigration Summit (GIIS) and International Real Estate Expo (IRES) at Le Méridien, New Delhi.",
+    "description": "XIPHIAS Immigration participated as an Exhibitor Sponsor at the 21st Global Investment Immigration Summit (GIIS) and International Real Estate Expo (IRES), held at Le Méridien, New Delhi.\n\nThe event brought together global investors, business leaders, immigration professionals and industry experts to discuss residency and citizenship by investment, international real estate, wealth planning and global business expansion.\n\nRepresenting XIPHIAS, Managing Director Varun Singh engaged with attendees, shared insights into global investment migration opportunities and offered guidance to individuals and families exploring international mobility.\n\nThe summit provided XIPHIAS with a valuable platform to strengthen industry relationships, connect with prospective investors and reaffirm its commitment to trusted, personalised global immigration solutions.",
+    "link": {
+      "href": "https://happeningnext.com/event/21st-global-investment-immigration-summit-andamp-international-real-estate-expo-eid1ef0kp9et37a",
+      "label": "View the official event page"
+    },
+    "photos": [
+      {
+        "src": "/images/events/GIIS 21 - 2026/giis-21-delhi-2026-banner.png",
+        "alt": "Varun Singh of XIPHIAS Immigration speaking at the 21st Global Investment Immigration Summit in New Delhi",
+        "w": 512,
+        "h": 256,
+        "caption": "Venue: Le M\u00e9ridien, New Delhi \u00b7 23 May 2026"
+      }
+    ]
+  },
+  {
     "slug": "raah-a-new-path-book-launch-2025-11-26-mum",
     "title": "RAAH - A New Path Book Launch",
     "date": "2025-11-26",

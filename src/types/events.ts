@@ -8,6 +8,8 @@ export type EventPhoto = {
 
 export type EventRecord = {
   slug: string;
+  /** Optional official/external event page, rendered as a short labelled button. */
+  link?: { href: string; label?: string };
   title: string;
   date: string; // YYYY-MM-DD
   location?: string;

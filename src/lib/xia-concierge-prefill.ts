@@ -35,11 +35,13 @@ export function getRoutePrefill(params: PageSearchParams): Partial<RouteIntellig
     "student",
   ] as const);
   const destination = firstValue(params.destination)?.trim().slice(0, 80);
+  const nationality = firstValue(params.nationality)?.trim().slice(0, 80);
 
   return {
     ...(goal ? { goal } : {}),
     ...(profile ? { profile } : {}),
     ...(destination ? { destination } : {}),
+    ...(nationality ? { nationality } : {}),
     ...(goal === "investment" ? { track: "residency" as const } : {}),
     ...(goal === "citizenship" ? { track: "citizenship" as const } : {}),
     ...(goal === "business-setup" ? { track: "corporate" as const, priority: "business" as const } : {}),

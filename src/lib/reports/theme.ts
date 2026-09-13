@@ -131,11 +131,20 @@ export const REPORT_CSS = `
   .card {
     border: .22mm solid ${BRAND.line}; border-radius: 2mm; padding: 5mm 5.5mm;
     background: #fff;
+    /* Values come from CRM free text. Keep a long one inside its own box instead of letting it
+       spill over the page footer and onto the next sheet. */
+    overflow: hidden; min-width: 0;
   }
   .card--dark { background: rgba(255,255,255,.04); border-color: rgba(216,182,90,.4); }
   .card__k { font-size: 8pt; font-weight: 800; letter-spacing: 0; text-transform: uppercase; color: ${BRAND.navySoft}; }
   .page--dark .card__k { color: ${BRAND.goldSoft}; }
-  .card__v { font-family: ${DISPLAY}; font-size: 14pt; color: ${BRAND.navy}; margin-top: 2.5mm; line-height: 1.16; font-weight: 700; }
+  .card__v { font-family: ${DISPLAY}; font-size: 14pt; color: ${BRAND.navy}; margin-top: 2.5mm; line-height: 1.16; font-weight: 700; overflow-wrap: anywhere; }
+  /* Progressive step-down for longer values - see cardValueSizeClass() in components.ts.
+     Doubled-up selectors so these reliably beat .profile-card__v, which sets its own size at
+     equal specificity and would otherwise win or lose purely on source order. */
+  .card__v.card__v--m  { font-size: 11pt;  line-height: 1.25; }
+  .card__v.card__v--s  { font-size: 9.5pt; line-height: 1.35; font-weight: 600; }
+  .card__v.card__v--xs { font-size: 8.5pt; line-height: 1.4;  font-weight: 600; }
   .page--dark .card__v { color: #fff; }
   .card__note { font-size: 9.5pt; color: ${BRAND.slate}; margin-top: 2.5mm; line-height: 1.5; }
 

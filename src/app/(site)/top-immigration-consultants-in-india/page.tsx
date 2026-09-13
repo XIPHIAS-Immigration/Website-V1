@@ -352,7 +352,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
           <div className="max-w-3xl">
             <p className="type-caption uppercase text-primary">Established immigration advisory</p>
             <h2 className="type-section-title mt-3 text-slate-950">
-              Why XIPHIAS Is Among the Established Immigration Consultants in India
+              Why XIPHIAS Is Among the Top Immigration Consultants in India
             </h2>
             <p className="type-body mt-4 text-slate-600">
               A top immigration consultant in India needs experience and the ability to distinguish
@@ -585,7 +585,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
           <p className="type-caption uppercase text-primary">Frequently asked questions</p>
           <h2 className="type-section-title mt-3 text-slate-950">
-            Immigration Consultants in India: What to Know Before You Choose
+            Top Immigration Consultants in India: What to Know Before You Choose
           </h2>
           <div className="mt-8 divide-y divide-slate-300 border-y border-slate-300">
             {faqs.map((faq, index) => (

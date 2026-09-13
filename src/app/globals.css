@@ -308,3 +308,45 @@ body {
 
 /* ✅ Only the collapsing TopBar is “contained” so it won’t affect dropdowns */
 .topbar-clip { contain: paint; }
+
+/* ✅ Justified body copy site-wide.
+   Every page is wrapped in <main id="main"> by SiteChrome, so this reaches all
+   of them. Justification only affects paragraphs that wrap to two or more
+   lines — a single-line paragraph renders identically — so short UI labels and
+   captions are untouched. Left to itself justification opens "rivers" of white
+   space, so hyphenation is enabled to keep the word spacing even.
+   Below 640px the column is too narrow to justify without ugly gaps, so
+   phones keep the ragged right edge. */
+@media (min-width: 640px) {
+  main p,
+  main .blog-details li,
+  main .prose li {
+    text-align: justify;
+    text-justify: inter-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+  }
+
+  /* Deliberate alignment always wins. Covers responsive variants such as
+     sm:text-center and lg:text-right, and alignment inherited from a parent. */
+  main [class*="text-center"] p,
+  main [class*="text-right"] p,
+  main [class*="text-left"] p,
+  main [class*="text-center"] li,
+  main [class*="text-right"] li {
+    text-align: inherit;
+    -webkit-hyphens: manual;
+    hyphens: manual;
+  }
+
+  main p[class*="text-center"] { text-align: center; }
+  main p[class*="text-right"] { text-align: right; }
+  main p[class*="text-left"] { text-align: left; }
+
+  /* Never hyphenate a heading or a button label. */
+  main h1, main h2, main h3, main h4, main h5, main h6,
+  main a, main button, main label {
+    -webkit-hyphens: manual;
+    hyphens: manual;
+  }
+}

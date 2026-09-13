@@ -43,6 +43,7 @@ function sanitizeRouteInput(value: unknown) {
     goal: normalizeText(input.goal, 60),
     track: normalizeText(input.track, 40),
     destination: normalizeText(input.destination, 80),
+    nationality: normalizeText(input.nationality, 80),
     profile: normalizeText(input.profile, 60),
     budget: numberValue(input.budget),
     timeline: numberValue(input.timeline),
@@ -59,6 +60,7 @@ function sanitizeHighSkillInput(value: unknown) {
 
   return {
     targetCountry: normalizeText(input.targetCountry, 40),
+    nationality: normalizeText(input.nationality, 80),
     goal: normalizeText(input.goal, 60),
     field: normalizeText(input.field, 60),
     role: normalizeText(input.role, 120),
@@ -151,6 +153,7 @@ function assessmentMessage({
       `Goal: ${routeInput.goal || "not specified"}`,
       `Route focus: ${[routeInput.track, routeInput.destination].filter(Boolean).join(" / ") || "Open"}`,
       `Profile: ${routeInput.profile || "not specified"} | Priority: ${routeInput.priority || "not specified"}`,
+      `Nationality: ${routeInput.nationality || "not specified"}`,
       `Budget: USD ${routeInput.budget || 0} | Timeline: ${routeInput.timeline || 0} months | Family: ${routeInput.family ? "yes" : "no"}`,
     );
     if (routeInput.notes) lines.push(`Notes: ${routeInput.notes}`);

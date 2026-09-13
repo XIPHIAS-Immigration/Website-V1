@@ -51,7 +51,6 @@ export function reportBasisBanner(opts: {
   occupation?: string;
   education?: string;
   yearsExperience?: number;
-  yearsExperienceLabel?: string;
   languageTest?: string;
   languageScore?: number;
   languageDetails?: string;
@@ -229,9 +228,7 @@ export function reportBasisPage(opts: {
     { label: "Occupation", value: clientDisplayValue(basis.occupation) },
     { label: "Occupation code", value: clientDisplayValue(basis.anzscoCode) },
     { label: "Education", value: clientEducationLabel(basis.education) },
-    // A plain number cannot express the bands consultants actually use ("10+", "6 months"), so an
-    // explicit label wins when supplied; the numeric value stays the fallback.
-    { label: "Work experience", value: basis.yearsExperienceLabel || (basis.yearsExperience === undefined ? undefined : `${basis.yearsExperience} years`) },
+    { label: "Work experience", value: basis.yearsExperience === undefined ? undefined : `${basis.yearsExperience} years` },
     { label: "Assessing body", value: clientDisplayValue(basis.assessingBody) },
     { label: "Skills-assessment status", value: clientDisplayValue(basis.skillsAssessment) },
     { label: "Language", value: language, wide: true },

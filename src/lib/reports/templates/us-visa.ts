@@ -180,6 +180,8 @@ function buildHighSkillInput(order: JiopayOrder): HighSkillInput {
   const patentCount = toInt(a.patentCount ?? a.patents, 0);
   return {
     targetCountry: "usa", // locked to the United States, exactly like the us-visa-intelligence page
+    // Legacy orders carry no nationality answer; the sentinel excludes nothing.
+    nationality: str(a.nationality) || "not-provided",
     goal: pickGoal(a.goal ?? a.objective),
     field: pickEnum(a.field ?? a.industry, FIELDS, "technology") as HighSkillInput["field"],
     role: str(a.role ?? a.profile ?? a.occupation ?? order.program),

@@ -26,7 +26,7 @@ type Props = {
 };
 
 export default function CorporateHero({
-  title = "Corporate Immigration Consultants in India",
+  title = "Top Corporate Immigration Consultants in India",
   subtitle = "Plan work permits, intra-company transfers, business visas and global workforce mobility across key international markets.",
   primaryHref = "/personal-booking",
   primaryText = "Speak to an Advisor",

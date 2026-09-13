@@ -65,8 +65,6 @@ export type ClientCase = {
     field: CaseFact<string>;
     education: CaseFact<string>;
     yearsExperience: CaseFact<number>;
-    /** Optional free-text duration, for bands a number cannot express - "10+", "6 months". */
-    yearsExperienceLabel: CaseFact<string>;
     languageTest: CaseFact<string>;
     languageScore: CaseFact<number>;
     languageDetails: CaseFact<string>;
@@ -367,7 +365,6 @@ export function buildClientCase(order: JiopayOrder): ClientCase {
       field: fact(text(a.field ?? a.industry) || undefined, meta("field")),
       education: fact(text(a.education ?? a.qualification) || undefined, meta("education")),
       yearsExperience: fact(numberValue(a.yearsExperience ?? a.experience), meta("yearsExperience")),
-      yearsExperienceLabel: fact(text(a.yearsExperienceLabel) || undefined, meta("yearsExperienceLabel")),
       languageTest: fact(text(a.languageTest) || undefined, meta("languageTest")),
       languageScore: fact(numberValue(a.languageScore ?? a.ielts), meta("languageScore")),
       languageDetails: fact(text(a.languageDetails) || undefined, meta("languageDetails")),
@@ -653,7 +650,6 @@ export function reportBasis(clientCase: ClientCase, assessment = assessPersonali
     occupation: clientCase.career.occupation.value,
     education: clientCase.career.education.value,
     yearsExperience: clientCase.career.yearsExperience.value,
-    yearsExperienceLabel: clientCase.career.yearsExperienceLabel.value,
     languageTest: clientCase.career.languageTest.value,
     languageScore: clientCase.career.languageScore.value,
     languageDetails: clientCase.career.languageDetails.value,
