@@ -102,6 +102,9 @@ export const localLandings: LocalLanding[] = [
       "best immigration consultants in bangalore",
       "top immigration consultants in bangalore",
       "how to choose an immigration consultant in bangalore",
+      "immigration lawyer bangalore",
+      "immigration lawyers in bangalore",
+      "immigration lawyer near me",
       "immigration consultancy koramangala",
       "immigration office near me bangalore",
     ],
@@ -112,6 +115,22 @@ export const localLandings: LocalLanding[] = [
           "Bangalore has more immigration offices than almost any Indian city, and almost none of them are regulated by the country you are actually applying to. That matters, because for Canada and Australia the destination government licenses the people permitted to represent you — and publishes the list.",
           "Before engaging anyone in this city, ask for three things: the licence number of the person who will handle your Canadian or Australian file, the register where that number can be checked, and a written fee schedule that separates government fees from professional fees. A firm that cannot produce all three in one email is not a firm you should send documents to.",
           VERIFY_NOTE,
+        ],
+      },
+      {
+        heading: "Do you need an immigration lawyer in Bangalore, or a licensed consultant?",
+        body: [
+          "Most people searching for an immigration lawyer in Bangalore do not need one, and the reason is a technicality that costs applicants a great deal of money every year: for most destinations the right to represent you is granted by the country you are applying to, not by the country you are sitting in. An advocate enrolled with the Bar Council of India is a lawyer \u2014 but not a lawyer the Canadian or Australian authorities recognise as your representative.",
+          "For Canada, section 91 of the Immigration and Refugee Protection Act permits only three categories of person to advise or represent you for a fee: a member in good standing of a Canadian provincial or territorial law society, a notary of the Chambre des notaires du Qu\u00e9bec, and a consultant licensed by the College of Immigration and Citizenship Consultants. For Australia, it is a registered migration agent on the OMARA register or an Australian legal practitioner holding an unrestricted practising certificate. For the United Kingdom it is an OISC-regulated adviser or a UK solicitor or barrister. An Indian law degree, on its own, appears on none of those lists.",
+          "So the honest question is not lawyer versus consultant. It is: is the person who will handle my file on the destination regulator's register, and can I find them there in under five minutes?",
+        ],
+      },
+      {
+        heading: "When a lawyer genuinely is the right answer",
+        body: [
+          "There are four situations where you should be talking to a qualified lawyer rather than a consultant, and we will tell you so rather than take the file. First, United States matters \u2014 petitions, requests for evidence, waivers and consular processing, where only a US-licensed attorney or an accredited representative may act for you. Second, anything that has gone to litigation: appeals, judicial review at Canada's Federal Court, or a tribunal matter, all of which require a lawyer admitted in that jurisdiction. Third, inadmissibility on criminal or misrepresentation grounds, including a ban following a refusal. Fourth, cross-border tax, succession or corporate structuring that sits alongside a residency application.",
+          "Everything else \u2014 Express Entry and the provincial nominee streams, Australia's points-tested subclasses, employer sponsorship, residency and citizenship by investment, document assembly, eligibility scoring, and the application itself \u2014 is routine licensed work. It is handled every day by regulated consultants on a fixed professional fee, where a lawyer would ordinarily bill by the hour for the same task.",
+          "XIPHIAS Immigration is a licensed consultancy, not a law firm, and nothing on this site is legal advice. Canadian files run under RCIC licence R516194 and Australian matters under MARA registration 1680615, both checkable on the regulators' own registers. Where your case needs a lawyer, we say so at the assessment stage \u2014 before you have paid for anything.",
         ],
       },
       {
@@ -143,6 +162,18 @@ export const localLandings: LocalLanding[] = [
         a: "For Canada, search the consultant's licence number on the College of Immigration and Citizenship Consultants public register and confirm the 'Entitled to Practise' column says Yes. For Australia, search the MARN on the OMARA register. If a firm cannot give you a number to search, it is not licensed by either regulator.",
       },
       {
+        q: "Do I need an immigration lawyer in Bangalore or an immigration consultant?",
+        a: "For Canada and Australia, the destination country decides who may represent you \u2014 and an advocate enrolled in India is not on either list. Canada permits members of a Canadian law society, Quebec notaries and CICC-licensed consultants; Australia permits OMARA-registered agents and Australian legal practitioners. A lawyer is genuinely the right choice for United States matters, for appeals and judicial review, and for criminal or misrepresentation inadmissibility. For a standard skilled-migration or investment-residency application, a licensed consultant does the same work on a fixed fee.",
+      },
+      {
+        q: "Are immigration lawyers in Bangalore able to file my Canadian application?",
+        a: "Not as your paid representative, unless that person is also a member in good standing of a Canadian provincial or territorial law society or of the Chambre des notaires du Qu\u00e9bec. You are always free to apply yourself with no representative at all. Where a firm is engaged, the CICC or Canadian law society number of the individual handling the file should be on your service agreement, and you should be able to find it on the regulator's public register before you pay.",
+      },
+      {
+        q: "Is XIPHIAS Immigration a law firm?",
+        a: "No. XIPHIAS Immigration is a licensed immigration consultancy \u2014 CICC R516194 for Canada, MARA 1680615 for Australia \u2014 providing immigration consulting and documentation support. It does not practise law and nothing on this site is legal advice. Where a case requires a lawyer, that is said plainly at the assessment stage.",
+      },
+      {
         q: "Who are the best immigration consultants in Bangalore?",
         a: "There is no single answer, and any firm that tells you it is the best is asking you to take its word for something it cannot evidence. Judge on four checkable things instead: whether the person handling your file is licensed by the destination country and findable on that regulator's register, whether the fee schedule separates government from professional fees in writing, whether you are told what is weak about your profile as well as what is strong, and whether the person who sold to you is the person who will do the work.",
       },
@@ -163,7 +194,7 @@ export const localLandings: LocalLanding[] = [
         a: "It depends entirely on the route — some Caribbean citizenship programmes run in months, Canadian permanent residence in quarters, and employer-sponsored routes on the employer's timetable. An advisor will give you the current published processing range for your specific route rather than an average.",
       },
     ],
-    related: ["verified-immigration-consultants-bangalore", "rcic-registered-immigration-consultant-india", "australia-immigration-consultants-in-bangalore", "immigration-consultants-in-koramangala"],
+    related: ["verified-immigration-consultants-bangalore", "immigration-lawyer-or-consultant-bangalore", "rcic-registered-immigration-consultant-india", "australia-immigration-consultants-in-bangalore", "immigration-consultants-in-koramangala"],
   },
   {
     slug: "verified-immigration-consultants-bangalore",
@@ -190,6 +221,13 @@ export const localLandings: LocalLanding[] = [
         ],
       },
       {
+        heading: "Lawyer, consultant, or agent \u2014 who may legally act for you",
+        body: [
+          "The word on the door matters less than the register behind it. Canada permits exactly three categories of paid representative: members of a Canadian provincial or territorial law society, notaries of the Chambre des notaires du Qu\u00e9bec, and CICC-licensed consultants. Australia permits OMARA-registered migration agents and Australian legal practitioners with an unrestricted practising certificate. The United Kingdom permits OISC-regulated advisers and UK solicitors or barristers.",
+          "An advocate enrolled with the Bar Council of India holds none of those authorisations by virtue of that enrolment, and neither does a firm describing itself as an immigration lawyer in Bangalore. Ask which register the individual appears on, then check it. If the answer is a register in a country other than the one you are applying to, it is not the register that governs your file.",
+        ],
+      },
+      {
         heading: "What the register will not tell you",
         body: [
           "A register confirms a person is licensed. It does not confirm the advice you were given is sound, that the fee is reasonable, or that the firm will still be answering the phone in eighteen months. Ask additionally for a written service agreement, a fee schedule that separates government charges from professional fees, and the name of the person who will actually be handling the file rather than the person who sold it to you.",
@@ -210,6 +248,10 @@ export const localLandings: LocalLanding[] = [
         a: "It is the same regulator under a new name. ICCRC was continued as the College of Immigration and Citizenship Consultants on 23 November 2021. A firm whose website still says 'ICCRC registered' has not updated its compliance copy in several years, which tells you something in itself.",
       },
       {
+        q: "Is an immigration lawyer safer than a licensed immigration consultant?",
+        a: "Neither is automatically safer \u2014 both are only as safe as the register they appear on. A Canadian lawyer and a CICC-licensed consultant are both lawful representatives for Canadian immigration and both answer to a regulator with a complaints process. A lawyer who is not admitted in the destination country is not a lawful representative there at all, however well qualified at home. Check the register that governs the country you are applying to.",
+      },
+      {
         q: "Can a company hold an RCIC licence?",
         a: "No. The College licenses individuals, not companies. A firm can employ or work with a licensed RCIC, and the register shows the company each licensee is associated with — which is exactly how you confirm the connection is real.",
       },
@@ -222,7 +264,7 @@ export const localLandings: LocalLanding[] = [
         a: "It means your representative is accountable to a regulator and may legally act for you. It does not change the published criteria your application is judged against. Anyone suggesting otherwise is selling something.",
       },
     ],
-    related: ["immigration-consultants-in-bangalore", "rcic-registered-immigration-consultant-india"],
+    related: ["immigration-consultants-in-bangalore", "immigration-lawyer-or-consultant-bangalore", "rcic-registered-immigration-consultant-india"],
   },
   {
     slug: "rcic-registered-immigration-consultant-india",
@@ -411,6 +453,87 @@ export const localLandings: LocalLanding[] = [
       },
     ],
     related: ["immigration-consultants-in-bangalore", "verified-immigration-consultants-bangalore", "rcic-registered-immigration-consultant-india"],
+  },
+  {
+    slug: "immigration-lawyer-or-consultant-bangalore",
+    h1: "Immigration lawyer or immigration consultant in Bangalore?",
+    title: "Immigration Lawyer or Consultant in Bangalore? | XIPHIAS",
+    description:
+      "Who may legally represent you for Canada, Australia, the UK and the US \u2014 and the four cases where you should hire a lawyer rather than a licensed immigration consultant.",
+    eyebrow: "Before you hire anyone",
+    standfirst:
+      "The country you are applying to decides who may represent you. An Indian law degree is not on any of those lists \u2014 and for most applications, it does not need to be.",
+    intents: [
+      "immigration lawyer bangalore",
+      "immigration lawyers in bangalore",
+      "immigration lawyer near me",
+      "immigration lawyer vs immigration consultant",
+      "do i need an immigration lawyer india",
+      "best immigration lawyer in bangalore",
+    ],
+    sections: [
+      {
+        heading: "Why the search term is misleading",
+        body: [
+          "People search for an immigration lawyer because that is the word used for this work in the United States, where only a licensed attorney or an accredited representative may act for you. Outside the United States the rule is different, and getting it wrong is expensive.",
+          "For Canada, Australia and the United Kingdom, the right to advise or represent you for a fee is granted by the destination country, not by the country you live in. A Bangalore advocate enrolled with the Bar Council of India is a lawyer in India. That enrolment gives no standing before Immigration, Refugees and Citizenship Canada, the Australian Department of Home Affairs, or the Home Office.",
+          VERIFY_NOTE,
+        ],
+      },
+      {
+        heading: "Who each country actually recognises",
+        body: [
+          "Canada \u2014 section 91 of the Immigration and Refugee Protection Act: a member in good standing of a Canadian provincial or territorial law society, a notary of the Chambre des notaires du Qu\u00e9bec, or a consultant licensed by the College of Immigration and Citizenship Consultants. Nobody else may charge you for advice or representation.",
+          "Australia \u2014 a migration agent registered with the Office of the Migration Agents Registration Authority, or an Australian legal practitioner holding an unrestricted practising certificate.",
+          "United Kingdom \u2014 an adviser regulated by the Office of the Immigration Services Commissioner, or a solicitor or barrister regulated by their own professional body.",
+          "United States \u2014 an attorney licensed in a US state, or a representative accredited by the Department of Justice. This is the one major destination where lawyer is the correct and necessary word.",
+        ],
+      },
+      {
+        heading: "The four cases where you should hire a lawyer",
+        body: [
+          "One: any United States matter \u2014 petitions, requests for evidence, waivers, consular processing, and status issues inside the US. Two: litigation \u2014 appeals, judicial review at Canada's Federal Court, or a migration tribunal matter, each of which needs a lawyer admitted in that jurisdiction. Three: inadmissibility on criminal grounds, or an allegation of misrepresentation and the multi-year ban that follows it. Four: cross-border tax, succession or corporate structuring sitting alongside a residency or citizenship application, where the immigration question is the smaller half of the problem.",
+          "If your case is one of these, say so early. Time spent with the wrong kind of adviser is rarely recoverable, and in refusal matters the deadlines are short.",
+        ],
+      },
+      {
+        heading: "What a licensed consultant handles just as well, for less",
+        body: [
+          "Express Entry and the provincial nominee programmes. Australia's points-tested subclasses and state nomination. Employer-sponsored routes. Residency and citizenship by investment. Eligibility scoring against the published criteria, document assembly and verification, form preparation, and correspondence with the department.",
+          "These are routine licensed tasks with published rules, and a regulated consultant does them on a fixed professional fee where a lawyer would ordinarily bill by the hour for the same work. Neither can guarantee an outcome; the decision belongs to the destination country's immigration authority, and promising otherwise breaches the Canadian regulator's own conduct rules.",
+        ],
+      },
+      {
+        heading: "Where XIPHIAS sits, stated plainly",
+        body: [
+          "XIPHIAS Immigration is a licensed immigration consultancy, not a law firm. Canadian files run under RCIC licence R516194 on the CICC register; Australian matters run under MARA registration 1680615 on the OMARA register. The Managing Director, Varun Singh, is a Fellow of the Investment Migration Council. Nothing on this site is legal advice.",
+          "If an assessment shows your case belongs with a lawyer \u2014 a US petition, an appeal, a criminal inadmissibility question \u2014 you will be told that at the assessment stage, before any engagement fee. A consultancy willing to take a file it should not take is the more expensive mistake.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        q: "Can an Indian lawyer file my Canada PR application?",
+        a: "Not as your paid representative. Canada permits only members in good standing of a Canadian provincial or territorial law society, notaries of the Chambre des notaires du Qu\u00e9bec, and CICC-licensed consultants to advise or represent for a fee. Enrolment with the Bar Council of India confers none of those. You may always apply yourself with no representative at all.",
+      },
+      {
+        q: "Is an immigration lawyer more expensive than an immigration consultant?",
+        a: "Usually, because of how the two bill rather than what they do. Lawyers commonly charge by the hour; licensed consultants commonly quote a fixed professional fee for a defined scope. For a routine skilled-migration or investment-residency application the work is the same set of regulated tasks either way, so compare the written scope and the fee schedule rather than the job title.",
+      },
+      {
+        q: "When should I definitely use a lawyer?",
+        a: "United States matters; appeals and judicial review; criminal inadmissibility or an allegation of misrepresentation; and cases where cross-border tax, succession or corporate structuring is entangled with the immigration question. In those four situations a licensed consultant is the wrong adviser, and a reputable one will tell you so.",
+      },
+      {
+        q: "How do I check the person is allowed to act for me?",
+        a: "Ask for the individual's licence or membership number and the register it appears on, then search that register yourself. For Canada, the CICC public register, reading the Status and Entitled to Practise columns. For Australia, the OMARA register. For a Canadian lawyer, the provincial law society directory. If no number is offered, that is your answer.",
+      },
+      {
+        q: "Is XIPHIAS Immigration a law firm?",
+        a: "No. XIPHIAS Immigration provides licensed immigration consulting and documentation support \u2014 CICC R516194 for Canada, MARA 1680615 for Australia. It does not practise law and nothing here is legal advice.",
+      },
+    ],
+    related: ["verified-immigration-consultants-bangalore", "immigration-consultants-in-bangalore", "rcic-registered-immigration-consultant-india"],
   },
 ];
 

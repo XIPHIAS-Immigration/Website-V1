@@ -21,6 +21,11 @@ export default [
       "next-env.d.ts",
       "report-design-previews/**",
       "reports/**",
+      // Local scratch. Gitignored, never shipped, and full of CommonJS
+      // report generators — linting it only breaks `--max-warnings=0`.
+      "tmp/**",
+      "output/**",
+      "Claude outputs/**",
       "scripts/_*.mjs",
     ],
   },

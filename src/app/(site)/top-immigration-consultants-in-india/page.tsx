@@ -32,9 +32,9 @@ const PAGE_URL = `${SITE_URL}${PAGE_PATH}`;
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Top Immigration Consultants in India | XIPHIAS",
+  title: "Top Immigration Consultants in India | Licence R516194",
   description:
-    "Compare trusted immigration consultants in India for PR, skilled migration, residency, citizenship, Golden Visa and corporate immigration advice.",
+    "There is no official ranking of immigration consultants in India. Here is the scorecard to apply instead — and our own answers to it, with licence numbers you can check.",
   keywords: [
     "immigration consultants in India",
     "top immigration consultants in India",
@@ -43,6 +43,10 @@ export const metadata: Metadata = {
     "overseas immigration consultants",
     "residency by investment consultants",
     "citizenship by investment consultants",
+    "top 10 immigration consultants in bangalore",
+    "top immigration consultants in bangalore",
+    "best immigration consultants in bangalore",
+    "how to choose an immigration consultant",
   ],
   alternates: { canonical: PAGE_PATH },
   robots: {
@@ -57,7 +61,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Top Immigration Consultants in India | XIPHIAS",
+    title: "Top Immigration Consultants in India | Licence R516194",
     description:
       "Eligibility-led immigration advice for PR, skilled migration, residency, citizenship, Golden Visa and corporate mobility.",
     url: PAGE_URL,
@@ -75,7 +79,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Top Immigration Consultants in India | XIPHIAS",
+    title: "Top Immigration Consultants in India | Licence R516194",
     description:
       "Eligibility-led immigration advice for PR, skilled migration, residency, citizenship, Golden Visa and corporate mobility.",
     images: ["/images/hero/top-immigration-counsultent.webp"],
@@ -90,6 +94,57 @@ const trustQuestions = [
   "Does it work with regulated professionals where required?",
   "Can it support investor, corporate and skilled migration cases?",
   "Does it protect confidential personal and financial information?",
+];
+
+// The honest answer to "top 10 immigration consultants in India", which is the
+// query this page exists for. A list nobody audits is not evidence; a scorecard
+// the reader can apply is. Each row states our own answer so the page can be
+// used against us as easily as for us.
+const scorecard = [
+  {
+    test: "Is the person handling your file licensed by the destination country?",
+    why: "For Canada and Australia the destination government — not an Indian body — decides who may advise you for a fee, and publishes the list.",
+    ours: "Canada: RCIC licence R516194 on the CICC register. Australia: MARA registration 1680615 on the OMARA register.",
+  },
+  {
+    test: "Can you check that licence on the regulator's own register in five minutes?",
+    why: "A certificate, a screenshot or a logo proves nothing. Only the regulator's live register does.",
+    ours: "Both numbers link to the issuing body's own database, not to a page we control.",
+  },
+  {
+    test: "Does the fee schedule separate government fees from professional fees?",
+    why: "They are paid to different people, and only one of them is refundable. A single bundled figure hides which is which.",
+    ours: "Government stages and professional fees are quoted as separate lines, in writing, before any engagement.",
+  },
+  {
+    test: "Are you told what does not work about your profile?",
+    why: "An assessment that only lists strengths is a sales document. The refusal risks are the part you are paying for.",
+    ours: "Where nothing currently fits, we say so and explain what would have to change.",
+  },
+  {
+    test: "Is the person selling to you the person who will handle the file?",
+    why: "Handover to an unnamed processing team after payment is the most common complaint in this industry.",
+    ours: "The named advisor on your service agreement stays on the file.",
+  },
+  {
+    test: "Does anyone guarantee an outcome?",
+    why: "Nobody can. The decision belongs to the destination country's immigration authority, and promising otherwise breaches the Canadian regulator's own conduct rules.",
+    ours: "No guarantees are given, in writing or verbally. Any firm that offers one has failed this test.",
+  },
+  {
+    test: "How long has the firm been operating, and from where?",
+    why: "Immigration files run for quarters or years. A firm that cannot show a documented history may not be there at decision time.",
+    ours: "Operating since 2009, head office in Koramangala, Bengaluru, with offices in Dubai, Doha, Melbourne and Waterloo.",
+  },
+];
+
+const relatedReads = [
+  { href: "/immigration-consultants-in-bangalore", label: "Immigration consultants in Bangalore" },
+  { href: "/verified-immigration-consultants-bangalore", label: "How to verify a consultant in five minutes" },
+  { href: "/immigration-lawyer-or-consultant-bangalore", label: "Immigration lawyer or licensed consultant?" },
+  { href: "/rcic-registered-immigration-consultant-india", label: "RCIC-registered Canadian consulting from India" },
+  { href: "/guides", label: "Immigration guides — costs, timelines and points" },
+  { href: "/eligibility", label: "Free eligibility check" },
 ];
 
 const strengths = [
@@ -183,6 +238,16 @@ const faqs = [
     question: "What should I expect from a top immigration consultant in India?",
     answer:
       "There is no official government ranking of immigration consultants in India. Compare relevant experience, transparent advice, service specialisation, documented company history, professional credentials where required and the quality of the initial assessment. XIPHIAS Immigration has operated since 2009 across skilled migration, residency, citizenship and corporate mobility.",
+  },
+  {
+    question: "Is there a real top 10 list of immigration consultants in India?",
+    answer:
+      "No. There is no government ranking and no independent audit of immigration consultancies in India. The lists that appear in search results are almost all written by consultancies about themselves, or are paid placements. Apply a scorecard instead: destination-country licence, checkable on the regulator's register; fees split between government and professional; weaknesses in your profile stated, not only strengths; the seller being the person who handles the file; and no guarantee of outcome.",
+  },
+  {
+    question: "Who are the top immigration consultants in Bangalore?",
+    answer:
+      "The same test applies city by city. Bangalore has more immigration offices than almost any Indian city and very few of them are licensed by the country you are applying to. Ask each shortlisted firm for the licence number of the individual who will handle your file and the register it appears on, then check it yourself before paying anything.",
   },
   {
     question: "How do I choose the best immigration consultant in India?",
@@ -344,6 +409,66 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* The scorecard. This is the section the page is actually for: people
+          searching "top 10 immigration consultants" want a list, and the honest
+          answer is that no credible one exists. */}
+      <section id="scorecard" className="scroll-mt-32 bg-white py-16 sm:py-20">
+        <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 lg:px-12">
+          <div className="max-w-3xl">
+            <p className="type-caption uppercase text-primary">The honest answer</p>
+            <h2 className="type-section-title mt-3 text-slate-950">
+              There Is No Official Top 10 List. Use This Scorecard Instead.
+            </h2>
+            <p className="type-body mt-5 text-slate-600">
+              No Indian government body ranks immigration consultants, and no independent audit of
+              the industry exists. Almost every &ldquo;top 10 immigration consultants&rdquo; list in
+              search results was written by a consultancy about itself, or paid for. What can be
+              checked is the licence, the fee schedule and the conduct rules — so check those.
+            </p>
+            <p className="type-body mt-4 text-slate-600">
+              Seven tests follow. Each one states our own answer, so you can hold this page to the
+              same standard you hold everyone else to.
+            </p>
+          </div>
+
+          <ol className="mt-10 grid gap-4 lg:grid-cols-2">
+            {scorecard.map((row, index) => (
+              <li
+                key={row.test}
+                className="rounded-lg border border-slate-200 bg-white p-6"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[13px] font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <h3 className="type-card-title text-slate-950">{row.test}</h3>
+                    <p className="type-small mt-2 text-slate-600">{row.why}</p>
+                    <p className="type-small mt-3 border-l-2 border-[#f0c83f] pl-3 font-bold text-slate-800">
+                      Ours: {row.ours}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-8 border-l-4 border-[#f0c83f] bg-primary px-5 py-5 text-white lg:max-w-3xl">
+            <p className="type-card-title">
+              XIPHIAS Immigration is a licensed consultancy, not a law firm.
+            </p>
+            <p className="type-small mt-2 text-white/75">
+              Nothing on this page is legal advice. Where a case belongs with a lawyer — a United
+              States petition, an appeal or judicial review, a criminal or misrepresentation
+              inadmissibility question — that is said at the assessment stage, before any fee.{" "}
+              <Link href="/immigration-lawyer-or-consultant-bangalore" className="underline">
+                Which one do you need?
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -600,6 +725,21 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
               </details>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="border-t border-slate-200 bg-white py-12">
+        <div className="mx-auto max-w-screen-2xl px-5 sm:px-8 lg:px-12">
+          <h2 className="type-card-title text-slate-950">Check the claims yourself</h2>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedReads.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="type-small text-slate-700 hover:text-primary">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

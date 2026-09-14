@@ -32,7 +32,7 @@ const RESOURCES = Object.freeze([
   { label: "Australia Points Calculator", href: "/tools/australia-points-calculator" },
   { label: "Verify a consultant", href: "/verify-immigration-consultant" },
   { label: "X-Hub", href: "/x-hub" },
-  { label: "Guides & Resources", href: "/guide" },
+  { label: "Guides & Resources", href: "/guides" },
   { label: "Insights", href: "/insights" },
   { label: "Events", href: "/events" },
   { label: "Awards & Recognition", href: "/awards" },
@@ -43,10 +43,19 @@ const RESOURCES = Object.freeze([
 // Guides. Same reasoning as the local pages below: a page nothing links to
 // does not rank, however well it is written.
 const GUIDES = Object.freeze([
-  { label: "Canada PR for software engineers from India", href: "/canada-pr-for-software-engineers-from-india" },
-  { label: "CRS 450-470: what your chances really are", href: "/crs-score-450-470-chances" },
+  { label: "All immigration guides", href: "/guides" },
   { label: "What Canada PR costs from India", href: "/canada-pr-cost-from-india" },
+  { label: "How long Canada PR takes from India", href: "/canada-pr-processing-time-from-india" },
   { label: "Documents required for Canada PR", href: "/documents-required-for-canada-pr-from-india" },
+  { label: "CRS 450-470: what your chances really are", href: "/crs-score-450-470-chances" },
+  { label: "Express Entry category-based draws", href: "/express-entry-category-based-draws" },
+  { label: "Canada PR for software engineers from India", href: "/canada-pr-for-software-engineers-from-india" },
+  { label: "Canada PR for nurses from India", href: "/canada-pr-for-nurses-from-india" },
+  { label: "Australia 189 vs 190", href: "/australia-189-vs-190" },
+  { label: "Australia PR points for engineers", href: "/australia-pr-points-for-engineers-from-india" },
+  { label: "Portugal Golden Visa from India", href: "/portugal-golden-visa-from-india" },
+  { label: "What Caribbean citizenship costs from India", href: "/caribbean-citizenship-cost-from-india" },
+  { label: "EB-2 NIW from India", href: "/eb2-niw-from-india" },
 ]);
 
 // Local landing pages. Site-wide footer links are what keeps them out of the
@@ -59,6 +68,8 @@ const LOCAL = Object.freeze([
   { label: "Canada visa consultants, Bangalore", href: "/canada-visa-consultants-bangalore" },
   { label: "Top immigration consultants in India", href: "/top-immigration-consultants-in-india" },
   { label: "Immigration consultants in India", href: "/immigration-consultants-in-india" },
+  { label: "Immigration consultants in Koramangala", href: "/immigration-consultants-in-koramangala" },
+  { label: "Immigration lawyer or licensed consultant?", href: "/immigration-lawyer-or-consultant-bangalore" },
 ]);
 
 

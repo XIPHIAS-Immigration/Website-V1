@@ -499,6 +499,77 @@ export const headerMenu: HeaderItem[] = [
     ],
   },
 
+  // ── Guides ───────────────────────────────────────────────────────────────
+  // Long-form answers to the questions people actually search. Grouped by
+  // destination so the mega panel shows five per card and links to /guides for
+  // the rest. Labels are hardcoded on purpose: importing guides.ts here would
+  // ship ~95KB of prose into the client nav bundle.
+  {
+    label: 'Guides',
+    href: '/guides',
+    submenu: [
+      {
+        label: 'Canada PR',
+        href: '/guides',
+        meta: { code: 'CA' },
+        submenu: [
+          { label: 'What Canada PR costs from India', href: '/canada-pr-cost-from-india' },
+          { label: 'How long Canada PR actually takes', href: '/canada-pr-processing-time-from-india' },
+          { label: 'Documents required for Canada PR', href: '/documents-required-for-canada-pr-from-india' },
+          { label: 'CRS 450-470: your real chances', href: '/crs-score-450-470-chances' },
+          { label: 'Category-based draws: who they help', href: '/express-entry-category-based-draws' },
+        ],
+      },
+      {
+        label: 'Canada by profession',
+        href: '/guides',
+        meta: { code: 'CA' },
+        submenu: [
+          { label: 'Canada PR for software engineers', href: '/canada-pr-for-software-engineers-from-india' },
+          { label: 'Canada PR for nurses', href: '/canada-pr-for-nurses-from-india' },
+        ],
+      },
+      {
+        label: 'Australia',
+        href: '/guides',
+        meta: { code: 'AU' },
+        submenu: [
+          { label: '189 vs 190: which to file', href: '/australia-189-vs-190' },
+          { label: 'PR points for engineers', href: '/australia-pr-points-for-engineers-from-india' },
+        ],
+      },
+      {
+        label: 'Investment routes',
+        href: '/guides',
+        meta: { iconEmoji: '\ud83c\udfdb\ufe0f' },
+        submenu: [
+          { label: 'Portugal Golden Visa from India', href: '/portugal-golden-visa-from-india' },
+          { label: 'What Caribbean citizenship costs', href: '/caribbean-citizenship-cost-from-india' },
+        ],
+      },
+      {
+        label: 'United States',
+        href: '/guides',
+        meta: { code: 'US' },
+        submenu: [
+          { label: 'EB-2 NIW: what evidence clears', href: '/eb2-niw-from-india' },
+        ],
+      },
+      {
+        label: 'Before you hire anyone',
+        href: '/verify-immigration-consultant',
+        meta: { iconEmoji: '\ud83d\udd0e' },
+        submenu: [
+          { label: 'Verify a consultant', href: '/verify-immigration-consultant' },
+          { label: 'Lawyer or licensed consultant?', href: '/immigration-lawyer-or-consultant-bangalore' },
+          { label: 'Immigration consultants in Bangalore', href: '/immigration-consultants-in-bangalore' },
+          { label: 'Top immigration consultants in India', href: '/top-immigration-consultants-in-india' },
+          { label: 'All guides', href: '/guides' },
+        ],
+      },
+    ],
+  },
+
   {
     label: 'Resources',
     href: '/xia-intelligence',
@@ -515,11 +586,8 @@ export const headerMenu: HeaderItem[] = [
       { label: 'US Visa Intelligence', href: '/us-visa-intelligence', description: 'EB-1A, EB-2 NIW and EB-5' },
       { label: 'Immigration Reports',  href: '/reports', description: 'From Rs 499, delivered as a PDF' },
       { label: 'Cost Estimator',      href: '/cost-estimator', description: 'What immigration really costs from India' },
-      // Guides. Long-tail, and each one ends at the report that answers it.
-      { label: 'Canada PR for software engineers', href: '/canada-pr-for-software-engineers-from-india' },
-      { label: 'CRS 450-470: your real chances', href: '/crs-score-450-470-chances' },
-      { label: 'What Canada PR costs from India', href: '/canada-pr-cost-from-india' },
-      { label: 'Documents required for Canada PR', href: '/documents-required-for-canada-pr-from-india' },
+      // Guides live under their own top-level menu now; this is the hub link.
+      { label: 'All immigration guides', href: '/guides', description: 'Costs, timelines, points and document lists' },
       { label: 'Personal Advice',     href: '/personal-booking', description: '60 minutes with a senior advisor' },
       { label: 'Start Your Journey',  href: '/eligibility#start' },
       { label: 'Compare Programs',    href: '/compare-programs' },
@@ -534,6 +602,9 @@ export const headerMenu: HeaderItem[] = [
       { label: 'Verified consultants in Bangalore', href: '/verified-immigration-consultants-bangalore' },
       { label: 'RCIC-registered consultant in India', href: '/rcic-registered-immigration-consultant-india' },
       { label: 'Australia consultants in Bangalore', href: '/australia-immigration-consultants-in-bangalore' },
+      { label: 'Immigration consultants in Koramangala', href: '/immigration-consultants-in-koramangala' },
+      { label: 'Lawyer or licensed consultant?', href: '/immigration-lawyer-or-consultant-bangalore' },
+      { label: 'Top immigration consultants in India', href: '/top-immigration-consultants-in-india' },
       { label: 'Media',               href: '/media' },
       { label: 'News',                href: '/news' },
       { label: 'Blog',                href: '/blog' },
