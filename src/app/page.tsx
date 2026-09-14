@@ -18,9 +18,13 @@ const SkilledPreview = dynamic(
 const CitizenshipPreview = dynamic(
   () => import("@/components/Citizenship/CitizenshipPreview"),
 );
-const XiaIntelligencePreview = dynamic(
-  () => import("@/components/Home/XiaIntelligencePreview"),
-);
+// The guided front door, directly under the hero. It replaced the old module
+// gateway, which asked a first-time visitor to choose between three assessments
+// before telling them what any of them were.
+const XiaBand = dynamic(() => import("@/components/Home/XiaBand"));
+// The mascot arrives over the hero on its own, the way the contact form used to
+// — but it offers XIA instead of five fields and a consent box.
+const XiaGreeter = dynamic(() => import("@/components/Home/XiaGreeter"));
 const CorporatePreview = dynamic(
   () => import("@/components/Corporate/CorporatePreview"),
 );
@@ -106,7 +110,8 @@ export default function Home() {
     <>
       <JsonLd id="home-service-jsonld" data={homeJsonLd} />
       <Hero />
-      <XiaIntelligencePreview />
+      <XiaGreeter />
+      <XiaBand />
       <ImmigrationConsultantsOverview />
       {/* min-heights match measured mobile section heights so deferred mounting
           doesn't shift layout (keeps CLS ~0). */}

@@ -1,6 +1,16 @@
 import "server-only";
 
-import { createHash, timingSafeEqual } from "node:crypto";
+import {
+  hashPassword as hashPortalPassword,
+  needsRehash,
+  safeEqual,
+  verifyPassword as verifyStoredPassword,
+} from "./password";
+import {
+  canAttemptSignIn,
+  clearSignInAttempts,
+  recordFailedSignIn,
+} from "./signin-throttle";
 import type { AuthOptions, Session } from "next-auth";
 import { getServerSession } from "next-auth";
 import { unstable_noStore as noStore } from "next/cache";
@@ -20,16 +30,13 @@ type CredentialUser = {
   organizationId?: string;
 };
 
-export function hashPassword(value: string) {
-  return createHash("sha256").update(value).digest("hex");
-}
-
-export function safeEqual(a: string, b: string) {
-  const left = Buffer.from(a);
-  const right = Buffer.from(b);
-  if (left.length !== right.length) return false;
-  return timingSafeEqual(left, right);
-}
+/**
+ * Re-exported so existing callers (change-password, provisioning) keep working
+ * while moving onto salted scrypt. See ./password for the stored format and the
+ * transparent upgrade path from the old bare-SHA-256 records.
+ */
+export { safeEqual };
+export const hashPassword = hashPortalPassword;
 
 function parsePortalUsers(): CredentialUser[] {
   const users: CredentialUser[] = [];
@@ -65,8 +72,18 @@ function getConfiguredPortalUser(email: string) {
 }
 
 function verifyPassword(candidate: string, user: CredentialUser) {
-  if (user.passwordSha256) return safeEqual(hashPassword(candidate), user.passwordSha256);
-  if (user.password) return safeEqual(candidate, user.password);
+  // `passwordSha256` is the historic key name. It now holds either the legacy
+  // bare digest or a salted scrypt string — verifyStoredPassword reads both.
+  if (user.passwordSha256) return verifyStoredPassword(candidate, user.passwordSha256);
+
+  // Plain-text credentials are no longer accepted. Leaving this path open meant
+  // a readable password sat in the environment of every deployment.
+  if (user.password) {
+    console.error(
+      "[x-hub] XIPHIAS_ADMIN_PASSWORD (plain text) is no longer accepted. " +
+        "Replace it with XIPHIAS_ADMIN_PASSWORD_SHA256.",
+    );
+  }
   return false;
 }
 
@@ -122,9 +139,20 @@ export const authOptions: AuthOptions = {
         const email = String(credentials?.email ?? "").trim().toLowerCase();
         const password = String(credentials?.password ?? "");
         const repo = getPlatformRepository();
+
+        // Lockout check happens before any password work, so a locked identity
+        // costs an attacker a request and tells them nothing.
+        if (!email || !password || !canAttemptSignIn(email)) {
+          if (email) recordFailedSignIn(email);
+          return null;
+        }
         const configured = parsePortalUsers().find((user) => user.email.toLowerCase() === email);
         if (configured) {
-          if (!verifyPassword(password, configured)) return null;
+          if (!verifyPassword(password, configured)) {
+            recordFailedSignIn(email);
+            return null;
+          }
+          clearSignInAttempts(email);
 
           const existing = repo.getUserByEmail(email);
           const stored =
@@ -155,9 +183,22 @@ export const authOptions: AuthOptions = {
         if (
           !provisioned?.passwordSha256 ||
           provisioned.portalStatus === "disabled" ||
-          !safeEqual(hashPassword(password), provisioned.passwordSha256)
+          !verifyStoredPassword(password, provisioned.passwordSha256)
         ) {
+          recordFailedSignIn(email);
           return null;
+        }
+
+        clearSignInAttempts(email);
+
+        // Transparent upgrade: a correct password on a legacy record is the one
+        // moment we hold the plaintext, so re-hash it here and never again.
+        if (needsRehash(provisioned.passwordSha256)) {
+          try {
+            repo.updateUser(provisioned.id, { passwordSha256: hashPortalPassword(password) });
+          } catch (error) {
+            console.warn("[x-hub] Could not upgrade stored password hash.", error);
+          }
         }
 
         recordPortalSignIn(provisioned, "provisioned");

@@ -45,6 +45,7 @@
     "@react-three/postprocessing": "^3.0.4",
     "@tailwindcss/typography": "^0.5.16",
     "@types/mssql": "^12.3.0",
+    "animejs": "^4.5.0",
     "aos": "^2.3.4",
     "axios": "^1.7.2",
     "classnames": "^2.5.1",

@@ -3,6 +3,7 @@ import "server-only";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import puppeteer from "puppeteer";
+import { injectNarrativePages } from "./narrative-context";
 import { REPORT_CSS } from "./theme";
 
 function browserExecutablePath(): string | undefined {
@@ -81,7 +82,10 @@ export function setRenderPngScale(scale: number): void {
  * using headless Chromium. Shared by every report template.
  */
 export async function renderReportPdf(opts: { title: string; bodyHtml: string; embedBrandFonts?: boolean }): Promise<Buffer> {
-  const html = wrapReportHtml(opts.title, opts.bodyHtml, Boolean(opts.embedBrandFonts));
+  // Model-written pages, when the router put any in context for this request.
+  // A report with none renders exactly as it did before.
+  const bodyHtml = injectNarrativePages(opts.bodyHtml);
+  const html = wrapReportHtml(opts.title, bodyHtml, Boolean(opts.embedBrandFonts));
   const pngPage = PNG_PAGE_INDEX;
 
   const browser = await puppeteer.launch({

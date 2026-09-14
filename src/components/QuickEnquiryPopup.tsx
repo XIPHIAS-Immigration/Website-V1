@@ -3,7 +3,8 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 
-import ContactForm from "@/components/ContactForm";
+import ConciergeOrb from "@/components/Xia/ConciergeOrb";
+import { openXiaChat } from "@/components/Xia/xia-chat";
 import {
   COOKIE_CONSENT_EVENT,
   readCookieConsent,
@@ -21,6 +22,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 function shouldSkipPath(pathname: string) {
   const p = pathname.toLowerCase();
+  // The homepage has its own gate (components/Home/HeroGate). Two contact
+  // modals fighting over the first three seconds is how a visitor leaves.
+  if (p === "/") return true;
   if (p.startsWith("/contact")) return true;
   if (p === "/canada-visa-consultants-bangalore") return true;
   if (p === "/eligibility" || p.startsWith("/eligibility/")) return true;
@@ -61,6 +65,7 @@ function writeUntilToLocalStorage(key: string, days: number) {
 
 export default function QuickEnquiryPopup() {
   const pathname = usePathname();
+  const [draft, setDraft] = React.useState("");
 
   const [open, setOpen] = React.useState(false);
   const [pendingOpen, setPendingOpen] = React.useState(false);
@@ -125,7 +130,7 @@ export default function QuickEnquiryPopup() {
     setOpen(false);
     setPendingOpen(false);
 
-    if (skipRoute) return;
+    if (shouldSkipPath(pathname)) return;
 
     const now = Date.now();
     const dismissedUntil = readUntilFromLocalStorage(DISMISS_UNTIL_KEY);
@@ -138,11 +143,7 @@ export default function QuickEnquiryPopup() {
       shownThisSession = false;
     }
 
-    const alwaysPromptOnHomepage = pathname === "/";
-    if (
-      !alwaysPromptOnHomepage &&
-      (shownThisSession || now < dismissedUntil || now < submittedUntil)
-    ) {
+    if (shownThisSession || now < dismissedUntil || now < submittedUntil) {
       return;
     }
 
@@ -176,7 +177,7 @@ export default function QuickEnquiryPopup() {
       window.clearTimeout(timerId);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [pathname, skipRoute]);
+  }, [pathname]);
 
   React.useEffect(() => {
     if (!pendingOpen || skipRoute) return;
@@ -250,20 +251,53 @@ export default function QuickEnquiryPopup() {
           <span aria-hidden>x</span>
         </button>
 
-        <ContactForm
-          idPrefix="quick-enquiry-popup"
-          variant="full"
-          heading="Need help with the right immigration pathway?"
-          subheading="Share your details and an advisor will contact you within one business day."
-          apiEndpoint="/api/enquiry"
-          onSuccess={handleSubmitSuccess}
-          className="max-w-none"
-        />
+        <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-primary p-6 text-center text-white shadow-[0_28px_80px_rgba(3,16,40,0.6)] sm:p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_50%_0%,rgba(225,185,35,0.16),transparent_70%)]"
+          />
+          <div className="relative flex flex-col items-center">
+            <ConciergeOrb state="listening" size={96} />
+            <h2 id="quick-enquiry-popup-title" className="mt-4 text-[22px] font-black leading-tight sm:text-[26px]">
+              Not sure which route is yours?
+            </h2>
+            <p className="mt-2.5 max-w-md text-[14.5px] leading-relaxed text-white/70">
+              Tell XIA what you do. It checks you against the published rules of every programme
+              XIPHIAS works on and names the ones you actually clear — in about a minute.
+            </p>
+
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleSubmitSuccess();
+                openXiaChat(draft);
+              }}
+              className="mt-6 w-full"
+            >
+              <div className="flex flex-col gap-2 rounded-xl border border-white/25 bg-white/[0.08] p-2 focus-within:border-[#e1b923]/70 sm:flex-row sm:items-center">
+                <input
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder="What do you do for a living?"
+                  aria-label="Tell XIA what you do"
+                  autoComplete="off"
+                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-[15px] text-white placeholder-white/40 outline-none"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#e1b923] px-5 text-[14.5px] font-black text-[#071a3a] transition hover:bg-[#f0cb3b]"
+                >
+                  Ask XIA
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
 
         <button
           type="button"
           onClick={handleDismiss}
-          className="mt-2 w-full rounded-lg py-2 text-center text-sm text-white/90 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className="mt-2 w-full rounded-lg py-2 text-center text-sm font-semibold text-white/90 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           Not now
         </button>

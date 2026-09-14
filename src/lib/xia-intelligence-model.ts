@@ -1,3 +1,5 @@
+import { scoreConfidence } from "@/lib/xia/confidence";
+
 import type { Vertical } from "@/lib/content/types";
 
 export type RouteIntelligenceInput = {
@@ -17,7 +19,11 @@ export type RouteIntelligenceInput = {
   notes: string;
 };
 
+export const REQUIRED_ROUTE_INPUTS = 6;
+
 export type ProgrammeRouteSource = {
+  /** ISO date the programme record was last checked against the official source. */
+  lastVerified?: string;
   id: string;
   title: string;
   country: string;
@@ -598,6 +604,17 @@ export function scoreProgrammeRoutes(items: ProgrammeRouteSource[], input: Route
     return profileCompatibility(item, input.profile) >= 0;
   });
 
+  // The inputs the route rules actually depend on. Missing any of them lowers
+  // confidence rather than being silently ignored.
+  const suppliedRequiredInputs = [
+    Boolean(destination),
+    Boolean(input.nationality?.trim()),
+    input.goal !== "not-sure",
+    input.profile !== "not-provided",
+    input.timeline > 0,
+    input.priority !== "not-sure",
+  ].filter(Boolean).length;
+
   const scored = compatibleItems
     .map((item) => {
       let score = 0;
@@ -687,17 +704,16 @@ export function scoreProgrammeRoutes(items: ProgrammeRouteSource[], input: Route
       if (item.risk === "high") warnings.push("Enhanced due diligence likely required.");
       if (item.source === "catalog") warnings.push("Catalog route; advisor should verify current final rules.");
 
-      const confidenceScore = clamp(
-        35 +
-          (item.source === "site-content" ? 20 : 5) +
-          (destination ? 10 : 0) +
-          (input.goal !== "not-sure" ? 10 : 0) +
-          (input.profile !== "not-provided" ? 10 : 0) +
-          (input.timeline > 0 ? 5 : 0) +
-          (input.notes.trim() ? 5 : 0),
-        0,
-        95,
-      );
+      // Confidence is NOT "how much of the form did you fill in" — that made every
+      // completed form look 95% certain regardless of match quality. It is now
+      // data completeness x source freshness x rule coverage. See lib/xia/confidence.
+      const confidenceScore = scoreConfidence({
+        requiredFieldsSupplied: suppliedRequiredInputs,
+        requiredFieldsTotal: REQUIRED_ROUTE_INPUTS,
+        matchBasis: item.source,
+        lastVerified: item.lastVerified,
+        knockoutCount: 0,
+      }).score;
 
       return {
         ...item,

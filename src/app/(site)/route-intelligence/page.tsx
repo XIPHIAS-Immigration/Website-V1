@@ -1,44 +1,26 @@
-import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 
-import XiaIntelligenceClient from "@/components/XiaIntelligence/XiaIntelligenceClient";
-import { getXiaIntelligenceData } from "@/lib/xia-intelligence";
-import {
-  getJourneySource,
-  getRoutePrefill,
-  type PageSearchParams,
-} from "@/lib/xia-concierge-prefill";
+type PageSearchParams = Record<string, string | string[] | undefined>;
 
-export const metadata: Metadata = {
-  title: "Route Intelligence",
-  description:
-    "Rank immigration routes by country, budget, timeline, family needs, and XIPHIAS programme knowledge.",
-  alternates: {
-    canonical: "/route-intelligence",
-  },
-};
-
-export default async function RouteIntelligencePage({
+/**
+ * Folded into /xia-intelligence.
+ *
+ * This route rendered the identical component with a different heading, which is
+ * duplicate content to a crawler and an identical page to a visitor. Any preset
+ * it was given is carried across so existing links keep working.
+ */
+export default async function RouteIntelligenceRedirect({
   searchParams,
 }: {
   searchParams: Promise<PageSearchParams>;
 }) {
   const params = await searchParams;
-  const routePrefill = getRoutePrefill(params);
-
-  return (
-    <XiaIntelligenceClient
-      data={getXiaIntelligenceData()}
-      initialEngine={routePrefill.goal === "investment" ? "investment" : "route"}
-      initialRouteInput={routePrefill}
-      journeySource={getJourneySource(params)}
-      lockedEngine
-      title="Route Intelligence"
-      subtitle="Find immigration pathways that fit your destination, objective and practical circumstances. XIA removes conflicting routes first, then presents a focused shortlist with clear reasons, limitations and evidence gaps."
-      steps={[
-        { title: "Choose your destination and goal", description: "Tell us where you want to move and whether the objective is residence, work, citizenship, investment, business or family migration." },
-        { title: "Add the constraints that matter", description: "Provide your applicant profile, budget, timeline, family needs and preferred physical-presence level." },
-        { title: "Review compatible route directions", description: "Receive a filtered shortlist explaining possible fit, missing requirements and the confidence of each direction." },
-      ]}
-    />
-  );
+  const query = new URLSearchParams();
+  for (const key of ["destination", "country", "goal"]) {
+    const value = params[key];
+    const first = Array.isArray(value) ? value[0] : value;
+    if (first) query.set(key === "country" ? "destination" : key, first);
+  }
+  const suffix = query.toString();
+  permanentRedirect(`/xia-intelligence${suffix ? `?${suffix}` : ""}`);
 }

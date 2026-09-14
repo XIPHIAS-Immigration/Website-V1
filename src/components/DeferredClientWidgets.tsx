@@ -5,7 +5,14 @@ import React from "react";
 import { usePathname } from "next/navigation";
 
 const ScrollToTop = dynamic(() => import("@/components/ScrollToTop"), { ssr: false });
-const ChatWidget = dynamic(() => import("@/components/ChatWidget"), { ssr: false });
+// One assistant, not two: the concierge dock replaces the old canned-reply
+// ChatWidget. ChatWidget.tsx is left in place but is no longer mounted.
+const XiaConciergeDock = dynamic(() => import("@/components/Xia/XiaConciergeDock"), { ssr: false });
+// Mounted on every page so "Ask XIA" works from the hero, the nav, the dock and
+// from a pasted ?xia=1 link. The chat itself only downloads when it is opened.
+const XiaChatHost = dynamic(() => import("@/components/Xia/XiaChatHost"), { ssr: false });
+// Only ever appears after XIA has been closed, and never on a XIA page.
+const XiaExitForm = dynamic(() => import("@/components/Xia/XiaExitForm"), { ssr: false });
 const QuickEnquiryPopup = dynamic(() => import("@/components/QuickEnquiryPopup"), { ssr: false });
 const GlobalBrochureGate = dynamic(
   () => import("@/components/GlobalBrochureGate/GlobalBrochureGate"),
@@ -73,10 +80,12 @@ export default function DeferredClientWidgets({ gaId }: Props) {
     <>
       <QuickEnquiryPopup />
       <CookieConsentManager />
+      <XiaChatHost />
+      <XiaExitForm />
       {ready ? (
         <>
           <ScrollToTop />
-          <ChatWidget />
+          <XiaConciergeDock />
           {engagementReady ? <GlobalBrochureGate /> : null}
           <VisitorAnalyticsTracker />
           {gaId ? <CookieAwareGA4 gaId={gaId} /> : null}

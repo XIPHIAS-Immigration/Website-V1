@@ -350,3 +350,131 @@ body {
     hyphens: manual;
   }
 }
+
+/* ==========================================================================
+   XIA surfaces — shared ambient motion.
+
+   These live here rather than in a styled-jsx block because styled-jsx is
+   client-only: a `<style jsx>` tag in a server component pulls in
+   `client-only` and the build fails with "cannot be imported from a Server
+   Component module". /reports is a server component and hit exactly that.
+
+   Four surfaces were also carrying private copies of the same keyframes, so
+   this is one definition instead of four that drift.
+   ========================================================================== */
+
+.xia-aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(140px);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.xia-aurora--gold {
+  width: 42vw;
+  height: 42vw;
+  top: -13vw;
+  right: -7vw;
+  background: rgba(225, 185, 35, 0.17);
+  animation: xiaAuroraA 26s ease-in-out infinite;
+}
+
+.xia-aurora--sky {
+  width: 50vw;
+  height: 50vw;
+  bottom: -20vw;
+  left: -13vw;
+  background: rgba(80, 145, 245, 0.22);
+  animation: xiaAuroraB 31s ease-in-out infinite;
+}
+
+@keyframes xiaAuroraA {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-5vw, 4vw, 0) scale(1.12); }
+}
+
+@keyframes xiaAuroraB {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6vw, -4vw, 0) scale(1.08); }
+}
+
+/* A slow gold highlight travelling through a white headline. */
+.xia-sheen {
+  background: linear-gradient(100deg, #fff 0%, #fff 40%, #f5d260 52%, #fff 64%, #fff 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: xiaSheen 8s ease-in-out infinite;
+}
+
+@keyframes xiaSheen {
+  0%, 100% { background-position: 130% 0; }
+  50% { background-position: -30% 0; }
+}
+
+/* The faint dot grid every XIA surface sits on. */
+.xia-dots {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #ffffff 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xia-aurora,
+  .xia-sheen {
+    animation: none;
+  }
+  .xia-sheen {
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+  }
+}
+
+/* ==========================================================================
+   THE XIA MARK
+   Motion for the navigator star in ConciergeOrb. Per-state tempo arrives as
+   custom properties set on the <svg> itself, so one set of keyframes covers
+   idle, listening, thinking and resolved — and reduced motion is handled once,
+   here, rather than in four components.
+   ========================================================================== */
+
+.xia-mark-spin {
+  animation: xiaMarkSpin var(--xia-spin, 34s) linear infinite;
+}
+
+.xia-mark-spin--rev {
+  animation-duration: var(--xia-spin-rev, 52s);
+  animation-direction: reverse;
+}
+
+.xia-mark-orbit {
+  animation: xiaMarkSpin var(--xia-orbit, 16s) linear infinite;
+}
+
+.xia-mark-pulse {
+  animation: xiaMarkPulse var(--xia-pulse, 5.4s) ease-in-out infinite;
+}
+
+@keyframes xiaMarkSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes xiaMarkPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.055); opacity: 0.88; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xia-mark-spin,
+  .xia-mark-spin--rev,
+  .xia-mark-orbit,
+  .xia-mark-pulse {
+    animation: none;
+  }
+}

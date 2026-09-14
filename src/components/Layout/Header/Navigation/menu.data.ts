@@ -501,22 +501,39 @@ export const headerMenu: HeaderItem[] = [
 
   {
     label: 'Resources',
-    href: '/#resources',
+    href: '/xia-intelligence',
     submenu: [
+      // Ask XIA opens the full-screen assistant. '?xia=1' is how it is addressed
+      // from a link — the chat host reads it on mount, so the URL is shareable.
+      { label: 'Ask XIA',             href: '/?xia=1', description: 'Talk to the assistant — three questions to your shortlist', badge: { text: 'AI', tone: 'info' } },
+      // The tools, for people who would rather drive it themselves.
+      { label: 'XIA Route Intelligence', href: '/xia-intelligence', description: 'Which programmes you actually qualify for' },
+      { label: 'CRS Calculator',      href: '/tools/crs-calculator', description: 'Express Entry points, with the full breakdown' },
+      { label: 'Australia Points Calculator', href: '/tools/australia-points-calculator', description: 'Subclass 189, 190 and 491, scored' },
+      { label: 'Verify a consultant', href: '/verify-immigration-consultant', description: 'Check any adviser against the official register' },
+      { label: 'Deep Analysis',       href: '/deep-analysis', description: 'Evidence-led routes — researchers, founders, senior specialists' },
+      { label: 'US Visa Intelligence', href: '/us-visa-intelligence', description: 'EB-1A, EB-2 NIW and EB-5' },
+      { label: 'Immigration Reports',  href: '/reports', description: 'From Rs 499, delivered as a PDF' },
+      { label: 'Cost Estimator',      href: '/cost-estimator', description: 'What immigration really costs from India' },
+      // Guides. Long-tail, and each one ends at the report that answers it.
+      { label: 'Canada PR for software engineers', href: '/canada-pr-for-software-engineers-from-india' },
+      { label: 'CRS 450-470: your real chances', href: '/crs-score-450-470-chances' },
+      { label: 'What Canada PR costs from India', href: '/canada-pr-cost-from-india' },
+      { label: 'Documents required for Canada PR', href: '/documents-required-for-canada-pr-from-india' },
+      { label: 'Personal Advice',     href: '/personal-booking', description: '60 minutes with a senior advisor' },
       { label: 'Start Your Journey',  href: '/eligibility#start' },
-      { label: 'Immigration Reports',  href: '/reports' },
-      { label: 'XIA Intelligence',    href: '/#xia-intelligence' },
-      { label: 'Route Intelligence',  href: '/route-intelligence' },
-      { label: 'Deep Analysis',       href: '/deep-analysis' },
-      { label: 'US Visa Intelligence', href: '/us-visa-intelligence' },
-      { label: 'Cost Estimator',      href: '/cost-estimator' },
       { label: 'Compare Programs',    href: '/compare-programs' },
       { label: 'Program Index',       href: '/xiphias-program-index' },
       { label: 'X-Hub',               href: '/x-hub' },
       { label: 'Passport Power',      href: '/passport-index' },
       { label: 'Guide',               href: '/guide' },
       { label: 'Free Eligibility Check', href: '/eligibility' },
-      { label: 'Personal Advice',     href: '/personal-booking' },
+      // Local landing pages. Linked from the header so they are not orphans —
+      // an unlinked page does not rank, however well it is written.
+      { label: 'Immigration consultants in Bangalore', href: '/immigration-consultants-in-bangalore' },
+      { label: 'Verified consultants in Bangalore', href: '/verified-immigration-consultants-bangalore' },
+      { label: 'RCIC-registered consultant in India', href: '/rcic-registered-immigration-consultant-india' },
+      { label: 'Australia consultants in Bangalore', href: '/australia-immigration-consultants-in-bangalore' },
       { label: 'Media',               href: '/media' },
       { label: 'News',                href: '/news' },
       { label: 'Blog',                href: '/blog' },

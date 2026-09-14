@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -10,8 +9,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Clock3,
-  CreditCard,
   LoaderCircle,
   LockKeyhole,
   Mail,
@@ -223,6 +220,19 @@ export default function ConsultationBookingClient({
     }
   }
 
+  // The scheduler stays collapsed until someone asks for it. Any "#schedule"
+  // link on the page (including the hero CTA) opens it and scrolls it into view.
+  const [schedulerOpen, setSchedulerOpen] = useState(false);
+
+  useEffect(() => {
+    const openFromHash = () => {
+      if (window.location.hash === "#schedule") setSchedulerOpen(true);
+    };
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    return () => window.removeEventListener("hashchange", openFromHash);
+  }, []);
+
   const stepCopy = [
     { number: 1, label: "Schedule" },
     { number: 2, label: "Your information" },
@@ -230,62 +240,49 @@ export default function ConsultationBookingClient({
   ];
 
   return (
-    <div className="min-h-screen bg-[#1551a0] pb-20 pt-24 text-white sm:pt-28">
+    <div className="bg-[#1551a0] pb-20 pt-12 text-white sm:pt-14">
       <div className="mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:px-10">
-        <div className="mb-8 text-center">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-[#f0c83f]">XIPHIAS Private Advisory</p>
-          <h1 className="mx-auto mt-3 max-w-4xl text-3xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-            Schedule your senior-advisor consultation
-          </h1>
-          <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-white/70 sm:text-base">
-            Choose a suitable time, tell us what you need to resolve, and complete the secure payment. Your appointment is confirmed only after JioPay verification.
-          </p>
-        </div>
-
-        <section id="schedule" className="scroll-mt-28 overflow-hidden rounded-[28px] border border-white/15 bg-[#0f438f] shadow-[0_32px_90px_rgba(3,20,55,0.38)] lg:grid lg:grid-cols-[390px_minmax(0,1fr)]">
-          <aside className="relative min-h-[420px] overflow-hidden border-b border-white/10 lg:min-h-[760px] lg:border-b-0 lg:border-r">
-            <Image
-              src="/images/avtar/varun-singh-md-xiphias.jpg"
-              alt="Varun Singh, XIPHIAS senior advisor"
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 390px"
-              className="object-cover object-top"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#071a3a] via-[#071a3a]/30 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#f0c83f]/40 bg-[#071a3a]/65 px-3 py-1 text-xs font-bold text-[#f0c83f] backdrop-blur">
-                <BadgeCheck className="size-4" /> Senior strategy session
-              </span>
-              <h2 className="mt-4 text-3xl font-black">Varun Singh</h2>
-              <p className="mt-1 text-sm text-white/65">MD · Fellow IMC · Cert IMC</p>
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                {[
-                  [Clock3, `${durationMinutes} minutes`],
-                  [CreditCard, formatPrice(priceInr)],
-                  [ShieldCheck, "Confidential"],
-                  [CalendarDays, "Online session"],
-                ].map(([Icon, label]) => {
-                  const IconComponent = Icon as typeof Clock3;
-                  return (
-                    <div key={String(label)} className="rounded-xl border border-white/12 bg-white/8 p-3 backdrop-blur-sm">
-                      <IconComponent className="size-4 text-[#f0c83f]" />
-                      <p className="mt-2 text-xs font-semibold text-white/85">{String(label)}</p>
-                    </div>
-                  );
-                })}
+        {!schedulerOpen ? (
+          <section id="schedule" className="scroll-mt-28 overflow-hidden rounded-[28px] border border-white/15 bg-[#0f438f] p-7 shadow-[0_32px_90px_rgba(3,20,55,0.38)] sm:p-10">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Book your consultation</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70 sm:text-base">
+                  Pick a time, tell the advisor what you need to resolve, and pay securely. Everything happens on this page — it takes about two minutes.
+                </p>
+                <ul className="mt-6 grid gap-2.5 sm:grid-cols-3">
+                  {[
+                    { icon: CalendarDays, text: `${durationMinutes}-minute private call` },
+                    { icon: BadgeCheck, text: "Written summary afterwards" },
+                    { icon: LockKeyhole, text: "Confidential handling" },
+                  ].map((item) => {
+                    const ItemIcon = item.icon;
+                    return (
+                      <li key={item.text} className="flex items-center gap-2 text-[13px] font-semibold text-white/80">
+                        <ItemIcon className="size-4 shrink-0 text-[#f0c83f]" aria-hidden="true" />
+                        {item.text}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-              <ul className="mt-6 space-y-3 text-sm text-white/75">
-                {["Profile and objective review", "Country and route comparison", "Key risks and evidence gaps", "Practical next-step direction"].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-[#f0c83f] text-[#071a3a]"><Check className="size-3" /></span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </aside>
 
+              <div className="shrink-0 lg:text-right">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-white/50">Consultation fee</p>
+                <p className="mt-1 text-4xl font-black tabular-nums">{formatPrice(priceInr)}</p>
+                <button
+                  type="button"
+                  onClick={() => setSchedulerOpen(true)}
+                  className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#d8ad1f] px-8 text-base font-black text-[#071a3a] shadow-lg transition hover:bg-[#f0c83f] lg:w-auto"
+                >
+                  <CalendarDays className="size-5" aria-hidden="true" />
+                  Book a consultation
+                </button>
+              </div>
+            </div>
+          </section>
+        ) : (
+        <section id="schedule" className="scroll-mt-28 overflow-hidden rounded-[28px] border border-white/15 bg-[#0f438f] shadow-[0_32px_90px_rgba(3,20,55,0.38)]">
           <div className="bg-[#f6f9fd] text-[#071a3a]">
             <div className="border-b border-[#dbe7f3] bg-white px-5 py-5 sm:px-8">
               <ol className="grid grid-cols-3 gap-2" aria-label="Booking progress">
@@ -468,6 +465,7 @@ export default function ConsultationBookingClient({
             </div>
           </div>
         </section>
+        )}
 
         <div className="mx-auto mt-8 grid max-w-5xl gap-4 text-center text-sm text-white/65 sm:grid-cols-3">
           <p className="flex items-center justify-center gap-2"><ShieldCheck className="size-4 text-[#f0c83f]" /> Appointment confirmed after payment</p>

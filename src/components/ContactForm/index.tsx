@@ -7,15 +7,25 @@ import Loader from "@/components/Common/Loader";
 import TurnstileField from "@/components/Security/TurnstileField";
 import { FiMail, FiUser, FiPhone, FiMessageSquare } from "react-icons/fi";
 
+export type SubmittedLead = {
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+  country: string;
+};
+
 type Props = {
-  variant?: "full" | "quick";
+  /** full = name+phone+email+message · lead = name+phone+email · quick = name+phone */
+  variant?: "full" | "quick" | "lead";
   className?: string;
   heading?: string;
   subheading?: string;
   defaults?: Partial<Record<"name" | "phone" | "email" | "message", string>>;
   apiEndpoint?: string;          // UI only — backend unchanged
   onSuccessRedirect?: string;
-  onSuccess?: () => void | Promise<void>;
+  /** Receives the submitted values so a parent can seed a case, CRM, or funnel. */
+  onSuccess?: (values: SubmittedLead) => void | Promise<void>;
   idPrefix?: string;
 };
 
@@ -31,6 +41,9 @@ export default function ContactForm({
   idPrefix = "contact",
 }: Props) {
   const isFull = variant === "full";
+  // "quick" is the only variant that skips email, and /api/enquiry rejects a
+  // submission without one — so quick is callback-only and never posts there.
+  const needsEmail = variant !== "quick";
   const [loading, setLoading] = useState(false);
   const [submissionState, setSubmissionState] = useState<"idle" | "submitting" | "submitted">("idle");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -66,12 +79,12 @@ export default function ContactForm({
     if (touched.name && !vName(name)) e.name = "Please enter at least 2 characters.";
     if (touched.phone && !vPhone(phone))
       e.phone = "Enter a valid phone number (digits, +, -, () allowed).";
-    if (isFull && touched.email && !vEmail(email)) e.email = "Enter a valid email.";
+    if (needsEmail && touched.email && !vEmail(email)) e.email = "Enter a valid email.";
     if (isFull && touched.message && !vMsg(message))
       e.message = "Please add at least 10 characters.";
     return e;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [touched, isFull]);
+  }, [touched, isFull, needsEmail]);
 
   const markTouched = (name: string) =>
     setTouched((t) => ({ ...t, [name]: true }));
@@ -89,7 +102,7 @@ export default function ContactForm({
     const em = String(payload.email || "");
     const m = String(payload.message || "");
 
-    if (!vName(n) || !vPhone(p) || (isFull && !vEmail(em)) || !vMsg(m)) {
+    if (!vName(n) || !vPhone(p) || (needsEmail && !vEmail(em)) || !vMsg(m)) {
       setTouched({ name: true, phone: true, email: true, message: true });
       toast.error("Please fix the highlighted fields.");
       return;
@@ -101,15 +114,16 @@ export default function ContactForm({
       // continue on the server. If the request fails, the form is restored.
       setSubmissionState("submitting");
 
+      const submittedCountry =
+        (formRef.current?.elements.namedItem("country") as HTMLInputElement)?.value || "";
+
       const res = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
           startedAt: startedAtRef.current,
-          country:
-            (formRef.current?.elements.namedItem("country") as HTMLInputElement)
-              ?.value || "",
+          country: submittedCountry,
           variant,
           page: typeof window !== "undefined" ? window.location.pathname : "",
           referrer:
@@ -129,7 +143,9 @@ export default function ContactForm({
       toast.success(
         isFull
           ? "Your message has been sent. We'll be in touch soon."
-          : "Callback request received. We'll call you shortly."
+          : variant === "lead"
+            ? "Thank you — an advisor will be in touch."
+            : "Callback request received. We'll call you shortly."
       );
 
       f.reset();
@@ -140,7 +156,15 @@ export default function ContactForm({
       setSubmissionState("submitted");
       if (onSuccess) {
         try {
-          await Promise.resolve(onSuccess());
+          await Promise.resolve(
+            onSuccess({
+              name: n,
+              phone: p,
+              email: em,
+              message: m,
+              country: submittedCountry,
+            }),
+          );
         } catch {
           // keep submission successful even if parent callback fails
         }
@@ -265,7 +289,7 @@ export default function ContactForm({
           autoComplete="tel"
         />
 
-        {isFull && (
+        {needsEmail && (
           <Field
             id={`${idPrefix}-email`}
             name="email"

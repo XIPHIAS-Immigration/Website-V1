@@ -52,3 +52,14 @@ next-env.d.ts
 /tmp/
 /output/pdf/
 /.next.interrupted*/
+
+# local env template (contains a dev secret)
+env.local.template
+
+# Dot-less env copies. These are NOT loaded by Next (wrong filename) but they do
+# contain real SMTP, CRM and JioPay credentials, and the .env* rules above never
+# matched them. Ignore them explicitly.
+env.download*
+env.production*
+*.env.bak
+*.bak

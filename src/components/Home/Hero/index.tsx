@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, FileText, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, ShieldCheck } from "lucide-react";
+
+import HeroXiaActions from "@/components/Home/HeroXiaActions";
 
 // Popular destination chips — every link is a live programme page.
 const DESTINATIONS: { name: string; flag: string; href: string }[] = [
@@ -68,13 +70,7 @@ export default function Hero() {
               Choose a report — from ₹499
               <FileText className="size-[1.15em]" aria-hidden="true" />
             </Link>
-            <Link
-              href="/xia-intelligence"
-              className="inline-flex min-h-[clamp(3rem,calc(2.8rem+0.5vw),3.5rem)] items-center justify-center gap-2 rounded-full border border-[#f0c83f]/55 bg-[#f0c83f]/10 px-[clamp(1.5rem,2vw,2.5rem)] text-[clamp(0.95rem,calc(0.86rem+0.18vw),1.15rem)] font-black text-[#f0c83f] backdrop-blur-sm transition hover:bg-[#f0c83f]/20"
-            >
-              <Sparkles className="size-[1.15em]" aria-hidden="true" />
-              XIA Intelligence
-            </Link>
+            <HeroXiaActions />
           </div>
 
           {/* Popular destinations — functional filler, every chip is a live page. */}

@@ -26,7 +26,11 @@ const EXPLORE = [
 const RESOURCES = Object.freeze([
   { label: "Start Your Journey", href: "/eligibility" },
   { label: "Immigration Reports", href: "/reports" },
-  { label: "XIA Intelligence", href: "/#xia-intelligence" },
+  { label: "Ask XIA", href: "/?xia=1" },
+  { label: "XIA Route Intelligence", href: "/xia-intelligence" },
+  { label: "CRS Calculator", href: "/tools/crs-calculator" },
+  { label: "Australia Points Calculator", href: "/tools/australia-points-calculator" },
+  { label: "Verify a consultant", href: "/verify-immigration-consultant" },
   { label: "X-Hub", href: "/x-hub" },
   { label: "Guides & Resources", href: "/guide" },
   { label: "Insights", href: "/insights" },
@@ -34,6 +38,27 @@ const RESOURCES = Object.freeze([
   { label: "Awards & Recognition", href: "/awards" },
   { label: 'Partner With Us', href: '/partner-with-us' },
   { label: 'Reviews', href: '/reviews' },
+]);
+
+// Guides. Same reasoning as the local pages below: a page nothing links to
+// does not rank, however well it is written.
+const GUIDES = Object.freeze([
+  { label: "Canada PR for software engineers from India", href: "/canada-pr-for-software-engineers-from-india" },
+  { label: "CRS 450-470: what your chances really are", href: "/crs-score-450-470-chances" },
+  { label: "What Canada PR costs from India", href: "/canada-pr-cost-from-india" },
+  { label: "Documents required for Canada PR", href: "/documents-required-for-canada-pr-from-india" },
+]);
+
+// Local landing pages. Site-wide footer links are what keeps them out of the
+// orphan bucket — an unlinked page does not rank, however well it is written.
+const LOCAL = Object.freeze([
+  { label: "Immigration consultants in Bangalore", href: "/immigration-consultants-in-bangalore" },
+  { label: "Verified immigration consultants, Bangalore", href: "/verified-immigration-consultants-bangalore" },
+  { label: "RCIC-registered immigration consultant, India", href: "/rcic-registered-immigration-consultant-india" },
+  { label: "Australia immigration consultants in Bangalore", href: "/australia-immigration-consultants-in-bangalore" },
+  { label: "Canada visa consultants, Bangalore", href: "/canada-visa-consultants-bangalore" },
+  { label: "Top immigration consultants in India", href: "/top-immigration-consultants-in-india" },
+  { label: "Immigration consultants in India", href: "/immigration-consultants-in-india" },
 ]);
 
 
@@ -468,6 +493,44 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* ===== Guides — one row, on every page ===== */}
+        <nav aria-label="Immigration guides" className="py-5 border-b border-white/10">
+          <p className="text-[11.5px] font-bold uppercase tracking-[0.16em] text-white/45">
+            Guides worth reading before you pay anyone
+          </p>
+          <ul className="mt-2.5 flex flex-wrap gap-x-5 gap-y-2">
+            {GUIDES.map((l) => (
+              <li key={l.href}>
+                <Link
+                  className="text-[13px] text-white/75 underline-offset-4 hover:text-white hover:underline"
+                  href={l.href}
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* ===== Local landing pages — one row, on every page ===== */}
+        <nav aria-label="Immigration consultants near you" className="py-5 border-b border-white/10">
+          <p className="text-[11.5px] font-bold uppercase tracking-[0.16em] text-white/45">
+            Immigration consultants near you
+          </p>
+          <ul className="mt-2.5 flex flex-wrap gap-x-5 gap-y-2">
+            {LOCAL.map((l) => (
+              <li key={l.href}>
+                <Link
+                  className="text-[13px] text-white/75 underline-offset-4 hover:text-white hover:underline"
+                  href={l.href}
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
         {/* ===== Utility Strip: App QR (kept) + Contact ===== */}
         <div className="py-6 border-b border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
@@ -622,7 +685,28 @@ export default function Footer() {
                     <Icon icon="mdi:certificate-outline" className="h-5 w-5 mt-0.5" />
                     <div>
                       <strong className="text-[13.5px]">Accreditations</strong>
-                      <p className="text-[13px] text-white/85">RCIC R516194 • MARA 1680615</p>
+                      <p className="text-[13px] text-white/85">
+                        <a
+                          href="https://register.college-ic.ca/Public-Register-EN/RCIC_Search.aspx"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2"
+                        >
+                          CICC RCIC R516194
+                        </a>
+                        {" • "}
+                        <a
+                          href="https://portal.mara.gov.au/search-the-register-of-migration-agents/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2"
+                        >
+                          MARA 1680615
+                        </a>
+                      </p>
+                      <p className="mt-1 text-[11px] leading-4 text-white/55">
+                        Verify either licence on the regulator&apos;s own public register.
+                      </p>
                     </div>
                   </div>
                 </li>

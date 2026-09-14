@@ -24,7 +24,6 @@ export default function robots(): MetadataRoute.Robots {
           "/admin",
           "/dashboard",
           "/payment",
-          "/registration",
           "/report-advisor-workflow",
           "/australia-assesment-report",
           "/canada-assesent-report",

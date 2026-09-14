@@ -385,7 +385,7 @@ export default function XiaIntelligenceClient({
             </div>
             <div className="flex flex-wrap gap-3 lg:justify-end">
               {lockedEngine ? (
-                <Link href="/#xia-intelligence" className="inline-flex h-11 items-center justify-center rounded-lg border border-white/25 px-4 text-sm font-semibold text-white transition hover:bg-white/10">
+                <Link href="/xia-intelligence" className="inline-flex h-11 items-center justify-center rounded-lg border border-white/25 px-4 text-sm font-semibold text-white transition hover:bg-white/10">
                   View all XIA tools
                 </Link>
               ) : null}

@@ -3,6 +3,7 @@ import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 
 import { protectPublicLead } from "@/lib/security/public-lead-security";
+import { extractCvProfile } from "@/lib/xia/cv-extract";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -78,5 +79,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true, fileName: name.slice(0, 160), text, characters: text.length });
+  // Until now this endpoint returned raw text and nothing read it. Extraction is
+  // best-effort: when the model is off, over budget or unreachable, the caller
+  // still gets the text and the form simply stays manual.
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const extraction = await extractCvProfile(text, ip);
+
+  return NextResponse.json({
+    ok: true,
+    fileName: name.slice(0, 160),
+    text,
+    characters: text.length,
+    profile: extraction.ok ? extraction.profile : null,
+    profileNote: extraction.ok ? null : extraction.reason,
+  });
 }

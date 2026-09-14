@@ -22,7 +22,15 @@ const RAW_CONTENT_DIRS = [
 // Only keep dirs that actually exist (prevents confusion + extra work)
 const CONTENT_DIRS = RAW_CONTENT_DIRS.filter((p) => fs.existsSync(p));
 
-// Keep this aligned with /app/robots.ts block list
+// Keep this aligned with /app/robots.ts block list.
+//
+// Three entries were removed here on 13 Sep 2026, all of them working against us:
+//   /registration      — the paid assessment page, i.e. a conversion page that
+//                        could not be crawled or ranked.
+//   /xia-intelligence  — now the canonical tool page; it was being hidden.
+//   /(top-)immigration-consultants-in-india — kept as deliberate orphans. An
+//                        unlinked page that is in no sitemap does not rank, so
+//                        two well-named pages were simply switched off.
 const BLOCKLIST: Array<string | RegExp> = [
   /^\/api(\/|$)/,
   /^\/content-admin(\/|$)/,
@@ -40,14 +48,9 @@ const BLOCKLIST: Array<string | RegExp> = [
   /^\/draft(\/|$)/,
   /^\/private(\/|$)/,
   /^\/payment(\/|$)/,
-  /^\/registration(\/|$)/,
-  /^\/xia-intelligence$/,
   /^\/report-advisor-workflow(\/|$)/,
   /^\/australia-assesment-report(\/|$)/,
   /^\/canada-assesent-report(\/|$)/,
-  // Intentional orphan landing page: index through direct Search Console
-  // submission, not through the public sitemap or site navigation.
-  /^\/(?:top-)?immigration-consultants-in-india$/,
 ];
 
 /* ------------------------------ utils ----------------------------------- */
