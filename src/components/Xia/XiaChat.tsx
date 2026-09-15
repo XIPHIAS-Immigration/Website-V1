@@ -67,20 +67,29 @@ function setField(field: keyof XiaCase, value: string | number): Partial<XiaCase
   return { [field]: value } as unknown as Partial<XiaCase>;
 }
 
-const QUESTIONS: Question[] = [
+/**
+ * The three questions that identify WHICH track someone is on. Everything after
+ * these comes from the matched programmes' own rules — see `advance()`.
+ *
+ * It used to be a fixed five: job, country, goal, age, IELTS band. That asked a
+ * Caribbean citizenship buyer for their IELTS score and never asked them how
+ * much they could contribute. The rules always knew better; the script was not
+ * listening to them.
+ */
+const OPENERS: Question[] = [
   {
     key: "profile",
     rail: "You",
     ask: "First — what do you do for a living?",
     field: "profile",
     chips: [
-      { label: "Salaried professional", value: "professional", emoji: "💼" },
-      { label: "Founder / business owner", value: "entrepreneur", emoji: "🚀" },
-      { label: "Investor", value: "investor", emoji: "📈" },
-      { label: "Researcher or academic", value: "researcher", emoji: "🔬" },
-      { label: "Doctor or nurse", value: "professional", emoji: "🩺" },
-      { label: "Student or recent graduate", value: "student", emoji: "🎓" },
-      { label: "Remote worker / freelancer", value: "remote", emoji: "🌐" },
+      { label: "Salaried professional", value: "professional", emoji: "\ud83d\udcbc" },
+      { label: "Founder / business owner", value: "entrepreneur", emoji: "\ud83d\ude80" },
+      { label: "Investor", value: "investor", emoji: "\ud83d\udcc8" },
+      { label: "Researcher or academic", value: "researcher", emoji: "\ud83d\udd2c" },
+      { label: "Doctor or nurse", value: "professional", emoji: "\ud83e\ude7a" },
+      { label: "Student or recent graduate", value: "student", emoji: "\ud83c\udf93" },
+      { label: "Remote worker / freelancer", value: "remote", emoji: "\ud83c\udf10" },
     ],
   },
   {
@@ -89,71 +98,83 @@ const QUESTIONS: Question[] = [
     ask: "Where are you hoping to go? Pick one, or tell me you're open and I'll choose from what fits you.",
     field: "destination",
     chips: [
-      { label: "Canada", value: "canada", emoji: "🇨🇦" },
-      { label: "Australia", value: "australia", emoji: "🇦🇺" },
-      { label: "United Kingdom", value: "united kingdom", emoji: "🇬🇧" },
-      { label: "United States", value: "united states", emoji: "🇺🇸" },
-      { label: "Portugal", value: "portugal", emoji: "🇵🇹" },
-      { label: "Greece", value: "greece", emoji: "🇬🇷" },
-      { label: "UAE", value: "uae", emoji: "🇦🇪" },
-      { label: "I'm open — you pick", value: "", emoji: "🌍" },
+      { label: "Canada", value: "canada", emoji: "\ud83c\udde8\ud83c\udde6" },
+      { label: "Australia", value: "australia", emoji: "\ud83c\udde6\ud83c\uddfa" },
+      { label: "United Kingdom", value: "united kingdom", emoji: "\ud83c\uddec\ud83c\udde7" },
+      { label: "United States", value: "united states", emoji: "\ud83c\uddfa\ud83c\uddf8" },
+      { label: "Portugal", value: "portugal", emoji: "\ud83c\uddf5\ud83c\uddf9" },
+      { label: "Greece", value: "greece", emoji: "\ud83c\uddec\ud83c\uddf7" },
+      { label: "UAE", value: "uae", emoji: "\ud83c\udde6\ud83c\uddea" },
+      { label: "I'm open — you pick", value: "", emoji: "\ud83c\udf0d" },
     ],
   },
   {
     key: "goal",
     rail: "Goal",
-    ask: "And what do you want the move to actually achieve?",
+    ask: "And what do you want the move to actually achieve? This decides everything I ask you next.",
     field: "goal",
     chips: [
-      { label: "Permanent residence", value: "pr", emoji: "🏠" },
-      { label: "Work abroad", value: "work-visa", emoji: "💼" },
-      { label: "A second passport", value: "citizenship", emoji: "🛂" },
-      { label: "Invest for residency", value: "investment", emoji: "💰" },
-      { label: "Start or move a business", value: "business-setup", emoji: "🏢" },
-      { label: "Study, then stay", value: "study", emoji: "📚" },
-    ],
-  },
-  {
-    key: "age",
-    rail: "Age",
-    ask: "How old are you? Age moves the score on most points systems more than anything else.",
-    field: "age",
-    toPatch: (value) => ({ age: Number(value) }),
-    chips: [
-      { label: "Under 30", value: "27" },
-      { label: "30 – 34", value: "32" },
-      { label: "35 – 39", value: "37" },
-      { label: "40 – 44", value: "42" },
-      { label: "45 or over", value: "46" },
-    ],
-  },
-  {
-    key: "english",
-    rail: "English",
-    ask: "Last one. Have you sat IELTS or PTE, and roughly what did you get in your weakest section?",
-    field: "languageTest",
-    toPatch: (value) =>
-      value === "0"
-        ? { languageTest: "not-taken" }
-        : {
-            languageTest: "ielts",
-            languageScores: {
-              speaking: Number(value),
-              listening: Number(value),
-              reading: Number(value),
-              writing: Number(value),
-            },
-          },
-    chips: [
-      { label: "Band 8 or above", value: "8" },
-      { label: "Band 7", value: "7" },
-      { label: "Band 6.5", value: "6.5" },
-      { label: "Band 6", value: "6" },
-      { label: "Below 6", value: "5" },
-      { label: "Not taken it yet", value: "0" },
+      { label: "Permanent residence", value: "pr", emoji: "\ud83c\udfe0" },
+      { label: "Work abroad", value: "work-visa", emoji: "\ud83d\udcbc" },
+      { label: "A second passport", value: "citizenship", emoji: "\ud83d\udec2" },
+      { label: "Invest for residency", value: "investment", emoji: "\ud83d\udcb0" },
+      { label: "Start or move a business", value: "business-setup", emoji: "\ud83c\udfe2" },
+      { label: "Join or bring family", value: "family-migration", emoji: "\ud83d\udc6a" },
+      { label: "Study, then settle", value: "study", emoji: "\ud83d\udcda" },
     ],
   },
 ];
+
+/* -------------------------------------------------------------------------- */
+/*  Questions that come back from the engine                                   */
+/* -------------------------------------------------------------------------- */
+
+/** What /api/xia/match returns. Data only — a function cannot cross the wire. */
+type WireAsk = {
+  field: string;
+  rail: string;
+  question: string;
+  chips: Array<{ label: string; value: string }>;
+};
+
+/**
+ * Chip value to case patch, for the fields where the value is not just a string.
+ * Mirrors the `toPatch` on the server-side Ask definitions; anything not listed
+ * here is written to its field as plain text.
+ */
+const ASK_PATCH: Record<string, (value: string) => Partial<XiaCase>> = {
+  age: (value) => ({ age: Number(value) }),
+  yearsExperience: (value) => ({ yearsExperience: Number(value) }),
+  timelineMonths: (value) => ({ timelineMonths: Number(value) }),
+  budgetUsd: (value) =>
+    Number(value) > 0 ? { budgetUsd: Number(value) } : { notes: "No fixed investment budget yet" },
+  previousRefusal: (value) =>
+    value === "discuss"
+      ? { notes: "Prefers to discuss refusal history with an advisor" }
+      : { previousRefusal: value === "yes" },
+  languageTest: (value) => {
+    if (value === "0") return { languageTest: "not-taken" };
+    if (value === "french") {
+      return { languageTest: "french", notes: "Tested in French — check the francophone bonus and category draws" };
+    }
+    const band = Number(value);
+    return {
+      languageTest: "english",
+      languageScores: { speaking: band, listening: band, reading: band, writing: band },
+    };
+  },
+};
+
+function toQuestion(ask: WireAsk): Question {
+  return {
+    key: `ask-${ask.field}`,
+    rail: ask.rail,
+    ask: ask.question,
+    field: ask.field as keyof XiaCase,
+    chips: ask.chips.map((chip) => ({ label: chip.label, value: chip.value })),
+    toPatch: ASK_PATCH[ask.field],
+  };
+}
 
 /**
  * Offered once the cards are up, to sharpen what is already on screen.
@@ -162,13 +183,63 @@ const QUESTIONS: Question[] = [
  * extractor read "I can invest more than 250,000 US dollars" as a change of GOAL
  * to investment, which silently re-filtered a skilled-migration shortlist down to
  * nothing. A refinement adds a fact; it must never re-steer the search.
+ *
+ * Keyed by goal, because offering "I have a master's degree" to somebody buying
+ * a Caribbean passport is the same mistake as asking them for an IELTS band.
  */
-const REFINE: Chip[] = [
+const REFINE_BY_GOAL: Record<string, Chip[]> = {
+  pr: [
+    { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
+    { label: "10+ years' experience", value: "experience", patch: { yearsExperience: 12 } },
+    { label: "My partner is coming too", value: "partner", patch: { family: "partner" } },
+    { label: "I have a job offer there", value: "offer", patch: { notes: "Has a job offer in the destination country" } },
+  ],
+  "work-visa": [
+    { label: "I have a job offer there", value: "offer", patch: { notes: "Has a job offer in the destination country" } },
+    { label: "10+ years' experience", value: "experience", patch: { yearsExperience: 12 } },
+    { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
+    { label: "My partner is coming too", value: "partner", patch: { family: "partner" } },
+  ],
+  investment: [
+    { label: "I'd rather not relocate", value: "no-relocate", patch: { stayTolerance: "minimal" } },
+    { label: "Citizenship matters to me later", value: "cit-later", patch: { notes: "Wants a citizenship pathway from the residency" } },
+    { label: "My budget can stretch", value: "stretch", patch: { budgetUsd: 700_000 } },
+    { label: "Children under 18 coming", value: "kids", patch: { family: "children" } },
+  ],
+  citizenship: [
+    { label: "I need it within 6 months", value: "fast", patch: { timelineMonths: 6 } },
+    { label: "Adding parents too", value: "parents", patch: { family: "parents" } },
+    { label: "I've had a visa refused before", value: "refused", patch: { previousRefusal: true } },
+    { label: "My budget can stretch", value: "stretch", patch: { budgetUsd: 400_000 } },
+  ],
+  "business-setup": [
+    { label: "I have external funding", value: "funded", patch: { notes: "Business has external funding committed" } },
+    { label: "I'd relocate with the business", value: "relocate", patch: { stayTolerance: "relocate" } },
+    { label: "We already have clients there", value: "clients", patch: { notes: "Existing clients in the destination market" } },
+    { label: "The business trades already", value: "trading", patch: { businessStage: "2-5-years" } },
+  ],
+  "family-migration": [
+    { label: "We're already married", value: "married", patch: { family: "partner" } },
+    { label: "Not married yet", value: "unmarried", patch: { notes: "Relationship not yet registered as a marriage" } },
+    { label: "Children under 18 coming", value: "kids", patch: { family: "children" } },
+  ],
+  study: [
+    { label: "I studied in that country", value: "studied-there", patch: { notes: "Holds a qualification from the destination country" } },
+    { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
+    { label: "I have a job offer there", value: "offer", patch: { notes: "Has a job offer in the destination country" } },
+  ],
+};
+
+const REFINE_DEFAULT: Chip[] = [
   { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
   { label: "10+ years' experience", value: "experience", patch: { yearsExperience: 12 } },
   { label: "My partner is coming too", value: "partner", patch: { family: "partner" } },
   { label: "I can invest $250k+", value: "funds", patch: { budgetUsd: 250_000 } },
 ];
+
+function refineFor(goal?: string): Chip[] {
+  return REFINE_BY_GOAL[goal ?? ""] ?? REFINE_DEFAULT;
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -187,8 +258,17 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
   const { case: item, patchNow } = useXiaCase("hero");
   const [mounted, setMounted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  /** Index into QUESTIONS. Equal to QUESTIONS.length once the cards are up. */
+  /** Index into the ladder. Equal to ladder.length once the cards are up. */
   const [index, setIndex] = useState(0);
+  /**
+   * The questions actually being asked. Starts as the three openers and grows
+   * once the engine says what the matched routes are waiting on.
+   */
+  const ladder = useRef<Question[]>([...OPENERS]);
+  /** Render mirror of the ladder, so the progress rail redraws when it grows. */
+  const [rail, setRail] = useState<Question[]>([...OPENERS]);
+  /** The engine is asked for follow-up questions exactly once. */
+  const askedEngine = useRef(false);
   const [chips, setChips] = useState<Chip[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -203,6 +283,8 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
   const started = useRef(false);
   /** Questions already put to this visitor. A repeat reads as a broken bot. */
   const asked = useRef<Set<number>>(new Set());
+  /** Set after `ask` is defined, so `advance` can call it without a cycle. */
+  const askRef = useRef<(from: number) => void>(() => {});
   /** The last non-empty shortlist, so a refinement can never wipe the screen. */
   const lastMatches = useRef<CaseMatch[]>([]);
   /** First result set says the full piece; later ones only re-rank. */
@@ -321,7 +403,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
   const showResults = useCallback(async () => {
     setChips([]);
     setBusy(true);
-    setIndex(QUESTIONS.length);
+    setIndex(ladder.current.length);
     try {
       const response = await fetch("/api/xia/match?limit=4&closed=0", { credentials: "same-origin" });
       const data = await response.json();
@@ -358,7 +440,15 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
           say({ from: "xia", text: "Re-ranked with that. Here is how it stands now." });
           say({ from: "xia", cards: matches });
         }
-        setChips(REFINE);
+        setChips(refineFor(item.goal));
+      } else if (item.goal === "family-migration") {
+        // Not a failure. Sponsorship rules are held by the destination's family
+        // stream, which this engine does not carry — saying "you do not clear
+        // the rules" would be a lie about a case that may be perfectly strong.
+        say({
+          from: "xia",
+          text: "Family sponsorship is decided by your relative's status and your relationship to them, not by a points table — so I will not pretend to score it. What you have told me is exactly what an advisor needs to answer it properly.",
+        });
       } else {
         say({
           from: "xia",
@@ -371,28 +461,63 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
     } finally {
       setBusy(false);
     }
-  }, [say]);
+  }, [say, item.goal]);
 
-  /** Ask question `from`, or show results if we are past the end. */
+  /**
+   * Once the openers are done, ask the engine what the shortlisted routes are
+   * actually waiting on. A points route asks age, study and language; an
+   * investment route asks capital, family and how much time you can spend there.
+   * Nothing here is hard-coded per goal.
+   */
+  const advance = useCallback(async () => {
+    if (askedEngine.current) {
+      void showResults();
+      return;
+    }
+    askedEngine.current = true;
+
+    setBusy(true);
+    try {
+      const response = await fetch("/api/xia/match?limit=4&closed=0", { credentials: "same-origin" });
+      const data = await response.json();
+      const derived: Question[] = ((data?.questions ?? []) as WireAsk[]).map(toQuestion);
+      if (derived.length) {
+        const from = ladder.current.length;
+        ladder.current = [...ladder.current, ...derived];
+        setRail(ladder.current);
+        setBusy(false);
+        askRef.current(from);
+        return;
+      }
+    } catch {
+      /* fall through to the cards — a missing follow-up is not a dead end */
+    }
+    setBusy(false);
+    void showResults();
+  }, [showResults]);
+
+  /** Ask question `from`, or move on if we are past the end of the ladder. */
   const ask = useCallback(
     (from: number) => {
-      if (from >= QUESTIONS.length) {
-        void showResults();
+      if (from >= ladder.current.length) {
+        void advance();
         return;
       }
       if (asked.current.has(from)) {
         // Already put. Move on rather than looping on the same question.
         setIndex(from + 1);
-        void showResults();
+        void advance();
         return;
       }
       asked.current.add(from);
       setIndex(from);
-      say({ from: "xia", text: QUESTIONS[from].ask });
-      setChips(QUESTIONS[from].chips);
+      say({ from: "xia", text: ladder.current[from].ask });
+      setChips(ladder.current[from].chips);
     },
-    [say, showResults],
+    [say, advance],
   );
+
+  askRef.current = ask;
 
   /** Free text: the model reads it for every field at once, not just this one. */
   const mine = useCallback(async (text: string): Promise<Partial<XiaCase>> => {
@@ -427,7 +552,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
       setBusy(true);
 
       const found = await mine(value);
-      const current = index < QUESTIONS.length ? QUESTIONS[index] : null;
+      const current = index < ladder.current.length ? ladder.current[index] : null;
       const patch: Partial<XiaCase> = {
         ...found,
         ...(current && !(current.field in found)
@@ -446,7 +571,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
       // Skip only the questions THIS message answered. Never skip on what the
       // case happened to hold from a previous visit.
       let next = index + 1;
-      while (next < QUESTIONS.length && QUESTIONS[next].field in found) next += 1;
+      while (next < ladder.current.length && ladder.current[next].field in found) next += 1;
       ask(next);
     },
     [busy, mine, patchNow, say, index, ask, showResults, skipTyping],
@@ -458,7 +583,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
       skipTyping();
 
       // After the cards are up, a suggestion applies its own patch and re-ranks.
-      if (index >= QUESTIONS.length) {
+      if (index >= ladder.current.length) {
         say({ from: "you", text: chip.label });
         setChips([]);
         setUsedRefine((current) => [...current, chip.value]);
@@ -473,7 +598,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
 
       say({ from: "you", text: chip.label });
       setChips([]);
-      const question = QUESTIONS[index];
+      const question = ladder.current[index];
       if (chip.value) {
         const patch = question.toPatch
           ? question.toPatch(chip.value)
@@ -496,7 +621,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
     const hello = item.name ? `${item.name.split(/\s+/)[0]} — good to meet you.` : "I'm XIA.";
     say({
       from: "xia",
-      text: `${hello} I check you against the published rules of every programme XIPHIAS works on and tell you plainly which you clear, which you are close to, and which are shut. Five quick questions.`,
+      text: `${hello} I check you against the published rules of every programme XIPHIAS works on and tell you plainly which you clear, which you are close to, and which are shut. A few quick questions \u2014 and only the ones your kind of route actually turns on.`,
     });
 
     if (seed) {
@@ -535,7 +660,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
         </div>
 
         <div className="hidden items-center gap-1.5 lg:flex" aria-hidden="true">
-          {QUESTIONS.map((question, position) => (
+          {rail.map((question, position) => (
             <span key={question.key} className="flex items-center gap-1.5">
               <span
                 className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-500 ${
@@ -548,7 +673,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
               >
                 {question.rail}
               </span>
-              {position < QUESTIONS.length - 1 ? (
+              {position < rail.length - 1 ? (
                 <span
                   className={`h-px w-4 transition-colors duration-500 ${
                     position < index ? "bg-[#e1b923]" : "bg-white/15"

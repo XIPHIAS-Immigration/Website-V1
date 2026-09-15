@@ -57,6 +57,9 @@ export const GOALS: Option[] = [
   { value: "investment", label: "Residency through investment", hint: "Property, funds, contribution" },
   { value: "business-setup", label: "Start or move a business", hint: "Founder, entrepreneur, expansion" },
   { value: "family-migration", label: "Join or bring family", hint: "Spouse, parents, dependants" },
+  // Post-study settlement. Carried by the PNP graduate streams, Australia's 189
+  // and 190 and the UK Skilled Worker route — see programme-requirements.
+  { value: "study", label: "Study, then settle", hint: "Graduate routes to residence" },
   { value: "not-sure", label: "Still deciding", hint: "Show me what's realistic" },
 ];
 

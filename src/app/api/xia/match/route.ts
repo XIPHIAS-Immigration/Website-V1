@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { CASE_COOKIE, type XiaCase } from "@/lib/xia/case";
 import { getCase, saveCase } from "@/lib/xia/case-store";
-import { matchProgrammes, sharpeningQuestion } from "@/lib/xia/match";
+import { matchProgrammes, nextQuestions, sharpeningQuestion } from "@/lib/xia/match";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const item = id ? getCase(id) : null;
 
   if (!item) {
-    return NextResponse.json({ ok: true, matches: [], question: null, case: null });
+    return NextResponse.json({ ok: true, matches: [], question: null, questions: [], case: null });
   }
 
   const limit = Math.min(Math.max(Number(req.nextUrl.searchParams.get("limit")) || 3, 1), 12);
@@ -35,9 +35,21 @@ export async function GET(req: NextRequest) {
     ],
   } as Partial<XiaCase>);
 
+  // `questions` is what the routes on this shortlist are actually waiting on —
+  // capital and family for an investment route, age and language for a points
+  // one. Functions are not serialisable, so `toPatch` is applied client-side
+  // from the same catalogue; the wire format carries data only.
+  const asks = nextQuestions(item, 3).map((ask) => ({
+    field: ask.field,
+    rail: ask.rail,
+    question: ask.question,
+    chips: ask.chips,
+  }));
+
   return NextResponse.json({
     ok: true,
     matches,
+    questions: asks,
     question: sharpeningQuestion(item),
   });
 }

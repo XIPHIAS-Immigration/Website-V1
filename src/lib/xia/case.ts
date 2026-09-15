@@ -108,6 +108,19 @@ export type XiaCase = {
   citationCount?: number;
   patentCount?: number;
 
+  /* -- Non-skilled detail. What actually decides an investment, business or -- */
+  /*    family route, where a language score decides nothing.                 -- */
+  /** How much time they can physically spend in the country each year. */
+  stayTolerance?: string;
+  /** idea | under-2-years | 2-5-years | over-5-years */
+  businessStage?: string;
+  /** What they are setting up: new | expansion | staff | acquisition */
+  businessIntent?: string;
+  /** Relationship of the person already in the destination country. */
+  relativeInDestination?: string;
+  /** That person's status there: citizen | pr | work | student | not-sure */
+  relativeStatus?: string;
+
   /* -- Knock-out flags. Asked plainly, never inferred. ---------------------- */
   previousRefusal?: boolean;
   criminalRecord?: boolean;
@@ -156,6 +169,7 @@ const WRITABLE_FIELDS = [
   "destination", "goal", "profile", "timelineMonths", "family", "dependants", "budgetUsd",
   "education", "fieldOfStudy", "occupation", "yearsExperience", "canadianWorkYears",
   "languageTest", "languageScores", "publicationCount", "citationCount", "patentCount",
+  "stayTolerance", "businessStage", "businessIntent", "relativeInDestination", "relativeStatus",
   "previousRefusal", "criminalRecord", "notes", "resumeFileName", "resumeText", "consent",
 ] as const;
 

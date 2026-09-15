@@ -8,7 +8,7 @@
 // -----------------------------------------------------------------------------
 
 import type { CaseMatch, XiaCase } from "./case";
-import { evaluate } from "./requirements";
+import { evaluate, type Ask } from "./requirements";
 import { programmeRules, type ProgrammeRule } from "./programme-requirements";
 import { calculateCrs, type CrsInput, type Clb, type EducationLevel } from "./crs";
 import { calculateAustraliaPoints, type AuEnglish, type AuQualification } from "./australia-points";
@@ -139,16 +139,158 @@ export function matchProgrammes(item: XiaCase, options: MatchOptions = {}): Case
   return evaluated.slice(0, limit).map((entry) => entry.match);
 }
 
+/* -------------------------------------------------------------------------- */
+/*  What to ask next                                                           */
+/*                                                                            */
+/*  This used to be a fixed ladder that ended on "Have you taken IELTS or PTE  */
+/*  yet?" for every visitor, including someone buying a Caribbean passport.    */
+/*  Now the question comes from the matched routes themselves: each rule       */
+/*  declares what would answer it, and we ask whichever of those the most      */
+/*  routes on the shortlist are waiting on. Change a programme rule and the    */
+/*  questions follow automatically.                                           */
+/* -------------------------------------------------------------------------- */
+
+/** Questions for a goal that has no programme rules loaded yet, or none matched. */
+const FALLBACK_ASKS: Record<string, Ask[]> = {
+  "family-migration": [
+    {
+      field: "relativeInDestination",
+      rail: "Who",
+      question: "Who do you already have in the country you are aiming for?",
+      priority: 10,
+      chips: [
+        { label: "Spouse or partner", value: "spouse" },
+        { label: "Parent", value: "parent" },
+        { label: "Child", value: "child" },
+        { label: "Sibling", value: "sibling" },
+        { label: "Fiancé(e)", value: "fiance" },
+      ],
+    },
+    {
+      field: "relativeStatus",
+      rail: "Status",
+      question: "What status do they hold there? It decides whether they can sponsor you at all.",
+      priority: 20,
+      chips: [
+        { label: "Citizen", value: "citizen" },
+        { label: "Permanent resident", value: "pr" },
+        { label: "Work visa", value: "work" },
+        { label: "Student visa", value: "student" },
+        { label: "Not sure", value: "not-sure" },
+      ],
+    },
+    {
+      field: "family",
+      rail: "Family",
+      question: "And who would be moving?",
+      priority: 30,
+      chips: [
+        { label: "Just me", value: "alone" },
+        { label: "Me and my children", value: "children" },
+        { label: "My whole family", value: "parents" },
+      ],
+    },
+  ],
+  citizenship: [
+    {
+      field: "notes",
+      rail: "Why",
+      question: "What is the second passport actually for? Different programmes are strong at different things.",
+      priority: 60,
+      chips: [
+        { label: "Visa-free travel", value: "passport for: visa-free travel" },
+        { label: "A backup plan", value: "passport for: a backup plan" },
+        { label: "Business and banking", value: "passport for: business and banking" },
+        { label: "Family security", value: "passport for: family security" },
+      ],
+    },
+  ],
+  "not-sure": [
+    {
+      field: "timelineMonths",
+      rail: "When",
+      question: "How soon would you want this to actually happen?",
+      priority: 10,
+      chips: [
+        { label: "Within 3 months", value: "3" },
+        { label: "3 to 6 months", value: "6" },
+        { label: "6 to 12 months", value: "12" },
+        { label: "1 to 2 years", value: "24" },
+        { label: "No fixed date", value: "0" },
+      ],
+      toPatch: (value) => ({ timelineMonths: Number(value) }),
+    },
+    {
+      field: "budgetUsd",
+      rail: "How",
+      question:
+        "Is there capital you could put behind this, or does it need to be earned on points? This one answer splits the whole thing in two.",
+      priority: 20,
+      chips: [
+        { label: "It has to be on merit and points", value: "0" },
+        { label: "Up to US$250,000", value: "200000" },
+        { label: "US$250,000 – 500,000", value: "350000" },
+        { label: "Over US$500,000", value: "700000" },
+      ],
+      toPatch: (value) =>
+        Number(value) > 0
+          ? { budgetUsd: Number(value) }
+          : { notes: "No investment capital — points-based routes only" },
+    },
+  ],
+};
+
+/** True once the case already holds an answer for this question's field. */
+function answered(item: XiaCase, ask: Ask) {
+  const value = (item as unknown as Record<string, unknown>)[ask.field];
+  if (ask.field === "languageTest") return Boolean(item.languageTest || item.languageScores);
+  if (ask.field === "notes") return false; // notes can take several answers
+  return value !== undefined && value !== "" && value !== null;
+}
+
 /**
- * The single most useful next question, derived from what the matcher could not
- * test. Used when the concierge has cards but could sharpen them with one more
- * answer — asked *alongside* the cards, never instead of them.
+ * The questions worth asking next, most useful first.
+ *
+ * Collected from every route on the shortlist, deduplicated by field, ranked by
+ * how many routes are waiting on it and then by the requirement's own priority.
+ */
+export function nextQuestions(item: XiaCase, limit = 3): Ask[] {
+  const shortlist = matchProgrammes(item, { limit: 4 });
+
+  const byField = new Map<string, { ask: Ask; wanted: number }>();
+
+  for (const match of shortlist) {
+    const rule = programmeRules.find((entry) => entry.id === match.programmeId);
+    if (!rule) continue;
+    for (const ask of evaluate(rule.requirements, item).asks) {
+      if (answered(item, ask)) continue;
+      const seen = byField.get(ask.field);
+      if (seen) seen.wanted += 1;
+      else byField.set(ask.field, { ask, wanted: 1 });
+    }
+  }
+
+  // Nothing matched, or the matched routes need nothing further: fall back to
+  // the goal's own questions so a family or undecided visitor is not stranded.
+  if (byField.size < limit) {
+    for (const ask of FALLBACK_ASKS[item.goal ?? ""] ?? []) {
+      if (answered(item, ask) || byField.has(ask.field)) continue;
+      byField.set(ask.field, { ask, wanted: 0 });
+    }
+  }
+
+  return [...byField.values()]
+    .sort((a, b) => b.wanted - a.wanted || a.ask.priority - b.ask.priority)
+    .slice(0, limit)
+    .map((entry) => entry.ask);
+}
+
+/**
+ * The single most useful next question. Kept for the callers that want one.
  */
 export function sharpeningQuestion(item: XiaCase): { field: string; question: string } | null {
   if (!item.destination) return { field: "destination", question: "Which country are you aiming for?" };
   if (!item.goal) return { field: "goal", question: "What do you want this move to achieve?" };
-  if (item.age === undefined) return { field: "age", question: "How old are you? It changes the score on most points systems." };
-  if (!item.education) return { field: "education", question: "What's your highest qualification?" };
-  if (!item.languageScores) return { field: "language", question: "Have you taken IELTS or PTE yet?" };
-  return null;
+  const [first] = nextQuestions(item, 1);
+  return first ? { field: first.field, question: first.question } : null;
 }
