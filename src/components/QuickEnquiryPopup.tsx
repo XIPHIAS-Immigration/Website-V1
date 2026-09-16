@@ -9,6 +9,7 @@ import {
   COOKIE_CONSENT_EVENT,
   readCookieConsent,
 } from "@/lib/cookies/consent";
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 
 const DISMISS_UNTIL_KEY = "xiphias_quick_enquiry_dismissed_until";
 const SUBMITTED_UNTIL_KEY = "xiphias_quick_enquiry_submitted_until";
@@ -194,22 +195,14 @@ export default function QuickEnquiryPopup() {
     }
   }, [open, isChatOpen, isBrochureGateOpen, isCookiePromptOpen]);
 
+  // Through the shared counted lock, not its own save/restore. This popup opens
+  // on every page load, so it was almost always the overlay that arrived second
+  // — it recorded the greeter's "hidden" as the resting value and put it back on
+  // close, leaving every page unscrollable. See lib/scroll-lock.
   React.useEffect(() => {
     if (!open) return;
-    const docEl = document.documentElement;
-    const prevOverflow = docEl.style.overflow;
-    const prevPadRight = docEl.style.paddingRight;
-    const scrollbarWidth = window.innerWidth - docEl.clientWidth;
-
-    docEl.style.overflow = "hidden";
-    if (scrollbarWidth > 0) {
-      docEl.style.paddingRight = `${scrollbarWidth}px`;
-    }
-
-    return () => {
-      docEl.style.overflow = prevOverflow;
-      docEl.style.paddingRight = prevPadRight;
-    };
+    lockScroll();
+    return unlockScroll;
   }, [open]);
 
   React.useEffect(() => {

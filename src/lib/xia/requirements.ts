@@ -512,3 +512,59 @@ export function businessStageKnown(note: string): Requirement {
     },
   };
 }
+
+
+/**
+ * Age that scores but does not exclude.
+ *
+ * Canada's Federal Skilled Worker has NO age eligibility criterion — age is a
+ * selection factor worth up to 12 points, and scoring zero on it does not close
+ * the route. We previously used `ageBetween(18, 47)` here, which told everyone
+ * over 47 they were ineligible for a programme they can in fact apply to. Use
+ * this wherever age drives the score and nothing else.
+ */
+export function ageScored(note: string): Requirement {
+  return {
+    id: "age-scored",
+    label: "Age recorded for scoring",
+    gap: note,
+    hard: false,
+    test: (item) => (item.age === undefined ? "unknown" : "pass"),
+    asks: AGE_ASK,
+  };
+}
+
+/**
+ * A route that is not currently open.
+ *
+ * Hard and always failing, so the card renders as closed with the reason on it.
+ * Showing a paused programme and explaining why beats hiding it: people have
+ * read about it elsewhere and will ask.
+ */
+export function programmeClosed(why: string): Requirement {
+  return {
+    id: "programme-closed",
+    label: "Open to new applications",
+    gap: why,
+    hard: true,
+    test: () => "fail",
+  };
+}
+
+/**
+ * A queue the applicant cannot influence, only plan around.
+ *
+ * US employment-based categories are subject to per-country limits, so an
+ * Indian applicant's wait is set by the Visa Bulletin rather than by processing
+ * speed. Soft: it never closes the route, it makes sure nobody is quoted a
+ * petition time as if it were the time to a green card.
+ */
+export function priorityDateQueue(note: string): Requirement {
+  return {
+    id: "priority-date",
+    label: "Visa bulletin position understood",
+    gap: note,
+    hard: false,
+    test: () => "unknown",
+  };
+}

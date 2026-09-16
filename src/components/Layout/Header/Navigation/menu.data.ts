@@ -69,6 +69,17 @@ const residencyCountries: HeaderItem[] = [
     ],
   },
   {
+    label: 'France',
+    href: '/residency/france',
+    meta: { code: 'FR' },
+    submenu: [
+      { label: 'Direct Economic Investment', href: '/residency/france/france-talent-economic-investment' },
+      { label: 'Business Creation', href: '/residency/france/france-talent-business-creation' },
+      { label: 'Innovative Economic Project', href: '/residency/france/france-talent-innovative-project' },
+      { label: 'Long-Stay Visitor', href: '/residency/france/france-long-stay-visitor' },
+    ],
+  },
+  {
     label: 'Greece',
     href: '/residency/greece',
     meta: { code: 'GR' },
@@ -442,6 +453,14 @@ export const headerMenu: HeaderItem[] = [
         ],
       },
       {
+        label: 'France',
+        href: '/skilled/france',
+        meta: { code: 'FR' },
+        submenu: [
+          { label: 'EU Blue Card', href: '/skilled/france/france-eu-blue-card' },
+        ],
+      },
+      {
         label: 'Germany',
         href: '/skilled/germany',
         meta: { code: 'DE' },
@@ -596,15 +615,10 @@ export const headerMenu: HeaderItem[] = [
       { label: 'Passport Power',      href: '/passport-index' },
       { label: 'Guide',               href: '/guide' },
       { label: 'Free Eligibility Check', href: '/eligibility' },
-      // Local landing pages. Linked from the header so they are not orphans —
-      // an unlinked page does not rank, however well it is written.
-      { label: 'Immigration consultants in Bangalore', href: '/immigration-consultants-in-bangalore' },
-      { label: 'Verified consultants in Bangalore', href: '/verified-immigration-consultants-bangalore' },
-      { label: 'RCIC-registered consultant in India', href: '/rcic-registered-immigration-consultant-india' },
-      { label: 'Australia consultants in Bangalore', href: '/australia-immigration-consultants-in-bangalore' },
-      { label: 'Immigration consultants in Koramangala', href: '/immigration-consultants-in-koramangala' },
-      { label: 'Lawyer or licensed consultant?', href: '/immigration-lawyer-or-consultant-bangalore' },
-      { label: 'Top immigration consultants in India', href: '/top-immigration-consultants-in-india' },
+      // Local landing pages are deliberately NOT listed here. They stay linked
+      // site-wide from the footer (LOCAL block) and from the Guides menu's
+      // "Before you hire anyone" card, so they are still crawled and still pass
+      // internal link equity — they just no longer clutter Resources.
       { label: 'Media',               href: '/media' },
       { label: 'News',                href: '/news' },
       { label: 'Blog',                href: '/blog' },

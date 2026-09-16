@@ -43,6 +43,7 @@ export const DESTINATIONS: Option[] = [
   { value: "new zealand", label: "New Zealand", hint: "Skilled Migrant, Green List" },
   { value: "portugal", label: "Portugal", hint: "Residency by investment, D7, D8" },
   { value: "greece", label: "Greece", hint: "Golden Visa" },
+  { value: "france", label: "France", hint: "Talent card, EU Blue Card — no golden visa" },
   { value: "uae", label: "UAE", hint: "Golden Visa, business set-up" },
   { value: "caribbean", label: "Caribbean", hint: "Citizenship by investment" },
   { value: "europe", label: "Somewhere in Europe", hint: "Compare EU residency routes" },

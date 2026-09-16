@@ -21,11 +21,16 @@
 //      it also means the overlay behaves the same if smooth scroll is ever
 //      swapped for something else that grabs the wheel.
 //
-// It also locks html AND body. Locking only html leaves body scrollable, and the
-// page then scrolls behind the overlay.
+// Locking the page itself is NOT done here any more. This used to save and
+// restore `html.style.overflow` on its own, which is wrong as soon as a second
+// overlay is open at the same time — the inner one saves "hidden" and restores
+// "hidden", and the page stays locked after everything has closed. It goes
+// through the shared counted lock instead. See lib/scroll-lock.
 // -----------------------------------------------------------------------------
 
 import { useEffect, type RefObject } from "react";
+
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 
 type LenisLike = { stop: () => void; start: () => void };
 type LenisWindow = Window & { __lenis?: LenisLike };
@@ -33,19 +38,8 @@ type LenisWindow = Window & { __lenis?: LenisLike };
 export function useOverlayScroll(scrollRef: RefObject<HTMLElement | null>, active = true) {
   useEffect(() => {
     if (!active) return;
-    const root = document.documentElement;
-    const { body } = document;
 
-    const previous = {
-      rootOverflow: root.style.overflow,
-      bodyOverflow: body.style.overflow,
-      bodyPadding: body.style.paddingRight,
-    };
-
-    const scrollbar = window.innerWidth - root.clientWidth;
-    root.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
+    lockScroll();
 
     const lenis = (window as LenisWindow).__lenis;
     lenis?.stop();
@@ -65,9 +59,7 @@ export function useOverlayScroll(scrollRef: RefObject<HTMLElement | null>, activ
 
     return () => {
       element?.removeEventListener("wheel", onWheel);
-      root.style.overflow = previous.rootOverflow;
-      body.style.overflow = previous.bodyOverflow;
-      body.style.paddingRight = previous.bodyPadding;
+      unlockScroll();
       lenis?.start();
     };
   }, [scrollRef, active]);

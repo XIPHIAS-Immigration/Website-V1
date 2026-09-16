@@ -20,7 +20,7 @@ function norm(value?: string) {
 function destinationMatches(rule: ProgrammeRule, destination?: string) {
   const wanted = norm(destination);
   if (!wanted || wanted === "not-sure") return true;
-  if (wanted === "europe") return ["portugal", "greece"].includes(rule.countryKey);
+  if (wanted === "europe") return ["portugal", "greece", "france"].includes(rule.countryKey);
   return rule.countryKey === wanted || norm(rule.country).includes(wanted);
 }
 
