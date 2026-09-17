@@ -21,6 +21,10 @@ const EXPLORE = [
   { label: "Corporate", href: "/corporate" },
   { label: "Skilled", href: "/skilled" },
   { label: "Work Permits", href: "/work-permits" },
+  // Moved out of RESOURCES: these are things to browse, not tools to use,
+  // and Resources had grown to 14 items against 8 in every other column.
+  { label: "Insights", href: "/insights" },
+  { label: "Events", href: "/events" },
 ];
 
 const RESOURCES = Object.freeze([
@@ -33,10 +37,6 @@ const RESOURCES = Object.freeze([
   { label: "Verify a consultant", href: "/verify-immigration-consultant" },
   { label: "X-Hub", href: "/x-hub" },
   { label: "Guides & Resources", href: "/guides" },
-  { label: "Insights", href: "/insights" },
-  { label: "Events", href: "/events" },
-  { label: "Awards & Recognition", href: "/awards" },
-  { label: 'Partner With Us', href: '/partner-with-us' },
   { label: 'Reviews', href: '/reviews' },
 ]);
 
@@ -82,6 +82,9 @@ const COMPANY = [
   { label: "News", href: "/news" },
   { label: "Media", href: "/media" },
   { label: "Contact", href: "/contact" },
+  // Moved out of RESOURCES: both are about the firm, not about immigration.
+  { label: "Awards & Recognition", href: "/awards" },
+  { label: "Partner With Us", href: "/partner-with-us" },
 ];
 
 const LEGAL = [
