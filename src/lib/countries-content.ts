@@ -67,6 +67,7 @@ const COUNTRY_META: Record<string, { name: string; code: string; region: string 
   nauru: { name: "Nauru", code: "NR", region: "Asia-Pacific" },
   "new-zealand": { name: "New Zealand", code: "NZ", region: "Asia-Pacific" },
   panama: { name: "Panama", code: "PA", region: "Americas" },
+  france: { name: "France", code: "FR", region: "Europe" },
   portugal: { name: "Portugal", code: "PT", region: "Europe" },
   saintkitts: { name: "Saint Kitts & Nevis", code: "KN", region: "Caribbean" },
   "saint-lucia": { name: "Saint Lucia", code: "LC", region: "Caribbean" },

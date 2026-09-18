@@ -153,7 +153,7 @@ export default async function CountryPage(props: {
   // Aggregates (ranges) from program cards
   const minInvestments = programs
     .map((p) => p.minInvestment)
-    .filter((n): n is number => typeof n === "number");
+    .filter((n): n is number => typeof n === "number" && n > 0);
   const timelines = programs
     .map((p) => p.timelineMonths)
     .filter((n): n is number => typeof n === "number");

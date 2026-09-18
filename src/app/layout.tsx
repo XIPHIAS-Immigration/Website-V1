@@ -198,7 +198,7 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <MDXProviders>
               <SiteChrome gaId={GA_ID}>
                 {children}
