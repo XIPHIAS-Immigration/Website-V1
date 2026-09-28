@@ -5,11 +5,11 @@ import { MapPin, Phone, PhoneCall, Clock, ArrowRight } from 'lucide-react';
 export const metadata: Metadata = {
   title: 'Office Locations – XIPHIAS Immigration | India, UAE, Australia & Canada',
   description:
-    'Find XIPHIAS Immigration offices in Bengaluru, Dubai, Melbourne and Waterloo. Book an in-person consultation at a location near you.',
+    'Find XIPHIAS Immigration offices in Bengaluru, Gurugram, Dubai, Melbourne and Waterloo. Book an in-person consultation at a location near you.',
   alternates: { canonical: '/about/locations' },
   openGraph: {
     title: 'Office Locations – XIPHIAS Immigration',
-    description: 'XIPHIAS Immigration offices in Bengaluru, Dubai, Australia and Canada.',
+    description: 'XIPHIAS Immigration offices in Bengaluru, Gurugram, Dubai, Australia and Canada.',
     url: 'https://www.xiphiasimmigration.com/about/locations',
     siteName: 'XIPHIAS Immigration',
     locale: 'en_US',
@@ -30,6 +30,18 @@ const OFFICES = [
     phone: '+91 9021335577',
     phoneAlt: '+91 8049768088',
     maps: 'https://maps.google.com/?q=JK+Nirmala+Arcade+Plot+780+80+Feet+Road+4th+Block+Koramangala+Bengaluru+560034',
+  },
+  {
+    name: 'Gurugram',
+    street: 'Augusta Point, Golf Course Rd, near Parsvnath Exotica, DLF Phase 5, Sector 53',
+    city: 'Gurugram',
+    postal: '122002',
+    country: 'India',
+    flag: '🇮🇳',
+    hours: 'Mon–Sat, 9:30–18:30',
+    phone: '+91 96675 20211',
+    phoneAlt: '',
+    maps: 'https://maps.google.com/?q=Augusta+Point+Golf+Course+Road+DLF+Phase+5+Sector+53+Gurugram+122002',
   },
   {
     name: 'Dubai',
@@ -108,7 +120,7 @@ export default function LocationsPage() {
               Our <span className="text-secondary">Office Locations</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
-              Visit us in Bengaluru, Dubai, Melbourne or Waterloo —
+              Visit us in Bengaluru, Gurugram, Dubai, Melbourne or Waterloo —
               or connect with an advisor remotely from anywhere in the world.
             </p>
           </div>

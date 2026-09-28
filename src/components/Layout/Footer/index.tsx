@@ -110,6 +110,16 @@ const OFFICES = [
     maps: "https://maps.google.com/?q=JK+Nirmala+Arcade+Plot+780+80+Feet+Road+4th+Block+Koramangala+Bengaluru+560034",
   },
   {
+    name: "Gurugram",
+    street: "Augusta Point, Golf Course Rd, near Parsvnath Exotica, DLF Phase 5, Sector 53",
+    city: "Gurugram",
+    postal: "122002",
+    country: "India",
+    hours: "Mon–Sat, 9:30–18:30",
+    phone: "+91 96675 20211",
+    maps: "https://maps.google.com/?q=Augusta+Point+Golf+Course+Road+DLF+Phase+5+Sector+53+Gurugram+122002",
+  },
+  {
     name: "Dubai",
     street: "Unit 608, Platinum Tower, JLT-PH1-I2, Jumeirah Lakes Towers",
     city: "Dubai",

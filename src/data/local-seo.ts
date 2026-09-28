@@ -46,6 +46,7 @@ export const napOffices: NapOffice[] = [
   // City-level only until a verified street address is supplied for each. These
   // render as text, never as LocalBusiness schema — an address we cannot verify
   // does not belong in structured data.
+  { id: "gurugram", name: "XIPHIAS Immigration — Gurugram", locality: "Gurugram", region: "Haryana", country: "India", countryCode: "IN", emitLocalBusiness: false },
   { id: "dubai", name: "XIPHIAS Immigration DMCC — Dubai", locality: "Dubai", region: "JLT", country: "United Arab Emirates", countryCode: "AE", emitLocalBusiness: false },
   { id: "melbourne", name: "XIPHIAS Immigration — Melbourne", locality: "Melbourne", region: "Victoria", country: "Australia", countryCode: "AU", emitLocalBusiness: false },
   { id: "waterloo", name: "XIPHIAS Immigration — Waterloo", locality: "Waterloo", region: "Ontario", country: "Canada", countryCode: "CA", emitLocalBusiness: false },

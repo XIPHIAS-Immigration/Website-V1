@@ -87,6 +87,7 @@ export type Office = {
 
 export const offices: Office[] = [
   { city: "Bengaluru", region: "Koramangala", country: "India", headquarters: true },
+  { city: "Gurugram", region: "Haryana", country: "India" },
   { city: "Dubai", region: "JLT", country: "United Arab Emirates" },
   { city: "Melbourne", region: "Victoria", country: "Australia" },
   { city: "Waterloo", region: "Ontario", country: "Canada" },
