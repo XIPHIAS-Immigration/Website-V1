@@ -19,6 +19,8 @@ export default function robots(): MetadataRoute.Robots {
           "/search",
           "/thank-you",
           "/*/thank-you",
+          "/lp",
+          "/lp/",
           "/login",
           "/profile",
           "/admin",

@@ -18,7 +18,8 @@ function isUtilityRoute(pathname?: string | null) {
   return (
     pathname?.startsWith("/content-admin") ||
     pathname?.startsWith("/x-hub") ||
-    pathname?.startsWith("/crm")
+    pathname?.startsWith("/crm") ||
+    pathname?.startsWith("/lp")
   );
 }
 
