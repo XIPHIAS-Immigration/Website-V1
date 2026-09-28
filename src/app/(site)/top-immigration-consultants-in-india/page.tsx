@@ -134,7 +134,7 @@ const scorecard = [
   {
     test: "How long has the firm been operating, and from where?",
     why: "Immigration files run for quarters or years. A firm that cannot show a documented history may not be there at decision time.",
-    ours: "Operating since 2009, head office in Koramangala, Bengaluru, with offices in Dubai, Doha, Melbourne and Waterloo.",
+    ours: "Operating since 2009, head office in Koramangala, Bengaluru, with offices in Dubai, Melbourne and Waterloo.",
   },
 ];
 

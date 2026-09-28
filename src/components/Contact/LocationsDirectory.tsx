@@ -14,7 +14,6 @@ type RegionKey =
   | "newzealand"
   | "unitedkingdom"
   | "usa"
-  | "qatar"
 
 type Region = { key: RegionKey; label: string };
 
@@ -140,7 +139,6 @@ export default function LocationsDirectory({
     { key: "newzealand", label: "New Zealand" },
     { key: "unitedkingdom", label: "United Kingdom" },
     { key: "usa", label: "USA" },
-    { key: "qatar", label: "Qatar" },
   ];
 
   /* Offices */
@@ -159,18 +157,6 @@ export default function LocationsDirectory({
       email: "immigration@xiphias.in",
       mapQuery:
         "JK Nirmala Arcade, Plot no. 780, 80 Feet Rd, 4th Block, Koramangala, Bengaluru 560034",
-    },
-    {
-      id: "gurugram",
-      city: "Gurugram",
-      company: "XIPHIAS IMMIGRATION PVT LTD",
-      regionKey: "india",
-      address: [
-        "Augusta Point, Golf Course Rd, near Parsvnath Exotica, DLF Phase 5, Sector 53",
-        "Gurugram, Haryana 122002",
-      ],
-      phones: ["+91-96675 20211"],
-      email: "Gurgaon@xiphias.in",
     },
 
     // CANADA
@@ -308,20 +294,6 @@ export default function LocationsDirectory({
       email: "info@xiphiasimmigration.com",
     },
 
-    // QATAR
-    {
-      id: "qa-doha",
-      city: "Doha",
-      company: "ILC LLC (Represented by Partners)",
-      regionKey: "qatar",
-      address: [
-        "Office #3402, Al Jazeera Tower, Conference Center Road, West Bay, P.O Box 4011, Doha, Qatar",
-      ],
-      phones: ["+974 4476 0562"],
-      fax: "4007 5001",
-      email: "info@xiphiasimmigration.com",
-      website: "https://www.xiphiasimmigration.ae",
-    },
   ];
 
   /* Group by region (typed Map) */

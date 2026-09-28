@@ -16,9 +16,7 @@ const AWARDS = [
 
 const OFFICES = [
   ["Bengaluru HQ", "Koramangala, Bengaluru 560034, India", "+91 9021335577"],
-  ["Gurugram", "DLF Phase 5, Gurugram 122002, India", "+91 96675 20211"],
   ["Dubai", "Platinum Tower, Jumeirah Lakes Towers, UAE", "+971 52 727 5101"],
-  ["Doha", "Al Jazeera Tower, West Bay, Qatar", "+974 4476 0562"],
   ["Melbourne", "227 Collins Street, Melbourne VIC 3000, Australia", "+61 451 239 239"],
   ["Waterloo", "3-133 Weber Street North, Waterloo ON N2J 3G9, Canada", "+1 438 379 9101"],
 ];

@@ -46,9 +46,7 @@ export const napOffices: NapOffice[] = [
   // City-level only until a verified street address is supplied for each. These
   // render as text, never as LocalBusiness schema — an address we cannot verify
   // does not belong in structured data.
-  { id: "gurugram", name: "XIPHIAS Immigration — Gurugram", locality: "Gurugram", region: "Haryana", country: "India", countryCode: "IN", emitLocalBusiness: false },
   { id: "dubai", name: "XIPHIAS Immigration DMCC — Dubai", locality: "Dubai", region: "JLT", country: "United Arab Emirates", countryCode: "AE", emitLocalBusiness: false },
-  { id: "doha", name: "XIPHIAS Immigration — Doha", locality: "Doha", country: "Qatar", countryCode: "QA", emitLocalBusiness: false },
   { id: "melbourne", name: "XIPHIAS Immigration — Melbourne", locality: "Melbourne", region: "Victoria", country: "Australia", countryCode: "AU", emitLocalBusiness: false },
   { id: "waterloo", name: "XIPHIAS Immigration — Waterloo", locality: "Waterloo", region: "Ontario", country: "Canada", countryCode: "CA", emitLocalBusiness: false },
 ];
@@ -187,7 +185,7 @@ export const localLandings: LocalLanding[] = [
       },
       {
         q: "Which countries do you handle from Bangalore?",
-        a: "Canada, Australia, the United Kingdom, New Zealand, the United States, the UAE and the European residency and citizenship programmes, with offices in Dubai, Doha, Melbourne and Waterloo supporting files on the ground.",
+        a: "Canada, Australia, the United Kingdom, New Zealand, the United States, the UAE and the European residency and citizenship programmes, with offices in Dubai, Melbourne and Waterloo supporting files on the ground.",
       },
       {
         q: "How long does a typical case take?",

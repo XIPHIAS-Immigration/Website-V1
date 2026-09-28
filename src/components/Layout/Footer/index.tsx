@@ -110,16 +110,6 @@ const OFFICES = [
     maps: "https://maps.google.com/?q=JK+Nirmala+Arcade+Plot+780+80+Feet+Road+4th+Block+Koramangala+Bengaluru+560034",
   },
   {
-    name: "Gurugram",
-    street: "Augusta Point, Golf Course Rd, near Parsvnath Exotica, DLF Phase 5, Sector 53",
-    city: "Gurugram",
-    postal: "122002",
-    country: "India",
-    hours: "Mon–Sat, 9:30–18:30",
-    phone: "+91 96675 20211",
-    maps: "https://maps.google.com/?q=Augusta+Point+Golf+Course+Road+DLF+Phase+5+Sector+53+Gurugram+122002",
-  },
-  {
     name: "Dubai",
     street: "Unit 608, Platinum Tower, JLT-PH1-I2, Jumeirah Lakes Towers",
     city: "Dubai",
@@ -130,16 +120,6 @@ const OFFICES = [
     maps: "https://maps.google.com/?q=Platinum+Tower+JLT+Dubai",
   },
 
-  {
-    name: "Qatar",
-    street: "ILC LLC, Office 3402, Al Jazeera Tower, Conference Center Rd, West Bay",
-    city: "Doha",
-    postal: "",
-    country: "Qatar",
-    hours: "Sun–Thu, 9:00–18:00",
-    phone: "+974 4476 0562",
-    maps: "https://maps.google.com/?q=Al+Jazeera+Tower+West+Bay+Doha",
-  },
   {
     name: "Australia",
     street: "SSCS-Suite 204, 227 Collins Street, Melbourne, Vic – 3000.",
