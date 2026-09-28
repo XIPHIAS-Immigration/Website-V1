@@ -114,7 +114,7 @@ export default function LocationsPage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(255,255,255,0.05),transparent)]" />
           <div className="mx-auto max-w-screen-xl text-center">
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[13px] font-medium text-white/90">
-              <MapPin className="h-3.5 w-3.5 text-secondary" /> 6 Offices Worldwide
+              <MapPin className="h-3.5 w-3.5 text-secondary" /> 5 Offices Worldwide
             </p>
             <h1 className="text-4xl font-extrabold text-white md:text-5xl">
               Our <span className="text-secondary">Office Locations</span>
