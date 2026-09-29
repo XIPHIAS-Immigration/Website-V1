@@ -348,6 +348,33 @@ export default function WorkPermitsClient({
                 ))}
               </div>
             </div>
+
+            {/* ── Become a channel partner ── */}
+            <div className="mt-6 rounded-[1.5rem] border border-secondary/30 bg-secondary/5 p-5 dark:border-secondary/25 dark:bg-secondary/10">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-primary dark:text-secondary">
+                For agents &amp; consultancies
+              </p>
+              <h3 className="mt-2 text-lg font-bold text-midnight_text dark:text-white">
+                Become a channel partner
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-midnight_text/70 dark:text-white/70">
+                Refer work-permit and migration clients to XIPHIAS and we handle the filing,
+                compliance and follow-through. Licensed advisory, transparent commercials.
+              </p>
+              <a
+                href="/partner-with-us"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary/90 dark:bg-secondary dark:text-midnight_text"
+              >
+                Apply to partner
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </a>
+              <p className="mt-3 text-xs text-midnight_text/50 dark:text-white/50">
+                Or email{" "}
+                <a href="mailto:immigration@xiphias.in" className="underline hover:text-primary dark:hover:text-secondary">
+                  immigration@xiphias.in
+                </a>
+              </p>
+            </div>
           </div>
 
           <form
