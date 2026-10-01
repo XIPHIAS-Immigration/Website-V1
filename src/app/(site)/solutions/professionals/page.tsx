@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const PROGRAMS = [
   { title: 'Australia Skilled Independent 189', href: '/skilled/australia/skilled-independent-189', tag: 'Points-Based' },
-  { title: 'Australia Global Talent 858', href: '/skilled/australia/global-talent-visa-858', tag: 'Global Talent' },
+  { title: 'Australia National Innovation Visa 858', href: '/skilled/australia/national-innovation-visa-858', tag: 'Global Talent' },
   { title: 'Canada Express Entry', href: '/skilled/canada/express-entry', tag: 'Points-Based' },
   { title: 'UK Global Talent Visa', href: '/skilled/united-kingdom/uk-global-talent-visa', tag: 'Global Talent' },
   { title: 'USA EB-1A Extraordinary Ability', href: '/skilled/usa/eb1a-extraordinary-ability', tag: 'EB Visa' },

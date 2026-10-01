@@ -31,9 +31,9 @@ const popularSuggestions: RichUIItem[] = [
     url: "/citizenship/antigua-barbuda",
   },
   {
-    title: "Australia Global Talent",
+    title: "Australia National Innovation Visa",
     type: "Program",
-    url: "/skilled/australia/global-talent-visa-858",
+    url: "/skilled/australia/national-innovation-visa-858",
   },
   {
     title: "Grenada Real Estate",

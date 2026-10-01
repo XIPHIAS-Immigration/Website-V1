@@ -17,6 +17,7 @@ const QuickFacts = nextDynamic(() => import("@/components/Residency/QuickFacts")
 const ProcessTimeline = nextDynamic(() => import("@/components/Residency/ProcessTimeline"));
 const FAQAccordion = nextDynamic(() => import("@/components/Residency/FAQAccordion"));
 import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
+import { localBusinessSchemas } from "@/lib/seo/schema";
 import { formatTimelineShort } from "@/lib/timeline";
 const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
 const ProgramQuickNav = nextDynamic(() => import("@/components/Residency/ProgramQuickNav"));
@@ -420,6 +421,11 @@ export default async function ProgramPage(props: {
         {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
         {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
         <JsonLd data={webPageLd} />
+        {/* LocalBusiness — emits the verified office NAP on every programme page so
+            local search can connect the programme to the practice that advises on it. */}
+        {localBusinessSchemas().map((lb, i) => (
+          <JsonLd key={`lb-${i}`} data={lb} />
+        ))}
         {offerLd ? <JsonLd data={offerLd} /> : null}
 
         {/* HERO */}

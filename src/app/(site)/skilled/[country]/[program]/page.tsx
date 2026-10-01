@@ -16,6 +16,7 @@ import { formatTimelineLong } from "@/lib/timeline";
 
 import { Prose } from "@/components/ui/Prose";
 import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
+import { localBusinessSchemas } from "@/lib/seo/schema";
 
 // Dynamically import heavy UI sections to reduce the main bundle size.
 // Using next/dynamic helps lower Total Blocking Time and improves
@@ -501,6 +502,11 @@ export default async function ProgramPage(
         {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
         {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
         <JsonLd data={webPageLd} />
+        {/* LocalBusiness — emits the verified office NAP on every programme page so
+            local search can connect the programme to the practice that advises on it. */}
+        {localBusinessSchemas().map((lb, i) => (
+          <JsonLd key={`lb-${i}`} data={lb} />
+        ))}
 
         {/* HERO */}
         <div className="pt-4 pb-4">

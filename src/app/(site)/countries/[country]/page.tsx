@@ -26,7 +26,7 @@ const COUNTRY_DATA: Record<string, {
     description: 'Australia offers world-class skilled migration programs with permanent residency pathways for qualified professionals and sponsored workers.',
     programs: [
       { category: 'Skilled', title: 'Employer Nomination Scheme (186)', href: '/skilled/australia/employer-nomination-scheme-186', description: 'Employer-sponsored permanent residency.' },
-      { category: 'Skilled', title: 'Global Talent Visa (858)', href: '/skilled/australia/global-talent-visa-858', description: 'For internationally recognised talent in target sectors.' },
+      { category: 'Skilled', title: 'National Innovation Visa (858)', href: '/skilled/australia/national-innovation-visa-858', description: 'For an internationally recognised record of exceptional achievement. Renamed from Global Talent in Dec 2024.' },
       { category: 'Skilled', title: 'Skilled Independent (189)', href: '/skilled/australia/skilled-independent-189', description: 'Points-tested independent migration, no sponsorship needed.' },
       { category: 'Skilled', title: 'Skilled Nominated (190)', href: '/skilled/australia/skilled-nominated-190', description: 'State-nominated skilled migration visa.' },
       { category: 'Skilled', title: 'Skilled Work Regional (491)', href: '/skilled/australia/skilled-work-regional-491', description: 'Points-tested visa for regional Australia.' },
@@ -48,9 +48,9 @@ const COUNTRY_DATA: Record<string, {
     code: 'CA',
     description: 'Canada is one of the world\'s top immigration destinations, offering entrepreneur visas, express entry, skilled migration and corporate transfer routes.',
     programs: [
-      { category: 'RBI', title: 'Federal Start-Up Visa', href: '/residency/canada/federal-start-up-visa', description: 'For innovative startup founders backed by designated organisations.' },
+      { category: 'RBI', title: 'BC Entrepreneur – Regional', href: '/residency/canada/british-columbia-regional-pilot', description: 'Start a business in a smaller BC community from CAD $100,000.' },
       { category: 'RBI', title: 'BC Entrepreneur', href: '/residency/canada/british-columbia-entrepreneur-base', description: 'British Columbia entrepreneur immigration stream.' },
-      { category: 'RBI', title: 'Ontario Entrepreneur', href: '/residency/canada/ontario-entrepreneur', description: 'Ontario Immigrant Nominee Program for entrepreneurs.' },
+      { category: 'RBI', title: 'PEI Work Permit Stream', href: '/residency/canada/pei-work-permit', description: 'Prince Edward Island entrepreneur route from CAD $150,000.' },
       { category: 'Skilled', title: 'Express Entry', href: '/skilled/canada/express-entry', description: 'Points-based system covering FSW, FST and CEC.' },
       { category: 'Skilled', title: 'Provincial Nominee Program', href: '/skilled/canada/provincial-nominee-program', description: 'Province-specific streams for skilled workers.' },
       { category: 'Skilled', title: 'Global Talent Stream', href: '/skilled/canada/global-talent-stream', description: 'Fast-track work permit for unique talent and tech workers.' },
@@ -240,7 +240,7 @@ const COUNTRY_DATA: Record<string, {
     programs: [
       { category: 'RBI', title: 'Business Investment', href: '/residency/portugal/portugal-business-investment', description: 'Business investment for Portugal Golden Visa.' },
       { category: 'RBI', title: 'Capital Transfer', href: '/residency/portugal/portugal-capital-transfer', description: 'Capital transfer route for EU residency.' },
-      { category: 'Corporate', title: 'Portugal D2 Visa', href: '/corporate/portugal/portugal-d2-visa', description: 'Entrepreneur and company formation visa.' },
+      { category: 'Corporate', title: 'Portugal D2 Visa', href: '/residency/portugal/portugal-d2-entrepreneur', description: 'Entrepreneur and company formation visa.' },
       { category: 'Work Permits', title: 'Work Permit Advisory', href: '/work-permits?country=portugal', description: 'Work residence, D2 direction and highly qualified activity.' },
     ],
   },

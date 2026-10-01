@@ -139,7 +139,7 @@ export const workPermitCountries: WorkPermitCountry[] = [
     code: "PT",
     region: "Europe",
     image: "/images/news/portugal-skilled-work-visa.webp",
-    href: "/corporate/portugal/portugal-d2-visa",
+    href: "/residency/portugal/portugal-d2-entrepreneur",
     permitTypes: ["Work residence direction", "D2 business route", "Highly qualified activity", "Remote/freelance route review"],
     advisoryFocus: "Employment or business basis, consular file readiness, funds, accommodation, and route timing.",
     processingSignal: "Suitable for professionals, entrepreneurs, and applicants planning European residence with a clear activity basis.",

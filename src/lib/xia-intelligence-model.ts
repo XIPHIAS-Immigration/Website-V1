@@ -394,12 +394,12 @@ export const highSkillRoutes: HighSkillVisaRoute[] = [
 
   defineRoute({
     id: "australia-niv-858", title: "Australia National Innovation Visa (subclass 858)", country: "Australia", countryKey: "australia",
-    visaFamily: "Invitation-only exceptional talent permanent visa", href: "/skilled/australia/global-talent-visa-858",
+    visaFamily: "Invitation-only exceptional talent permanent visa", href: "/skilled/australia/national-innovation-visa-858",
     summary: "Permanent invitation-only visa for exceptionally talented migrants able to make a significant contribution to Australia.",
     bestFor: ["global researchers", "entrepreneurs", "innovative investors", "athletes", "creatives", "high-impact professionals"], timeline: "EOI, invitation and application dependent", difficulty: "very-high",
     requiresSponsor: false, permanent: true, goals: ["permanent-residency", "talent-visa", "founder"], fields: TALENT_FIELDS,
     officialUrl: "https://immi.homeaffairs.gov.au/visas/working-in-australia/visas-for-innovation/national-innovation-visa",
-    dossier: { country: "Australia", programSlug: "global-talent-visa-858", vertical: "skilled" },
+    dossier: { country: "Australia", programSlug: "national-innovation-visa-858", vertical: "skilled" },
     evidenceWeights: RECOGNITION_WEIGHTS, keywords: ["australia", "national innovation", "niv", "858", "talent", "exceptional", "founder"],
   }),
   defineRoute({

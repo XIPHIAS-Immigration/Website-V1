@@ -19,10 +19,10 @@ export const metadata: Metadata = {
 };
 
 const PROGRAMS = [
-  { title: 'Canada Federal Start-Up Visa', href: '/residency/canada/federal-start-up-visa', tag: 'Startup Visa' },
+  { title: 'Canada – BC Entrepreneur (Base)', href: '/residency/canada/british-columbia-entrepreneur-base', tag: 'Entrepreneur' },
   { title: 'Canada BC Entrepreneur', href: '/residency/canada/british-columbia-entrepreneur-base', tag: 'RBI' },
   { title: 'UK Self-Sponsorship Visa', href: '/corporate/united-kingdom/self-sponsorship-visa', tag: 'Corporate' },
-  { title: 'Portugal D2 Visa', href: '/corporate/portugal/portugal-d2-visa', tag: 'Corporate' },
+  { title: 'Portugal D2 Visa', href: '/residency/portugal/portugal-d2-entrepreneur', tag: 'Corporate' },
   { title: 'Spain Entrepreneur Formation', href: '/corporate/spain/entrepreneur-company-formation', tag: 'Corporate' },
   { title: 'UAE Dubai Freezone Visa', href: '/corporate/uae/dubai-freezone-visa', tag: 'Corporate' },
   { title: 'USA O-1 Entrepreneur Visa', href: '/corporate/usa/o1-entrepreneur-visa', tag: 'Skilled' },

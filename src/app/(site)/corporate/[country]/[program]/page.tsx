@@ -10,6 +10,7 @@ import {
 } from "@/lib/corporate-content";
 
 import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
+import { localBusinessSchemas } from "@/lib/seo/schema";
 import { Prose } from "@/components/ui/Prose";
 import nextDynamic from "next/dynamic";
 
@@ -338,6 +339,11 @@ export default async function ProgramPage(props: {
         {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
         {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
         <JsonLd data={webPageLd} />
+        {/* LocalBusiness — emits the verified office NAP on every programme page so
+            local search can connect the programme to the practice that advises on it. */}
+        {localBusinessSchemas().map((lb, i) => (
+          <JsonLd key={`lb-${i}`} data={lb} />
+        ))}
 
         {/* HERO */}
         <div className="pt-4 pb-4">

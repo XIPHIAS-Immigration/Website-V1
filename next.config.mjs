@@ -63,6 +63,18 @@ const nextConfig = {
         permanent: true,
       },
 
+      // Australia: subclass 858 renamed National Innovation visa (6 Dec 2024)
+      { source: "/skilled/australia/global-talent-visa-858", destination: "/skilled/australia/national-innovation-visa-858", permanent: true },
+
+      // Portugal: duplicate D2 page merged, 30 Sep 2026
+      { source: "/corporate/portugal/portugal-d2-visa", destination: "/residency/portugal/portugal-d2-entrepreneur", permanent: true },
+
+      // Canada duplicate programme pages merged, 29 Sep 2026
+      { source: "/residency/canada/federal-start-up-visa", destination: "/residency/canada/canada-start-up-visa", permanent: true },
+      { source: "/residency/canada/new-brunswick-entrepreneur-program", destination: "/residency/canada/new-brunswick-business-immigration", permanent: true },
+      { source: "/residency/canada/newfoundland-entrepreneur", destination: "/residency/canada/newfoundland-international-entrepreneur", permanent: true },
+      { source: "/residency/canada/nova-scotia-business-immigration", destination: "/residency/canada/nova-scotia-entrepreneur-stream", permanent: true },
+
       // Cleanup
       { source: "/:path*/_country", destination: "/:path*", permanent: true },
       { source: "/:path*/_country/", destination: "/:path*", permanent: true },
@@ -181,7 +193,7 @@ const nextConfig = {
       { source: "/germany-skilled-visa.html", destination: "/skilled/germany", permanent: true },
       { source: "/uk-startup-investor-innovator-visa.html", destination: "/skilled/united-kingdom", permanent: true },
       { source: "/australia-business-investment-visa.html", destination: "/skilled/australia", permanent: true },
-      { source: "/Australia-Global-Talent-Visa.html", destination: "/skilled/australia/global-talent-visa-858", permanent: true },
+      { source: "/Australia-Global-Talent-Visa.html", destination: "/skilled/australia/national-innovation-visa-858", permanent: true },
       { source: "/canada-skilled-immigration.html", destination: "/skilled/canada", permanent: true },
       { source: "/skilled-migration-visa-consultant.html", destination: "/skilled", permanent: true },
 
@@ -491,7 +503,7 @@ const nextConfig = {
       },
       {
         source: "/blog/australia-global-talent-visa-2022-changes",
-        destination: "/skilled/australia/global-talent-visa-858",
+        destination: "/skilled/australia/national-innovation-visa-858",
         permanent: true,
       },
       {
