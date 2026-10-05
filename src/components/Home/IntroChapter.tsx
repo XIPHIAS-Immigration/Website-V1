@@ -78,7 +78,7 @@ export default function IntroChapter() {
 
       <Reveal delay={0.5}>
         <p className="mx-auto mt-7 max-w-2xl text-[16px] leading-relaxed text-light_grey dark:text-white/65">
-          Residency, citizenship, skilled and corporate routes across 50+ countries — explored on one interactive
+          Residency, citizenship, skilled and corporate routes across 35+ countries — explored on one interactive
           globe, guided by XIPHIAS advisors.
         </p>
       </Reveal>

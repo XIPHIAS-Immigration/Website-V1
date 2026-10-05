@@ -33,7 +33,7 @@ const VALUE = [
   {
     icon: ScanSearch,
     title: "Checked, not guessed",
-    body: "Sixteen programmes across nine countries, against each government's own published criteria.",
+    body: "Every programme XIA covers, checked against each government's own published criteria.",
   },
   {
     icon: Compass,
@@ -48,7 +48,7 @@ const VALUE = [
 ];
 
 /** Publicly verifiable — every one of these can be looked up on a register. */
-const PROOF = ["CICC RCIC R516194", "MARA 1680615", "39 awards", "17 years", "4.8★ Google"];
+const PROOF = ["CICC RCIC R516194", "MARA 1680615", "39 awards", "17 years", "4.7★ Google"];
 
 export default function XiaGreeter() {
   const [open, setOpen] = useState(false);

@@ -38,7 +38,7 @@ export function buildCompanyProfilePages(opts: CompanyProfilePagesOptions): stri
       }) +
       grid(3, [
         card({ k: "Established", v: "2009" }),
-        card({ k: "Current footprint", v: "6 offices" }),
+        card({ k: "Current footprint", v: "5 offices" }),
         card({ k: "Advisory coverage", v: "4 tracks" }),
       ]) +
       `<div class="spacer-16"></div>` +

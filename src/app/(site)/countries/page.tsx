@@ -46,7 +46,7 @@ const COUNTRIES = [
   { name: 'Saint Kitts',        slug: 'saint-kitts',        code: 'KN', programs: ['CBI'] },
   { name: 'Saint Lucia',        slug: 'saint-lucia',        code: 'LC', programs: ['CBI'] },
   { name: 'Sao Tome',           slug: 'saotome',            code: 'ST', programs: ['CBI'] },
-  { name: 'Singapore',          slug: 'singapore',          code: 'SG', programs: ['RBI'] },
+  { name: 'Singapore',          slug: 'singapore',          code: 'SG', programs: ['RBI', 'Corporate'] },
   { name: 'Spain',              slug: 'spain',              code: 'ES', programs: ['Skilled', 'Corporate', 'Work Permits'] },
   { name: 'Switzerland',        slug: 'switzerland',        code: 'CH', programs: ['RBI'] },
   { name: 'Turkey',             slug: 'turkey',             code: 'TR', programs: ['CBI'] },

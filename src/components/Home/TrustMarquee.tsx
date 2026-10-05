@@ -8,7 +8,7 @@ const ITEMS = [
   { icon: Award, label: "17+ Years of Excellence" },
   { icon: Users, label: "10,000+ Families Relocated" },
   { icon: Star, label: "98% Visa Success Rate" },
-  { icon: Globe2, label: "50+ Countries Covered" },
+  { icon: Globe2, label: "35+ Countries Covered" },
   { icon: Building2, label: "Offices in India · UAE · Canada · Australia" },
   { icon: ShieldCheck, label: "Regulated, Compliant Advisory" },
   { icon: Star, label: "Featured in NDTV · Times of India · Money Control" },

@@ -2,14 +2,13 @@
 program: malta-government-contribution
 vertical: residency
 kind: program
-title: "Malta Permanent Residence Programme – Government Contribution Route"
+title: "Malta Permanent Residence Programme – Government Contribution and Fees"
 country: "Malta"
 countrySlug: "malta"
 programSlug: "malta-government-contribution"
-tagline: "Secure Malta permanent residence by making the mandatory government contribution and NGO donation, with family inclusion and Schengen access."
-minInvestment: 39000
+tagline: "The €37,000 government contribution is payable by every MPRP applicant, together with a €60,000 administrative fee, a €2,000 NGO donation and a qualifying property bought for €375,000 or leased for €14,000 a year."
+minInvestment: 37000
 currency: "EUR"
-timelineMonths: "12"
 tags:
   - "Malta"
   - "Government Contribution"
@@ -21,30 +20,38 @@ heroPoster: "/images/residency/malta/malta-government-contribution.webp"
 brochure: "/images/residency/malta/malta_rbi.pdf"
 
 routeType: "Government Contribution"
-lastUpdated: "2026-09-30"
+lastUpdated: "2026-10-01"
 
 prices:
-  - label: "Government Contribution"
+  - label: "Government contribution"
     amount: 37000
-    when: "Paid during application submission"
-    notes: "Non-refundable"
-  - label: "NGO Donation"
+    when: "Payable during application"
+    notes: "Non-refundable contribution."
+  - label: "NGO donation"
     amount: 2000
-    when: "Paid during application submission"
-    notes: "Non-refundable"
-  - label: "Administrative / processing fees"
-    amount: 0
-    when: "Paid upon application submission"
-    notes: "Covers processing for main applicant"
+    when: "Payable during application"
+    notes: "To a registered philanthropic, cultural, scientific, artistic, sport or animal-welfare NGO."
+  - label: "Administrative fee — main applicant"
+    amount: 60000
+    when: "€15,000 within 1 month of submission; €45,000 within 2 months of approval in principle"
+    notes: "Non-refundable."
+  - label: "Administrative fee — each dependant"
+    amount: 7500
+    when: "During the application"
+    notes: "Non-refundable."
+  - label: "Residence card"
+    amount: 500
+    when: "On issuance"
+    notes: "Per person; valid 5 years."
 
 proofOfFunds:
-  - label: "Minimum assets"
+  - label: "Capital requirement"
     amount: 500000
-    when: "Must be verifiable before application approval"
-    notes: "Including at least €150,000 in liquid instruments"
+    when: "At the time of application"
+    notes: "Assets of €500,000 including at least €150,000 in financial assets, or €650,000 including at least €75,000 in financial assets."
 
 benefits:
-  - "Permanent residence in Malta with no property requirement"
+  - "Permanent residence in Malta for the main applicant and dependants"
   - "Schengen travel access for short stays"
   - "Family-inclusive program covering spouse, children, parents, and grandparents"
   - "No mandatory minimum stay in Malta"
@@ -52,7 +59,9 @@ benefits:
 
 requirements:
   - "Applicant must be 18 years or older"
-  - "Proof of assets ≥ €500,000, including €150,000 in liquid instruments"
+  - "A qualifying property in Malta or Gozo: purchase of at least €375,000 or lease of at least €14,000 a year, retained for 5 years"
+  - "Administrative fee of €60,000 (plus €7,500 per dependant), government contribution of €37,000 and NGO donation of €2,000"
+  - "Capital of €500,000 (at least €150,000 financial assets), or €650,000 (at least €75,000 financial assets)"
   - "Comprehensive health insurance for applicant and dependents"
   - "Clean criminal record and full due diligence compliance"
 
@@ -63,18 +72,6 @@ disqualifiers:
 
 risknotes: "Contributions are non-refundable. Application may be rejected if eligibility criteria or due diligence are not met."
 
-projectList:
-  - name: "Government Contribution"
-    minBuyIn: 37000
-    holdMonths: 0
-    notes: "Mandatory government contribution"
-    image: ""
-  - name: "NGO Donation"
-    minBuyIn: 2000
-    holdMonths: 0
-    notes: "Mandatory donation to registered Maltese NGO"
-    image: ""
-
 documentChecklist:
   - group: "Identity Documents"
     documents:
@@ -84,7 +81,7 @@ documentChecklist:
   - group: "Financial Documents"
     documents:
       - "Bank statements covering 6 months"
-      - "Proof of assets ≥ €500,000 including liquid instruments"
+      - "Proof of capital: €500,000 (€150,000 financial) or €650,000 (€75,000 financial)"
     notes: ""
   - group: "Compliance Documents"
     documents:
@@ -106,13 +103,16 @@ quickCheck:
       label: "Are you 18 years or older?"
       type: boolean
     - id: "fundsCheck"
-      label: "Do you have minimum assets of €500,000, including €150,000 in liquid instruments?"
+      label: "Do you hold capital of €500,000 (€150,000 of it financial), or €650,000 (€75,000 financial)?"
+      type: boolean
+    - id: "propertyCheck"
+      label: "Will you buy a property for at least €375,000, or lease one at €14,000 a year or more, and keep it for 5 years?"
       type: boolean
   policy:
     type: "all"
   verdict:
     successTitle: "You are likely eligible"
-    successText: "Based on your answers, you meet the preliminary requirements for Malta Government Contribution PR."
+    successText: "Based on your answers, you meet the preliminary requirements for the Malta Permanent Residence Programme."
     cautionTitle: "Eligibility may not be met"
     cautionText: "Please review the requirements and ensure all financial and compliance criteria are met."
   ctas:
@@ -122,45 +122,61 @@ quickCheck:
     secondaryText: "View all Malta Programs"
 
 processSteps:
-  - title: "Submit Preliminary Application"
-    description: "Provide identity, financial, and compliance documents for initial review."
-  - title: "Make Required Payments"
-    description: "Pay €37,000 government contribution and €2,000 NGO donation."
-  - title: "Due Diligence"
-    description: "Complete background checks for applicant and family."
-  - title: "Approval-in-Principle"
-    description: "Receive official approval-in-principle from the Maltese authorities."
-  - title: "Residence Issuance"
-    description: "Receive permanent residence certificate and residence cards for family members."
+  - title: "Submit application"
+    description: "File identity, financial and compliance documents; €15,000 of the €60,000 administrative fee is due within 1 month of submission."
+  - title: "Due diligence"
+    description: "Background screening of the main applicant and every dependant."
+  - title: "Approval in principle"
+    description: "Receive the Letter of Approval in Principle; the €45,000 balance of the administrative fee is due within 2 months."
+  - title: "Secure the qualifying property"
+    description: "Buy a property of at least €375,000 or lease one at €14,000 a year or more, in Malta or Gozo, retained for at least 5 years."
+  - title: "Pay contribution and donation"
+    description: "Pay the €37,000 government contribution and the €2,000 NGO donation."
+  - title: "Residence certificate and cards"
+    description: "Receive the residence certificate; residence cards cost €500 per person and are valid for 5 years."
 
 faq:
   - q: "Can I include my spouse and children?"
     a: "Yes. Spouse and dependent children up to 26 years old can be included in the application."
   - q: "Can parents or grandparents be included?"
-    a: "Yes. Parents aged 55+ and dependent grandparents can be included, subject to additional agency fees."
+    a: "Yes. Parents aged 55+ and dependent grandparents can be included; an administrative fee of €7,500 applies for each dependant."
+  - q: "Do I still need a property?"
+    a: "Yes. Every MPRP applicant must buy a qualifying property for at least €375,000 or lease one for at least €14,000 a year, anywhere in Malta or Gozo, and keep it for 5 years."
   - q: "Is there a minimum stay requirement in Malta?"
     a: "No, there is no mandatory minimum stay requirement to maintain permanent residence."
-  - q: "Are contributions refundable?"
-    a: "No, both the government contribution and NGO donation are non-refundable."
-  - q: "How long does the application process take?"
-    a: "The process typically takes 6–12 months, depending on document preparation and due diligence."
+  - q: "Are the payments refundable?"
+    a: "No. The administrative fee, government contribution and NGO donation are non-refundable."
+  - q: "Does MPRP lead to Maltese citizenship?"
+    a: "Not automatically. Naturalisation is a separate, discretionary process requiring 12 months' residence immediately before applying plus an aggregate 4 years in the preceding 6. Malta permits dual citizenship; India does not."
 
 costEstimator:
   baseOptions:
-    - id: "governmentContribution"
-      label: "Government Contribution"
-      amount: 37000
-    - id: "ngoDonation"
-      label: "NGO Donation"
-      amount: 2000
-  defaultBaseId: "governmentContribution"
+    - id: "property-purchase"
+      label: "Qualifying property purchase (Malta or Gozo)"
+      amount: 375000
+    - id: "property-lease"
+      label: "Qualifying lease — first year (Malta or Gozo)"
+      amount: 14000
+  defaultBaseId: "property-lease"
   adults: 1
   children: 0
-  addons: []
+  addons:
+    - id: "admin-fee"
+      label: "Administrative fee (main applicant)"
+      amount: 60000
+      per: "application"
+    - id: "gov-contribution"
+      label: "Government contribution"
+      amount: 37000
+      per: "application"
+    - id: "ngo-donation"
+      label: "NGO donation"
+      amount: 2000
+      per: "application"
 
 seo:
   title: "Malta Permanent Residence Programme 2026 — Current MPRP Figures"
-  description: "MPRP as the law actually stands: €60,000 administrative fee, €37,000 contribution, €375,000 property or €14,000 lease, no Gozo discount. Plus what the 2025 CJEU ruling did to Maltese citizenship by investment."
+  description: "Malta Permanent Residence Programme: €60,000 admin fee, €37,000 contribution, €2,000 donation, and property bought at €375,000 or leased at €14,000 a year."
   keywords:
     - "Malta permanent residence programme 2026"
     - "MPRP administrative fee 60000"
@@ -171,15 +187,16 @@ seo:
     - "golden visa consultants India"
 
 riskNotes:
-  - "The administrative fee is €60,000, not €40,000. It was raised by Legal Notice 310/2024 and Legal Notice 146/2025."
-  - "The Gozo and South Malta discount has been abolished. There is now a single property threshold nationwide."
-  - "Residency Malta's own January 2025 brochure and the agents' handbook still show the superseded €50,000, €30,000 and €60,000 figures. Work from the consolidated Subsidiary Legislation, not the brochures."
+  - "The administrative fee is €60,000 for the main applicant, as set by Legal Notice 310/2024 and Legal Notice 146/2025, plus €7,500 for each dependant."
+  - "There is a single property threshold for Malta and Gozo: €375,000 to buy or €14,000 a year to lease. The former Gozo and South Malta discount no longer applies."
+  - "Residency Malta's January 2025 brochure and agents' handbook still show superseded figures. Work from the consolidated Subsidiary Legislation 217.26, which sets the figures on this page."
   - "This is a residence programme. Malta's citizenship-by-investment scheme was discontinued entirely in 2025 — see the note below — and we do not offer a Maltese citizenship product."
 
 complianceNotes:
-  - "Current MPRP terms under Subsidiary Legislation 217.26: administrative fee €60,000; government contribution €37,000; qualifying property €375,000 purchase or €14,000 per year lease; donation €2,000."
+  - "Current MPRP terms under Subsidiary Legislation 217.26: administrative fee €60,000 (main applicant) and €7,500 per dependant; government contribution €37,000; qualifying property €375,000 purchase or €14,000 per year lease, retained for 5 years; donation €2,000."
   - "Financial capital requirement: €500,000 in assets of which €150,000 financial, or €650,000 of which €75,000 financial."
   - "The separate Gozo and South Malta thresholds no longer exist."
+  - "Residence cards cost €500 per person and are valid for 5 years."
   - "Malta is a Schengen member."
 ---
 
@@ -192,17 +209,21 @@ Malta's Permanent Residence Programme was repriced twice, by Legal Notice 310/20
 
 | Item | Amount |
 | --- | --- |
-| Administrative fee | **€60,000** |
+| Administrative fee — main applicant | **€60,000** (€15,000 within 1 month of submission; €45,000 within 2 months of the Letter of Approval in Principle) |
+| Administrative fee — each dependant | €7,500 |
 | Government contribution | **€37,000** |
 | Qualifying property — purchase | **€375,000** |
 | Qualifying property — lease | **€14,000 per year** |
+| Property retention | 5 years |
 | Donation | €2,000 |
+| Capital requirement | €500,000 in assets (€150,000 financial), or €650,000 (€75,000 financial) |
+| Residence card | €500 per person, valid 5 years |
 
 **The Gozo and South Malta discount has been abolished** — there is a single national threshold now.
 
-Two cautions. Our own pages carried a **€40,000** administrative fee until this review. And
-**Residency Malta's own January 2025 brochure and agents' handbook still show superseded figures** —
-if a consultant quotes you from those, they are quoting a repealed schedule.
+A caution: **Residency Malta's January 2025 brochure and agents' handbook still show superseded
+figures.** The consolidated Subsidiary Legislation 217.26 governs, and the figures above are taken
+from it.
 
 ## One thing to settle before you start
 
@@ -223,8 +244,8 @@ Article 4(3) TEU — the Court described it as the commercialisation of the gran
 nationality.
 
 Malta responded with **Act XXI of 2025**, published 24 July 2025. The Government's own statement is
-that the amendments **discontinue the programme entirely**, and that all references to the
-programme, the transaction and the agents involved have been removed from the law.
+that the amendments **discontinue the programme entirely**, and that the law no longer contains any
+reference to the programme, the transaction or the agents involved.
 
 A route called "citizenship by merit" exists under older legislation, but the Maltese agency
 responsible states expressly that it does **not permit any marketing or promotion** of it, and that
@@ -236,7 +257,7 @@ The MPRP described on this page is a **residence** programme and is unaffected b
 
 ## Talk to a European residency consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families into Europe since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Malta our **immigration consultants in Bangalore** will tell you what the rules are this month, not what a brochure said two years ago.
+XIPHIAS Immigration has guided Indian families into Europe since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the current rules, costs and timeline for Malta.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

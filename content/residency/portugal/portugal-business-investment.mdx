@@ -21,31 +21,19 @@ heroPoster: "/images/residency/portugal/portugal-capital-transfer.webp"
 brochure: "/images/residency/portugal/portugal_rbi.pdf"
 
 routeType: "Business / Job Creation Investment"
-lastUpdated: "2026-09-30"
+lastUpdated: "2026-10-01"
 
 prices:
-  - label: "Business Capital / Job Creation Investment"
+  - label: "Company capitalisation"
     amount: 500000
     when: "Before application submission"
-    notes: "Invest in a qualifying Portuguese company or create 10 full-time jobs; must meet regulatory approval."
-  - label: "Application Analysis Fee"
-    amount: 0
-    when: "At submission"
-    notes: "Government processing fee."
-  - label: "Residence Permit Issuance Fee"
-    amount: 0
-    when: "At issuance"
-    notes: "Covers main applicant and dependents."
+    notes: "Capital into a qualifying Portuguese company. The job-creation route instead requires the creation of at least 10 full-time jobs; must meet regulatory approval."
 
 proofOfFunds:
   - label: "Investment amount proof"
     amount: 500000
     when: "Before/at application"
     notes: "Bank statements, incorporation docs, or proof of employment creation."
-  - label: "Additional working capital (if required)"
-    amount: 0
-    when: "As applicable"
-    notes: "Varies depending on business type and plan."
 
 benefits:
   - "Portuguese residency, and permanent residence after five years."
@@ -66,18 +54,11 @@ disqualifiers:
   - "Listed under international sanctions."
   - "Failure to demonstrate legitimate source of funds or AML compliance."
 
-risknotes: "Business investments carry financial and operational risks. Job creation must be maintained, and returns are not guaranteed. Seek independent advice."
-
 projectList:
-  - name: "Job Creation Enterprise"
-    minBuyIn: 500000
-    holdMonths: 60
-    notes: "Investment in a company creating at least 10 jobs; business plan approval required."
-    image: ""
   - name: "Company Capitalisation"
     minBuyIn: 500000
     holdMonths: 60
-    notes: "Passive capital into an existing Portuguese company; must maintain operations and jobs."
+    notes: "Capital into an existing qualifying Portuguese company; operations and jobs must be maintained."
     image: ""
 
 documentChecklist:
@@ -113,12 +94,11 @@ quickCheck:
   questions:
     - id: "has_valid_passport"
       label: "Do you hold a valid non-EU passport?"
-      type: boolean
+      type: "boolean"
     - id: "can_invest_minimum"
-      label: "Can you commit at least €500,000 in a business or job creation investment?"
-      type: boolean
-
-ctas:
+      label: "Can you commit €500,000 to a qualifying Portuguese company, or create at least 10 full-time jobs in Portugal?"
+      type: "boolean"
+  ctas:
     primaryHref: "/eligibility"
     primaryText: "Check detailed Eligibility"
     secondaryHref: "/residency/portugal"
@@ -142,9 +122,9 @@ processSteps:
 
 faq:
   - q: "What is the minimum investment for the Business Investment route?"
-    a: "€500,000 for company capitalisation or creation of 10 full-time jobs."
+    a: "€500,000 for company capitalisation. The job-creation route instead requires the creation of at least 10 full-time jobs in Portugal."
   - q: "Do I need to live full-time in Portugal?"
-    a: "No, minimal presence is required (7 days/year)."
+    a: "No. The minimum is 7 days in the first year and 14 days in each subsequent two-year period (Decreto Regulamentar 84/2007, art. 65.º-C)."
   - q: "Can I include family members?"
     a: "Yes — spouse, dependent children (≤26), and dependent parents."
   - q: "Is there a holding period for the investment?"
@@ -157,18 +137,12 @@ faq:
 costEstimator:
   baseOptions:
     - id: "business500"
-      label: "Job Creation / Company Capitalisation"
+      label: "Company capitalisation"
       amount: 500000
   defaultBaseId: "business500"
   adults: 1
   children: 0
-  addons:
-    - id: "legal_fees"
-      label: "Legal & Consultancy Fees (estimate)"
-      amount: 15000
-    - id: "translation_notarisation"
-      label: "Translation & Notarisation (estimate)"
-      amount: 2000
+  addons: []
 
 seo:
   title: "Portugal Golden Visa – Business Investment Route"
@@ -182,31 +156,40 @@ seo:
     - "visa consultants in Bangalore"
     - "immigration consultants in Koramangala"
     - "Portugal golden visa consultants India"
+
+riskNotes:
+  - "Business investments carry financial and operational risks, and returns are not guaranteed; seek independent advice."
+  - "Job creation must be maintained, and the investment kept for the required period — typically five years."
+  - "Real estate has not qualified for the Golden Visa since October 2023, and no route may target real estate directly or indirectly."
+
+complianceNotes:
+  - "Golden Visa physical presence: 7 days, consecutive or not, in the first year and 14 days in each subsequent two-year period (Decreto Regulamentar 84/2007, art. 65.º-C)."
+  - "AIMA application-analysis and residence-permit issuance fees are charged at the official rates in force; XIPHIAS confirms the current schedule before filing."
 ---
 
 *Advising Indian families on Portuguese residency since 2009, from our Koramangala office in Bangalore.*
 
 ## Overview
-The **Business Investment** route enables non-EU nationals to obtain Portuguese residency by investing in a **Portuguese company or creating at least 10 full-time jobs**. Family members, including spouse, dependent children (≤26), and dependent parents, can be included. Minimal physical presence is required (7 days/year). This route supports active entrepreneurs and investors looking to contribute to Portugal’s economy.
+The **Business Investment** route enables non-EU nationals to obtain Portuguese residency by investing in a **Portuguese company or creating at least 10 full-time jobs**. Family members, including spouse, dependent children (≤26), and dependent parents, can be included. Minimal physical presence is required: 7 days in the first year and 14 days in each subsequent two-year period. This route supports active entrepreneurs and investors looking to contribute to Portugal’s economy.
 
 ## Investment Overview
-- **Job Creation:** Invest €500,000 to create at least 10 full-time jobs. Business plan approval is required; holding period ~5 years.  
+- **Job Creation:** Create at least 10 full-time jobs in Portugal. Business plan approval is required; holding period ~5 years.  
 - **Company Capitalisation:** Inject €500,000 into an existing qualifying Portuguese company; maintain operations and employment; 5-year holding period.
 
 ## Comparison with Capital Transfer Route
 
 | Feature               | Business Investment Route           | Capital Transfer Route               |
 |-----------------------|-----------------------------------|-----------------------------------|
-| **Minimum Investment** | €500,000                          | €250,000–€500,000                 |
+| **Minimum Investment** | €500,000 (company capitalisation) or 10 jobs created | €250,000–€500,000 |
 | **Type of Investment** | Active business / job creation    | Passive capital / funds            |
 | **Ideal For**          | Entrepreneurs / active investors  | Passive investors / philanthropists |
-| **Residency Stay**     | 7 days/year                        | 7 days/year                        |
+| **Residency Stay**     | 7 days in year 1, then 14 per 2 years | 7 days in year 1, then 14 per 2 years |
 | **Family Inclusion**   | Spouse, children ≤26, dependent parents | Spouse, children ≤26, dependent parents |
-| **Path to Citizenship**| 5 years, 183-day annual stay, language requirement | 5 years, 183-day annual stay, language requirement |
-| **Risk Level**         | Medium (active business)           | Low (passive capital)              |
+| **Path to Citizenship**| Permanent residence at 5 years; citizenship at 10 years for Indian nationals | Permanent residence at 5 years; citizenship at 10 years for Indian nationals |
+| **Risk Level**         | Business and operational risk      | Fund or project risk; returns not guaranteed |
 | **Tax Consideration**  | Portuguese corporate/personal tax | Income tax on passive returns      |
 
-## The citizenship timeline, stated honestly
+## The citizenship timeline
 
 Portugal changed its nationality law on **19 May 2026** (Lei Orgânica 1/2026). Naturalisation now
 requires **seven years** of legal residence for nationals of EU member states and Portuguese-speaking
@@ -215,9 +198,8 @@ everyone before that date. Applications already pending on 19 May 2026 keep the 
 
 **Permanent residence is unaffected and remains five years** (Lei 23/2007, art. 80.º).
 
-A great many consultancy pages, and some of our own older articles, still say five years. They are
-out of date. If Portuguese citizenship on a five-year horizon is the reason you are considering this,
-that reason no longer exists — and you should know before you commit, not after.
+If Portuguese citizenship on a five-year horizon is the reason you are considering this, plan on ten
+years instead, and weigh that before you commit.
 
 Note also that India does not permit dual citizenship: acquiring Portuguese citizenship would end
 your Indian citizenship under Section 9(1) of the Citizenship Act 1955. Portuguese **residency** does
@@ -226,7 +208,7 @@ not.
 
 ## Talk to a Portugal immigration consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families into Portugal since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Portugal we will tell you the real citizenship timeline rather than the one in the brochures — our **immigration consultants in Bangalore** would rather lose the file than mis-sell it.
+XIPHIAS Immigration has guided Indian families into Portugal since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the requirements, costs and full timeline to permanent residence and citizenship in Portugal.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

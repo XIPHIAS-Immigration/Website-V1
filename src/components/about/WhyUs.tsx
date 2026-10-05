@@ -13,7 +13,7 @@ const points: Point[] = [
   {
     icon: ShieldCheck,
     title: "Licensed & Regulated",
-    text: "Advisory aligned to CICC/ICCRC, MARA & IMC practices.",
+    text: "CICC-licensed RCIC (R516194), MARA 1680615 and IMC membership.",
     bullets: ["Rule-tracking & audit-ready files", "Partner-led review on priority cases"],
   },
   {

@@ -21,66 +21,36 @@ brochure: "/images/citizenship/turkey/turkey_citizenship_by_investment.pdf"
 # Program specifics / Projects / Risk & Compliance / Docs / Estimator
 routeType: "real-estate"
 holdingPeriodMonths: 36
-lastUpdated: "2026-09-30"
+lastUpdated: "2026-10-01"
 
 prices:
-  - label: "Real estate investment – single applicant"
+  - label: "Qualifying real estate (minimum)"
     amount: 400000
     currency: "USD"
-    notes: "Minimum investment for a single applicant to qualify for Turkish citizenship through approved real estate."
-  - label: "Real estate investment – married couple"
-    amount: 400000
-    currency: "USD"
-    notes: "Minimum investment for a couple; includes principal applicant and spouse."
-  - label: "Real estate investment – three-person family"
-    amount: 400000
-    currency: "USD"
-    notes: "Covers principal applicant, spouse, and one child under 18."
-  - label: "Real estate investment – family of four"
-    amount: 400000
-    currency: "USD"
-    notes: "Covers principal applicant, spouse, and two children under 18."
-  - label: "Extra family member"
-    amount: "Included"
-    currency: "USD"
-    notes: "Additional dependents are included at no extra property investment cost, subject to program rules."
-  - label: "Due diligence – principal applicant"
-    amount: 5000
-    currency: "USD"
-    notes: "Mandatory due diligence fee for the main applicant to verify background and source of funds."
-
-governmentFees:
-  - label: "Passport fee (per person)"
-    amount: 185
-    currency: "USD"
-    notes: "Government fee charged per person upon passport issuance; non-refundable."
-
-proofOfFunds:
-  - label: "Proof of funds"
-    notes: "Applicants must demonstrate sufficient funds to cover the approved property purchase, due diligence fees, passport issuance, and any associated legal costs for themselves and their dependents."
+    notes: "One qualifying investment covers the principal applicant, the spouse, and children under 18 or dependent. The threshold is measured at the Turkish Central Bank rate on the determination date."
 
 benefits:
-  - "Fast-track Turkish citizenship: approximately 6 months from application to passport."
-  - "Dual citizenship allowed; lifetime citizenship for applicant and family."
-  - "No prior residency requirement in Turkey."
-  - "Visa-free or visa-on-arrival access to 113 countries with a Turkish passport."
-  - "Family-friendly: includes spouse, children under 18, and parents."
-  - "Potential rental income from property (3–7% annually)."
-  - "Strategically located in a politically stable and economically dynamic jurisdiction."
+  - "Around 6 months from application to passport on XIPHIAS files. No Turkish government source publishes an overall processing time."
+  - "Türkiye permits dual citizenship and requires no renunciation. India does not — see what this means for an Indian passport."
+  - "No prior residency requirement in Türkiye."
+  - "Visa-free or visa-on-arrival travel to 113 countries."
+  - "Family inclusion: your spouse, and children under 18 or dependent. Parents cannot be included."
+  - "Potential rental income from the property."
+  - "Türkiye is a US E-2 treaty country (in force since 18 May 1990). India is not."
 
 requirements:
-  - "Applicant must be at least 18 years old."
-  - "Clean criminal record; pass thorough due diligence checks."
-  - "Good health confirmed via medical examination."
-  - "Complete minimum real estate investment of USD 400,000 in approved property."
+  - "Be at least 18 years old."
+  - "Clean criminal record and pass thorough due diligence screenings."
+  - "No impediment on national-security or public-order grounds (Law 5901, Article 12)."
+  - "Purchase qualifying real estate worth at least USD 400,000 and hold it for three years."
 
 disqualifiers:
   - "Incomplete, falsified, or misleading documentation."
   - "Unclear or illegitimate source of funds."
-  - "Attempting direct application without a licensed authorized agent."
+  - "Bare land or agricultural land, which no longer qualifies since 12 December 2023."
 
 riskNotes:
-  - "Indian citizenship ends automatically on acquiring Turkish citizenship. Read the section on this page before committing funds."
+  - "Indian citizenship ends automatically on acquiring Turkish citizenship. Read what this means for an Indian passport before committing funds."
   - "Since 12 December 2023 the property must have kat mülkiyeti (condominium ownership) or kat irtifakı (construction servitude) established, or be arsa-classified land with a building on it. Bare land and agricultural land no longer qualify."
   - "A three-year no-sale annotation is placed on the title deed. This is a legal block at the registry, not a penalty — the transfer simply will not process."
   - "Foreign nationals may own at most 10% of the privately-owned area of any district (ilçe) and 30 hectares nationwide. Military and strategic security zones are excluded entirely."
@@ -94,8 +64,8 @@ complianceNotes:
   - "Only US dollars, euro, pounds sterling and Swiss francs are accepted for that conversion."
   - "The USD threshold is tested at the Central Bank effective selling rate and/or cross rate on the determination date (tespit tarihi) — not the contract date and not the application date."
   - "Law 5901 Article 12 includes the foreign spouse, and the applicant’s and spouse’s children who are under 18 or dependent. Parents cannot be included."
-  - "The 6 month timeline shown is XIPHIAS’s own observed average. No Turkish government source publishes an overall processing time for this programme, so treat any figure quoted to you elsewhere with suspicion."
-  - "Whether the threshold is tested against the SPK appraisal value or the sale price is set by Land Registry circulars, which we could not read on 30 September 2026. Ask us and we will confirm it directly with TKGM for your property before you commit."
+  - "The 6 month timeline shown is XIPHIAS’s own observed average. No Turkish government source publishes an overall processing time for this programme."
+  - "Whether the threshold is tested against the SPK-licensed appraisal value or the declared sale price is set by Land Registry (TKGM) circulars. XIPHIAS confirms the position directly with TKGM for your property before you commit."
 
 documentChecklist:
   - group: "Identity & Civil"
@@ -111,7 +81,6 @@ documentChecklist:
   - group: "Compliance"
     documents:
       - "Police clearance / Interpol certificate"
-      - "Medical certificates (adults)"
       - "Passport-size photos"
   - group: "Investment Proof"
     documents:
@@ -121,24 +90,29 @@ documentChecklist:
 familyMatrix:
   spouse: true
   childrenUpTo: 18
-  parentsFromAge: 0
+  parentsFromAge: null
   siblings: false
+  notes: "Your foreign spouse, and your and your spouse’s children who are under 18 or dependent (Law 5901, Article 12). Parents cannot be included."
 
 quickCheck:
   title: "Turkey Real Estate Investment Pre-Screen"
   questions:
     - id: "capital"
-      label: "Do you have sufficient capital for the real estate investment and associated fees?"
+      label: "Do you have at least USD 400,000 for a qualifying property, plus purchase costs?"
       type: "boolean"
-      note: "This includes the property purchase, due diligence fees, passport issuance, and any applicable legal costs for yourself and dependents."
+      note: "The threshold is measured at the Turkish Central Bank rate on the determination date, so budget a margin."
     - id: "clean"
       label: "Do you have a clean background and ready KYC documents?"
       type: "boolean"
       note: "All adult applicants must successfully pass enhanced due diligence, including criminal background, financial, and KYC verification."
-    - id: "interview"
-      label: "Are you comfortable with a remote or in-person interview if required?"
+    - id: "currency"
+      label: "Can you transfer the funds in US dollars, euro, pounds sterling or Swiss francs?"
       type: "boolean"
-      note: "Applicants may need to attend interviews as part of the due diligence and application approval process."
+      note: "For this route the foreign currency must be sold to a Turkish bank, and by that bank to the Turkish Central Bank, before the transaction."
+    - id: "india"
+      label: "If you are an Indian citizen, do you accept that Indian citizenship ends on acquisition?"
+      type: "boolean"
+      note: "Section 9(1) of the Citizenship Act 1955. It ends automatically and cannot be deferred."
 
 ctas:
     primaryHref: "/eligibility"
@@ -149,36 +123,17 @@ ctas:
 # Optional interactive estimator (drives CostCalculator)
 costEstimator:
   baseOptions:
-    - id: "share270"
-      label: "Project share (from)"
-      amount: 270000
-    - id: "condo350"
-      label: "Condo title (from)"
-      amount: 350000
-  defaultBaseId: "share270"
+    - id: "realestate400"
+      label: "Qualifying real estate (minimum)"
+      amount: 400000
+  defaultBaseId: "realestate400"
   adults: 2
   children: 0
-  addons:
-    - id: "dd-adult"
-      label: "Due diligence (per adult)"
-      amount: 5000
-      per: "adult"
-    - id: "proc-per-person"
-      label: "Gov. processing (per person)"
-      amount: 1500
-      per: "person"
-    - id: "interview-per-adult"
-      label: "Interview (per adult)"
-      amount: 1000
-      per: "adult"
-    - id: "passport-per-person"
-      label: "Passport issuance (per person)"
-      amount: 250
-      per: "person"
+  addons: []
 
 seo:
   title: "Turkey Citizenship by Real Estate — USD 400,000, 3-Year Hold (2026)"
-  description: "Turkish citizenship through property: USD 400,000 minimum since June 2022, a three-year title annotation, and the 2023 rule excluding bare land. Plus the point most consultants skip — Indian citizenship ends automatically."
+  description: "Turkish citizenship by property: USD 400,000 minimum since June 2022, a three-year title annotation, the 2023 bare-land rule and the Indian citizenship rule."
   keywords:
     - "Turkey citizenship by investment 400000"
     - "Turkish passport real estate India"
@@ -217,19 +172,17 @@ explicit that *OCI is not to be misconstrued as dual citizenship* and confers no
 As an OCI you cannot vote, cannot hold constitutional posts, do not have equality in public
 employment, and **cannot acquire agricultural land, farmhouses or plantation property in India**.
 
-This is a **replacement** of your Indian citizenship, not an addition to it. Any consultant who
-tells you otherwise is either mistaken or not telling you the truth. Turkey itself permits dual
-citizenship and requires no renunciation — the restriction is entirely on the Indian side.
+This is a **replacement** of your Indian citizenship, not an addition to it. Turkey itself permits
+dual citizenship and requires no renunciation — the restriction is entirely on the Indian side.
 
-For many families this trade is still worth it, particularly for the US E-2 route. But it is a
-decision to take with your eyes open, and we would rather you heard it from us on the first page
-than discovered it at the end.
+For many families this trade is still worth it, particularly for the US E-2 route. It is a decision
+to make with the full picture in front of you, before any funds move.
 
 ## Why Indian families still choose this
 
 **Türkiye is a US E-2 treaty country** — the treaty has been in force since 18 May 1990. India is
 not. So a Turkish passport is one of the few routes that opens the
-[US E-2 treaty investor visa](/corporate/usa/o1-entrepreneur-visa) to a family that began with only
+[US E-2 treaty investor visa](/corporate/usa) to a family that began with only
 Indian nationality. That is the single most common reason our clients look at Türkiye rather than a
 Caribbean programme.
 
@@ -257,7 +210,7 @@ francs** are accepted. The USD threshold is measured at the Central Bank rate on
 
 ## Talk to a Turkey citizenship consultant in Bangalore
 
-XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Turkey we will always put the Indian citizenship consequence in front of you first — our **immigration consultants in Bangalore** would rather lose the file than have you find out later.
+XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the Indian citizenship consequence first, then the requirements, costs and timeline for Türkiye.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

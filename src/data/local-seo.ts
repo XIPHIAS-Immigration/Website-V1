@@ -56,7 +56,7 @@ export const headOffice = napOffices[0];
 
 export const openingHours = {
   days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-  opens: "10:00",
+  opens: "09:30",
   closes: "18:30",
 } as const;
 
@@ -95,7 +95,7 @@ export const localLandings: LocalLanding[] = [
       "How to choose between immigration consultants in Bangalore \u2014 what to ask, and which licence numbers to check. Ours are CICC R516194 and MARA 1680615.",
     eyebrow: "Koramangala, Bengaluru",
     standfirst:
-      "Seventeen years of files, six offices, and a licence number you can look up before you pay anyone a rupee.",
+      "Seventeen years of files, five offices, and a licence number you can look up before you pay anyone a rupee.",
     intents: [
       "immigration consultants in bangalore",
       "best immigration consultants in bangalore",
@@ -186,7 +186,7 @@ export const localLandings: LocalLanding[] = [
       },
       {
         q: "Which countries do you handle from Bangalore?",
-        a: "Canada, Australia, the United Kingdom, New Zealand, the United States, the UAE and the European residency and citizenship programmes, with offices in Dubai, Melbourne and Waterloo supporting files on the ground.",
+        a: "Canada, Australia, the United Kingdom, New Zealand, the United States, the UAE and the European residency and citizenship programmes, with offices in Gurugram, Dubai, Melbourne and Waterloo supporting files on the ground.",
       },
       {
         q: "How long does a typical case take?",
@@ -268,7 +268,7 @@ export const localLandings: LocalLanding[] = [
   {
     slug: "rcic-registered-immigration-consultant-india",
     h1: "RCIC-registered Canadian immigration consulting, from Bangalore",
-    title: "ICCRC / CICC Registered Immigration Consultant in Bangalore | Licence R516194",
+    title: "CICC (formerly ICCRC) Registered Immigration Consultant in Bangalore | Licence R516194",
     description:
       "Canadian immigration files handled from India under RCIC licence R516194, listed on the College of Immigration and Citizenship Consultants public register against XIPHIAS Immigration Pvt Ltd.",
     eyebrow: "Canada practice",
@@ -309,7 +309,7 @@ export const localLandings: LocalLanding[] = [
       {
         heading: "Canadian routes we work on",
         body: [
-          "Express Entry — Federal Skilled Worker, Canadian Experience Class and the Federal Skilled Trades programme, including CRS scoring and the category-based draws. Provincial Nominee Programmes across Ontario, British Columbia, Alberta, Saskatchewan and the Atlantic provinces. Business routes — the Start-up Visa and provincial entrepreneur streams. Family sponsorship, study permits and post-graduation work permits.",
+          "Express Entry — Federal Skilled Worker, Canadian Experience Class and the Federal Skilled Trades programme, including CRS scoring and the category-based draws. Provincial Nominee Programmes across Ontario, British Columbia, Alberta, Saskatchewan and the Atlantic provinces. Business routes — the provincial entrepreneur streams (the federal Start-up Visa is paused). Family sponsorship, study permits and post-graduation work permits.",
           "Assessment begins with your actual CRS score against the current draw cut-offs, not an optimistic estimate. Where the score is short, the advisor identifies which of the levers — language retake, education assessment, provincial nomination, spouse factors — moves it furthest for your profile.",
         ],
       },
@@ -415,7 +415,7 @@ export const localLandings: LocalLanding[] = [
         body: [
           "XIPHIAS Immigration is at JK Nirmala Arcade, Plot no. 780, 80 Feet Road, 4th Block, Koramangala, Bengaluru 560034 \u2014 first floor, a few minutes on foot from Forum Mall and a short ride from Indiranagar, HSR Layout, BTM Layout and the Outer Ring Road tech corridor.",
           "Come with whatever you already have: degree certificates, any IELTS or PTE result, current CV, and passports for everyone who would move with you. None of it is required for a first conversation, but with it an advisor can score you against the published criteria in the meeting rather than after it.",
-          "Appointments are preferred, because it means a senior advisor is free when you arrive rather than between calls. Weekdays 10:00 to 18:30.",
+          "Appointments are preferred, because it means a senior advisor is free when you arrive rather than between calls. Monday to Saturday, 9:30 to 18:30.",
         ],
       },
       {
@@ -484,7 +484,7 @@ export const localLandings: LocalLanding[] = [
         body: [
           "Canada \u2014 section 91 of the Immigration and Refugee Protection Act: a member in good standing of a Canadian provincial or territorial law society, a notary of the Chambre des notaires du Qu\u00e9bec, or a consultant licensed by the College of Immigration and Citizenship Consultants. Nobody else may charge you for advice or representation.",
           "Australia \u2014 a migration agent registered with the Office of the Migration Agents Registration Authority, or an Australian legal practitioner holding an unrestricted practising certificate.",
-          "United Kingdom \u2014 an adviser regulated by the Office of the Immigration Services Commissioner, or a solicitor or barrister regulated by their own professional body.",
+          "United Kingdom \u2014 an adviser regulated by the Immigration Advice Authority (formerly the Office of the Immigration Services Commissioner), or a solicitor or barrister regulated by their own professional body.",
           "United States \u2014 an attorney licensed in a US state, or a representative accredited by the Department of Justice. This is the one major destination where lawyer is the correct and necessary word.",
         ],
       },

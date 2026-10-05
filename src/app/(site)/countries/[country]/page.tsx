@@ -13,11 +13,11 @@ const COUNTRY_DATA: Record<string, {
   'antigua-barbuda': {
     name: 'Antigua & Barbuda',
     code: 'AG',
-    description: 'A Caribbean nation offering one of the fastest citizenship-by-investment programs globally, granting visa-free access to 150+ countries.',
+    description: 'Antigua & Barbuda offers citizenship by investment from a USD 230,000 National Development Fund contribution, approved real estate from USD 300,000 or business investment from USD 1.5 million. The passport is visa-free to the UK with an ETA; US entry is partially suspended under Proclamation 10998.',
     programs: [
-      { category: 'CBI', title: 'Business Investment', href: '/citizenship/antigua-barbuda/business-investment', description: 'Invest in an approved business to qualify for citizenship.' },
-      { category: 'CBI', title: 'National Development Fund', href: '/citizenship/antigua-barbuda/national-development-fund', description: 'Non-refundable contribution to the NDF from USD 100K.' },
-      { category: 'CBI', title: 'Real Estate', href: '/citizenship/antigua-barbuda/real-estate', description: 'Purchase approved real estate from USD 200K.' },
+      { category: 'CBI', title: 'Business Investment', href: '/citizenship/antigua-barbuda/business-investment', description: 'Approved business investment from USD 1.5 million as a sole investor.' },
+      { category: 'CBI', title: 'National Development Fund', href: '/citizenship/antigua-barbuda/national-development-fund', description: 'Non-refundable NDF contribution of USD 230,000, the same for any family size.' },
+      { category: 'CBI', title: 'Real Estate', href: '/citizenship/antigua-barbuda/real-estate', description: 'Purchase approved real estate from USD 300,000, held for five years.' },
     ],
   },
   'australia': {
@@ -36,7 +36,7 @@ const COUNTRY_DATA: Record<string, {
   'bulgaria': {
     name: 'Bulgaria',
     code: 'BG',
-    description: 'Bulgaria offers EU residency and a path to citizenship through AIF funds, government bonds and real estate investment.',
+    description: 'Bulgaria offers residence through AIF, government bond and real estate investment. Citizenship by investment was abolished in April 2022; Bulgaria joined Schengen in full on 1 January 2025.',
     programs: [
       { category: 'RBI', title: 'AIF Residency', href: '/residency/bulgaria/bulgaria-aif-residency', description: 'Invest in an Alternative Investment Fund for EU residency.' },
       { category: 'RBI', title: 'Government Bonds Residency', href: '/residency/bulgaria/bulgaria-government-bonds-residency', description: 'Government bonds route for Bulgarian residency.' },
@@ -46,7 +46,7 @@ const COUNTRY_DATA: Record<string, {
   'canada': {
     name: 'Canada',
     code: 'CA',
-    description: 'Canada is one of the world\'s top immigration destinations, offering entrepreneur visas, express entry, skilled migration and corporate transfer routes.',
+    description: 'Canada is one of the world\'s top immigration destinations, offering Express Entry, provincial nominee and provincial entrepreneur streams, and corporate transfer routes.',
     programs: [
       { category: 'RBI', title: 'BC Entrepreneur – Regional', href: '/residency/canada/british-columbia-regional-pilot', description: 'Start a business in a smaller BC community from CAD $100,000.' },
       { category: 'RBI', title: 'BC Entrepreneur', href: '/residency/canada/british-columbia-entrepreneur-base', description: 'British Columbia entrepreneur immigration stream.' },
@@ -61,89 +61,89 @@ const COUNTRY_DATA: Record<string, {
   'curacao': {
     name: 'Curacao',
     code: 'CW',
-    description: 'Curacao offers Caribbean residency through active and passive investment routes with a low entry threshold.',
+    description: 'Curaçao\'s Wealthy Investor permit runs in three tiers — three years, five years and indefinite — and naturalisation leads to Netherlands nationality.',
     programs: [
-      { category: 'RBI', title: '3-Year Active Investor', href: '/residency/curacao/3-year-active-investor', description: 'Active business investment residency for 3 years.' },
-      { category: 'RBI', title: 'Indefinite Investor Residency', href: '/residency/curacao/indefinite-investor-residency', description: 'Permanent residency through qualifying investment.' },
+      { category: 'RBI', title: '3-Year Active Investor', href: '/residency/curacao/3-year-active-investor', description: 'Three-year renewable investor residence permit.' },
+      { category: 'RBI', title: 'Indefinite Investor Residency', href: '/residency/curacao/indefinite-investor-residency', description: 'Indefinite residence through the top tier of the Wealthy Investor permit.' },
     ],
   },
   'cyprus': {
     name: 'Cyprus',
     code: 'CY',
-    description: 'Cyprus offers EU residency through multiple investment routes including real estate and business funds, plus company formation services.',
+    description: 'Cyprus offers permanent residence through property, business and fund investment, plus company formation services. Cyprus is in the EU but not in the Schengen area.',
     programs: [
       { category: 'RBI', title: 'Business Investment', href: '/residency/cyprus/business-investment', description: 'Business investment route for Cyprus permanent residency.' },
       { category: 'RBI', title: 'Commercial Property', href: '/residency/cyprus/commercial-property', description: 'Commercial real estate investment for EU residency.' },
       { category: 'RBI', title: 'Fund Investment', href: '/residency/cyprus/fund-investment', description: 'Alternative Investment Fund qualifying for residency.' },
-      { category: 'RBI', title: 'Residential Property', href: '/residency/cyprus/residential-property', description: 'Residential property purchase from EUR 300K.' },
+      { category: 'RBI', title: 'Residential Property', href: '/residency/cyprus/residential-property', description: 'Residential property route to Cyprus permanent residence.' },
       { category: 'Corporate', title: 'Company Setup', href: '/corporate/cyprus/company-setup', description: 'Cyprus company formation with EU benefits.' },
     ],
   },
   'dominica': {
     name: 'Dominica',
     code: 'DM',
-    description: 'Dominica\'s CBI program is among the most affordable globally and grants visa-free access to 140+ countries.',
+    description: 'Dominica offers citizenship by investment through an Economic Diversification Fund contribution from USD 200,000 or approved real estate from USD 200,000 plus government fees. Every applicant aged 16 and over attends a mandatory interview.',
     programs: [
-      { category: 'CBI', title: 'Real Estate CBI', href: '/citizenship/dominica/real-estate', description: 'Approved real estate investment from USD 200K.' },
-      { category: 'CBI', title: 'Economic Diversification Fund', href: '/citizenship/dominica/economic-diversification-fund', description: 'Non-refundable donation from USD 100K (single).' },
+      { category: 'CBI', title: 'Real Estate CBI', href: '/citizenship/dominica/real-estate', description: 'Approved real estate from USD 200,000, plus government fees.' },
+      { category: 'CBI', title: 'Economic Diversification Fund', href: '/citizenship/dominica/economic-diversification-fund', description: 'Non-refundable contribution from USD 200,000 (single applicant).' },
     ],
   },
   'egypt': {
     name: 'Egypt',
     code: 'EG',
-    description: 'Egypt offers one of the fastest citizenship-by-investment programs with a 3-month processing time and affordable investment options.',
+    description: 'Egypt grants citizenship by investment under Law No. 140 of 2019, from a USD 250,000 contribution. The Cabinet\'s published processing standard is six to twelve months.',
     programs: [
-      { category: 'CBI', title: 'Bank Deposit', href: '/citizenship/egypt/bank-deposit', description: 'Refundable bank deposit route for Egyptian citizenship.' },
-      { category: 'CBI', title: 'Business Investment', href: '/citizenship/egypt/business-investment', description: 'Business investment route for citizenship.' },
-      { category: 'CBI', title: 'Donation', href: '/citizenship/egypt/donation', description: 'Direct donation to the Egyptian government.' },
-      { category: 'CBI', title: 'Real Estate', href: '/citizenship/egypt/real-estate', description: 'Real estate acquisition qualifying for citizenship.' },
+      { category: 'CBI', title: 'Bank Deposit', href: '/citizenship/egypt/bank-deposit', description: 'USD 500,000 held at the Central Bank of Egypt for three years, interest-free, repaid in Egyptian pounds.' },
+      { category: 'CBI', title: 'Business Investment', href: '/citizenship/egypt/business-investment', description: 'USD 350,000 in an Egyptian project plus a USD 100,000 non-refundable payment.' },
+      { category: 'CBI', title: 'Donation', href: '/citizenship/egypt/donation', description: 'USD 250,000 contribution to the state treasury.' },
+      { category: 'CBI', title: 'Real Estate', href: '/citizenship/egypt/real-estate', description: 'Real estate from USD 300,000, funded from abroad.' },
     ],
   },
   'germany': {
     name: 'Germany',
     code: 'DE',
-    description: 'Germany offers skilled migration pathways including the EU Opportunity Card and Blue Card for qualified international professionals.',
+    description: 'Germany offers skilled migration pathways including the Opportunity Card (Chancenkarte) and the EU Blue Card for qualified international professionals.',
     programs: [
-      { category: 'Skilled', title: 'Job Seeker Visa', href: '/skilled/germany/germany-job-seeker-visa', description: 'Visa to enter Germany and search for skilled employment.' },
+      { category: 'Skilled', title: 'Opportunity Card (Chancenkarte)', href: '/skilled/germany/germany-job-seeker-visa', description: 'Search for skilled work in Germany for up to a year. Replaced the Job Seeker visa on 1 June 2024.' },
       { category: 'Work Permits', title: 'Work Permit Advisory', href: '/work-permits?country=germany', description: 'EU Blue Card, Opportunity Card and skilled worker residence.' },
     ],
   },
   'greece': {
     name: 'Greece',
     code: 'GR',
-    description: 'Greece\'s Golden Visa is one of Europe\'s most popular, offering EU residency from EUR 250K through real estate or capital investment.',
+    description: 'Greece\'s Golden Visa offers residence with Schengen access through real estate from EUR 400,000 (EUR 800,000 in Attica, Thessaloniki, Mykonos, Thira and larger islands; EUR 250,000 only for conversions and listed buildings) or capital investment.',
     programs: [
       { category: 'RBI', title: 'Capital Investment', href: '/residency/greece/greece-capital-investment', description: 'Capital investment route for Greek Golden Visa.' },
-      { category: 'RBI', title: 'Real Estate Investment', href: '/residency/greece/greece-real-estate-investment', description: 'Property purchase from EUR 250K for EU residency.' },
+      { category: 'RBI', title: 'Real Estate Investment', href: '/residency/greece/greece-real-estate-investment', description: 'Property from EUR 400,000, or EUR 800,000 in the highest-demand areas.' },
     ],
   },
   'grenada': {
     name: 'Grenada',
     code: 'GD',
-    description: 'Grenada\'s CBI program is unique — it allows holders to apply for the US E-2 Investor Visa, making it highly strategic for US-bound investors.',
+    description: 'Grenada is the only Eastern Caribbean CBI country with a US E-2 treaty, is not subject to US Proclamation 10998, and is visa-free to the UK with an ETA. Contributions start at USD 150,000.',
     programs: [
-      { category: 'CBI', title: 'Real Estate', href: '/citizenship/grenada/real-estate', description: 'Approved real estate investment from USD 220K.' },
-      { category: 'CBI', title: 'National Transformation Fund', href: '/citizenship/grenada/national-transformation-fund', description: 'Contribution to the NTF from USD 150K.' },
+      { category: 'CBI', title: 'Real Estate', href: '/citizenship/grenada/real-estate', description: 'Approved real estate from USD 220,000.' },
+      { category: 'CBI', title: 'National Transformation Fund', href: '/citizenship/grenada/national-transformation-fund', description: 'Contribution to the NTF from USD 150,000 (single applicant).' },
     ],
   },
   'hong-kong': {
     name: 'Hong Kong',
     code: 'HK',
-    description: 'Hong Kong offers globally competitive residency-by-investment routes including the GIP for business, fund, property and securities investors.',
+    description: 'Hong Kong\'s New Capital Investment Entrant Scheme (CIES) grants residence for HK$30 million in net assets — HK$27 million in permissible assets plus HK$3 million into the CIES Investment Portfolio.',
     programs: [
-      { category: 'RBI', title: 'Business Investment (GIP)', href: '/residency/hong-kong/hk-business-investment', description: 'GIP business investment for HK residency.' },
-      { category: 'RBI', title: 'Fund Investment (GIP)', href: '/residency/hong-kong/hk-fund-investment', description: 'GIP fund investment route.' },
-      { category: 'RBI', title: 'Property Investment (GIP)', href: '/residency/hong-kong/hk-property-investment', description: 'GIP property investment route.' },
-      { category: 'RBI', title: 'Securities Investment (GIP)', href: '/residency/hong-kong/hk-securities-investment', description: 'GIP securities investment route.' },
+      { category: 'RBI', title: 'Business Investment (CIES)', href: '/residency/hong-kong/hk-business-investment', description: 'CIES route through listed equities and private funds.' },
+      { category: 'RBI', title: 'Fund Investment (CIES)', href: '/residency/hong-kong/hk-fund-investment', description: 'CIES route through SFC-authorised funds.' },
+      { category: 'RBI', title: 'Property Investment (CIES)', href: '/residency/hong-kong/hk-property-investment', description: 'CIES route with up to HK$15 million in real estate.' },
+      { category: 'RBI', title: 'Securities Investment (CIES)', href: '/residency/hong-kong/hk-securities-investment', description: 'CIES route through listed equities and qualifying debt securities.' },
     ],
   },
   'hungary': {
     name: 'Hungary',
     code: 'HU',
-    description: 'Hungary\'s Guest Investor Program offers EU Schengen residency through real estate fund investment or donation routes.',
+    description: 'Hungary\'s Guest Investor Programme offers a residence permit of up to 10 years, extendable by another 10, for EUR 250,000 in a registered real estate fund or a EUR 1,000,000 donation.',
     programs: [
-      { category: 'RBI', title: 'Donation — Public Trust', href: '/residency/hungary/hungary-donation-public-trust', description: 'Donation to a public trust fund for Hungarian residency.' },
-      { category: 'RBI', title: 'Real Estate Fund', href: '/residency/hungary/hungary-real-estate-fund', description: 'Real estate fund investment for EU Schengen residency.' },
+      { category: 'RBI', title: 'Donation — Public Trust', href: '/residency/hungary/hungary-donation-public-trust', description: 'EUR 1,000,000 donation to a higher education institution maintained by a public trust.' },
+      { category: 'RBI', title: 'Real Estate Fund', href: '/residency/hungary/hungary-real-estate-fund', description: 'EUR 250,000 in an MNB-registered real estate fund.' },
     ],
   },
   'italy': {
@@ -157,12 +157,12 @@ const COUNTRY_DATA: Record<string, {
   'latvia': {
     name: 'Latvia',
     code: 'LV',
-    description: 'Latvia offers EU Schengen residency through multiple investment routes with straightforward qualifying criteria.',
+    description: 'Latvia abolished its real estate and bank investment routes on 15 September 2026, and the government bonds route had already closed. Only the company share-capital route remains, from EUR 50,000 plus a EUR 10,000 state fee.',
     programs: [
-      { category: 'RBI', title: 'Bank Deposit', href: '/residency/latvia/latvia-bank-deposit', description: 'Bank deposit route for Latvian residency.' },
-      { category: 'RBI', title: 'Business Investment', href: '/residency/latvia/latvia-business-investment', description: 'Business investment for EU residency.' },
-      { category: 'RBI', title: 'Government Bonds', href: '/residency/latvia/latvia-government-bonds', description: 'Government bonds route for Latvian residency.' },
-      { category: 'RBI', title: 'Real Estate Investment', href: '/residency/latvia/latvia-real-estate-investment', description: 'Property purchase qualifying for EU residency.' },
+      { category: 'RBI', title: 'Bank Deposit (abolished)', href: '/residency/latvia/latvia-bank-deposit', description: 'Abolished on 15 September 2026 — no longer available.' },
+      { category: 'RBI', title: 'Business Investment', href: '/residency/latvia/latvia-business-investment', description: 'Share capital from EUR 50,000 in a Latvian company, plus a EUR 10,000 state fee.' },
+      { category: 'RBI', title: 'Government Bonds (closed)', href: '/residency/latvia/latvia-government-bonds', description: 'Route closed — no longer available.' },
+      { category: 'RBI', title: 'Real Estate Investment (abolished)', href: '/residency/latvia/latvia-real-estate-investment', description: 'Abolished on 15 September 2026 — no longer available.' },
     ],
   },
   'malaysia': {
@@ -170,9 +170,9 @@ const COUNTRY_DATA: Record<string, {
     code: 'MY',
     description: 'Malaysia\'s MM2H program allows foreign nationals to live long-term in Malaysia with property and financial investment routes.',
     programs: [
-      { category: 'RBI', title: 'MM2H Property', href: '/residency/malaysia/malaysia-mm2h-property', description: 'MM2H program with property investment component.' },
-      { category: 'RBI', title: 'MM2H Silver', href: '/residency/malaysia/malaysia-mm2h-silver', description: 'Standard tier of the MM2H long-stay visa.' },
-      { category: 'RBI', title: 'MM2H Gold', href: '/residency/malaysia/malaysia-mm2h-gold', description: 'Premium tier of the MM2H program.' },
+      { category: 'RBI', title: 'MM2H Property', href: '/residency/malaysia/malaysia-mm2h-property', description: 'Property purchase from MYR 600,000 (Silver tier).' },
+      { category: 'RBI', title: 'MM2H Silver', href: '/residency/malaysia/malaysia-mm2h-silver', description: 'USD 150,000 fixed deposit plus a MYR 600,000 property purchase.' },
+      { category: 'RBI', title: 'MM2H Gold', href: '/residency/malaysia/malaysia-mm2h-gold', description: 'USD 500,000 fixed deposit plus a MYR 1,000,000 property purchase.' },
     ],
   },
   'malta': {
@@ -180,37 +180,37 @@ const COUNTRY_DATA: Record<string, {
     code: 'MT',
     description: 'Malta\'s MPRP offers EU residency with a combination of government contribution, property and donation requirements.',
     programs: [
-      { category: 'RBI', title: 'Government Contribution', href: '/residency/malta/malta-government-contribution', description: 'Government contribution route for Maltese residency.' },
-      { category: 'RBI', title: 'Property Lease', href: '/residency/malta/malta-property-lease-residency', description: 'Property lease qualifying for residency.' },
-      { category: 'RBI', title: 'Property Purchase', href: '/residency/malta/malta-property-purchase', description: 'Property purchase route for Maltese residency.' },
+      { category: 'RBI', title: 'Government Contribution', href: '/residency/malta/malta-government-contribution', description: 'EUR 37,000 government contribution and EUR 60,000 administrative fee.' },
+      { category: 'RBI', title: 'Property Lease', href: '/residency/malta/malta-property-lease-residency', description: 'Qualifying property leased for at least EUR 14,000 a year.' },
+      { category: 'RBI', title: 'Property Purchase', href: '/residency/malta/malta-property-purchase', description: 'Qualifying property bought for at least EUR 375,000.' },
     ],
   },
   'mauritius': {
     name: 'Mauritius',
     code: 'MU',
-    description: 'Mauritius is an emerging residency destination offering business, real estate, fund and retirement investment routes.',
+    description: 'Mauritius offers residence through the Investor Occupation Permit from USD 100,000, residential property above USD 375,000 and the retired non-citizen permit.',
     programs: [
-      { category: 'RBI', title: 'Business Investment', href: '/residency/mauritius/mauritius-business-investment', description: 'Business investment for Mauritian residency.' },
-      { category: 'RBI', title: 'Strategic Fund Investment', href: '/residency/mauritius/mauritius-strategic-fund-investment', description: 'Strategic fund investment route.' },
-      { category: 'RBI', title: 'Real Estate Investment', href: '/residency/mauritius/mauritius-real-estate-investment', description: 'Real estate qualifying for residency.' },
+      { category: 'RBI', title: 'Business Investment', href: '/residency/mauritius/mauritius-business-investment', description: 'USD 100,000 initial investment for an Investor Occupation Permit.' },
+      { category: 'RBI', title: 'Strategic Fund Investment', href: '/residency/mauritius/mauritius-strategic-fund-investment', description: 'A proposed USD 1 million Golden Visa — not yet in force.' },
+      { category: 'RBI', title: 'Real Estate Investment', href: '/residency/mauritius/mauritius-real-estate-investment', description: 'Residential property above USD 375,000.' },
       { category: 'RBI', title: 'Retirement Transfer', href: '/residency/mauritius/mauritius-retirement-transfer', description: 'Retirement income transfer for residency.' },
     ],
   },
   'monaco': {
     name: 'Monaco',
     code: 'MC',
-    description: 'Monaco residency is one of the world\'s most exclusive, requiring a bank deposit or property investment plus financial independence.',
+    description: 'Monaco residency has no legally prescribed minimum deposit or investment. The financial test is an attestation from a Monaco bank, which sets the sum it regards as sufficient.',
     programs: [
-      { category: 'RBI', title: 'Bank Deposit', href: '/residency/monaco/monaco-residency-bank-deposit', description: 'Bank deposit requirement for Monaco residency.' },
+      { category: 'RBI', title: 'Bank Deposit', href: '/residency/monaco/monaco-residency-bank-deposit', description: 'Attestation from a Monaco bank that your means are sufficient.' },
       { category: 'RBI', title: 'Property Investment', href: '/residency/monaco/monaco-residency-property-investment', description: 'Property purchase route for Monégasque residency.' },
     ],
   },
   'nauru': {
     name: 'Nauru',
     code: 'NR',
-    description: 'Nauru offers a direct citizenship-by-investment route with a straightforward application and competitive investment threshold.',
+    description: 'Nauru grants citizenship under the Economic and Climate Resilience Citizenship Act 2024 for a contribution from USD 90,000. The United Kingdom withdrew visa-free access in December 2025 because of the programme.',
     programs: [
-      { category: 'CBI', title: 'Investment', href: '/citizenship/nauru/investment', description: 'Direct investment for Nauru citizenship.' },
+      { category: 'CBI', title: 'Investment', href: '/citizenship/nauru/investment', description: 'Contribution from USD 90,000 for the principal applicant.' },
     ],
   },
   'new-zealand': {
@@ -218,28 +218,28 @@ const COUNTRY_DATA: Record<string, {
     code: 'NZ',
     description: 'New Zealand\'s Active Investor Plus Visa and Business Investor Visa provide residency routes for high-net-worth individuals.',
     programs: [
-      { category: 'RBI', title: 'Active Investor Plus — Balanced', href: '/residency/new-zealand/active-investor-plus-balanced-category', description: 'Balanced investment category for NZ residency.' },
-      { category: 'RBI', title: 'Active Investor Plus — Growth', href: '/residency/new-zealand/active-investor-plus-growth-category', description: 'Growth investment category for NZ residency.' },
-      { category: 'RBI', title: 'Business Investor Visa', href: '/residency/new-zealand/business-investor-visa', description: 'Business investment for New Zealand residency.' },
+      { category: 'RBI', title: 'Active Investor Plus — Balanced', href: '/residency/new-zealand/active-investor-plus-balanced-category', description: 'NZD 10 million in a diversified Balanced Category portfolio.' },
+      { category: 'RBI', title: 'Active Investor Plus — Growth', href: '/residency/new-zealand/active-investor-plus-growth-category', description: 'NZD 5 million for 36 months in the Growth Category.' },
+      { category: 'RBI', title: 'Business Investor Visa', href: '/residency/new-zealand/business-investor-visa', description: 'NZD 1 million in an established New Zealand business (NZD 2 million for fast-track residence).' },
     ],
   },
   'panama': {
     name: 'Panama',
     code: 'PA',
-    description: 'Panama offers multiple affordable residency routes through real estate, bank deposits and stock market investment.',
+    description: 'Panama\'s Qualified Investor Visa grants permanent residence for USD 500,000 in real estate or securities, or a USD 750,000 fixed-term deposit.',
     programs: [
-      { category: 'RBI', title: 'RBI via Real Estate', href: '/residency/panama/panama-residency-real-estate', description: 'Real estate investment for Panamanian residency.' },
-      { category: 'RBI', title: 'Residency — Bank Deposit', href: '/residency/panama/panama-residency-bank-deposit', description: 'Bank deposit route for Panama residency.' },
-      { category: 'RBI', title: 'RBI Stock Market', href: '/residency/panama/panama-residency-stock-market', description: 'Stock market investment route for residency.' },
+      { category: 'RBI', title: 'RBI via Real Estate', href: '/residency/panama/panama-residency-real-estate', description: 'Qualifying real estate from USD 500,000.' },
+      { category: 'RBI', title: 'Residency — Bank Deposit', href: '/residency/panama/panama-residency-bank-deposit', description: 'Fixed-term deposit of USD 750,000.' },
+      { category: 'RBI', title: 'RBI Stock Market', href: '/residency/panama/panama-residency-stock-market', description: 'Securities investment from USD 500,000.' },
     ],
   },
   'portugal': {
     name: 'Portugal',
     code: 'PT',
-    description: 'Portugal\'s Golden Visa and D2 Visa are among Europe\'s most sought-after — offering EU residency, citizenship pathways and business routes.',
+    description: 'Portugal offers residence through the Golden Visa (investment funds, company capitalisation, research or cultural support from EUR 250,000 — real estate no longer qualifies), the D7, the D8 and the D2 for entrepreneurs. Permanent residence after five years.',
     programs: [
-      { category: 'RBI', title: 'Business Investment', href: '/residency/portugal/portugal-business-investment', description: 'Business investment for Portugal Golden Visa.' },
-      { category: 'RBI', title: 'Capital Transfer', href: '/residency/portugal/portugal-capital-transfer', description: 'Capital transfer route for EU residency.' },
+      { category: 'RBI', title: 'Business Investment', href: '/residency/portugal/portugal-business-investment', description: 'Company capitalisation of EUR 500,000 for the Portugal Golden Visa.' },
+      { category: 'RBI', title: 'Capital Transfer', href: '/residency/portugal/portugal-capital-transfer', description: 'Investment funds or research (EUR 500,000), or cultural heritage support (EUR 250,000).' },
       { category: 'Corporate', title: 'Portugal D2 Visa', href: '/residency/portugal/portugal-d2-entrepreneur', description: 'Entrepreneur and company formation visa.' },
       { category: 'Work Permits', title: 'Work Permit Advisory', href: '/work-permits?country=portugal', description: 'Work residence, D2 direction and highly qualified activity.' },
     ],
@@ -247,44 +247,45 @@ const COUNTRY_DATA: Record<string, {
   'saint-kitts': {
     name: 'Saint Kitts & Nevis',
     code: 'KN',
-    description: 'Saint Kitts & Nevis runs the world\'s oldest CBI program, offering a visa-free passport to 157+ countries.',
+    description: 'Saint Kitts & Nevis runs the world\'s first citizenship-by-investment programme (established 1984), with routes from USD 250,000, a mandatory interview for every main applicant, and visa-free UK access with an ETA.',
     programs: [
-      { category: 'CBI', title: 'Approved Public Benefit Project', href: '/citizenship/saintkitts/approved-public-benefit-project', description: 'Contribution to an approved public benefit project.' },
-      { category: 'CBI', title: 'Real Estate', href: '/citizenship/saintkitts/real-estate', description: 'Approved real estate purchase for citizenship.' },
-      { category: 'CBI', title: 'Sustainable Island State Contribution', href: '/citizenship/saintkitts/sustainable-island-state-contribution', description: 'Non-refundable contribution to the SISC fund.' },
+      { category: 'CBI', title: 'Approved Public Benefit Project', href: '/citizenship/saintkitts/approved-public-benefit-project', description: 'Investment from USD 250,000 in an approved public benefit project.' },
+      { category: 'CBI', title: 'Real Estate', href: '/citizenship/saintkitts/real-estate', description: 'Approved real estate from USD 325,000, held for seven years.' },
+      { category: 'CBI', title: 'Sustainable Island State Contribution', href: '/citizenship/saintkitts/sustainable-island-state-contribution', description: 'Non-refundable USD 250,000 contribution for a family of up to four.' },
     ],
   },
   'saint-lucia': {
     name: 'Saint Lucia',
     code: 'LC',
-    description: 'Saint Lucia\'s CBI program offers citizenship from USD 100K through fund contribution and USD 300K via real estate.',
+    description: 'Saint Lucia offers citizenship from a USD 240,000 National Economic Fund contribution or approved real estate from USD 300,000. Saint Lucia nationals have needed a visa for the UK since 5 March 2026.',
     programs: [
-      { category: 'CBI', title: 'National Economic Fund', href: '/citizenship/saint-lucia/national-economic-fund', description: 'Non-refundable contribution to the NEF from USD 100K.' },
-      { category: 'CBI', title: 'Real Estate', href: '/citizenship/saint-lucia/real-estate', description: 'Approved real estate investment from USD 300K.' },
+      { category: 'CBI', title: 'National Economic Fund', href: '/citizenship/saint-lucia/national-economic-fund', description: 'Non-refundable NEF contribution of USD 240,000 for an applicant with up to three qualifying dependants.' },
+      { category: 'CBI', title: 'Real Estate', href: '/citizenship/saint-lucia/real-estate', description: 'Approved real estate from USD 300,000.' },
     ],
   },
   'saotome': {
     name: 'Sao Tome & Principe',
     code: 'ST',
-    description: 'Sao Tome & Principe offers CBI through the National Trust Fund with an affordable entry point.',
+    description: 'São Tomé and Príncipe grants nationality for a contribution from USD 90,000 under Decreto-Lei n.º 07/2025. There is no residence requirement, but no Schengen or UK visa-free access.',
     programs: [
-      { category: 'CBI', title: 'National Trust Fund (NTF)', href: '/citizenship/saotome/ntf', description: 'Contribution to the NTF for Sao Tomean citizenship.' },
+      { category: 'CBI', title: 'National Transformation Fund (NTF)', href: '/citizenship/saotome/ntf', description: 'Non-refundable contribution from USD 90,000 (single applicant).' },
     ],
   },
   'singapore': {
     name: 'Singapore',
     code: 'SG',
-    description: 'Singapore\'s Global Investor Program (GIP) offers one of Asia\'s most prestigious residency routes for business leaders and investors.',
+    description: 'Singapore\'s Global Investor Programme (GIP) grants permanent residence for S$10 million in a business, S$25 million in a GIP-select fund, or a single family office with S$200 million in assets. Founders can also set up their own Singapore company and work in it on an Employment Pass.',
     programs: [
-      { category: 'RBI', title: 'GIP Business Investment', href: '/residency/singapore/singapore-gip-business-investment', description: 'Business investment track for Singapore PR via GIP.' },
-      { category: 'RBI', title: 'GIP Fund Investment', href: '/residency/singapore/singapore-gip-fund-investment', description: 'GIP fund investment track.' },
-      { category: 'RBI', title: 'GIP SFO Residency', href: '/residency/singapore/singapore-gip-sfo-residency', description: 'Single Family Office track for GIP residency.' },
+      { category: 'RBI', title: 'GIP Business Investment', href: '/residency/singapore/singapore-gip-business-investment', description: 'S$10 million in a new or existing business (Option A).' },
+      { category: 'RBI', title: 'GIP Fund Investment', href: '/residency/singapore/singapore-gip-fund-investment', description: 'S$25 million in a GIP-select fund (Option B).' },
+      { category: 'RBI', title: 'GIP SFO Residency', href: '/residency/singapore/singapore-gip-sfo-residency', description: 'Single family office with at least S$200 million in assets under management.' },
+      { category: 'Corporate', title: 'Self-Employed Employment Pass', href: '/corporate/singapore/self-employed-employment-pass', description: 'Your own Singapore company employs you on an Employment Pass; qualifying salary from S$5,600 a month.' },
     ],
   },
   'spain': {
     name: 'Spain',
     code: 'ES',
-    description: 'Spain offers EU residency through the Digital Nomad Visa, entrepreneur formation and the Golden Visa for investors.',
+    description: 'Spain offers residence through the Digital Nomad Visa and the entrepreneur route. Spain ended its Golden Visa on 3 April 2025.',
     programs: [
       { category: 'Skilled', title: 'Spain Digital Nomad Visa', href: '/skilled/spain/spain-digital-nomad-visa', description: 'Remote worker visa for living in Spain.' },
       { category: 'Corporate', title: 'Entrepreneur Company Formation', href: '/corporate/spain/entrepreneur-company-formation', description: 'Business setup route for entrepreneurs in Spain.' },
@@ -294,7 +295,7 @@ const COUNTRY_DATA: Record<string, {
   'switzerland': {
     name: 'Switzerland',
     code: 'CH',
-    description: 'Switzerland offers residency through lump-sum taxation and business investment, catering to high-net-worth individuals seeking European stability.',
+    description: 'Switzerland has no residency-by-investment programme. People who will not work use cantonal lump-sum taxation; founders can qualify by establishing and running a business.',
     programs: [
       { category: 'RBI', title: 'Business Investment', href: '/residency/switzerland/switzerland-business-investment', description: 'Business investment for Swiss residency.' },
       { category: 'RBI', title: 'Lump Sum Tax', href: '/residency/switzerland/switzerland-lump-sum-tax', description: 'Forfait fiscal route for Swiss residency.' },
@@ -303,14 +304,14 @@ const COUNTRY_DATA: Record<string, {
   'turkey': {
     name: 'Turkey',
     code: 'TR',
-    description: 'Turkey\'s CBI program is one of the most affordable globally, offering citizenship from USD 400K real estate investment.',
+    description: 'Turkey offers seven routes to citizenship by investment, from USD 400,000 in real estate held for three years, or USD 500,000 in the deposit, fund, bond, pension and business routes.',
     programs: [
       { category: 'CBI', title: 'Bank Deposit', href: '/citizenship/turkey/bank-deposit', description: 'Bank deposit route for Turkish citizenship.' },
       { category: 'CBI', title: 'Business Investment', href: '/citizenship/turkey/business-investment', description: 'Business investment for citizenship.' },
       { category: 'CBI', title: 'Fund Investment', href: '/citizenship/turkey/fund-investment', description: 'Investment fund route for citizenship.' },
       { category: 'CBI', title: 'Government Bonds', href: '/citizenship/turkey/government-bonds', description: 'Government bonds route.' },
       { category: 'CBI', title: 'Job Creation', href: '/citizenship/turkey/job-creation', description: 'Job creation qualifying for citizenship.' },
-      { category: 'CBI', title: 'Real Estate', href: '/citizenship/turkey/real-estate', description: 'Real estate purchase from USD 400K.' },
+      { category: 'CBI', title: 'Real Estate', href: '/citizenship/turkey/real-estate', description: 'Real estate purchase from USD 400,000, held for three years.' },
     ],
   },
   'uae': {
@@ -329,18 +330,18 @@ const COUNTRY_DATA: Record<string, {
   'united-kingdom': {
     name: 'United Kingdom',
     code: 'GB',
-    description: 'The UK offers skilled worker visas, global talent routes and self-sponsorship for entrepreneurs looking to operate in one of the world\'s major economies.',
+    description: 'The UK offers the Skilled Worker, Global Talent and Expansion Worker routes for professionals and businesses looking to operate in one of the world\'s major economies.',
     programs: [
       { category: 'Skilled', title: 'UK Global Talent Visa', href: '/skilled/united-kingdom/uk-global-talent-visa', description: 'For leaders and potential leaders in academia, research, arts and technology.' },
       { category: 'Corporate', title: 'Expansion Worker Visa', href: '/corporate/united-kingdom/expansion-worker-visa', description: 'For employees expanding an overseas business to the UK.' },
-      { category: 'Corporate', title: 'Self Sponsorship Visa', href: '/corporate/united-kingdom/self-sponsorship-visa', description: 'Setup a UK company and self-sponsor your own work visa.' },
+      { category: 'Corporate', title: 'Sponsoring Yourself Through a UK Company', href: '/corporate/united-kingdom/self-sponsorship-visa', description: 'How the Skilled Worker route works when the sponsor is a company you own — and where it fails.' },
       { category: 'Work Permits', title: 'Work Permit Advisory', href: '/work-permits?country=united-kingdom', description: 'Skilled Worker, Global Talent and expansion worker planning.' },
     ],
   },
   'uruguay': {
     name: 'Uruguay',
     code: 'UY',
-    description: 'Uruguay offers one of South America\'s most accessible residency programs through real estate and business investment.',
+    description: 'Uruguay sets no investment threshold for residency — only sufficient means of living. Real estate and business investment count towards tax residency.',
     programs: [
       { category: 'RBI', title: 'Business Investment', href: '/residency/uruguay/uruguay-business-investment', description: 'Business investment for Uruguayan residency.' },
       { category: 'RBI', title: 'Real Estate Residency', href: '/residency/uruguay/uruguay-real-estate-residency', description: 'Real estate purchase qualifying for residency.' },
@@ -364,7 +365,7 @@ const COUNTRY_DATA: Record<string, {
   'vanuatu': {
     name: 'Vanuatu',
     code: 'VU',
-    description: 'Vanuatu runs one of the world\'s fastest CBI programs — citizenship can be obtained in as little as 30 days.',
+    description: 'Vanuatu grants citizenship for a contribution from USD 130,000 with no residence requirement. The EU revoked its visa waiver from 3 February 2025, and the UK has required a visa since July 2023.',
     programs: [
       { category: 'CBI', title: 'VDSP Donation', href: '/citizenship/vanuatu/vdsp-donation', description: 'Non-refundable contribution to the VDSP from USD 130K.' },
     ],

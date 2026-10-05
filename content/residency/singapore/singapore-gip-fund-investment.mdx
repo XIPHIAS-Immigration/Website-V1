@@ -18,43 +18,33 @@ heroPoster: "/images/residency/singapore/singapore-gip-fund-investment.webp"
 brochure: "/images/residency/singapore/singapore_rbi.pdf"
 
 routeType: "GIP Fund Investment"
-lastUpdated: "2026-09-30"
+lastUpdated: "2026-10-01"
 
 prices:
-  - label: "Minimum GIP Fund Investment"
-    amount: 10000000
-    when: "Paid upon fund subscription"
-    notes: "Invest in Singapore government-approved private equity, venture capital, or growth funds"
+  - label: "GIP-select fund investment (Option B)"
+    amount: 25000000
+    when: "Within six months of approval-in-principle"
+    notes: "A GIP-select fund that invests in Singapore-based companies, funded from a personal bank account in your sole name at a Singapore-registered bank."
+  - label: "GIP application fee (EDB, non-refundable)"
+    amount: 10000
+    when: "On application"
+    notes: "Payable when the application is submitted."
 
-governmentfees:
-  - label: "Application Fee"
-    amount: 20000
-    when: "Paid at time of application submission"
-    notes: "Non-refundable"
-
-proofOfFunds:
-  - label: "Audited Financial Statements and Fund Subscription Documents"
-    amount: 0
-    notes: "Provide evidence of source of funds and subscription agreements"
-
-benefits: 
+benefits:
   - "Direct pathway to Singapore Permanent Residency"
-  - "Invest in pre-approved government-backed funds"
-  - "Diversification across multiple sectors"
+  - "Invest through a GIP-select fund that invests in Singapore-based companies"
   - "Include spouse and children under 21"
   - "Potential pathway to citizenship after 2 years of PR"
 
 requirements:
-  - "Minimum age 21 years"
-  - "≥5 years of investment or business experience"
-  - "Net worth sufficient to invest SGD 10–25 million"
-  - "Good health and clean criminal record"
-  - "Ability to sustain investment and comply with fund requirements"
+  - "Established business owner with at least 3 years' track record and company turnover of at least S$200 million in the last year and on average over the last 3 years, or founder of a fast-growth company valued at S$500 million or more."
+  - "Invest S$25 million in a GIP-select fund from a personal bank account in your sole name at a Singapore-registered bank."
+  - "Keep the S$25 million invested for the life of the Re-Entry Permit."
+  - "Clean criminal record."
 
 disqualifiers:
   - "Criminal record or ongoing legal disputes"
   - "Cannot provide evidence of source of funds"
-  - "Poor health affecting investment management"
   - "Non-compliance with fund regulations"
 
 risknotes: "Investments are subject to business and market risks; returns are not guaranteed."
@@ -78,7 +68,7 @@ documentChecklist:
 
 familyMatrix:
   childrenUpTo: 21
-  parentsFromAge: 0
+  parentsFromAge: null
   siblings: false
   spouse: true
 
@@ -86,58 +76,67 @@ quickCheck:
   title: "Pre-Screen Eligibility"
   questions:
     - id: "q1"
-      label: "Are you at least 21 years old?"
-      type: boolean
+      label: "Do you have at least 3 years of business track record, with company turnover of at least S$200 million (or a company valued at S$500 million or more)?"
+      type: "boolean"
     - id: "q2"
-      label: "Do you have at least 5 years of investment or business experience?"
-      type: boolean
-
-ctas:
+      label: "Can you invest S$25 million in a GIP-select fund?"
+      type: "boolean"
+  policy:
+    type: "all"
+  verdict:
+    successTitle: "Likely eligible"
+    successText: "You likely meet the core criteria — speak to our advisor to confirm."
+    cautionTitle: "Possibly eligible"
+    cautionText: "You may still qualify via another route — let’s review your case."
+  ctas:
     primaryHref: "/eligibility"
     primaryText: "Check detailed Eligibility"
     secondaryHref: "/residency/singapore"
     secondaryText: "View all Singapore Programs"
 
 processSteps:
-  - title: "Submit e-application"
-    description: "Provide personal, financial, and fund documents via EDB portal."
-  - title: "Initial Assessment"
-    description: "EDB evaluates investor profile and fund eligibility."
-  - title: "Interview (if shortlisted)"
-    description: "EDB conducts interview."
-  - title: "Approval in Principle"
-    description: "Commit to subscribing to approved fund."
+  - title: "Submit application"
+    description: "Submit the GIP application to the Economic Development Board (EDB) with supporting documents and the S$10,000 non-refundable application fee."
+  - title: "EDB assessment"
+    description: "EDB assesses your track record, company financials and proposed investment; processing takes around 12 months."
+  - title: "EDB interview"
+    description: "Attend an interview if shortlisted."
+  - title: "Approval-in-principle"
+    description: "Subscribe the S$25 million to a GIP-select fund within the six-month validity of the approval-in-principle."
   - title: "Final Approval"
-    description: "ICA grants PR and Re-Entry Permit."
+    description: "Receive Final Approval once the investment is in place."
+  - title: "PR and Re-Entry Permit"
+    description: "Complete PR formalities with the Immigration & Checkpoints Authority within 12 months of Final Approval and receive a five-year Re-Entry Permit."
 
 faq:
   - q: "What is the minimum investment required?"
-    a: "SGD 10–25 million depending on the approved fund."
+    a: "S$25 million in a GIP-select fund that invests in Singapore-based companies."
   - q: "Can my spouse and children be included?"
     a: "Yes, spouse and children under 21 can be included."
   - q: "How long must I maintain the investment?"
-    a: "Investment must be maintained throughout the validity of the Re-Entry Permit."
+    a: "Throughout the five-year Re-Entry Permit. Renewal for a further five years requires the S$25 million to stay invested and you or all your dependants to have lived in Singapore more than half the time."
   - q: "What types of funds are approved?"
-    a: "Government-approved private equity, venture capital, or growth funds."
+    a: "GIP-select funds — funds approved under the programme that invest in Singapore-based companies."
   - q: "Is there a pathway to citizenship?"
-    a: "Yes, after holding PR for at least 2 years."
+    a: "Yes. After holding PR for at least 2 years and aged 21 or over, you may apply for Singapore citizenship. Singapore does not allow dual citizenship, and taking it would end your Indian citizenship."
 
 costEstimator:
   baseOptions:
     - id: "fundInvestment"
-      label: "GIP Fund Investment"
-      amount: 10000000
+      label: "GIP Fund Investment (Option B)"
+      amount: 25000000
   defaultBaseId: "fundInvestment"
   adults: 1
   children: 0
   addons:
     - id: "applicationFee"
-      label: "Application Fee"
-      amount: 20000
+      label: "GIP application fee (non-refundable)"
+      amount: 10000
+      per: "application"
 
 seo:
   title: "Singapore GIP Fund Investment Route – PR"
-  description: "Obtain Singapore PR via GIP Fund Investment. Minimum SGD 10–25 million investment, family included, potential citizenship after 2 years."
+  description: "Singapore PR through the Global Investor Programme fund option: S$25 million in a GIP-select fund, kept invested for the five-year Re-Entry Permit."
   keywords:
     - "Singapore PR by investment"
     - "residency by investment Singapore"
@@ -149,7 +148,7 @@ seo:
 
 riskNotes:
   - "Singapore does not permit dual citizenship. If you eventually naturalise, you would have to give up your Indian passport — and India would end your citizenship automatically in any case under Section 9(1) of the Citizenship Act 1955. Permanent residency has no such effect."
-  - "GIP thresholds were raised on 15 March 2023 and are among the highest in the world. This is not a mid-market product."
+  - "GIP thresholds were raised on 15 March 2023: Option A from S$2.5 million to S$10 million and Option B from S$2.5 million to S$25 million."
   - "Employment Pass qualifying salaries rise again on 1 January 2027: the general threshold moves from S$5,600 to S$6,000 and financial services from S$6,200 to S$6,600, both rising further with age. Renewals follow from 1 January 2028. Budget for the higher figure if your timeline crosses that date."
 
 complianceNotes:
@@ -170,10 +169,26 @@ complianceNotes:
 | **B** — fund | **S$25 million** into a select GIP fund |
 | **C** — family office | Singapore Single Family Office with **at least S$200 million AUM**, of which **at least S$50 million deployed and maintained in Singapore** within 12 months |
 
-One point worth being precise about, because it is widely misreported: Option C is **not** "S$50
-million". It is S$200 million under management with a S$50 million Singapore-deployment condition —
-and it was that deployment condition, not the S$200 million figure, that was introduced on
-**15 March 2023**.
+Option C is S$200 million under management with a S$50 million Singapore-deployment condition. The
+S$50 million must be deployed within 12 months of Final Approval and kept in Singapore for as long as
+the Re-Entry Permit runs. The deployment condition was introduced on **15 March 2023**, when Options A
+and B were also raised from S$2.5 million; the S$200 million figure itself did not change.
+
+## Who qualifies, and what it costs to apply
+
+| Applicant profile | Track record and financials | Options open |
+| --- | --- | --- |
+| Established business owner | At least 3 years' entrepreneurial track record; company turnover of at least **S$200 million** in the last year and on average over the last 3 years; at least 30% shareholding; approved industry | A, B or C |
+| Next-generation business owner | Immediate family's company turnover of at least **S$500 million** in the last year and on average over 3 years; family holds at least 30% or is the largest shareholder; applicant on the C-suite or Board | C only |
+| Founder of a fast-growth company | Founder and one of the largest individual shareholders; company valued at **S$500 million** or more, backed by reputable venture capital or private equity investors; approved industry | A, B or C |
+| Family office principal | At least 5 years' entrepreneurial, investment or management track record; net investible assets of at least **S$200 million**, real estate excluded | C only |
+
+EDB charges a non-refundable application fee of **S$10,000**, and processing takes around 12 months.
+Approval-in-principle is valid for six months to make the investment, and you then have 12 months from
+Final Approval to formalise PR. The Re-Entry Permit runs **five years**. It is renewed for five more
+where the investment, employment and residence conditions for your option are all met — residence
+meaning you or all your dependants live in Singapore more than half the time — or for three years on a
+softer test.
 
 ## The salary routes, and a date to plan around
 
@@ -195,7 +210,7 @@ residency has no such effect, which is why most Indian families stop there.
 
 ## Talk to an immigration consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families abroad since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Singapore our **immigration consultants in Bangalore** will work from the government's own current pages, not last year's brochure.
+XIPHIAS Immigration has guided Indian families abroad since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the current official requirements, costs and timeline for Singapore.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

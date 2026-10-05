@@ -347,7 +347,7 @@ export default function Footer() {
               <ul className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-white/90 text-[12px]">
                 <li className="inline-flex items-center gap-1">
                   <Icon icon="mdi:star" className="w-4 h-4" />
-                  <strong>4.8/5</strong> · 10,000+ reviews{" "}
+                  <strong>4.7/5</strong> · rating{" "}
                   <Link href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline underline-offset-4 hover:text-white">
                     (Google)
                   </Link>
@@ -570,7 +570,7 @@ export default function Footer() {
                   <div className="mt-1 flex items-center gap-1 text-[12px] text-white/90">
                     <Icon icon="mdi:star" className="w-4 h-4" />
                     <strong>4.8</strong>
-                    <span className="text-white/70">· 10,000+ reviews</span>
+                    <span className="text-white/70">· Google rating</span>
                   </div>
 
                   {/* Store badges (open in new tab) */}
@@ -720,7 +720,7 @@ export default function Footer() {
                     <Icon icon="mdi:star-circle-outline" className="h-5 w-5 mt-0.5" />
                     <div>
                       <strong className="text-[13.5px]">Reviews</strong>
-                      <p className="text-[13px] text-white/85">4.8/5 on Google • <Link id="reviews" href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline">Read reviews</Link></p>
+                      <p className="text-[13px] text-white/85">4.7/5 on Google • <Link id="reviews" href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline">Read reviews</Link></p>
                     </div>
                   </div>
                 </li>

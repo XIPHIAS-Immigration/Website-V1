@@ -109,10 +109,10 @@ const residencyCountries: HeaderItem[] = [
     href: '/residency/latvia',
     meta: { code: 'LV' },
     submenu: [
-      { label: 'Bank Deposit', href: '/residency/latvia/latvia-bank-deposit' },
+      { label: 'Bank Deposit (abolished)', href: '/residency/latvia/latvia-bank-deposit' },
       { label: 'Business Investment', href: '/residency/latvia/latvia-business-investment' },
-      { label: 'Government Bonds', href: '/residency/latvia/latvia-government-bonds' },
-      { label: 'Real Estate Investment', href: '/residency/latvia/latvia-real-estate-investment' },
+      { label: 'Government Bonds (closed)', href: '/residency/latvia/latvia-government-bonds' },
+      { label: 'Real Estate Investment (abolished)', href: '/residency/latvia/latvia-real-estate-investment' },
     ],
   },
   {
@@ -141,7 +141,7 @@ const residencyCountries: HeaderItem[] = [
     meta: { code: 'MU' },
     submenu: [
       { label: 'Mauritius Business Investment', href: '/residency/mauritius/mauritius-business-investment' },
-      { label: 'Mauritius Strategic Fund Investment', href: '/residency/mauritius/mauritius-strategic-fund-investment' },
+      { label: 'Mauritius Strategic Fund Investment (proposed)', href: '/residency/mauritius/mauritius-strategic-fund-investment' },
       { label: 'Mauritius Real Estate Investment', href: '/residency/mauritius/mauritius-real-estate-investment' },
       { label: 'Mauritius Retirement Transfer', href: '/residency/mauritius/mauritius-retirement-transfer' },
     ],
@@ -310,7 +310,7 @@ export const headerMenu: HeaderItem[] = [
         ],
       },
       {
-        label: 'Saotome',
+        label: 'São Tomé & Príncipe',
         href: '/citizenship/saotome',
         meta: { code: 'ST' },
         submenu: [
@@ -318,7 +318,7 @@ export const headerMenu: HeaderItem[] = [
         ],
       },
       {
-        label: 'Saint kitts',
+        label: 'Saint Kitts & Nevis',
         href: '/citizenship/saintkitts',
         meta: { code: 'KN' },
         submenu: [
@@ -382,6 +382,14 @@ export const headerMenu: HeaderItem[] = [
         ],
       },
       {
+        label: 'Singapore',
+        href: '/corporate/singapore',
+        meta: { code: 'SG' },
+        submenu: [
+          { label: 'Self-Employed Employment Pass', href: '/corporate/singapore/self-employed-employment-pass' },
+        ],
+      },
+      {
         label: 'Spain',
         href: '/corporate/spain',
         meta: { code: 'ES' },
@@ -405,7 +413,7 @@ export const headerMenu: HeaderItem[] = [
         meta: { code: 'GB' },
         submenu: [
           { label: 'Expansion Worker Visa', href: '/corporate/united-kingdom/expansion-worker-visa' },
-          { label: 'Self Sponsorship Visa', href: '/corporate/united-kingdom/self-sponsorship-visa' },
+          { label: 'Sponsoring Yourself Through a UK Company', href: '/corporate/united-kingdom/self-sponsorship-visa' },
         ],
       },
       {
@@ -466,7 +474,7 @@ export const headerMenu: HeaderItem[] = [
         href: '/skilled/germany',
         meta: { code: 'DE' },
         submenu: [
-          { label: 'Germany Job Seeker Visa', href: '/skilled/germany/germany-job-seeker-visa' },
+          { label: 'Germany Opportunity Card (Chancenkarte)', href: '/skilled/germany/germany-job-seeker-visa' },
         ],
       },
       {

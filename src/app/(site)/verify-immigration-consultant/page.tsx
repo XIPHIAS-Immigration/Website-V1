@@ -8,7 +8,7 @@ import { JsonLd } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "How to Verify an Immigration Consultant Is Licensed | Free Check, India",
   description:
-    "Check any immigration consultant against the official CICC, MARA and OISC registers before you pay. Direct register links, what a real licence number looks like, and the warning signs.",
+    "Check any immigration consultant against the official CICC, MARA and IAA (formerly OISC) registers before you pay. Direct register links, what a real licence number looks like, and the warning signs.",
   alternates: { canonical: "/verify-immigration-consultant" },
   openGraph: {
     title: "Verify your immigration consultant — before you pay",
@@ -41,7 +41,7 @@ const REGISTERS = [
   {
     country: "United Kingdom",
     body: "Immigration Advice Authority (formerly OISC)",
-    was: "Renamed from the Office of the Immigration Services Commissioner in 2024.",
+    was: "Renamed from the Office of the Immigration Services Commissioner in January 2025.",
     format: "A reference number in the form 'F' + year + digits.",
     url: "https://www.gov.uk/find-an-immigration-adviser",
     check:

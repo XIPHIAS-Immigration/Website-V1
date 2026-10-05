@@ -8,10 +8,10 @@ import { GradientText } from "@/components/motion";
 type Card = { icon: LucideIcon; title: string; body: string };
 
 const CARDS: Card[] = [
-  { icon: Globe2, title: "17+ years, 25+ jurisdictions", body: "Deep, continuously updated programme knowledge across Europe, the Middle East, Asia and the Americas." },
-  { icon: Scale, title: "In-house legal & compliance", body: "Licensed attorneys, audited processes and enterprise-grade documentation — no surprises, just rigour." },
+  { icon: Globe2, title: "17+ years, 35+ jurisdictions", body: "Deep, continuously updated programme knowledge across Europe, the Middle East, Asia and the Americas." },
+  { icon: Scale, title: "Licensed & compliance-first", body: "CICC-licensed RCIC (R516194) for Canada, MARA 1680615 for Australia, documented processes — no surprises, just rigour." },
   { icon: Users, title: "360° relocation support", body: "Visas, company setup, housing and schooling handled by one accountable team, end to end." },
-  { icon: Building2, title: "Trusted by Fortune 500s", body: "Corporate policies, transparent reporting and SLAs built for HR and global mobility leaders." },
+  { icon: Building2, title: "Built for corporate mobility", body: "Corporate policies, transparent reporting and SLAs built for HR and global mobility leaders." },
 ];
 
 function CardFace({ card, index }: { card: Card; index: number }) {

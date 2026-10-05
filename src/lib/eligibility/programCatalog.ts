@@ -10,24 +10,24 @@ export const Programs = {
       name: "Portugal (Alt. routes)",
       country: "Portugal",
       pathway: "Residency by investment (funds/donation/arts/VC) or professional routes",
-      minInvestmentUSD: "≈ 200k–500k+ (route dependent)",
+      minInvestmentUSD: "≈ 270k–550k (EUR 250,000 cultural heritage to EUR 500,000 funds; route dependent)",
       processingTime: "6–12 months (typical)",
       familyIncluded: true,
       requiresPhysicalPresence: "Low–Moderate (maintain ties; specifics vary by route)",
       notes:
-        "Property route rules changed; alternative compliant options exist (funds, cultural, R&D). Residency can lead to citizenship subject to residence and language.",
+        "Real estate no longer qualifies; the remaining options are investment funds, company capitalisation, research and cultural support. Permanent residence after five years; citizenship now needs ten years of residence for Indian nationals (Lei Orgânica 1/2026).",
     },
     {
       slug: "gr-property",
       name: "Greece Property Route",
       country: "Greece",
       pathway: "Residency by real estate investment",
-      minInvestmentUSD: "≈ 250k–800k+ (region dependent)",
+      minInvestmentUSD: "EUR 400,000–800,000 by region (EUR 250,000 only for conversions and listed buildings)",
       processingTime: "3–6 months (typical after purchase)",
       familyIncluded: true,
       requiresPhysicalPresence: "Minimal (renewal conditions apply)",
       notes:
-        "Threshold depends on municipality/region. Allows spouse and dependent children; long-term path to citizenship with residence & language.",
+        "Threshold depends on region: EUR 800,000 in Attica, Thessaloniki, Mykonos, Thira and islands over 3,100 population, EUR 400,000 elsewhere. Allows spouse, children up to 21 and dependent parents; naturalisation needs 7 years of actual residence plus language.",
     },
     {
       slug: "uae-residency",
@@ -63,7 +63,7 @@ export const Programs = {
       familyIncluded: true,
       requiresPhysicalPresence: "High - you must live in British Columbia and actively run the business",
       notes:
-        "Both streams draw monthly. Canada's two federal business routes (Start-Up Visa and Self-Employed Persons) are closed, so provincial streams are the live entrepreneur options.",
+        "Both streams invite through periodic draws. Canada's two federal business routes (Start-Up Visa and Self-Employed Persons) are closed, so provincial streams are the live entrepreneur options.",
     },
     {
       slug: "uk-innovator-founder",
@@ -157,7 +157,7 @@ export const Programs = {
       name: "Caribbean CBI",
       country: "Caribbean (program-dependent)",
       pathway: "Citizenship by investment (donation or real estate)",
-      minInvestmentUSD: "≈ 200k+ (program/option dependent) + fees",
+      minInvestmentUSD: "≈ 150k+ (Grenada single applicant; program/option dependent) + fees",
       processingTime: "3–8 months (enhanced due diligence)",
       familyIncluded: true,
       requiresPhysicalPresence: "Usually none",
@@ -166,23 +166,23 @@ export const Programs = {
     },
     {
       slug: "mt-exceptional-services",
-      name: "Malta (Exceptional Services)",
+      name: "Malta (Citizenship by Investment — repealed)",
       country: "Malta",
-      pathway: "Citizenship for exceptional services by direct investment",
-      minInvestmentUSD: "≈ 600k–750k+ contribution + property & donation",
-      processingTime: "12–36 months (eligibility periods apply)",
+      pathway: "Repealed — not available to new applicants",
+      minInvestmentUSD: "N/A — route repealed",
+      processingTime: "Closed",
       familyIncluded: true,
-      requiresPhysicalPresence: "Residence period before eligibility",
+      requiresPhysicalPresence: "N/A — route repealed",
       notes:
-        "Structured multi-part contribution with mandatory residence period; rigorous due diligence and compliance requirements.",
+        "Malta's citizenship-by-investment route was struck down by the EU Court of Justice on 29 April 2025 (Case C-181/23) and repealed by Act XXI of 2025. It is not available. Malta's Permanent Residence Programme remains open, but it grants residence, not citizenship.",
     },
     {
       slug: "tr-cbi",
       name: "Turkey Citizenship by Investment",
       country: "Turkey",
       pathway: "Citizenship through qualifying real estate, deposit, or investment options",
-      minInvestmentUSD: "USD 400k+ real estate route; other options vary",
-      processingTime: "4-9 months (case and government timing dependent)",
+      minInvestmentUSD: "USD 400k+ real estate route; USD 500k for the financial routes",
+      processingTime: "About 6 months (XIPHIAS average)",
       familyIncluded: true,
       requiresPhysicalPresence: "Usually low; biometric/document steps apply",
       notes:
@@ -218,7 +218,7 @@ export const Programs = {
       country: "Antigua and Barbuda",
       pathway: "Citizenship through contribution, real estate, or business options",
       minInvestmentUSD: "USD 230k+ indicative contribution plus fees",
-      processingTime: "4-8 months (due diligence dependent)",
+      processingTime: "No official standard published; varies by case",
       familyIncluded: true,
       requiresPhysicalPresence: "Low; short stay requirement may apply",
       notes:
@@ -230,7 +230,7 @@ export const Programs = {
       country: "Dominica",
       pathway: "Citizenship through contribution or approved real estate",
       minInvestmentUSD: "USD 200k+ indicative route plus fees",
-      processingTime: "4-8 months (due diligence dependent)",
+      processingTime: "3–4 months to approval in principle, plus 3–6 weeks to naturalisation (CBIU)",
       familyIncluded: true,
       requiresPhysicalPresence: "Usually none",
       notes:
@@ -241,8 +241,8 @@ export const Programs = {
       name: "Grenada Citizenship by Investment",
       country: "Grenada",
       pathway: "Citizenship through contribution or approved real estate",
-      minInvestmentUSD: "USD 235k+ indicative contribution plus fees",
-      processingTime: "4-8 months (due diligence dependent)",
+      minInvestmentUSD: "USD 150k+ NTF contribution (single applicant) plus fees",
+      processingTime: "No official standard published; varies by case",
       familyIncluded: true,
       requiresPhysicalPresence: "Usually none",
       notes:
@@ -281,7 +281,7 @@ export const Programs = {
       country: "United Arab Emirates",
       pathway: "Long-term residence for investors/talents",
       minInvestmentUSD: "Real estate ≈ AED 2M+ (or other qualifying routes)",
-      processingTime: "2–6 weeks (route dependent)",
+      processingTime: "About 2 months (route dependent)",
       familyIncluded: true,
       requiresPhysicalPresence: "Low (entry/medical/ID issuance required)",
       notes:
@@ -548,7 +548,7 @@ export const CANONICAL_MIN_USD: Record<string, number | null> = {
   "gr-property": null, // region-dependent, thresholds changed 2024 → advisor quote
   // citizenship
   "tr-cbi": 400_000, // real-estate route
-  "gd-cbi": 235_000,
+  "gd-cbi": 150_000,
   "ag-cbi": 230_000,
   "dm-cbi": 200_000,
   "vu-cbi": 130_000,

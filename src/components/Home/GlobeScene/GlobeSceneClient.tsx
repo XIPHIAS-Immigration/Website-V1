@@ -26,13 +26,13 @@ type Destination = {
 };
 
 const DESTINATIONS: Destination[] = [
-  { code: "CA", name: "Canada", track: "Skilled migration", href: "/skilled/canada", image: "/images/skilled/canada/canada.webp", blurb: "Express Entry, provincial nominee programs and start-up visas to permanent residency." },
-  { code: "PT", name: "Portugal", track: "Residency", href: "/residency/portugal", image: "/images/residency/portugal/portugal-golden-visa.webp", blurb: "The Golden Visa route to EU residency, schooling and a path to a powerful passport." },
+  { code: "CA", name: "Canada", track: "Skilled migration", href: "/skilled/canada", image: "/images/skilled/canada/canada.webp", blurb: "Express Entry, provincial nominee programs and provincial entrepreneur streams to permanent residency." },
+  { code: "PT", name: "Portugal", track: "Residency", href: "/residency/portugal", image: "/images/residency/portugal/portugal-golden-visa.webp", blurb: "The Golden Visa route to EU residency and schooling, with permanent residence after five years." },
   { code: "AE", name: "United Arab Emirates", track: "Residency", href: "/residency/uae", image: "/images/residency/uae/uae-golden-visa.webp", blurb: "The 10-year Golden Visa — 0% income tax and a global business hub." },
-  { code: "GD", name: "Grenada", track: "Citizenship", href: "/citizenship/grenada", image: "/images/citizenship/grenada/grenada-citizenship.webp", blurb: "Citizenship by investment with rare US E-2 treaty access for your family." },
-  { code: "GR", name: "Greece", track: "Residency", href: "/residency/greece", image: "/images/residency/greece/greece-golden-visa.webp", blurb: "Europe's most popular Golden Visa — real estate to Schengen residency." },
+  { code: "GD", name: "Grenada", track: "Citizenship", href: "/citizenship/grenada", image: "/images/citizenship/grenada/grenada-citizenship.webp", blurb: "Citizenship by investment — the only Eastern Caribbean programme country with a US E-2 treaty." },
+  { code: "GR", name: "Greece", track: "Residency", href: "/residency/greece", image: "/images/residency/greece/greece-golden-visa.webp", blurb: "A Golden Visa through real estate, with Schengen residency for your family." },
   { code: "AU", name: "Australia", track: "Skilled migration", href: "/skilled/australia", image: "/images/skilled/australia/skilled-australia-xiphias-immigration.webp", blurb: "Points-based skilled and regional visas leading to Australian PR." },
-  { code: "TR", name: "Turkey", track: "Citizenship", href: "/citizenship/turkey", image: "/images/citizenship/turkey/turkey.webp", blurb: "Fast citizenship by investment bridging Europe and Asia." },
+  { code: "TR", name: "Turkey", track: "Citizenship", href: "/citizenship/turkey", image: "/images/citizenship/turkey/turkey.webp", blurb: "Citizenship by investment from USD 400,000, bridging Europe and Asia." },
 ];
 
 const INTRO_END = 0.16;
@@ -137,7 +137,7 @@ export default function GlobeSceneClient({ markers, arcs }: { markers: GlobeMark
           className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-[12px] font-semibold uppercase tracking-[0.2em] text-secondary backdrop-blur-sm">
-            <Globe2 className="size-3.5" /> 50+ destinations, one partner
+            <Globe2 className="size-3.5" /> 35+ destinations, one partner
           </span>
           <h2 className="mt-6 max-w-4xl text-[clamp(2rem,6vw,4.5rem)] font-black leading-[1.05] text-white">
             Where will your story begin?

@@ -60,7 +60,7 @@ export default function FamiliesPage() {
             { icon: <Heart className="h-5 w-5" />, title: 'Family Included', desc: 'Most programs cover spouse and all dependent children.' },
             { icon: <GraduationCap className="h-5 w-5" />, title: 'Education Access', desc: 'EU, Canada, Australia and UK programs grant school access.' },
             { icon: <ShieldCheck className="h-5 w-5" />, title: 'Plan B Passport', desc: 'A second citizenship gives your family a lifeline in any crisis.' },
-            { icon: <Globe className="h-5 w-5" />, title: 'Visa-Free Travel', desc: 'Top CBI passports unlock 140–160+ visa-free destinations.' },
+            { icon: <Globe className="h-5 w-5" />, title: 'Visa-Free Travel', desc: 'A second passport can widen visa-free travel — we check the current access for each passport.' },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-white/10 dark:bg-zinc-900">
               <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-white/10 dark:text-white">

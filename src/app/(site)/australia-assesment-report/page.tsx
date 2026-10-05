@@ -199,7 +199,7 @@ function buildReportHtml(args: {
               <!-- Body: intro -->
               <tr>
                 <td class="pad bodyText" style="padding:16px 22px 12px 22px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-                  Based on the information communicated and submitted by you, our government-authorized immigration consultancy has conducted an initial immigration assessment. We are delighted to inform you that you are eligible for Australia PR under Subclass 189 and 190 for Australia. The minimum eligibility for Australian Skilled Immigration Visa is 65 points.
+                  Based on the information communicated and submitted by you, our immigration consultancy, working with a registered migration agent (MARA 1680615), has conducted an initial immigration assessment. We are delighted to inform you that you are eligible for Australia PR under Subclass 189 and 190 for Australia. The minimum eligibility for Australian Skilled Immigration Visa is 65 points.
                 </td>
               </tr>
 
@@ -696,7 +696,7 @@ function buildReportHtml(args: {
                     AUD $ 500 – AUD $ 3000
                   </div>
                   <div style="margin-top:6px;font-size:12px;line-height:18px;color:#5A667A;">
-                    Credit card payment — Assessment Authority fees paid to Govt of Australia for initial approval.
+                    Credit card payment — skills assessment fees paid to the assessing authority for your occupation.
                   </div>
                   <div style="margin-top:10px;height:1px;background:#EEF1F6;line-height:1px;">&nbsp;</div>
                   <div style="margin-top:10px;font-size:11px;line-height:16px;color:#6B778C;">
@@ -747,9 +747,9 @@ function buildReportHtml(args: {
                 <td class="pad bodyText" style="padding:0 22px 14px 22px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;">
                   <strong>Government Visa Application Fees (approx.):</strong>
                   <ul style="margin-top:8px;">
-                    <li style="margin:0 0 6px 0;">Primary applicant fee: AUD $ 4910</li>
-                    <li style="margin:0 0 6px 0;">Dependent applicant fee if applicable (spouse): AUD $ 2455</li>
-                    <li style="margin:0;">Additional applicant charge for each additional adult that is 18 years or under: AUD $ 1230</li>
+                    <li style="margin:0 0 6px 0;">Primary applicant fee: AUD 6,135 (subclass 189) / AUD 6,140 (subclass 190)</li>
+                    <li style="margin:0 0 6px 0;">Spouse or other applicant aged 18 or over: additional charge set by Home Affairs, confirmed before lodgement</li>
+                    <li style="margin:0;">Each dependent applicant under 18: additional charge set by Home Affairs, confirmed before lodgement</li>
                   </ul>
 
                   <div style="margin-top:10px;">

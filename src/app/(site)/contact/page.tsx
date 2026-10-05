@@ -17,7 +17,7 @@ export const revalidate = 86400; // cache for 1 day
 export const metadata: Metadata = {
   title: "Contact XIPHIAS | Speak to an Immigration Expert",
   description:
-    "Talk to licensed immigration experts at XIPHIAS. Call, WhatsApp, email, or book a callback. Bengaluru HQ with presence in India, UAE, and Canada.",
+    "Talk to licensed immigration experts at XIPHIAS. Call, WhatsApp, email, or book a callback. Bengaluru HQ with offices in India, the UAE, Australia and Canada.",
   keywords: [
     "XIPHIAS Immigration",
     "Contact XIPHIAS",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Contact XIPHIAS | Speak to an Immigration Expert",
     description:
-      "Talk to licensed experts. Bengaluru HQ with India, UAE & Canada presence.",
+      "Talk to licensed experts. Bengaluru HQ with offices in India, UAE, Australia & Canada.",
     images: ["/xiphias-immigration.png"],
     creator: "@xiphiasimmig",
   },
@@ -85,7 +85,7 @@ const CONTACT = {
     "1st Floor, JK Nirmala Arcade, Plot no. 780",
     "80 Feet Rd, 4th Block, Koramangala, Bengaluru, Karnataka 560034",
   ],
-  hours: "Mon–Sat • 9:00–18:00 IST",
+  hours: "Mon–Sat • 9:30–18:30 IST",
   responseNote: "No obligation · Response within 24 hours",
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/company/xiphias" },

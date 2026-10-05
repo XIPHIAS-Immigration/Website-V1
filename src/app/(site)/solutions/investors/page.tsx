@@ -19,14 +19,14 @@ export const metadata: Metadata = {
 };
 
 const PROGRAMS = [
-  { title: 'Residency by Investment (RBI)', href: '/residency', desc: '20+ countries from USD 200K — real estate, funds, bonds.' },
-  { title: 'Citizenship by Investment (CBI)', href: '/citizenship', desc: '11+ jurisdictions — full second passport rights.' },
+  { title: 'Residency by Investment (RBI)', href: '/residency', desc: '20+ countries — real estate, funds, bonds and business routes.' },
+  { title: 'Citizenship by Investment (CBI)', href: '/citizenship', desc: '10 countries — full second passport rights.' },
   { title: 'Golden Visa', href: '/residency?category=golden-visa', desc: 'UAE, Greece, Hungary, Portugal and more.' },
 ];
 
 const TOP_PICKS = [
   { country: 'UAE Golden Visa', href: '/residency/uae/uae-golden-visa', tag: 'AED 2M+' },
-  { country: 'Greece RBI', href: '/residency/greece/greece-real-estate-investment', tag: 'EUR 250K+' },
+  { country: 'Greece RBI', href: '/residency/greece/greece-real-estate-investment', tag: 'EUR 400K+' },
   { country: 'Portugal RBI', href: '/residency/portugal/portugal-business-investment', tag: 'EUR 500K+' },
   { country: 'Turkey CBI', href: '/citizenship/turkey/real-estate', tag: 'USD 400K' },
   { country: 'Vanuatu CBI', href: '/citizenship/vanuatu/vdsp-donation', tag: 'USD 130K' },
@@ -68,7 +68,7 @@ export default function InvestorsPage() {
           {[
             { icon: <ShieldCheck className="h-5 w-5" />, title: 'Confidential Advisory', desc: 'Full NDA-backed confidentiality for HNI clients.' },
             { icon: <TrendingUp className="h-5 w-5" />, title: 'ROI-Aligned Strategy', desc: 'We match investment routes to your financial objectives.' },
-            { icon: <Globe className="h-5 w-5" />, title: '30+ Programs', desc: 'Widest selection of RBI, CBI and Golden Visa options.' },
+            { icon: <Globe className="h-5 w-5" />, title: '30+ Programs', desc: 'A broad selection of RBI, CBI and Golden Visa options.' },
             { icon: <Briefcase className="h-5 w-5" />, title: 'End-to-End Management', desc: 'From program selection to passport delivery.' },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-white/10 dark:bg-zinc-900">

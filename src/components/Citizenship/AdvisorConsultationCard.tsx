@@ -69,7 +69,7 @@ export default function AdvisorConsultationCard({
   priceAmount = 25000,
   currency = "INR",
   durationLabel = "60 mins",
-  demandHint = "High demand this week",
+  demandHint = "Booked by appointment",
   bookingHref = "/booking?plan=paid",
   onBookAction,
   brochureUrl,

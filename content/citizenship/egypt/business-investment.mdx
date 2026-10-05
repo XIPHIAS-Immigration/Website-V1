@@ -5,7 +5,7 @@ kind: "program"
 country: "Egypt"
 countrySlug: "egypt"
 programSlug: "business-investment"
-tagline: "Invest in a local Egyptian business to secure citizenship."
+tagline: "USD 350,000 in an Egyptian investment project plus a USD 100,000 non-refundable payment."
 currency: "USD"
 timelineMonths: "6–12"
 minInvestment: 450000
@@ -26,33 +26,19 @@ brochure: "/images/citizenship/egypt/egypt_cbi.pdf"
 # (Your app supports: donation | real-estate | bond | naturalisation)
 # Business investment fits best under “naturalisation” in your union.
 routeType: "naturalisation"
-lastUpdated: "2026-09-30"
-holdingPeriodMonths: 60
+lastUpdated: "2026-10-01"
 
 prices:
-  - label: "State contribution"
+  - label: "Non-refundable payment"
     amount: 100000
-    when: "At approval/closing"
-    notes: "Non-refundable treasury contribution."
-  - label: "Business investment"
+    currency: "USD"
+    when: "After preliminary approval"
+    notes: "Non-refundable."
+  - label: "Investment in an Egyptian project"
     amount: 350000
-    when: "Post-approval funding"
-    notes: "Equity or fixed capital in an Egyptian entity; structure must meet program rules."
-  - label: "Due diligence – principal applicant"
-    amount: 8500
-    when: "At submission"
-  - label: "Due diligence – spouse"
-    amount: 5000
-    when: "At submission"
-  - label: "Due diligence – dependent child (0–11)"
-    amount: 0
-    when: "At submission"
-  - label: "Due diligence – dependent child (12–17)"
-    amount: 2000
-    when: "At submission"
-  - label: "Due diligence – dependent (18–30)"
-    amount: 4000
-    when: "At submission"
+    currency: "USD"
+    when: "After preliminary approval"
+    notes: "Into a project you create or take a stake in. Liquidating it or transferring the stake within five years requires a further USD 250,000 deposit at the Central Bank to retain the citizenship."
 
 governmentFees:
   - label: "Government application fee"
@@ -61,9 +47,10 @@ governmentFees:
     notes: "Non-refundable, paid by bank transfer from abroad to a designated Central Bank account. Stated per application, not per person. No separate per-person passport issuance fee is published by the Egyptian government."
 
 proofOfFunds:
-  - label: "Recommended liquid funds"
-    amount: 500000
-    notes: "Covers state contribution, business investment, and professional/government fees."
+  - label: "Funds for the business route"
+    amount: 450000
+    currency: "USD"
+    notes: "USD 350,000 project investment plus the USD 100,000 non-refundable payment, transferred from abroad. The USD 10,000 government application fee is payable in addition."
 
 benefits:
   - "USD 350,000 into an Egyptian project plus a USD 100,000 non-refundable payment."
@@ -83,7 +70,7 @@ disqualifiers:
   - "Material background issues or incomplete KYC."
 
 riskNotes:
-  - "Indian citizenship ends automatically on acquiring Egyptian citizenship. Read the section on this page before committing funds."
+  - "Indian citizenship ends automatically on acquiring Egyptian citizenship. Read what this means for an Indian passport before committing funds."
   - "Liquidating the project or transferring the stake inside five years requires a further USD 250,000 deposit at the Central Bank to retain the citizenship."
   - "Returns depend on business performance. Dividends are not guaranteed."
   - "Political rights are deferred for five years and parliamentary eligibility for ten years (Law 26/1975, Article 9)."
@@ -122,15 +109,16 @@ quickCheck:
   title: "Business Investment Pre-Screen"
   questions:
     - id: "capital"
-      label: "Available USD 450,000 + fees?"
+      label: "Available USD 450,000 plus the government application fee?"
       type: "boolean"
-      note: "Covers USD 100k state + USD 350k business, plus due diligence & passports."
+      note: "USD 350,000 in the project plus USD 100,000 non-refundable, and the USD 10,000 government application fee."
     - id: "clean"
       label: "Clean background & KYC documents ready?"
       type: "boolean"
-    - id: "interview"
-      label: "Comfortable with a brief program interview?"
+    - id: "india"
+      label: "If you are an Indian citizen, do you accept that Indian citizenship ends on acquisition?"
       type: "boolean"
+      note: "Section 9(1) of the Citizenship Act 1955. It ends automatically and cannot be deferred."
   ctas:
     primaryHref: "/eligibility"
     primaryText: "Check Eligibility"
@@ -146,36 +134,21 @@ costEstimator:
   defaultBaseId: "biz450"
   adults: 2
   children: 0
-  addons:
-    - id: "dd-principal"
-      label: "Due diligence — principal"
-      amount: 8500
-    - id: "dd-spouse"
-      label: "Due diligence — spouse"
-      amount: 5000
-    - id: "dd-12-17"
-      label: "Due diligence — dependent 12–17"
-      amount: 2000
-    - id: "dd-18-30"
-      label: "Due diligence — dependent 18–30"
-      amount: 4000
-    - id: "passport-per-person"
-      label: "Passport issuance (per person)"
-      amount: 300
+  addons: []
 
 processSteps:
   - title: "Eligibility & route selection"
-    description: "Triaging investment profile, family structure, and compliance red flags."
+    description: "Triaging investment profile, family structure, and compliance red flags, including the Indian citizenship consequence."
   - title: "Company pathway confirmation"
-    description: "Pick legal form (e.g., LLC) and finalize cap table, governance, and activity codes."
+    description: "Pick legal form (e.g., LLC) and finalise cap table, governance, and activity codes."
   - title: "KYC & application submission"
-    description: "Compile civil/financial docs; pay due diligence fees and submit through authorized channel."
-  - title: "Approvals & funding"
-    description: "Remit USD 100k state contribution; transfer USD 350k into the approved Egyptian business."
-  - title: "Implementation & monitoring"
-    description: "Complete incorporation/filings; maintain books, payroll (if any), and compliance."
+    description: "Compile civil and financial documents, pay the USD 10,000 non-refundable government fee and submit to the Cabinet citizenship unit."
+  - title: "Preliminary decision"
+    description: "Background checks and a preliminary decision within three to six months of submission."
+  - title: "Funding"
+    description: "Within the six-month temporary residence period, pay the USD 100,000 non-refundable amount and invest USD 350,000 in the Egyptian project."
   - title: "Citizenship & passports"
-    description: "Citizenship decree; oath and passport issuance for approved family members."
+    description: "Final citizenship decision within a maximum of three months after the investment is completed, then passport issuance. Minor children acquire the nationality with you."
 
 seo:
   title: "Egypt Business Investment – Citizenship by Investment"
@@ -196,8 +169,7 @@ timelineLabel: "6–12 months (Egyptian Cabinet standard)"
 ## Overview
 
 **USD 450,000 in total**: USD 350,000 into an Egyptian investment project you create or take a stake in,
-plus a **USD 100,000 non-refundable** payment. Both amounts are unchanged and were set by PM Decree No.
-876 of 2023.
+plus a **USD 100,000 non-refundable** payment. Both amounts were set by PM Decree No. 876 of 2023.
 
 ## The legal basis
 
@@ -206,9 +178,6 @@ No. 72 of 2017, and is implemented by **Prime Ministerial Decree No. 3099 of 201
 **PM Decree No. 876 of 2023** (Official Gazette issue 9 *bis*, 2 March 2023) and **PM Decree No. 3562
 of 2023**. Decree 876/2023 is the one that produced today's amounts — it cut them substantially from
 the earlier regime.
-
-Our pages previously cited "Law 190/2020". That citation does not exist in the official chain and
-has been corrected.
 
 The programme is administered by the citizenship unit of the **Cabinet** (created by PM Decree No.
 647 of 2020), not by the Ministry of Interior. If you are quoted different figures from the GAFI
@@ -236,10 +205,8 @@ explicit that *OCI is not to be misconstrued as dual citizenship* and confers no
 an OCI you cannot vote, cannot hold constitutional posts, do not have equality in public employment,
 and **cannot acquire agricultural land, farmhouses or plantation property in India**.
 
-This is a **replacement** of your Indian citizenship, not an addition to it. Any consultant who tells
-you otherwise is either mistaken or not telling you the truth. Egyptian itself permits dual citizenship and requires no
-renunciation — the restriction is entirely on the Indian side.
-
+This is a **replacement** of your Indian citizenship, not an addition to it. Egypt itself permits
+dual citizenship and requires no renunciation — the restriction is entirely on the Indian side.
 
 ## Who can be included
 
@@ -247,20 +214,19 @@ renunciation — the restriction is entirely on the Indian side.
   dependant of the investor. Under Articles 6 and 7 of Law No. 26 of 1975 a foreign wife of an
   Egyptian acquires his nationality only if she notifies the Minister of Interior of her wish **and
   the marriage has subsisted for two years from that notification**. In practice the spouse's
-  passport follows roughly two years later. Any consultant promising a same-day family passport is
-  describing something the statute does not provide.
+  passport follows roughly two years later; the statute does not provide for it to be issued at the
+  same time as the investor's.
 - **Children.** Minor children of a naturalised person acquire the nationality with the parent, with
   a right to elect their original nationality within one year of reaching majority (Law 26/1975). The
   Cabinet's published application requirements refer only to "wives and children" and **state no age
-  limit**. The "under 21" figure circulated across the industry is not in the published instrument,
-  so we confirm the age position on each file rather than print it as a rule.
+  limit**. An "under 21" rule does not appear in the published instrument, so XIPHIAS
+  confirms the age position on each file.
 - **Parents, grandparents and siblings cannot be included.** There is no provision for them in any
-  Egyptian instrument. Our pages previously implied parents aged 55+ could join. That was wrong and
-  has been removed.
+  Egyptian instrument.
 
 ## How long it takes — the official standard
 
-The Cabinet publishes a staged standard, and it is longer than the "6–9 months" our pages carried:
+The Cabinet publishes a staged standard:
 
 - Preliminary examination and decision: **three to six months** from submission.
 - Then **six months** of temporary residence in Egypt to execute the investment.
@@ -269,10 +235,10 @@ The Cabinet publishes a staged standard, and it is longer than the "6–9 months
 
 There is **no permanent residence requirement** to hold or keep the citizenship. But the process is
 not fully remote: on preliminary approval you are granted a right of temporary residence in Egypt
-for six months in order to execute the programme. Trade reporting through 2025 also described new
-in-person verification visits being introduced. We have not been able to find that in any Egyptian
-government publication, so we do not print it as a rule — but we will not tell you the process
-requires no travel at all.
+for six months in order to execute the programme. Reports during 2025 also described new in-person
+verification visits. No Egyptian government publication sets these out as a rule, so XIPHIAS
+confirms the current position with the Cabinet unit before filing, and you should plan for some
+travel to Egypt.
 
 ## What you actually pay
 
@@ -287,30 +253,26 @@ requires no travel at all.
 
 An Egyptian passport reaches roughly **50 destinations** visa-free or visa-on-arrival (Henley
 Passport Index, 2026, which ranks it around 86th). Passport rankings are commercial indices, not
-government data, so we name the index and the year rather than print a bare number.
+government data, and they change from year to year.
 
-Our pages previously claimed "visa-on-arrival access to Nigeria and 51 other countries". **Nigeria
-requires a visa from Egyptians** — it abolished visa-on-arrival entirely on 1 May 2025 and replaced
-it with an eVisa. That claim has been removed.
+**Nigeria is not a visa-on-arrival destination for Egyptians**: it abolished visa-on-arrival
+entirely on 1 May 2025 and replaced it with an eVisa.
 
 Egypt has **no EU or UK visa waiver**, and this citizenship does not create one.
 
 ## Egypt and the US E-2 visa
 
 Egypt is a **US E-2 treaty country, in force since 27 June 1992**. It is **E-2 only** — Egypt is not
-an E-1 treaty trader country, and any page that says "E-1/E-2" is wrong. India is not a treaty
-country at all, which is usually why Egypt is on the table.
+an E-1 treaty trader country. India is not a treaty country at all, which is usually why Egypt is on
+the table.
 
 One qualification. On 14 January 2026 the US State Department announced a suspension of **immigrant
 visa** issuance for nationals of 75 countries pending a public-charge reassessment, effective 21
 January 2026, and Egypt is reported to be on that list. It does not touch nonimmigrant categories,
 so E-2 is unaffected — but an Egyptian passport is currently a poor vehicle for a US **green card**
-route, and we will say so rather than let you assume otherwise. Egypt is **not** on Presidential
-Proclamation 10998's travel-ban list.
+route. Egypt is **not** on Presidential Proclamation 10998's travel-ban list.
 
 ## What the citizenship does and does not give you
-
-These are on the record and we would rather you read them here.
 
 - **Political rights are deferred.** Article 9 of Law No. 26 of 1975 bars a person naturalised under
   these provisions from exercising political rights for **five years** from the date of acquisition,
@@ -325,7 +287,7 @@ These are on the record and we would rather you read them here.
 
 ## Talk to a Egypt citizenship consultant in Bangalore
 
-XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Egypt our **immigration consultants in Bangalore** will put the Indian citizenship consequence in front of you first, and separate what the law requires from what an agent prefers.
+XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the Indian citizenship consequence first, then the requirements, costs and timeline for Egypt.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

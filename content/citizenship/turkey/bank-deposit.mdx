@@ -5,7 +5,7 @@ countrySlug: "turkey"
 programSlug: "bank-deposit"
 kind: "program"
 vertical: "citizenship"
-tagline: "Commit USD 500,000 through a turkish bank deposit and hold it for three years. Türkiye allows dual citizenship — India does not, and that is the first thing to understand."
+tagline: "Commit USD 500,000 through a Turkish bank deposit and hold it for three years. Türkiye allows dual citizenship — India does not, and that is the first thing to understand."
 currency: "USD"
 timelineMonths: 6
 minInvestment: 500000
@@ -24,66 +24,35 @@ brochure: "/images/citizenship/turkey/turkey_citizenship_by_investment.pdf"
 # Program specifics / Projects / Risk & Compliance / Docs / Estimator
 routeType: "bond"          # (format-safe; displayed nicely via prettyRouteType)
 holdingPeriodMonths: 36
-lastUpdated: "2026-09-30"
+lastUpdated: "2026-10-01"
 
 prices:
-  - label: "Bank deposit – single applicant"
+  - label: "Bank deposit (minimum)"
     amount: 500000
     currency: "USD"
-    notes: "Minimum deposit for a single applicant to qualify for Turkish citizenship through the bank deposit program."
-  - label: "Bank deposit – married couple"
-    amount: 500000
-    currency: "USD"
-    notes: "Covers principal applicant and spouse."
-  - label: "Bank deposit – three-person family"
-    amount: 500000
-    currency: "USD"
-    notes: "Covers principal applicant, spouse, and one child under 18."
-  - label: "Bank deposit – family of four"
-    amount: 500000
-    currency: "USD"
-    notes: "Covers principal applicant, spouse, and two children under 18."
-  - label: "Extra family member"
-    amount: "Included"
-    currency: "USD"
-    notes: "Additional dependents included at no extra cost, subject to program rules."
-  - label: "Due diligence – principal applicant"
-    amount: 5000
-    currency: "USD"
-    notes: "Mandatory fee for verifying background and source of funds."
-
-governmentFees:
-  - label: "Passport fee (per person)"
-    amount: 185
-    currency: "USD"
-    notes: "Government fee charged per person upon passport issuance; non-refundable."
-
-proofOfFunds:
-  - label: "Proof of funds"
-    notes: "Applicants must demonstrate sufficient funds to deposit in a government-approved Turkish bank, pay due diligence and passport fees, and cover associated legal costs for themselves and dependents."
+    notes: "One qualifying investment covers the principal applicant, the spouse, and children under 18 or dependent. Held with a Turkish bank for three years."
 
 benefits:
-  - "Fast-track citizenship: approval in approximately 6 months."
-  - "Dual citizenship allowed."
-  - "No prior residency requirement."
+  - "Around 6 months from application to passport on XIPHIAS files. No Turkish government source publishes an overall processing time."
+  - "Türkiye permits dual citizenship and requires no renunciation. India does not — see what this means for an Indian passport."
+  - "No prior residency requirement in Türkiye."
   - "Visa-free or visa-on-arrival travel to 113 countries."
-  - "Family inclusion: spouse, children under 18, and parents."
-  - "Deposit in government-approved Turkish bank; earns interest (subject to bank rates)."
-  - "Stable, politically secure, and economically diverse jurisdiction."
+  - "Family inclusion: your spouse, and children under 18 or dependent. Parents cannot be included."
+  - "Deposit held with a Turkish bank; earns interest (subject to bank rates)."
+  - "Türkiye is a US E-2 treaty country (in force since 18 May 1990). India is not."
 
 requirements:
   - "Be at least 18 years old."
   - "Clean criminal record and pass thorough due diligence screenings."
-  - "Good health confirmed by a medical examination."
-  - "Fulfill the minimum bank deposit requirement of USD 500,000 for three years."
+  - "No impediment on national-security or public-order grounds (Law 5901, Article 12)."
+  - "Hold a deposit of at least USD 500,000 with a Turkish bank for three years."
 
 disqualifiers:
   - "Incomplete or falsified documentation."
   - "Unclear source of funds."
-  - "Attempting direct application without authorized agents."
 
 riskNotes:
-  - "Indian citizenship ends automatically on acquiring Turkish citizenship. Read the section on this page before committing funds."
+  - "Indian citizenship ends automatically on acquiring Turkish citizenship. Read what this means for an Indian passport before committing funds."
   - "The three-year period must be unbroken. A voluntary sale or withdrawal breaks it."
   - "Once the foreign currency sale to the Central Bank completes it cannot be reversed or cancelled."
   - "The bank that sells your foreign currency to the Central Bank and the bank that holds the deposit must be the same institution."
@@ -95,7 +64,7 @@ complianceNotes:
   - "Only US dollars, euro, pounds sterling and Swiss francs are accepted for that conversion."
   - "The USD threshold is tested at the Central Bank effective selling rate and/or cross rate on the determination date (tespit tarihi) — not the contract date and not the application date."
   - "Law 5901 Article 12 includes the foreign spouse, and the applicant’s and spouse’s children who are under 18 or dependent. Parents cannot be included."
-  - "The 6 month timeline shown is XIPHIAS’s own observed average. No Turkish government source publishes an overall processing time for this programme, so treat any figure quoted to you elsewhere with suspicion."
+  - "The 6 month timeline shown is XIPHIAS’s own observed average. No Turkish government source publishes an overall processing time for this programme."
 
 documentChecklist:
   - group: "Identity & Civil"
@@ -111,7 +80,6 @@ documentChecklist:
   - group: "Compliance"
     documents:
       - "Police clearance / Interpol certificate"
-      - "Medical certificates (adults)"
       - "Passport-size photos"
   - group: "Investment Proof"
     documents:
@@ -119,26 +87,31 @@ documentChecklist:
       - "Proof of deposit and term duration"
 
 familyMatrix:
-  childrenUpTo: 18
-  parentsFromAge: 0
-  siblings: false
   spouse: true
+  childrenUpTo: 18
+  parentsFromAge: null
+  siblings: false
+  notes: "Your foreign spouse, and your and your spouse’s children who are under 18 or dependent (Law 5901, Article 12). Parents cannot be included."
 
 quickCheck:
   title: "Turkey Bank Deposit Pre-Screen"
   questions:
     - id: "capital"
-      label: "Capital for bank deposit + fees available?"
-      type: boolean
-      note: "Includes bank deposit, due diligence, passport, and legal fees"
+      label: "Capital for a USD 500,000 deposit available?"
+      type: "boolean"
+      note: "Measured at the Turkish Central Bank rate on the determination date, so budget a margin."
     - id: "clean"
-      label: "Clean background & KYC documents ready?"
-      type: boolean
-      note: "All adult applicants must pass thorough due diligence"
-    - id: "interview"
-      label: "Comfortable with a remote or in-person interview?"
-      type: boolean
-      note: "Interviews may be required for all adult applicants"
+      label: "Clean background and KYC documents ready?"
+      type: "boolean"
+      note: "All adult applicants must pass thorough due diligence."
+    - id: "currency"
+      label: "Can you transfer the funds in US dollars, euro, pounds sterling or Swiss francs?"
+      type: "boolean"
+      note: "For this route the foreign currency must be sold to a Turkish bank, and by that bank to the Turkish Central Bank, before the transaction."
+    - id: "india"
+      label: "If you are an Indian citizen, do you accept that Indian citizenship ends on acquisition?"
+      type: "boolean"
+      note: "Section 9(1) of the Citizenship Act 1955. It ends automatically and cannot be deferred."
 
 ctas:
     primaryHref: "/eligibility"
@@ -148,25 +121,13 @@ ctas:
 
 costEstimator:
   baseOptions:
-    - id: "vdsp130"
-      label: "VDSP donation – from USD 130,000"
-      amount: 130000
-  defaultBaseId: "vdsp130"
+    - id: "deposit500"
+      label: "Bank deposit (minimum)"
+      amount: 500000
+  defaultBaseId: "deposit500"
   adults: 2
   children: 0
-  addons:
-    - id: "dd-adult"
-      label: "Due diligence (per adult)"
-      amount: 5500
-      per: "adult"
-    - id: "proc-per-person"
-      label: "Gov. processing (per person)"
-      amount: 300
-      per: "person"
-    - id: "passport-per-person"
-      label: "Passport issuance (per person)"
-      amount: 300
-      per: "person"
+  addons: []
 timelineLabel: "6 months (XIPHIAS average)"
 
 seo:
@@ -188,8 +149,6 @@ seo:
 Placing **USD 500,000** on deposit with a Turkish bank and holding it for **three years** qualifies
 you, your spouse and your children under 18 or dependent for Turkish citizenship.
 
-Our pages previously said five years. The regulation says **three**.
-
 ## Before anything else: what this means for an Indian passport
 
 **India does not allow dual citizenship.** Section 9(1) of the Citizenship Act 1955 says that any
@@ -206,20 +165,19 @@ explicit that *OCI is not to be misconstrued as dual citizenship* and confers no
 As an OCI you cannot vote, cannot hold constitutional posts, do not have equality in public
 employment, and **cannot acquire agricultural land, farmhouses or plantation property in India**.
 
-This is a **replacement** of your Indian citizenship, not an addition to it. Any consultant who
-tells you otherwise is either mistaken or not telling you the truth. Turkey itself permits dual
-citizenship and requires no renunciation — the restriction is entirely on the Indian side.
+This is a **replacement** of your Indian citizenship, not an addition to it. Turkey itself permits
+dual citizenship and requires no renunciation — the restriction is entirely on the Indian side.
 
-For many families this trade is still worth it, particularly for the US E-2 route. But it is a
-decision to take with your eyes open, and we would rather you heard it from us on the first page
-than discovered it at the end.
+For many families this trade is still worth it, particularly for the US E-2 route. It is a decision
+to make with the full picture in front of you, before any funds move.
 
 ## A detail worth knowing
 
-If the lira or the market moves and your holding drops below USD 500,000 through **exchange rate
-movement alone**, Turkey's Capital Markets Board states expressly that this does **not** affect your
-application or your acquisition of citizenship. The requirement is what you committed, not what it
-is worth on any given day.
+For investment fund shares, Turkey's Capital Markets Board states expressly that a fall below
+USD 500,000 caused by **exchange rate movement alone** does **not** affect the application or the
+acquisition of citizenship.
+For a bank deposit, XIPHIAS confirms with the bank and BDDK how exchange rate movement is treated
+before you commit.
 
 You may also **switch between investment types** to complete the three-year period — Article 20(8)
 allows it. So a bank deposit can become a fund holding without restarting the clock.
@@ -243,7 +201,7 @@ real goal is the United States, this is usually the reason Türkiye is on the ta
 
 ## Talk to a Turkey citizenship consultant in Bangalore
 
-XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Turkey we will always put the Indian citizenship consequence in front of you first — our **immigration consultants in Bangalore** would rather lose the file than have you find out later.
+XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the Indian citizenship consequence first, then the requirements, costs and timeline for Türkiye.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

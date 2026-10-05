@@ -170,11 +170,11 @@ export default function Leadership() {
               {/* small fact strip */}
               <div className="mt-6 grid grid-cols-3 gap-3 text-center">
                 <Stat label="Years" value="17+" />
-                <Stat label="Countries" value="50+" />
-                <Stat label="Programs" value="160+" />
+                <Stat label="Countries" value="35+" />
+                <Stat label="Programs" value="100+" />
               </div>
               <p className="mt-2 text-center text-[11px] text-zinc-600 dark:text-zinc-400">
-                ICCRC | MARA | IMC aligned practices
+                IMC member | CICC RCIC R516194 | MARA 1680615
               </p>
             </div>
           </div>

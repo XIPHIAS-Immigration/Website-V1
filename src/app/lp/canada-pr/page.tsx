@@ -25,7 +25,7 @@ export default function CanadaPrLandingPage() {
       proof={[
         { value: "17 yrs", label: "Advising on Canadian immigration" },
         { value: "25,000+", label: "Clients advised worldwide" },
-        { value: "60+", label: "Offices globally" },
+        { value: "5", label: "Offices in India, the UAE, Australia and Canada" },
       ]}
       formHeading="Get your free CRS assessment"
     />

@@ -21,10 +21,11 @@ export const metadata: Metadata = {
 const PROGRAMS = [
   { title: 'Canada – BC Entrepreneur (Base)', href: '/residency/canada/british-columbia-entrepreneur-base', tag: 'Entrepreneur' },
   { title: 'Canada BC Entrepreneur', href: '/residency/canada/british-columbia-entrepreneur-base', tag: 'RBI' },
-  { title: 'UK Self-Sponsorship Visa', href: '/corporate/united-kingdom/self-sponsorship-visa', tag: 'Corporate' },
+  { title: 'UK — Sponsoring Yourself Through a Company', href: '/corporate/united-kingdom/self-sponsorship-visa', tag: 'Corporate' },
   { title: 'Portugal D2 Visa', href: '/residency/portugal/portugal-d2-entrepreneur', tag: 'Corporate' },
   { title: 'Spain Entrepreneur Formation', href: '/corporate/spain/entrepreneur-company-formation', tag: 'Corporate' },
   { title: 'UAE Dubai Freezone Visa', href: '/corporate/uae/dubai-freezone-visa', tag: 'Corporate' },
+  { title: 'Singapore Self-Employed Employment Pass', href: '/corporate/singapore/self-employed-employment-pass', tag: 'Corporate' },
   { title: 'USA O-1 Entrepreneur Visa', href: '/corporate/usa/o1-entrepreneur-visa', tag: 'Skilled' },
 ];
 
@@ -59,7 +60,7 @@ export default function EntrepreneursPage() {
         {/* Value Props */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: <Zap className="h-5 w-5" />, title: 'Fast-Track Routes', desc: 'Startup visas with accelerated processing for backed founders.' },
+            { icon: <Zap className="h-5 w-5" />, title: 'Founder Routes', desc: 'Provincial entrepreneur streams, company formation and founder visas matched to your stage.' },
             { icon: <Globe className="h-5 w-5" />, title: '10+ Destinations', desc: 'Canada, UK, UAE, Portugal, Spain, USA and more.' },
             { icon: <Users className="h-5 w-5" />, title: 'Family Included', desc: 'Most entrepreneur programs extend to spouse and dependents.' },
             { icon: <FileCheck className="h-5 w-5" />, title: 'PR Pathway', desc: 'Structured routes from work permit to permanent residency.' },

@@ -6,7 +6,7 @@ title: "Canada Express Entry – Skilled Immigration Pathway"
 country: Canada
 countrySlug: canada
 programSlug: express-entry
-tagline: "Migrate to Canada as a skilled worker through the points-based Express Entry system — your fastest route to permanent residency."
+tagline: "Migrate to Canada as a skilled worker through the points-based Express Entry system — Canada's main federal route to permanent residency for skilled workers."
 currency: CAD
 timelineMonths: 12
 tags: ["Express Entry", "Skilled Immigration", "Permanent Residency"]
@@ -30,7 +30,7 @@ heroPoster: "/images/skilled/canada/canada-express-entry.webp"
 brochure: "/images/skilled/canada/canada_skilled.pdf"
 
 routeType: points
-lastUpdated: "2026-09-29"
+lastUpdated: "2026-10-01"
 jobOfferRequired: false
 jobOfferNote: "Applicants without a job offer can still qualify by achieving a competitive CRS score under Express Entry."
 
@@ -48,7 +48,6 @@ languageMin:
 
 points:
   max: 1200
-pointsThreshold: 470
 
 pointsGrid:
   - category: "Core/Human Capital Factors (age, education, experience, language)"
@@ -60,46 +59,20 @@ pointsGrid:
   - category: "Skill Transferability factors"
     max: 100
     notes: "Points for combined skills and experience."
-  - category: "Additional factors (PNP, job offer, study, siblings, French)"
+  - category: "Additional factors (provincial nomination, Canadian study, sibling in Canada, French)"
     max: 600
     notes: "Bonus points for extra eligibility factors."
 
-occupationCodes: ["2173", "2131", "3012", "1111"]
 occupationLists:
   - listName: "Common eligible occupations (examples)"
     occupations:
-      - "Software Engineer (NOC 2173)"
-      - "Civil Engineer (NOC 2131)"
-      - "Registered Nurse (NOC 3012)"
-      - "Financial Auditor (NOC 1111)"
-
-prices:
-  - label: "Permanent Residence application (principal applicant)"
-    amount: 1365
-    notes: "Includes CAD 515 Right of Permanent Residence Fee."
-  - label: "Language test (typical)"
-    amount: 350
-    notes: "Varies by test provider."
-  - label: "Educational Credential Assessment (ECA)"
-    amount: 250
-    notes: "Based on chosen assessing organization."
-  - label: "Medical exams (typical)"
-    amount: 300
-    notes: "Panel physician rates vary."
-
-governmentFees:
-  - label: "PR Application – principal applicant"
-    amount: 1365
-    currency: CAD
-  - label: "Additional applicant (spouse)"
-    amount: 1365
-    currency: CAD
-  - label: "Dependent child"
-    amount: 230
-    currency: CAD
+      - "Software engineers"
+      - "Civil engineers"
+      - "Registered nurses"
+      - "Financial auditors and accountants"
 
 benefits:
-  - "Fastest pathway to Canadian permanent residency."
+  - "Canada's main federal pathway to permanent residency for skilled workers."
   - "Open to skilled professionals worldwide."
   - "No job offer required (higher CRS improves chances)."
   - "Access to free healthcare and education after PR."
@@ -110,13 +83,13 @@ requirements:
   - "Meet eligibility for at least one stream — FSW, FSTP, or CEC."
   - "Score competitively under the CRS system. Recent cut-offs: Canadian Experience Class 516-523, Provincial Nominee Program 697-768, French-language 382-391."
   - "Hold a valid Educational Credential Assessment (ECA)."
-  - "Prove language proficiency in English or French (minimum CLB 7)."
+  - "Prove language proficiency in English or French (CLB 7 for Federal Skilled Worker; lower minimums apply under the Federal Skilled Trades Program and for some Canadian Experience Class occupations)."
   - "Provide proof of settlement funds unless exempt."
 
 disqualifiers:
   - "Low CRS score or incomplete ECA/language results."
   - "Insufficient settlement funds (unless exempt by job offer)."
-  - "Incorrect or unverified work experience documentation."
+  - "Incorrect or unsupported work experience documentation."
 
 riskNotes:
   - "A CRS score in the high 400s no longer guarantees anything. With no general draws running, your realistic route is either Canadian Experience Class, a provincial nomination, or qualifying for one of the ten 2026 categories."
@@ -130,6 +103,7 @@ complianceNotes:
   - "Recent CRS cut-offs: Canadian Experience Class 516-523, Provincial Nominee Program 697-768, French-language 382-391, Health care 475, Transport 470, Senior managers 389, Physicians 198."
   - "Provincial Nominee Program draw cut-offs sit near 700-770 because a provincial nomination adds 600 points, not because those candidates are stronger."
   - "The timeline shown on this page is XIPHIAS’s own observed average from our case files, not an IRCC published figure. IRCC publishes live processing times through its own checker tool; your individual case can run faster or slower than either."
+  - "IRCC charges a processing fee and a Right of Permanent Residence Fee for each adult applicant, and a processing fee for each dependent child. XIPHIAS confirms the current amounts on canada.ca before filing."
 
 documentChecklist:
   - group: "Identity & Civil"
@@ -154,8 +128,8 @@ documentChecklist:
 
 familyMatrix:
   childrenUpTo: 22
-  parentsFromAge: 0
-  siblings: true
+  parentsFromAge: null
+  siblings: false
   spouse: true
 
 quickCheck:
@@ -174,7 +148,7 @@ quickCheck:
       label: "Do you have 1+ year of full-time skilled work experience?"
       type: boolean
     - id: "crs"
-      label: "Is your CRS score above 500?"
+      label: "Is your CRS score at or above recent cut-offs for your draw category?"
       type: boolean
   ctas:
     primaryHref: "/eligibility"
@@ -200,35 +174,13 @@ faq:
   - q: "How long does Express Entry take?"
     a: "Processing usually takes about 6–12 months after submission of your full PR application."
   - q: "Do I need a job offer for Express Entry?"
-    a: "No, but a valid job offer can add up to 200 CRS points."
+    a: "No. A job offer is not required, and since March 2025 a job offer no longer adds CRS points."
   - q: "Can my family be included?"
     a: "Yes, you can include your spouse and dependent children."
   - q: "What is a competitive CRS score?"
-    a: "Recent rounds have required around 470 points for Federal Skilled Worker applicants."
+    a: "It depends on the draw. Recent cut-offs: Canadian Experience Class 516-523, Provincial Nominee Program 697-768, French-language 382-391, Health care 475, Transport 470. No general (all-programme) draws were held in August or September 2026."
   - q: "What happens if my profile expires?"
     a: "Profiles remain valid for 12 months — you can resubmit if not invited."
-
-costEstimator:
-  baseOptions:
-    - id: "primary"
-      label: "PR Application – principal applicant"
-      amount: 1365
-  defaultBaseId: "primary"
-  adults: 1
-  children: 0
-  addons:
-    - id: "language-test"
-      label: "Language test (typical)"
-      amount: 350
-      per: "application"
-    - id: "eca"
-      label: "Educational Credential Assessment (ECA)"
-      amount: 250
-      per: "application"
-    - id: "medical"
-      label: "Medical exams (typical)"
-      amount: 300
-      per: "application"
 ---
 
 *Advising Indian applicants on Canadian immigration since 2009, from our Koramangala office in Bangalore.*
@@ -239,7 +191,7 @@ It’s a **points-based system (CRS)** that ranks candidates based on age, educa
 Applicants with the highest CRS scores receive **Invitations to Apply (ITA)** for **permanent residency** in Canada.
 
 ### Why Choose Express Entry
-- Fastest route to Canadian permanent residency  
+- Canada's main federal route to permanent residency for skilled workers  
 - No job offer required (CRS-based selection)  
 - Transparent and merit-driven points system  
 - Access to world-class healthcare and education  
@@ -250,9 +202,9 @@ Applicants with the highest CRS scores receive **Invitations to Apply (ITA)** fo
 
 ## Talk to a Canada immigration consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families through Canadian permanent residency since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022** — and what clients come back for is simple: we tell you when a programme does not fit, exactly as this page does.
+XIPHIAS Immigration has guided Indian families through Canadian permanent residency since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**.
 
-If you want a straight answer on whether this route suits your profile, our **immigration consultants in Bangalore** will give you one.
+Our **immigration consultants in Bangalore** will assess whether this route suits your profile and take you through the requirements, costs and timeline.
 
 - [Book a consultation](/contact)
 - [Canada visa consultants in Bangalore](/canada-visa-consultants-bangalore)

@@ -5,7 +5,7 @@ import { ArrowRight, ArrowLeft, Award, Briefcase, FileCheck, Globe } from 'lucid
 export const metadata: Metadata = {
   title: 'Immigration for Professionals – Skilled Migration & Global Talent Visas | XIPHIAS',
   description:
-    'Skilled migration solutions for qualified professionals, specialists and global talent. Points-based systems, employer sponsorship and extraordinary ability visas across 7+ countries.',
+    'Skilled migration solutions for qualified professionals, specialists and global talent. Points-based systems, employer sponsorship and extraordinary ability visas across 9 countries.',
   alternates: { canonical: '/solutions/professionals' },
   openGraph: {
     title: 'Immigration for Professionals – Skilled Migration, Work Permits & Global Talent',
@@ -25,7 +25,7 @@ const PROGRAMS = [
   { title: 'UK Global Talent Visa', href: '/skilled/united-kingdom/uk-global-talent-visa', tag: 'Global Talent' },
   { title: 'USA EB-1A Extraordinary Ability', href: '/skilled/usa/eb1a-extraordinary-ability', tag: 'EB Visa' },
   { title: 'USA EB-2 NIW', href: '/skilled/usa/eb2-national-interest-waiver', tag: 'Self-Petition' },
-  { title: 'Germany Job Seeker Visa', href: '/skilled/germany/germany-job-seeker-visa', tag: 'EU' },
+  { title: 'Germany Opportunity Card (Chancenkarte)', href: '/skilled/germany/germany-job-seeker-visa', tag: 'EU' },
 ];
 
 export default function ProfessionalsPage() {
@@ -62,7 +62,7 @@ export default function ProfessionalsPage() {
             { icon: <Award className="h-5 w-5" />, title: 'Profile Assessment', desc: 'Points score, EOI ranking and employer sponsorship fit.' },
             { icon: <Briefcase className="h-5 w-5" />, title: 'Resume Review', desc: 'Included with work permit advisory — at no extra cost.' },
             { icon: <FileCheck className="h-5 w-5" />, title: 'Documents', desc: 'End-to-end document preparation and verification.' },
-            { icon: <Globe className="h-5 w-5" />, title: '7 Countries', desc: 'Australia, Canada, UK, USA, Germany, Italy, Spain.' },
+            { icon: <Globe className="h-5 w-5" />, title: '9 Countries', desc: 'Australia, Canada, UK, USA, Germany, France, Italy, Spain, New Zealand.' },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-white/10 dark:bg-zinc-900">
               <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-white/10 dark:text-white">

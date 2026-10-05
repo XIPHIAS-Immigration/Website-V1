@@ -883,8 +883,8 @@ function AdvisorCard({ onNavigate }: { onNavigate: () => void }) {
           {[
             ["17+", "years advising"],
             ["39", "awards won"],
-            ["6", "offices worldwide"],
-            ["4.8★", "Google rating"],
+            ["5", "offices worldwide"],
+            ["4.7★", "Google rating"],
           ].map(([value, label]) => (
             <div key={label} className="rounded-xl bg-white/[0.06] px-3 py-2.5 text-center">
               <dt className="text-[20px] font-black tabular-nums text-[#f0cb3b]">{value}</dt>

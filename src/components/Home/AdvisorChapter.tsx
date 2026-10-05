@@ -7,7 +7,7 @@ import { ArrowRight, BadgeCheck, CalendarClock, Lock, Quote } from "lucide-react
 import { CharReveal, Reveal } from "@/components/motion";
 
 const POINTS = [
-  { icon: CalendarClock, label: "45-minute private session" },
+  { icon: CalendarClock, label: "60-minute private session" },
   { icon: BadgeCheck, label: "Tailored route & cost plan" },
   { icon: Lock, label: "NDA-backed confidentiality" },
 ];
@@ -111,7 +111,7 @@ export default function AdvisorChapter() {
             <div className="mt-5 grid grid-cols-3 gap-3 text-center">
               {[
                 { v: "10k+", l: "Families" },
-                { v: "50+", l: "Countries" },
+                { v: "35+", l: "Countries" },
                 { v: "98%", l: "Success" },
               ].map((s) => (
                 <div key={s.l} className="rounded-2xl border border-white/10 bg-white/[0.04] py-4">

@@ -114,7 +114,7 @@ export default function XiaChapter() {
               className="mt-1 block text-[13.5px] font-medium text-white/85"
               text={[
                 "Analysing your profile…",
-                "Matching 47 global programmes…",
+                "Matching global programmes…",
                 "Scoring eligibility & risk…",
                 "Drafting your mobility roadmap…",
               ]}

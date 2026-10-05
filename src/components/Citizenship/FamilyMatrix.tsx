@@ -64,11 +64,13 @@ export default function FamilyMatrixNeo({
       label: "Parents",
       valueText:
         typeof parentsFromAge === "number"
-          ? `From ${parentsFromAge}+ years`
+          ? parentsFromAge > 0
+            ? `From ${parentsFromAge}+ years`
+            : "Dependent parents"
           : "Not included",
       included: typeof parentsFromAge === "number",
       chip:
-        typeof parentsFromAge === "number" ? `${parentsFromAge}+` : undefined,
+        typeof parentsFromAge === "number" && parentsFromAge > 0 ? `${parentsFromAge}+` : undefined,
       icon: ParentIcon,
     },
     {
@@ -84,7 +86,7 @@ export default function FamilyMatrixNeo({
 
   const srSummary = `${includedCount} of ${tiles.length} categories eligible. ${
     typeof childrenUpTo === "number" ? `Children up to ${childrenUpTo}. ` : ""
-  }${typeof parentsFromAge === "number" ? `Parents from ${parentsFromAge}+ years. ` : ""}${
+  }${typeof parentsFromAge === "number" ? (parentsFromAge > 0 ? `Parents from ${parentsFromAge}+ years. ` : "Dependent parents included. ") : ""}${
     spouse ? "Spouse included. " : "Spouse not included. "
   }${siblings ? "Siblings included." : "Siblings not included."}`;
 

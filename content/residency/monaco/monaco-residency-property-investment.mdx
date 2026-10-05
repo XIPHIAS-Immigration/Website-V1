@@ -9,7 +9,6 @@ programSlug: monaco-residency-property-investment
 tagline: "Obtain Monaco residency through real estate investment and enjoy tax-free living"
 currency: EUR
 timelineMonths: "6"
-minInvestment: 0
 tags:
   - "Monaco"
   - "property investment"
@@ -22,31 +21,8 @@ brochure: "/images/residency/Monaco/monaco_rbi.pdf"
 
 # Program details
 routeType: "Real Estate"
-lastUpdated: "2026-09-30"
-holdingPeriodMonths: 12
+lastUpdated: "2026-10-01"
 
-# Pricing / Investment details
-prices:
-  - label: "Property Investment"
-    amount: 500000
-    when: "Before application submission"
-    notes: "Minimum bank deposit plus property purchase or long-term rental"
-
-governmentfees:
-  - label: "Application Fees"
-    amount: 1000
-    when: "At submission"
-    notes: "Government application fee"
-
-  - label: "Government Processing"
-    amount: 2000
-    when: "After approval"
-    notes: "Residency card processing charge"
-
-proofOfFunds:
-  - label: "Bank Statements"
-    amount: 500000
-    notes: "Proof of funds for property purchase/long-term rental and residency compliance"
 
 # Key benefits
 benefits:
@@ -58,40 +34,19 @@ benefits:
 
 # Requirements
 requirements:
-  - "Applicants must be 18+."
-  - "Clean criminal record."
-  - "Proof of financial capacity (€500,000+)."
-  - "Valid health insurance."
-  - "Secured accommodation in Monaco (purchase or long-term lease)."
+  - "Aged 16 or over — every resident aged 16+ staying more than three months a year needs a residence card."
+  - "Criminal record extract, less than three months old, from every country of residence in the past five years."
+  - "Attestation from a Monaco bank, less than one month old, confirming sufficient means to reside in Monaco — the bank sets the amount."
+  - "Accommodation in Monaco large enough for those living in it (owned, through a company, rented, or with a relative, spouse or partner)."
+  - "Intention to reside in Monaco for more than three months a year."
 
 # Disqualifiers
 disqualifiers:
   - "Criminal convictions."
-  - "Insufficient funds or inability to maintain the property."
-  - "Providing false or misleading documents."
-  - "Failure to meet minimum residency obligations."
-  - "Serious health conditions that could create a burden on the state."
-
-# Risk notes
-risknotes: "Investors must comply with Monaco's banking and residency regulations. Monaco real estate is high-value and may be illiquid."
-
-# Projects / investment options
-projectList:
-  - name: "Luxury Apartments"
-    minBuyIn: 500000
-    holdMonths: 12
-    notes: "Minimum 1-year holding period"
-    image: ""
-  - name: "High-End Villas"
-    minBuyIn: 1000000
-    holdMonths: 12
-    notes: "Ideal for families; minimum 1-year holding"
-    image: ""
-  - name: "Commercial Real Estate"
-    minBuyIn: 0
-    holdMonths: 0
-    notes: "Available for business investors; local advice recommended"
-    image: ""
+  - "No attestation of sufficient means from a Monaco bank."
+  - "No suitable accommodation in Monaco."
+  - "False or misleading documentation."
+  - "Failure to maintain residence in Monaco."
 
 # Document checklist
 documentChecklist:
@@ -101,42 +56,39 @@ documentChecklist:
       - "Birth Certificate"
     when: "Before application submission"
     notes: "Must be certified and translated if needed."
-
   - group: "Financial"
     documents:
-      - "Bank statements showing deposit"
-      - "Proof of property purchase or long-term rental"
-    when: "During application review"
+      - "Attestation from a Monaco bank, less than one month old"
+      - "Any other evidence of sufficient resources relied on"
+    when: "With the application"
     notes: "Amounts must be traceable and comply with AML rules."
-
+  - group: "Accommodation"
+    documents:
+      - "Proof of accommodation in Monaco — title, company ownership, lease, or residence with a relative, spouse or partner"
+    when: "With the application"
+    notes: "The accommodation must be large enough for those living in it."
   - group: "Compliance"
     documents:
-      - "Criminal record certificate"
-      - "Health insurance"
-      - "Residency declaration"
-    when: "Before application approval"
-    notes: "Authorities may request additional documents for verification."
-
-# Family inclusion
-familyMatrix:
-  childrenUpTo: 25
-  parentsFromAge: 0
-  siblings: true
-  spouse: true
+      - "Criminal record extract, less than three months old, from each country of residence in the past five years"
+    when: "With the application"
+    notes: "Additional documents may be requested by the Section des Résidents."
 
 # Quick pre-screen
 quickCheck:
   title: "Pre-Screen for Monaco Residency Eligibility"
   questions:
     - id: "q1"
-      label: "Are you over 18 years old?"
-      type: boolean
+      label: "Are you aged 16 or over?"
+      type: "boolean"
     - id: "q2"
       label: "Do you have a clean criminal record?"
-      type: boolean
+      type: "boolean"
     - id: "q3"
-      label: "Can you demonstrate financial capacity of €500,000+?"
-      type: boolean
+      label: "Can you obtain an attestation from a Monaco bank confirming you have sufficient means to reside in Monaco?"
+      type: "boolean"
+    - id: "q4"
+      label: "Do you have, or can you arrange, accommodation in Monaco?"
+      type: "boolean"
   policy:
     type: "all"
   verdict:
@@ -150,53 +102,36 @@ quickCheck:
 
 # Process steps
 processSteps:
-  - title: "Fund & Open Account"
-    description: "Open a Monaco bank account and deposit €500,000+."
+  - title: "Open Account & Obtain Attestation"
+    description: "Open an account with a Monaco bank and meet that bank's requirements for issuing the attestation of sufficient means."
   - title: "Secure Accommodation"
-    description: "Purchase or rent qualifying property in Monaco."
+    description: "Purchase or rent property in Monaco large enough for your household."
   - title: "File Application"
-    description: "Submit residency application with personal and financial documents."
+    description: "Submit the residency application with personal and financial documents to the Section des Résidents."
   - title: "Interview (if requested)"
     description: "Attend an interview with authorities and show proof of means and accommodation."
   - title: "Receive Permit & Register"
-    description: "Obtain 1–3 year residency card and complete local registration."
+    description: "Receive the carte de séjour temporaire, valid one year, and complete local registration."
   - title: "Maintain Compliance"
-    description: "Renew while maintaining the property/lease and financial requirements."
+    description: "Renew annually while maintaining the property or lease; after three years' residence you may apply for the three-year carte ordinaire."
 
 # FAQ
 faq:
   - q: "Can I include my spouse and children?"
-    a: "Yes, family members can be included under the same application."
+    a: "Yes. Family members can live with you in Monaco; each family member aged 16 or over applies for their own residence card, and the accommodation must be large enough for everyone living in it."
   - q: "Do I need to reside full-time in Monaco?"
-    a: "No, full-time residence is not required, but proof of periodic presence is necessary."
+    a: "Not full-time. A residence card is required for anyone aged 16 or over who stays in Monaco for more than three months a year or makes it their permanent residence."
   - q: "Is rental property sufficient for residency?"
-    a: "Yes, long-term rental agreements are accepted."
+    a: "Yes. Accommodation can be owned, held through a company, rented, or shared with a relative, spouse or partner, provided it is large enough for those living in it."
   - q: "Are there tax benefits for residents?"
     a: "Residents do not pay personal income tax."
   - q: "Can I work in Monaco while holding a residency permit?"
     a: "Yes, employment or self-employment is allowed with proper documentation."
 
-# Cost estimator
-costEstimator:
-  baseOptions:
-    - id: "property"
-      label: "Property Investment + Bank Deposit"
-      amount: 500000
-  defaultBaseId: "property"
-  adults: 1
-  children: 0
-  addons:
-    - id: "applicationFees"
-      label: "Application Fees"
-      amount: 1000
-    - id: "govProcessing"
-      label: "Government Processing"
-      amount: 2000
-
 # SEO metadata
 seo:
   title: "Monaco Residency by Property Investment"
-  description: "Secure Monaco residency via property purchase or long-term lease with a supporting bank deposit. Enjoy tax-free living, family inclusion, and Schengen access."
+  description: "Monaco residency with owned or rented accommodation in Monaco and a Monaco bank attestation of sufficient means. Property purchase is not mandatory."
   keywords:
     - "Monaco residency"
     - "Monaco residence permit"
@@ -207,10 +142,9 @@ seo:
     - "residency by investment consultants India"
 
 riskNotes:
-  - "There is no legally prescribed minimum deposit or investment for Monaco residency. None. The commonly quoted €500,000 is a private-banking threshold that varies between banks, not a government requirement."
-  - "Monaco’s own government page states that the sum judged sufficient depends on the Monaco banking establishment providing the attestation. Any page presenting €500,000 as the official rule is describing one bank’s policy as if it were law."
+  - "Monaco law prescribes no minimum deposit or investment for residence. The sum regarded as sufficient is set by the Monaco bank that issues the attestation; figures around €500,000 reflect typical private-banking practice and vary between banks."
   - "Applicants may also submit any other evidence of sufficient resources, subject to approval by the Section des Résidents."
-  - "Naturalisation takes ten years, is entirely at the discretion of the Sovereign Prince, and requires renunciation of your previous nationality. Treat Monaco as a residency, not a route to a passport."
+  - "Naturalisation takes ten years, is entirely at the discretion of the Sovereign Prince, and requires renunciation of your existing nationality. Treat Monaco as a residency, not a route to a passport."
 
 complianceNotes:
   - "The stated financial condition is simply sufficient financial resources. The required document is a compliant bank attestation from a Monaco establishment, less than one month old, confirming you have the means to reside in Monaco."
@@ -218,40 +152,53 @@ complianceNotes:
   - "Applies to everyone aged 16 and over residing in Monaco for more than three months a year. Authority: Police Department, Section des Résidents."
   - "Cards: carte de séjour temporaire, one year, for a first application; ordinaire, three years, after three years’ residence; privilégiée, ten years, after ten years."
   - "Naturalisation under Loi n° 1.155 of 18 December 1992: ten years of ordinary residence after the age of 18, granted by individual Sovereign Ordinance at the Prince’s discretion, with renunciation of the previous nationality required."
+
+governmentFees:
+  - label: "Carte de séjour temporaire (1 year) — first issue"
+    amount: 80
+    when: "At issue"
+  - label: "Carte de séjour temporaire — renewal"
+    amount: 40
+    when: "At each renewal"
+  - label: "Carte de séjour ordinaire (3 years) — first issue"
+    amount: 100
+    when: "After 3 years' residence"
+  - label: "Carte de séjour privilégiée (10 years) — first issue"
+    amount: 160
+    when: "After 10 years' residence"
 ---
 
 *Advising Indian families on residency abroad since 2009, from our Koramangala office in Bangalore.*
 
-## There is no official minimum — and that matters
+## No fixed sum is prescribed
 
-Almost every page about Monaco quotes **€500,000** as the required deposit. **It is not a legal
-requirement.** Monaco's government page states the condition as simply *sufficient financial
-resources*, and says in terms that **the sum judged sufficient depends on the Monaco bank that
-provides your attestation**.
+Monaco law prescribes no minimum deposit or investment for residence. The Government states the
+financial condition simply as *sufficient financial resources*, evidenced by an attestation from a
+Monaco bank confirming that you have the means to reside in Monaco. **The sum regarded as sufficient
+is set by the Monaco bank that provides the attestation.** Figures of around €500,000 reflect typical
+private-banking practice rather than a legal threshold, and they vary from bank to bank.
 
-So €500,000 is one bank's policy, quoted as though it were the law. Different banks set different
-thresholds, and the government also accepts *any other evidence* of sufficient resources, subject to
-approval by the Section des Résidents.
+The Government also accepts *any other evidence* of sufficient resources, subject to approval by the
+Section des Résidents.
 
-We have corrected our own pages, which carried the €500,000 figure as if it were prescribed.
-
-## What is actually required
-- **Accommodation** in Monaco, large enough for the people living in it
+## What is required
+- **Accommodation** in Monaco, large enough for the people living in it — owned, held through a
+  company, rented, or shared with a relative, spouse or partner
 - **A bank attestation** from a Monaco establishment, less than one month old
 - **A criminal record extract** less than three months old, from every country you have lived in over
   the past five years
 
 Applies to everyone **16 and over** staying more than three months a year.
 
-| Card | Duration | When |
-| --- | --- | --- |
-| Temporaire | 1 year | First application |
-| Ordinaire | 3 years | After 3 years' residence |
-| Privilégiée | 10 years | After 10 years |
+| Card | Duration | When | Fee (first issue / renewal) |
+| --- | --- | --- | --- |
+| Temporaire | 1 year | First application | €80 / €40 |
+| Ordinaire | 3 years | After 3 years' residence | €100 / €50 |
+| Privilégiée | 10 years | After 10 years | €160 / €80 |
 
 ## On Monegasque citizenship
 Ten years of residence, granted by **individual Sovereign Ordinance at the Prince's discretion**, and
-**renunciation of your previous nationality is required**. In practice Monaco is a residency, not a
+**renunciation of your existing nationality is required**. In practice Monaco is a residency, not a
 route to a second passport, and it should be chosen on that basis.
 
 ## Your Indian passport is safe on a residency
@@ -266,7 +213,7 @@ that step would cost you.
 
 ## Talk to an immigration consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families abroad since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Monaco our **immigration consultants in Bangalore** will separate what the law requires from what a bank or an agent prefers.
+XIPHIAS Immigration has guided Indian families abroad since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the legal requirements, costs and timeline for Monaco.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

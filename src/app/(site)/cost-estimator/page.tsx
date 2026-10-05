@@ -25,11 +25,11 @@ export const revalidate = 86400;
 const FAQ = [
   {
     q: "How much does Canada PR cost from India in 2026?",
-    a: "For a single applicant through Express Entry, the unavoidable government and third-party costs — IELTS, an Educational Credential Assessment, biometrics, the medical, the PR application fee and the Right of Permanent Residence Fee — typically land between ₹1.5 and ₹2.5 lakh. On top of that sits proof of settlement funds, which is not a fee but must genuinely exist in your account: roughly CAD 14,700 for one person and CAD 18,300 for two, rising with family size. Professional fees, if you use a licensed representative, are separate again.",
+    a: "For a single applicant through Express Entry, the unavoidable government and third-party costs — IELTS, an Educational Credential Assessment, biometrics, the medical, the PR application fee and the Right of Permanent Residence Fee — typically land between ₹1.5 and ₹2.5 lakh. On top of that sits proof of settlement funds, which is not a fee but must genuinely exist in your account: roughly CAD 15,000 or more for one person and CAD 19,000 or more for two, rising with family size and updated by IRCC each year. Professional fees, if you use a licensed representative, are separate again.",
   },
   {
     q: "What is proof of funds and do I actually need it?",
-    a: "It is money you must show you hold, unencumbered, to support yourself on arrival. You do not pay it to anyone — but it must be in your own account, documented, and it cannot be borrowed. It is waived if you are applying under the Canadian Experience Class or already hold a valid Canadian job offer. It is the single largest line in most people's budget and the one most often left out of quotes.",
+    a: "It is money you must show you hold, unencumbered, to support yourself on arrival. You do not pay it to anyone — but it must be in your own account, documented, and it cannot be borrowed. It is waived if you are applying under the Canadian Experience Class, or if you are already authorised to work in Canada and hold a valid Canadian job offer. It is the single largest line in most people's budget and the one most often left out of quotes.",
   },
   {
     q: "Why do consultants quote such different fees?",
@@ -100,7 +100,7 @@ export default function CostEstimatorPage() {
               {[
                 [
                   "Proof of settlement funds",
-                  "Not a fee — money you must hold and document, and cannot borrow. Around CAD 14,700 for one applicant and CAD 18,300 for two, rising with family size. It is the biggest number in most budgets and the one most often missing from a quote.",
+                  "Not a fee — money you must hold and document, and cannot borrow. Around CAD 15,000 or more for one applicant and CAD 19,000 or more for two, rising with family size and updated by IRCC each year. It is the biggest number in most budgets and the one most often missing from a quote.",
                 ],
                 [
                   "Everyone's tests, not just yours",

@@ -86,8 +86,8 @@ export default function Compliance() {
 
           {/* regulator alignment chips */}
           <div className="relative mb-5 flex flex-wrap gap-2">
-            <Chip>ICCRC / CICC-aligned</Chip>
-            <Chip>MARA-aligned</Chip>
+            <Chip>CICC-licensed RCIC (R516194)</Chip>
+            <Chip>MARA 1680615</Chip>
             <Chip>IMC standards</Chip>
             <Chip>KYC / AML procedures</Chip>
           </div>
@@ -167,8 +167,8 @@ export default function Compliance() {
 
           {/* disclaimer */}
           <p className="relative mt-3 text-[11px] text-zinc-600 dark:text-zinc-400">
-            *Alignment denotes internal policies and workflows built to mirror regulator expectations; it is
-            not a license assertion. Program availability and requirements may change. No guarantees.
+            *Licence numbers can be checked on the CICC and MARA public registers. Program availability
+            and requirements may change. No guarantees.
             Eligibility &amp; rules apply.
           </p>
         </div>

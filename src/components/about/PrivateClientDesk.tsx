@@ -100,7 +100,7 @@ export default function PrivateClientDesk() {
                     Paid Expert Session
                   </h3>
                   <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-200">
-                    45–60 min · senior advisor · program strategy &amp; structuring.
+                    60 min · senior advisor · program strategy &amp; structuring.
                   </p>
                 </div>
               </div>

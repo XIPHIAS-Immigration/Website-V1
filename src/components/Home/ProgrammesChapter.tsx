@@ -66,7 +66,7 @@ export default function ProgrammesChapter() {
       title: "Work Permits",
       blurb: "Employer-sponsored and skilled work routes, advised end to end.",
       href: "/work-permits",
-      count: "8 countries",
+      count: "14 countries",
       Icon: FileBadge,
       accent: "#0a1f44",
     },

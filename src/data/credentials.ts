@@ -100,7 +100,7 @@ export const firmFacts = {
   officeCount: offices.length,
   headquarters: "Koramangala, Bengaluru",
   cin: "U74900KA2015PTC078396",
-  googleRating: 4.8,
+  googleRating: 4.7,
   /** What XIPHIAS is, and is not. Repeated verbatim on regulated surfaces. */
   serviceBoundary:
     "XIPHIAS provides immigration consulting and documentation support. It is not a law firm, and nothing on this page is legal advice.",

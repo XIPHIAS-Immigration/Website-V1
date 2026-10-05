@@ -36,7 +36,7 @@ export function scoreCitizenship(answers: AnswerMap): Result {
         tier: "Eligible",
         summary: "Your budget fits mainstream citizenship-by-investment options.",
         programs: [
-          { name: "Malta (Residence → Exceptional Services)", why: "Meets capital expectations" },
+          { name: "Türkiye Citizenship by Investment", why: "From USD 400,000 in property; about 6 months on average" },
           { name: "Caribbean CBI", why: "Streamlined due diligence; 3–6 months typical" },
         ],
       };

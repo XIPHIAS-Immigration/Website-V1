@@ -233,7 +233,7 @@ function buildReportHtml(args: {
               <!-- Body -->
               <tr>
                 <td class="pad bodyText" style="padding:10px 22px 12px 22px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-                  After the successful launch of the Express Entry Stream in January 2015, anticipation around this stream has surged as it promises to finalise PR applications within six months after ITA and final application submission. The Canadian Government launched the Express Entry Stream to handle Federal Skilled Worker applications and several other economic class applications.
+                  Express Entry launched in January 2015 to manage applications for the Federal Skilled Worker, Federal Skilled Trades and Canadian Experience Class programmes, and part of the Provincial Nominee Program. IRCC's service standard is to process most complete applications within six months of submission after an Invitation to Apply (ITA).
                 </td>
               </tr>
 
@@ -248,13 +248,13 @@ function buildReportHtml(args: {
 
               <tr>
                 <td class="pad bodyText" style="padding:0 22px 10px 22px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-                  Candidates with extraordinary skills, placed in the Express Entry pool, can significantly benefit from this stream as it provides them access to Canada’s Job Bank and even become permanent residents of Canada. The Government of Canada has lifted all fees previously associated with employer eligibility checks for job offers. Therefore, the candidates can pursue employment opportunities with no financial barriers.
+                  Candidates placed in the Express Entry pool are ranked by their Comprehensive Ranking System (CRS) score, and IRCC invites the highest-ranked profiles in each draw. Since March 2025 a job offer no longer adds CRS points, so language scores, education, work experience and a provincial nomination decide the ranking.
                 </td>
               </tr>
 
               <tr>
                 <td class="pad bodyText" style="padding:0 22px 12px 22px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-                  Based on the information that you have provided, our government-authorised Immigration Consultancy has conducted an initial immigration assessment. Considering the criteria stated below, we are pleased to inform you that you are eligible for the above Express Entry Process (Placement in Pool and Job Bank using the Federal Skilled Worker Category).
+                  Based on the information that you have provided, our immigration consultancy, working with a CICC-licensed RCIC (R516194), has conducted an initial immigration assessment. Considering the criteria stated below, we are pleased to inform you that you are eligible for the above Express Entry Process (placement in the pool under the Federal Skilled Worker category).
                 </td>
               </tr>
 
@@ -536,7 +536,7 @@ function buildReportHtml(args: {
               <!-- Guidance -->
               <tr>
                 <td class="pad bodyText" style="padding:0 22px 12px 22px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-                  Even though it's your discretion, many times when you try to create a legal profile on your own, even a small error can cause big implications in immigration, and if refused, it creates an issue even for applying to other countries. If you would like XIPHIAS to handle your Canadian immigration and related services, please do not create Express entry or other online profiles on your own. We will professionally evaluate, manage, and create your profile through our designated access with CIC. We won't be able to do so if you create your profiles on your own by mistake, because it will be rejected for duplication.
+                  Even though it's your discretion, many times when you try to create a legal profile on your own, even a small error can cause big implications in immigration, and if refused, it creates an issue even for applying to other countries. If you would like XIPHIAS to handle your Canadian immigration and related services, please do not create Express entry or other online profiles on your own. We will professionally evaluate, manage, and create your profile through our authorised representative account with IRCC. We won't be able to do so if you create your profiles on your own by mistake, because it will be rejected for duplication.
                 </td>
               </tr>
 
@@ -586,7 +586,7 @@ function buildReportHtml(args: {
                 </div>
               </td>
               <td valign="top" style="padding:0 0 10px 10px;">
-                Job offer through the government-managed Job Bank (you will get access).
+                Selection in a category-based draw that matches your occupation or French-language ability.
               </td>
             </tr>
 
@@ -616,7 +616,7 @@ function buildReportHtml(args: {
 
               <tr>
                 <td class="pad bodyText" style="padding:0 22px 14px 22px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-                  Usually, Provincial Nomination programs have limitations of settlement and are independent with their own full consulting/govt fee. But we have designed special pricing and plan (Processes 1, 2 and 3 optional) for the fastest possible timeframe to become PR. First, we start with federal possibility and then we try our best to explore provincial solutions for you in case of low CRS or no job offer.
+                  Usually, Provincial Nomination programs have limitations of settlement and are independent with their own full consulting/govt fee. But we have designed special pricing and plan (Processes 1, 2 and 3 optional) for the fastest possible timeframe to become PR. First, we start with federal possibility and then we try our best to explore provincial solutions for you in case of a low CRS.
                 </td>
               </tr>
 
@@ -656,7 +656,7 @@ function buildReportHtml(args: {
                 Express Entry Profile
               </div>
               <div style="margin-top:2px;font-size:12px;color:#445064;line-height:17px;">
-                Placement in pool &amp; Job Bank via FSW category.
+                Placement in the Express Entry pool via the FSW category.
               </div>
             </td>
           </tr>
@@ -823,7 +823,7 @@ function buildReportHtml(args: {
 
       <tr>
         <td style="padding:12px 14px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-          This could be your investment for a better future. With your permission, we want to start the process to provide you immigration consultation and representation service. Please proceed immediately by contacting our team to know and get current special discount. After you pay for Process 1 and sign the retainer agreement(s) (mandated by ICCRC), we will start your process. You will get final retainer agreement(s) signed by our ICCRC RCIC.
+          This could be your investment for a better future. With your permission, we want to start the process to provide you immigration consultation and representation service. Please proceed immediately by contacting our team to know and get current special discount. After you pay for Process 1 and sign the retainer agreement(s) (mandated by the CICC), we will start your process. You will get final retainer agreement(s) signed by our CICC-licensed RCIC (R516194).
         </td>
       </tr>
 
@@ -850,10 +850,10 @@ function buildReportHtml(args: {
 
       <tr>
         <td style="padding:0 14px 14px 14px;font-family:Arial,Roboto,sans-serif;color:#2A3443;font-size:14px;line-height:22px;text-align:justify;">
-          Once we receive proof of payment for Process 1 and a signed copy of the retainer agreement(s), we will assign one coordinator. They will work closely with an RCIC-authorised Canadian immigration consultant to provide you ongoing support and get answers for all your immigration-related questions.
+          Once we receive proof of payment for Process 1 and a signed copy of the retainer agreement(s), we will assign one coordinator. They will work closely with our CICC-licensed RCIC (R516194) to provide you ongoing support and get answers for all your immigration-related questions.
           <br>
         
-          We closely work with our offices, associates and partners to provide guidance/referral to cover per-departure and post-landing activities along with Job search assistance.
+          We closely work with our offices, associates and partners to provide guidance/referral to cover pre-departure and post-landing activities along with Job search assistance.
         </td>
       </tr>
     </table>

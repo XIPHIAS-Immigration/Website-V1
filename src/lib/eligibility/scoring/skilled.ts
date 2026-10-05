@@ -120,7 +120,7 @@ function scoreAU(a: AnswerMap, baseline: boolean): Result {
   return {
     tier: "Not Yet Eligible",
     summary: "Start with skills assessment, English test, or pursue employer sponsorship.",
-    programs: [{ name: "Employer Sponsorship (TSS/ENS)", why: "Alternative route to PR later" }],
+    programs: [{ name: "Employer Sponsorship (482/186)", why: "Alternative route to PR later" }],
   };
 }
 
@@ -232,10 +232,10 @@ function suggestProgramsWithOffer(dest: string): Result["programs"] {
     case "ca":
       return [
         { name: "Closed Work Permit → PR", why: "Employer-backed; transition to PR" },
-        { name: "Express Entry + Job Offer", why: "CRS boost" },
+        { name: "Express Entry + Provincial Nomination", why: "An employer connection can support a nomination (job offers no longer add CRS points)" },
       ];
     case "au":
-      return [{ name: "TSS / ENS", why: "Employer routes → PR" }];
+      return [{ name: "Skills in Demand (482) / ENS (186)", why: "Employer routes → PR" }];
     case "uk":
       return [{ name: "Skilled Worker (sponsor-backed)", why: "Main UK employer route" }];
     case "eu":

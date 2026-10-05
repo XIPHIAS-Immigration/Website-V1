@@ -88,7 +88,7 @@ export const workPermitCountries: WorkPermitCountry[] = [
     processingSignal: "Strong for points-tested professionals and employer-sponsored applicants with documented work history.",
     proofPoints: ["Skills assessment", "English score", "Occupation and points fit"],
     routeReadiness: [
-      { label: "Route basis", value: "Points or employer", detail: "189/190/491 are points-led; 186/187 need employer nomination." },
+      { label: "Route basis", value: "Points or employer", detail: "189/190/491 are points-led; 186/494 need employer nomination." },
       { label: "Profile fit", value: "Occupation list", detail: "Skills assessment and occupation list fit drive route viability." },
       { label: "State strategy", value: "Important", detail: "Nomination and regional options can change the best pathway." },
     ],
@@ -102,7 +102,7 @@ export const workPermitCountries: WorkPermitCountry[] = [
     region: "Europe",
     image: "/images/skilled/germany/germany-job-seeker-visa.webp",
     href: "/skilled/germany/germany-job-seeker-visa",
-    permitTypes: ["Opportunity Card", "EU Blue Card", "Skilled Worker Residence", "Job seeker route"],
+    permitTypes: ["Opportunity Card", "EU Blue Card", "Skilled Worker Residence", "Recognition partnership"],
     advisoryFocus: "Degree recognition, salary threshold, occupation shortage, German/English profile, and job-search readiness.",
     processingSignal: "Good fit for STEM, engineering, healthcare, IT, and recognized qualification profiles.",
     proofPoints: ["Recognized qualification", "Salary or job offer", "Language and funds readiness"],

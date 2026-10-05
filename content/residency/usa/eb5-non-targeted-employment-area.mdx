@@ -21,10 +21,22 @@ heroPoster: "/images/residency/usa/eb5-non-targeted-employment-area.webp"
 brochure: "/images/residency/usa/usa_rbi.pdf"
 
 prices:
-  - label: "Minimum Investment – Non-TEA"   
-    amount: 1050000                      
-    when: "At the start of the program / before filing I-526"  
-    notes: "Direct investment in a qualifying U.S. enterprise"  
+  - label: "Minimum investment — standard (non-TEA)"
+    amount: 1050000
+    when: "Invested, or actively being invested, when Form I-526E or I-526 is filed"
+    notes: "Investment in a new commercial enterprise outside a targeted employment area (regional centre or direct); capital must remain at risk"
+  - label: "Form I-526E or I-526 filing fee"
+    amount: 11160
+    when: "On filing"
+    notes: "From about 29 November 2026 the I-526E falls to USD 7,850 and the I-526 to USD 7,615"
+  - label: "EB-5 Integrity Fund fee"
+    amount: 1000
+    when: "With each Form I-526E (regional centre investments)"
+    notes: "Applies on top of the I-526E filing fee"
+  - label: "Form I-829 filing fee"
+    amount: 9525
+    when: "To remove conditions at the end of the 2-year conditional period"
+    notes: "Falls to USD 5,000 from about 29 November 2026"
 
 proofOfFunds:
   - label: "Lawful Source of Funds"
@@ -32,29 +44,22 @@ proofOfFunds:
     notes: "Provide audited documents, business income, inheritance, or property sale records"
 
 benefits:
-  - "Residency in the U.S. through direct business investment"
+  - "Residency in the U.S. through EB-5 investment"
   - "Pathway to permanent Green Card and citizenship"
   - "No sponsorship required – self-petition route"
-  - "Children under 21 can study with in-state tuition benefits"
+  - "Children under 21 study as US permanent residents, eligible for in-state tuition under each state's residency rules"
   - "Freedom to live, work, and operate a business anywhere in the U.S."
 
 requirements:
   - "Investment of $1,050,000 in a qualifying Non-TEA project"
   - "Creation of at least 10 full-time jobs for U.S. workers"
   - "Proof of legal source of funds"
-  - "Maintain investment for the required holding period (VERIFY_HoldingPeriod)"
+  - "Keep the investment at risk for the sustainment period required by the EB-5 Reform and Integrity Act of 2022"
 
 disqualifiers:
   - "Applicants with criminal background or fraud records"
-  - "Unverified or unlawful sources of funds"
+  - "Undocumented or unlawful sources of funds"
   - "Failure to meet minimum investment or job creation requirements"
-
-projectList:
-  - name: "Direct Enterprise Investment (Non-TEA)"
-    minBuyIn: 1050000
-    holdMonths: VERIFY_HoldingPeriod
-    notes: "Active management or significant involvement may be required"
-    image: ""
 
 documentChecklist:
   - group: "Identity Documents"
@@ -69,7 +74,7 @@ documentChecklist:
 
 familyMatrix:
   childrenUpTo: 21
-  parentsFromAge: 0
+  parentsFromAge: null
   siblings: false
   spouse: true
 
@@ -98,19 +103,19 @@ ctas:
 
 processSteps:
   - title: "Consultation & Project Selection"
-    description: "Initial consultation with an immigration attorney to select Non-TEA investment"
+    description: "Assess your profile and select a qualifying project with an immigration attorney, and check first whether a set-aside project would fit"
   - title: "Prepare Source-of-Funds Documentation"
     description: "Gather audited documents, business records, inheritance, or property sale records"
-  - title: "Invest $1,050,000 in a qualifying enterprise"
-    description: "Complete direct investment into the chosen Non-TEA project"
-  - title: "File Form I-526 with USCIS"
-    description: "Submit application for conditional Green Card"
-  - title: "Conditional Green Card Issuance"
-    description: "Apply via Form I-485 or DS-260; receive 2-year conditional Green Card"
+  - title: "Invest USD 1,050,000"
+    description: "Place the capital, at risk, in a qualifying new commercial enterprise (regional centre or direct)"
+  - title: "File Form I-526E or I-526 with USCIS"
+    description: "I-526E for a regional centre investment, I-526 for a standalone investment. For India the unreserved category is not current, so concurrent I-485 filing is generally not available on this route"
+  - title: "Conditional Green Card"
+    description: "Once your priority date is current, apply via Form I-485 or DS-260; receive a 2-year conditional Green Card"
   - title: "Maintain investment & create 10 jobs"
-    description: "Fulfill job creation and investment obligations over 2 years"
+    description: "Keep the investment at risk and meet the 10 full-time job requirement"
   - title: "File Form I-829 to remove conditions"
-    description: "Submit after 2 years for permanent Green Card"
+    description: "File before the 2-year conditional Green Card expires, with evidence of the investment and job creation"
   - title: "Apply for Citizenship"
     description: "Eligible for U.S. citizenship after 5 years with permanent residency"
 
@@ -120,27 +125,20 @@ faq:
   - q: "How many jobs must be created?"
     a: "At least 10 full-time jobs for qualified U.S. workers."
   - q: "What is the main difference between TEA and Non-TEA?"
-    a: "Non-TEA requires a higher investment of $1,050,000, while TEA requires $800,000 but is limited to rural/high unemployment areas."
+    a: "Non-TEA requires a higher investment of $1,050,000, while the reduced $800,000 level applies only to a targeted employment area (rural or high unemployment) or an infrastructure project."
   - q: "How long does the EB-5 process take?"
-    a: "Typically 20–24 months for I-526 processing, followed by additional steps for Green Card issuance."
+    a: "XIPHIAS's own observed average is about 24 months. On the standard route an Indian-born investor also waits for the unreserved final action date, 1 December 2023 in the October 2026 Visa Bulletin, about 2 years 10 months behind. USCIS processing times vary; XIPHIAS confirms the current published time when your petition is filed."
   - q: "Can family members be included?"
     a: "Yes, your spouse and unmarried children under 21 are included in the application."
 
 costEstimator:
   baseOptions:
     - id: "nontea"
-      label: "Non-TEA Investment"
+      label: "Standard (non-TEA) investment"
       amount: 1050000
   defaultBaseId: "nontea"
   adults: 2
   children: 2
-  addons:
-    - id: "legal"
-      label: "Legal & Attorney Fees"
-      amount: 50000
-    - id: "gov"
-      label: "Government Fees"
-      amount: VERIFY_GovFees
 
 seo:
   title: "EB-5 Standard USD 1,050,000 — Or Save USD 250,000 on a TEA | XIPHIAS"
@@ -160,7 +158,7 @@ riskNotes:
   - "This is the more expensive route with the longer queue. India’s unreserved EB-5 final action date is 1 December 2023 — about 2 years 10 months behind — while all three set-aside categories are current."
   - "Before choosing a standard project, ask us whether a rural, high-unemployment or infrastructure project fits. It costs USD 250,000 less and, as at October 2026, has no India queue."
   - "Capital must be genuinely at risk. There is no guaranteed return and no guaranteed repayment."
-  - "USCIS processing times for Form I-526E could not be read on 30 September 2026. We will not publish a figure we cannot source."
+  - "USCIS processing times for Form I-526E vary and change frequently; XIPHIAS confirms the current published time when your petition is filed."
   - "Premium processing is not available for any EB-5 form."
 
 complianceNotes:
@@ -169,7 +167,7 @@ complianceNotes:
   - "Concurrent I-485 filing depends on a visa being immediately available. For India the unreserved category is not current, so concurrent filing is generally not available on this route — unlike the set-asides."
   - "Filing fees fall from about 29 November 2026: I-526E initial from USD 11,160 to USD 7,850, I-829 from USD 9,525 to USD 5,000."
   - "The investment thresholds are statutory. The figures still printed in 8 CFR 204.6 are the vacated 2019 amounts and do not apply."
-lastUpdated: "2026-09-30"
+lastUpdated: "2026-10-01"
 ---
 
 *Advising Indian applicants on US immigration since 2009, from our Koramangala office in Bangalore.*
@@ -179,7 +177,7 @@ The **USA EB-5 Non-TEA Investment route** provides a direct path to U.S. residen
 
 ## Investment Overview
 - **Minimum Investment:** $1,050,000  
-- **Type:** Direct investment in a U.S. business (Non-TEA)  
+- **Type:** Investment in a U.S. new commercial enterprise outside a TEA (Regional Center or Direct)  
 - **Requirement:** Create at least **10 full-time jobs**  
 - **Risk:** Investment must remain "at risk" with no guaranteed returns  
 
@@ -187,7 +185,7 @@ The **USA EB-5 Non-TEA Investment route** provides a direct path to U.S. residen
 | Feature                  | Non-TEA Investment ($1,050,000) | TEA Investment ($800,000)       |
 |---------------------------|---------------------------------|---------------------------------|
 | Minimum Investment        | **$1,050,000** (higher capital) | **$800,000** (lower entry)     |
-| Eligible Locations        | Any U.S. location               | Rural / High unemployment      |
+| Eligible Locations        | Any U.S. location               | Rural, high unemployment or infrastructure project |
 | Risk Level                | Higher capital exposure         | Moderate, location-limited     |
 | Job Creation Requirement  | 10 full-time jobs               | 10 full-time jobs              |
 
@@ -209,7 +207,8 @@ From the **October 2026 Visa Bulletin**:
 Because a visa is immediately available in the set-aside categories, Indian applicants already
 lawfully in the United States can **file Form I-485 concurrently** with the I-526E, under INA
 section 245(n) as amended by the Reform and Integrity Act. That is the single strongest feature of
-this route and it exists only while the set-aside stays current.
+the set-aside route, and it exists only while the set-aside stays current. It is generally not
+available on the standard route while India's unreserved date is not current.
 
 ## The two investment levels
 
@@ -218,10 +217,9 @@ this route and it exists only while the set-aside stays current.
 | Targeted Employment Area, rural, or infrastructure project | **USD 800,000** | 10 full-time |
 | Standard (non-TEA) | **USD 1,050,000** | 10 full-time |
 
-A note on sourcing: the codified regulation at 8 CFR 204.6 still shows USD 1,800,000 and
-USD 900,000. Those are the **vacated 2019 figures** and the regulation was never updated after the
-2022 Act. The operative amounts are the statutory ones above. If a consultant quotes you
-USD 900,000, they are reading the wrong document.
+The codified regulation at 8 CFR 204.6 still shows USD 1,800,000 and USD 900,000. Those are the
+**vacated 2019 figures**; the regulation was not updated after the 2022 Act, and the operative
+amounts are the statutory ones above.
 
 ## Filing fees drop at the end of November 2026
 
@@ -241,8 +239,8 @@ I-526E. We will tell you when that trade-off is worth it and when it is not.
 
 ## What to watch
 - The 2022 Act provides for **periodic inflation adjustment** of the USD 800,000 and USD 1,050,000
-  thresholds. No adjustment date is published that we could verify. An increase would be material,
-  so treat today's figures as today's.
+  thresholds. An increase would be material, so XIPHIAS confirms the threshold in force before you
+  invest.
 - A DHS **proposed rule of 2 July 2026** would add promoter registration, a revocable living trust
   requirement, remove repaid bridge financing as job-creation evidence, and create a penalties and
   debarment regime. It is **not yet in force**.
@@ -251,9 +249,9 @@ I-526E. We will tell you when that trade-off is worth it and when it is not.
 
 ## Talk to a US immigration consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families through US green cards and work visas since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022** — and what clients come back for is simple: we show you the Visa Bulletin before you commit money, not after.
+XIPHIAS Immigration has guided Indian families through US green cards and work visas since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**.
 
-If you want a straight answer on which US route is realistic for your profile, our **immigration consultants in Bangalore** will give you one.
+Our **immigration consultants in Bangalore** will assess which US route is realistic for your profile, with the current Visa Bulletin position, before you commit funds.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)
@@ -266,4 +264,4 @@ If you want a straight answer on which US route is realistic for your profile, o
 - [Federal Register — EB-5 fee rule (published 30 September 2026, effective about 29 November 2026)](https://www.federalregister.gov/public-inspection/2026-20016/employment-based-immigrant-visa-fifth-preference-eb-5-fee-rule)
 - [Electronic Code of Federal Regulations — 8 CFR 106.2 (USCIS fee schedule)](https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-106/section-106.2)
 
-*Verified against travel.state.gov, the Federal Register and the Electronic Code of Federal Regulations on 30 September 2026. USCIS processing times are not quoted here because uscis.gov could not be read on that date — ask us for the current figure.*
+*Verified against travel.state.gov, the Federal Register and the Electronic Code of Federal Regulations on 30 September 2026. USCIS processing times vary by service centre and change frequently; XIPHIAS confirms the current published time when your petition is filed.*

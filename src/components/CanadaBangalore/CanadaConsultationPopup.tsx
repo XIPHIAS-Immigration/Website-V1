@@ -34,7 +34,7 @@ export function CanadaBangaloreContactForm() {
     <ContactForm
       idPrefix="canada-visa-consultants-bangalore"
       heading="Check your Canada PR eligibility"
-      subheading="Share your profile by 28 August 2026. A XIPHIAS advisor will respond within 24 hours."
+      subheading="Share your profile and a XIPHIAS advisor will respond within 24 hours."
       defaults={{
         message:
           "I would like to assess my Canada PR, Express Entry or PNP options from Bangalore.",
@@ -153,13 +153,13 @@ export default function CanadaConsultationPopup() {
         <header className="relative overflow-hidden bg-primary px-5 py-5 pr-16 text-white sm:px-7 sm:py-6 sm:pr-16">
           <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-[#f0c83f]/20 to-transparent" />
           <p className="relative inline-flex rounded-full border border-[#f0c83f]/45 bg-[#f0c83f]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-[#f0c83f]">
-            Limited seats available
+            Consultations by appointment
           </p>
           <h2
             id="canada-bangalore-consultation-title"
             className="relative mt-3 text-xl font-black leading-tight sm:text-2xl"
           >
-            Canada consultation registrations close 28 August 2026
+            Book a Canada immigration consultation
           </h2>
           <p className="relative mt-2 text-sm font-semibold leading-6 text-white/75">
             Reserve your assessment slot and let our Bengaluru team review your Canada immigration profile.
@@ -181,7 +181,7 @@ export default function CanadaConsultationPopup() {
           subheading="Complete your details below. An advisor will contact you within one business day."
           defaults={{
             message:
-              "I would like to reserve a Canada immigration consultation before 28 August 2026.",
+              "I would like to reserve a Canada immigration consultation.",
           }}
           onSuccess={markSubmitted}
           className="!max-w-none !rounded-t-none !ring-0 !shadow-none"

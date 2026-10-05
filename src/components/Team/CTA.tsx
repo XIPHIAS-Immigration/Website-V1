@@ -13,8 +13,8 @@ export function CTA(){
         <div className="absolute -bottom-28 -left-10 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-700/10" aria-hidden="true" />
         <div className="relative md:flex items-center justify-between gap-6">
           <div>
-            <h2 id="cta-title" className="text-2xl md:text-3xl font-semibold tracking-tight">Build with the senior team.</h2>
-            <p className="mt-2 text-sm md:text-base text-zinc-700 dark:text-zinc-300">Book a zero-pressure discovery call. We respond within 24 hours.</p>
+            <h2 id="cta-title" className="text-2xl md:text-3xl font-semibold tracking-tight">Speak with our senior advisors.</h2>
+            <p className="mt-2 text-sm md:text-base text-zinc-700 dark:text-zinc-300">Book a consultation and we will assess your options.</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-3">
             <Link href="/contact" prefetch={false} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-white shadow-sm ring-1 ring-blue-700/20 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 active:bg-blue-800 transition">Book a Call <ArrowRight /></Link>

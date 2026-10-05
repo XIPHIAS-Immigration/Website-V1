@@ -134,7 +134,7 @@ const scorecard = [
   {
     test: "How long has the firm been operating, and from where?",
     why: "Immigration files run for quarters or years. A firm that cannot show a documented history may not be there at decision time.",
-    ours: "Operating since 2009, head office in Koramangala, Bengaluru, with offices in Dubai, Melbourne and Waterloo.",
+    ours: "Operating since 2009, head office in Koramangala, Bengaluru, with offices in Gurugram, Dubai, Melbourne and Waterloo.",
   },
 ];
 
@@ -155,7 +155,7 @@ const strengths = [
   },
   {
     icon: Globe2,
-    title: "50+ Countries",
+    title: "35+ Countries",
     copy: "Pathway planning across multiple jurisdictions, matched to the client's objectives.",
   },
   {
@@ -334,7 +334,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
             <div className="mt-5 max-w-2xl space-y-3 text-white/85">
               <p className="type-body font-bold">
                 Trusted immigration advisory for individuals, families, investors, entrepreneurs
-                and businesses seeking opportunities across 50+ countries.
+                and businesses seeking opportunities across 35+ countries.
               </p>
               <p className="type-small">
                 Finding a top immigration consultant in India is not simply about choosing someone
@@ -368,7 +368,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
             <dl className="mt-9 grid max-w-2xl grid-cols-3 border-y border-white/25 py-4">
               {[
                 ["17+", "Years of experience"],
-                ["50+", "Countries"],
+                ["35+", "Countries"],
                 ["100+", "Programs"],
               ].map(([value, label]) => (
                 <div key={label} className="px-3 first:pl-0 last:pr-0 sm:px-5">
@@ -477,7 +477,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
           <div className="max-w-3xl">
             <p className="type-caption uppercase text-primary">Established immigration advisory</p>
             <h2 className="type-section-title mt-3 text-slate-950">
-              Why XIPHIAS Is Among the Top Immigration Consultants in India
+              Why Clients Choose XIPHIAS Immigration
             </h2>
             <p className="type-body mt-4 text-slate-600">
               A top immigration consultant in India needs experience and the ability to distinguish

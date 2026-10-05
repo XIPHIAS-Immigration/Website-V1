@@ -282,9 +282,9 @@ export default function CanadaVisaConsultantsBangalorePage() {
             </p>
 
             <div className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[#f0c83f]/45 bg-primary/65 px-4 py-3 text-sm font-bold text-white shadow-lg backdrop-blur-sm">
-              <span className="text-[#f0c83f]">Limited consultation seats available</span>
+              <span className="text-[#f0c83f]">Consultations by appointment</span>
               <span className="hidden text-white/45 sm:inline" aria-hidden="true">|</span>
-              <span>Registration deadline: 28 August 2026</span>
+              <span>Bengaluru HQ · Koramangala</span>
             </div>
 
             <div className="mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
@@ -309,7 +309,7 @@ export default function CanadaVisaConsultantsBangalorePage() {
         <div className="mx-auto grid max-w-screen-2xl gap-12 px-5 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-12">
           <div>
             <p className="type-caption uppercase text-primary">Start with the complete profile</p>
-            <h2 className="type-section-title mt-3 text-slate-950">Top Canada Immigration Consultants in Bangalore</h2>
+            <h2 className="type-section-title mt-3 text-slate-950">Canada Immigration Consultants in Bangalore</h2>
             <p className="type-body mt-5 text-slate-600">
               Canada offers multiple pathways for skilled professionals and families. Choosing the right one
               depends on your individual facts, not on a standard sales package.

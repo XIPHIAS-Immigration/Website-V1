@@ -36,9 +36,9 @@ export type Option = { value: string; label: string; hint?: string };
 
 /** Destinations XIPHIAS actually has programme coverage for. */
 export const DESTINATIONS: Option[] = [
-  { value: "canada", label: "Canada", hint: "PR, Express Entry, PNP, Start-up Visa" },
+  { value: "canada", label: "Canada", hint: "PR, Express Entry, PNP, provincial entrepreneur streams" },
   { value: "australia", label: "Australia", hint: "Points-tested PR, employer sponsored" },
-  { value: "united kingdom", label: "United Kingdom", hint: "Global Talent, Innovator, Skilled Worker" },
+  { value: "united kingdom", label: "United Kingdom", hint: "Global Talent, Skilled Worker, Expansion Worker" },
   { value: "united states", label: "United States", hint: "EB-1A, EB-2 NIW, O-1, L-1, EB-5" },
   { value: "new zealand", label: "New Zealand", hint: "Skilled Migrant, Green List" },
   { value: "portugal", label: "Portugal", hint: "Residency by investment, D7, D8" },

@@ -267,7 +267,7 @@ export const guides: Guide[] = [
       {
         heading: "The one that is not a fee at all",
         body: [
-          "Proof of settlement funds is the largest figure in most people's budget, and it is not a payment. It is money you must hold in your own name, documented, unborrowed, to show you can support yourself on arrival. Roughly CAD 14,700 for a single applicant and CAD 18,300 for two, rising with each additional family member, and reviewed annually.",
+          "Proof of settlement funds is the largest figure in most people's budget, and it is not a payment. It is money you must hold in your own name, documented, unborrowed, to show you can support yourself on arrival. Roughly CAD 15,000 or more for a single applicant and CAD 19,000 or more for two, rising with each additional family member, and reviewed annually.",
           "It is waived if you are applying under the Canadian Experience Class, or if you already hold a valid job offer and authorisation to work in Canada. For everyone else it is unavoidable, and it is the reason a budget that looked manageable suddenly is not.",
           "Nobody can lend it to you for a fortnight. The documentation requirements exist specifically to catch that.",
         ],
@@ -291,7 +291,7 @@ export const guides: Guide[] = [
     faq: [
       {
         q: "How much money do I need in my bank for Canada PR?",
-        a: "Around CAD 14,700 for a single applicant and CAD 18,300 for two, rising with family size. The figure is updated annually and must be unencumbered, in your own name, and documented — not borrowed, and not appearing suddenly the week before you file. It is waived for Canadian Experience Class applicants and for those with a valid arranged job offer.",
+        a: "Around CAD 15,000 or more for a single applicant and CAD 19,000 or more for two, rising with family size. The figure is updated annually and must be unencumbered, in your own name, and documented — not borrowed, and not appearing suddenly the week before you file. It is waived for Canadian Experience Class applicants and for those who already hold authorisation to work in Canada and a valid job offer.",
       },
       {
         q: "Are consultant fees for Canada PR regulated in India?",
@@ -455,7 +455,7 @@ export const guides: Guide[] = [
             ["Language test, including one retake", "6–12 weeks — fully within your control"],
             ["Employment reference letters", "Weeks — depends on former employers"],
             ["Profile in the Express Entry pool", "Unbounded — depends on your score"],
-            ["After the Invitation to Apply", "IRCC service standard, currently six months [VERIFY current standard at time of publishing]"],
+            ["After the Invitation to Apply", "IRCC service standard of six months for most complete applications"],
             ["Post-approval landing steps", "Weeks — medicals, PR confirmation, travel"],
           ],
         },
@@ -567,7 +567,7 @@ export const guides: Guide[] = [
             ["Where you may live", "189: anywhere · 190: indicated intention to settle in the state"],
             ["Extra application step", "189: none · 190: a separate state nomination application"],
             ["Status on grant", "Both: permanent residence"],
-            ["Minimum points to be invited", "Both: 65 to enter, but invitations clear far higher [VERIFY current round scores]"],
+            ["Minimum points to be invited", "Both: 65 to enter, but invitations clear far higher and vary by occupation"],
           ],
         },
       },
@@ -653,7 +653,7 @@ export const guides: Guide[] = [
         body: [
           "The categories are set by the Minister annually, after consultation, and published for that year. They have covered areas such as healthcare, science and technology occupations, skilled trades, transport, agriculture and food, and French-language ability — but the composition has shifted year to year, and occupations have moved in and out.",
           "This is the single most common way people are misled on this topic. A guide written eighteen months ago naming the categories is not describing the system you are applying into, and an agent quoting a STEM draw from a previous year may be quoting something that no longer exists in that form.",
-          "Check the current year's announced categories and the current eligible occupation list before you make any decision based on this. That is the one part of this page that must be verified live. [VERIFY current year categories and eligible occupations before publishing]",
+          "Check the current year's announced categories and the current eligible occupation list before you make any decision based on this. It is the one part of the system that changes every year.",
         ],
       },
       {
@@ -670,7 +670,7 @@ export const guides: Guide[] = [
             ["Your employer's industry", "Irrelevant"],
             ["NOC code your duties actually match", "Decisive"],
             ["Evidence of that in reference letters", "Decisive"],
-            ["Minimum recent experience in the code", "Required — commonly six months in three years [VERIFY]"],
+            ["Minimum recent experience in the code", "Required — commonly six months in the past three years"],
             ["Meeting the underlying programme criteria", "Still required — a category does not waive them"],
           ],
         },
@@ -773,7 +773,7 @@ export const guides: Guide[] = [
             ["Credential assessment for nursing", "First — longest lead, gates everything else"],
             ["NCLEX-RN preparation and booking", "Early — sittable from outside Canada"],
             ["Educational Credential Assessment (immigration)", "Early — separate from the nursing assessment"],
-            ["IELTS or CELBAN", "Early — check which the regulator accepts [VERIFY per province]"],
+            ["IELTS or CELBAN", "Early — check which test your provincial regulator accepts"],
             ["Express Entry profile", "Once language and ECA are in hand"],
             ["Provincial healthcare stream", "When the regulator's determination or an employer connection exists"],
           ],
@@ -866,7 +866,7 @@ export const guides: Guide[] = [
         table: {
           caption: "The rows that decide an Indian engineer's score",
           rows: [
-            ["Age", "Highest band in the mid-to-late twenties, falling thereafter [VERIFY current bands]"],
+            ["Age", "30 points from 25 to 32, 25 from 33 to 39, 15 from 40 to 44, none from 45"],
             ["English — superior vs competent", "The single largest recoverable gap for most applicants"],
             ["Bachelor's degree recognised by the assessor", "Standard qualification points"],
             ["Doctorate", "Higher band than a bachelor's"],
@@ -891,7 +891,7 @@ export const guides: Guide[] = [
         body: [
           "Australia does not have a shortage of engineers in general. It has shortages in particular disciplines, and the state nomination lists reflect that with some precision — civil, structural and certain mechanical and electrical specialisations have historically been treated very differently from generalist software-adjacent engineering roles.",
           "Which means two Indian engineers with identical points can have completely different prospects. The one whose assessed occupation appears on three state lists has options; the one whose occupation appears on none has a points problem that no amount of extra points will solve.",
-          "Check the occupation against the current national and state lists before you spend anything. That check costs nothing and it is the one that determines whether this is worth pursuing at all. [VERIFY current MLTSSL and state nomination lists]",
+          "Check the occupation against the current national and state lists before you spend anything. That check costs nothing and it is the one that determines whether this is worth pursuing at all.",
         ],
         callout:
           "An occupation that no state currently nominates is not a points problem. More points will not fix it.",
@@ -958,19 +958,19 @@ export const guides: Guide[] = [
       {
         heading: "The routes that remain",
         body: [
-          "The investment-fund route is now the main path in practice: a subscription into a qualifying Portuguese fund, held for a minimum period, with the fund itself subject to regulatory conditions including limits on real-estate exposure.",
+          "The investment-fund route is now the main path in practice: a subscription of at least EUR 500,000 into a qualifying Portuguese fund, held for a minimum period, with the fund itself subject to regulatory conditions including limits on real-estate exposure.",
           "Alongside it sit research funding, support for artistic or cultural output, direct job creation, and capitalising a Portuguese company while creating a set number of positions. These are genuinely used, but they suit a much narrower set of circumstances.",
-          "Thresholds and conditions have been revised more than once, and are the part of this page most likely to be out of date by the time you read it. [VERIFY current qualifying routes, minimum amounts and holding periods against SEF/AIMA before relying on any figure]",
+          "The published minimums are EUR 500,000 for a qualifying investment fund, EUR 500,000 for research activities, EUR 250,000 for artistic production or cultural heritage, and EUR 500,000 of company capitalisation or the creation of ten jobs. Thresholds and conditions have been revised more than once, so confirm the figure for your chosen route before you commit.",
         ],
         table: {
           caption: "What to establish before committing to any route",
           rows: [
-            ["Qualifying investment routes currently open", "[VERIFY — changed repeatedly since 2023]"],
-            ["Minimum investment amount per route", "[VERIFY]"],
-            ["Minimum holding period", "[VERIFY]"],
+            ["Qualifying investment routes currently open", "Investment funds, research, cultural support, company capitalisation, job creation"],
+            ["Minimum investment amount per route", "EUR 250,000 (cultural heritage) to EUR 500,000 (funds, research, company capitalisation)"],
+            ["Minimum holding period", "Typically five years"],
             ["Physical presence required", "Very low by design — an average of about seven days a year"],
-            ["Residency renewal cycle", "[VERIFY current card validity]"],
-            ["Years before citizenship eligibility", "Five, subject to language and other conditions [VERIFY counting start date]"],
+            ["Residency renewal cycle", "Renewed periodically while the investment and presence rules are maintained"],
+            ["Years before citizenship eligibility", "Ten for Indian nationals since 19 May 2026; permanent residence after five"],
             ["Family included", "Spouse, dependent children, dependent parents"],
           ],
         },
@@ -979,7 +979,7 @@ export const guides: Guide[] = [
         heading: "Why Indians still choose it, despite the reform",
         body: [
           "The physical-presence requirement remains among the lightest in Europe — an average of roughly a week a year over the residence period. For a business owner in India who does not intend to relocate, that is the entire proposition.",
-          "It carries Schengen mobility, and family members are included under the same application rather than being separate cases. And it leads to a citizenship pathway on a timescale that is short by European standards, subject to meeting the language and other statutory conditions at that point.",
+          "It carries Schengen mobility, and family members are included under the same application rather than being separate cases. Permanent residence is available after five years; citizenship now needs ten years of legal residence for Indian nationals, and acquiring it ends Indian citizenship.",
           "What it is not is a fast passport, and it is not passive. There is a real investment at risk, in a real fund, with real prospects of underperforming.",
         ],
       },
@@ -998,7 +998,7 @@ export const guides: Guide[] = [
         body: [
           "Source of funds. Portuguese authorities and the fund's own compliance will both trace your capital, and Indian documentation — property sales, business distributions, inherited assets — often needs more assembly than applicants expect. Start this early; it is slower than the application.",
           "Remittance route. Moving the sum out of India must comply with the Liberalised Remittance Scheme and its limits, which frequently means structuring across family members or across financial years. Plan it with a professional before you sign anything with a deadline.",
-          "And timing the citizenship expectation. Five years is a statutory eligibility point, not an automatic outcome, and the conditions attached to it have themselves been debated. Build the plan on the residency being worth having on its own terms.",
+          "And timing the citizenship expectation. Since 19 May 2026 Indian nationals need ten years of legal residence before they can apply for Portuguese citizenship, and acquiring it ends Indian citizenship under Section 9 of the Citizenship Act, 1955. Build the plan on the residency being worth having on its own terms.",
         ],
       },
     ],
@@ -1009,7 +1009,7 @@ export const guides: Guide[] = [
       },
       {
         q: "How much do I need to invest in Portugal now?",
-        a: "It depends entirely on which remaining route you use, and the thresholds have been revised more than once since the reform. Verify the current figure for your chosen route against the Portuguese authority's own published requirements rather than any brochure — including this page.",
+        a: "It depends on which remaining route you use: EUR 500,000 for a qualifying investment fund, research activities or company capitalisation, EUR 250,000 for artistic production or cultural heritage, or the creation of ten jobs. The thresholds have been revised more than once since the reform, so confirm the figure for your chosen route before you commit.",
       },
       {
         q: "How long do I need to stay in Portugal each year?",
@@ -1017,7 +1017,7 @@ export const guides: Guide[] = [
       },
       {
         q: "Does the Portugal Golden Visa lead to an EU passport?",
-        a: "It leads to eligibility to apply for citizenship after five years of legal residence, subject to language and other statutory conditions being met at that time. Eligibility is not the same as a grant, and the conditions have been subject to political debate, so the residency should be worth having on its own terms.",
+        a: "Not quickly. Permanent residence is available after five years. Citizenship now needs ten years of legal residence for Indian nationals under Lei Orgânica 1/2026, in force since 19 May 2026, plus language and other statutory conditions — and acquiring it ends Indian citizenship. The residency should be worth having on its own terms.",
       },
     ],
     report: "due_diligence_report",
@@ -1054,8 +1054,8 @@ export const guides: Guide[] = [
         heading: "Five programmes, one recent agreement",
         body: [
           "Five Eastern Caribbean states run citizenship-by-investment programmes: Antigua and Barbuda, Dominica, Grenada, St Kitts and Nevis, and St Lucia. Each offers a non-refundable contribution to a national fund, and most offer an approved real-estate route as an alternative.",
-          "In 2024 the five agreed a set of common principles including a minimum price floor, under sustained pressure from the United States and the European Union over due-diligence standards. The effect was to end the undercutting that had driven prices down for years, and to raise the floor for everyone.",
-          "So a figure you were quoted two years ago is not a figure available today, and the gap between programmes is narrower than it used to be. [VERIFY current minimum contribution per programme before relying on any number]",
+          "In 2024 the five signed a Memorandum of Agreement among themselves, under a process convened with the United States, that set a regional minimum price of US$200,000 from 1 July 2024. The effect was to end most of the undercutting that had driven prices down for years.",
+          "So a figure you were quoted two years ago may not be available today. The published minimum contributions are Grenada USD 150,000 (National Transformation Fund, single applicant), Dominica USD 200,000, Antigua and Barbuda USD 230,000, Saint Lucia USD 240,000 and St Kitts and Nevis USD 250,000.",
         ],
         callout:
           "Price is no longer the differentiator it was. Processing discipline, visa-free access and diligence reputation are.",
@@ -1070,10 +1070,10 @@ export const guides: Guide[] = [
         table: {
           caption: "Every line to budget for, family of four",
           rows: [
-            ["National fund contribution", "The headline figure [VERIFY current floor]"],
-            ["Due diligence, per applicant over the age threshold", "Non-refundable, charged regardless of outcome [VERIFY]"],
-            ["Government processing fees", "Per applicant [VERIFY]"],
-            ["Passport and naturalisation certificate fees", "Per applicant [VERIFY]"],
+            ["National fund contribution", "From USD 150,000 (Grenada, single applicant) to USD 250,000 (St Kitts and Nevis)"],
+            ["Due diligence, per applicant over the age threshold", "Non-refundable, charged regardless of outcome — USD 5,000 to 10,000 for the main applicant"],
+            ["Government processing fees", "Per applicant or per family, depending on the programme"],
+            ["Passport and naturalisation certificate fees", "Per applicant — for example USD 500 each in Dominica"],
             ["Authorised local agent", "Mandatory in most programmes"],
             ["Indian document costs", "Police clearance, apostille, notarisation, translation"],
             ["Remittance structuring under LRS", "Professional cost, routinely overlooked"],
@@ -1092,7 +1092,7 @@ export const guides: Guide[] = [
       {
         heading: "What you are actually buying",
         body: [
-          "Visa-free or visa-on-arrival access to a large number of countries, which for an Indian passport holder is a substantial practical change — though the specific list moves, and several of these programmes have faced reviews of their access to particular regions.",
+          "Visa-free or visa-on-arrival access to a large number of countries, which for an Indian passport holder is a substantial practical change — though the specific list moves: Dominica and Saint Lucia nationals now need a visa for the UK, and US entry is partially suspended for Antigua and Barbuda and Dominica.",
           "A second nationality that can be passed to children, a base outside India for tax and succession planning that must be structured properly with Indian advice, and a document that continues to function if something disrupts your primary one.",
           "What you are not buying is the right to live and work in Europe, and any presentation that implies otherwise is misrepresenting the product. Check the current visa-free list yourself rather than accepting a brochure map, because those maps date quickly.",
         ],
@@ -1111,7 +1111,7 @@ export const guides: Guide[] = [
     faq: [
       {
         q: "What is the cheapest Caribbean citizenship programme?",
-        a: "Less varied than it used to be. The five programmes agreed a common minimum price floor in 2024 under international pressure, which ended the price competition between them. Verify current figures directly, and weigh processing reliability and diligence reputation at least as heavily as price.",
+        a: "Less varied than it used to be. The five programmes agreed a regional minimum of US$200,000 from July 2024, although Grenada still publishes USD 150,000 for a single applicant on its National Transformation Fund. Weigh travel access, processing reliability and diligence reputation at least as heavily as price.",
       },
       {
         q: "How much does it really cost beyond the contribution?",
@@ -1190,7 +1190,7 @@ export const guides: Guide[] = [
             ["Independent expert letters", "Strong — and routinely all from known contacts instead"],
             ["Commercial or practical impact", "Strong, and under-used by academic applicants"],
             ["Prong three argument", "Usually the thinnest section of the petition"],
-            ["Priority date wait for India", "Severe — the actual constraint [VERIFY current Visa Bulletin]"],
+            ["Priority date wait for India", "Severe — about 12 years 11 months on the October 2026 Visa Bulletin"],
           ],
         },
       },
@@ -1199,7 +1199,7 @@ export const guides: Guide[] = [
         body: [
           "For Indian nationals the EB-2 category is heavily retrogressed because of the per-country limits, and an approved petition does not give you a green card — it gives you a priority date and a place in line.",
           "This is the part agents skip, and it is the part that should come first. A petition approved this year may not be current for years. If your plan depends on being in the United States soon, the NIW alone does not deliver that; it usually needs to be paired with a non-immigrant status that lets you live and work while you wait.",
-          "So the honest sequence is: check where the Visa Bulletin currently stands for EB-2 India, decide whether that timeline is acceptable, and only then decide whether to invest in the petition. Anyone who discusses the evidence before discussing the queue is selling you the part they are paid for. [VERIFY current EB-2 India final action date]",
+          "So the honest sequence is: check where the Visa Bulletin currently stands for EB-2 India, decide whether that timeline is acceptable, and only then decide whether to invest in the petition. Anyone who discusses the evidence before discussing the queue is selling you the part they are paid for. On the October 2026 Visa Bulletin the EB-2 final action date for India is 1 November 2013.",
         ],
         callout:
           "File early to hold the date, but plan your actual life around a non-immigrant status. The priority date is an option, not a plan.",

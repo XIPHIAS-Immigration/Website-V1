@@ -51,13 +51,13 @@ const valueCards = [
   },
   {
     icon: BadgeCheck,
-    title: "6,000+ successful relocations",
+    title: "10,000+ families relocated",
     description:
       "A strong track record of delivering consistent results for clients worldwide.",
   },
   {
     icon: Globe2,
-    title: "25+ global jurisdictions",
+    title: "35+ global jurisdictions",
     description:
       "Coverage across leading residency, citizenship, and business migration destinations.",
   },
@@ -113,7 +113,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Partner With Us | XIPHIAS Immigration",
   description:
-    "Strategic global mobility partnerships for private advisory firms, corporate mobility teams, and referral partners backed by 17+ years, 25+ jurisdictions, and compliance-first execution.",
+    "Strategic global mobility partnerships for private advisory firms, corporate mobility teams, and referral partners backed by 17+ years, 35+ jurisdictions, and compliance-first execution.",
   keywords: [
     "partner with XIPHIAS Immigration",
     "global mobility partner",
@@ -350,8 +350,8 @@ function Hero() {
             <ul className="mt-6 flex flex-wrap gap-2.5 text-xs sm:text-sm">
               {[
                 "17+ years industry experience",
-                "25+ jurisdictions",
-                "6,000+ relocations",
+                "35+ jurisdictions",
+                "10,000+ families relocated",
                 "Compliance-first delivery",
               ].map((item) => (
                 <li

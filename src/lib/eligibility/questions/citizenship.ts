@@ -39,7 +39,7 @@ export function questionsCitizenship(_answers: AnswerMap): Question[] {
         type: "radio",
         options: [
           { label: "Caribbean (Dominica, St. Lucia, Antigua, Grenada, St. Kitts & Nevis)", value: "caribbean" },
-          { label: "Europe (Malta via residence & exceptional services)", value: "europe" },
+          { label: "Outside the Caribbean (Türkiye, Egypt and others)", value: "europe" },
           { label: "No preference", value: "any" },
         ],
       },

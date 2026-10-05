@@ -25,6 +25,7 @@ const PROGRAMS = [
   { title: 'UAE Dubai Mainland Employment Visa', href: '/corporate/uae/dubai-mainland-employment-visa', tag: 'Employment' },
   { title: 'UAE Dubai Freezone Visa', href: '/corporate/uae/dubai-freezone-visa', tag: 'Setup' },
   { title: 'Cyprus Company Setup', href: '/corporate/cyprus/company-setup', tag: 'Formation' },
+  { title: 'Singapore Self-Employed Employment Pass', href: '/corporate/singapore/self-employed-employment-pass', tag: 'Setup' },
 ];
 
 export default function BusinessesPage() {

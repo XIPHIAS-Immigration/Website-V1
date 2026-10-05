@@ -32,7 +32,7 @@ const DEFAULT_FAQS: FAQ[] = [
   {
     question: "How much time does a process take?",
     answer:
-      "Depending on the Country, timelines differ, but we offer a clear milestone roadmap and oversee each phase to guarantee the quickest possible compliant implementation.",
+      "Depending on the Country, timelines differ, but we offer a clear milestone roadmap and oversee each phase to keep implementation as quick as compliance allows.",
   },
   {
     question: "For whom is the consultation intended?",

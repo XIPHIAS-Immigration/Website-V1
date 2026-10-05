@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
   title: "XIPHIAS Immigration – Residency, Citizenship & Global Mobility",
   description:
-    "Trusted advisors for Residency by Investment, Citizenship by Investment, Skilled Immigration, and Corporate Mobility across 25+ countries.",
+    "Trusted advisors for Residency by Investment, Citizenship by Investment, Skilled Immigration, and Corporate Mobility across 35+ countries.",
 
   referrer: "strict-origin-when-cross-origin",
 

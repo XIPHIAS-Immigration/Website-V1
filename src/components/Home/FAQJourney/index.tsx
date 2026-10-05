@@ -20,7 +20,7 @@ const DEFAULT_FAQS: FAQ[] = [
   },
   {
     q: "How long does the process usually take?",
-    a: "It varies by country and route. Fast-track visas: ~1–3 months. Investment PR/Golden Visa: ~3–9 months. Some citizenship-by-exception routes: ~4–8 months. We keep a milestone tracker and update you if authorities request more evidence.",
+    a: "It varies by country and route. Fast-track visas: ~1–3 months. Investment PR/Golden Visa: ~3–9 months. Citizenship by investment: ~3–12 months, depending on the programme. We keep a milestone tracker and update you if authorities request more evidence.",
   },
   {
     q: "Can my family be included in the same file?",

@@ -34,8 +34,8 @@ export default function TeamPage(){
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <Hero
-          title="Meet the People Behind the Work"
-          subtitle="Transparent leadership. Senior hands-on execution. A culture that ships."
+          title="Leadership"
+          subtitle="XIPHIAS Immigration has advised families and businesses on residency, citizenship, skilled migration and corporate immigration since 2009."
           primaryHref="/contact"
           primaryText="Talk to Leadership"
           secondaryHref="/about"
@@ -46,9 +46,9 @@ export default function TeamPage(){
 
         <Leadership people={LEADERSHIP} />
         <Advisors people={ADVISORS} />
-        <TeamDirectory people={TEAM} />
+        {TEAM.length ? <TeamDirectory people={TEAM} /> : null}
         <Values />
-        <Events items={EVENTS} />
+        {EVENTS.length ? <Events items={EVENTS} /> : null}
         <CTA />
 
         {/* Breadcrumb – swap with your Breadcrumb component if desired */}

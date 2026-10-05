@@ -22,74 +22,42 @@ brochure: "/images/citizenship/turkey/turkey_citizenship_by_investment.pdf"
 
 # Program specifics / Projects / Risk & Compliance / Docs / Estimator
 routeType: "business-investment"
-lastUpdated: "2026-09-30"
+lastUpdated: "2026-10-01"
 
 prices:
-  - label: "Business investment – single applicant"
+  - label: "Fixed capital investment (minimum)"
     amount: 500000
     currency: "USD"
-    notes: "Minimum capital requirement for a single applicant to qualify for Turkish citizenship via business investment."
-  - label: "Business investment – married couple"
-    amount: 500000
-    currency: "USD"
-    notes: "Covers the principal applicant and spouse; same minimum capital requirement."
-  - label: "Business investment – three-person family"
-    amount: 500000
-    currency: "USD"
-    notes: "Minimum investment remains USD 500,000 regardless of family size; includes spouse and one child."
-  - label: "Business investment – family of four"
-    amount: 500000
-    currency: "USD"
-    notes: "Includes spouse and two children; total minimum investment unchanged."
-  - label: "Extra family member"
-    amount: "Included"
-    currency: "USD"
-    notes: "Additional dependents included without extra investment, subject to eligibility rules."
-  - label: "Due diligence – principal applicant"
-    amount: 5000
-    currency: "USD"
-    notes: "Mandatory due diligence fee per principal applicant, covering background and financial verification."
-
-governmentFees:
-  - label: "Passport fee (per person)"
-    amount: 185
-    currency: "USD"
-    notes: "Charged upon passport issuance for each approved applicant."
-
-proofOfFunds:
-  - label: "Proof of funds"
-    notes: "Applicants must demonstrate sufficient funds to invest in a Turkish business, cover due diligence, passport, and associated legal costs for themselves and dependents."
+    notes: "One qualifying investment covers the principal applicant, the spouse, and children under 18 or dependent. Certified by the Ministry of Industry and Technology."
 
 benefits:
-  - "Fast-track citizenship: approval in approximately 6 months."
-  - "Dual citizenship allowed."
-  - "No prior residency requirement."
+  - "Around 6 months from application to passport on XIPHIAS files. No Turkish government source publishes an overall processing time."
+  - "Türkiye permits dual citizenship and requires no renunciation. India does not — see what this means for an Indian passport."
+  - "No prior residency requirement in Türkiye."
   - "Visa-free or visa-on-arrival travel to 113 countries."
-  - "Family inclusion: spouse, children under 18, and parents."
-  - "Investment in a dynamic, growing business sector."
-  - "Strategically located, politically stable, and economically diverse jurisdiction."
+  - "Family inclusion: your spouse, and children under 18 or dependent. Parents cannot be included."
+  - "No compulsory currency conversion through the Central Bank, and no holding period stated in the regulation."
+  - "Türkiye is a US E-2 treaty country (in force since 18 May 1990). India is not."
 
 requirements:
   - "Be at least 18 years old."
   - "Clean criminal record and pass thorough due diligence screenings."
-  - "Good health confirmed by a medical examination."
-  - "Fulfill the minimum business investment requirement of USD 500,000."
+  - "No impediment on national-security or public-order grounds (Law 5901, Article 12)."
+  - "Make a fixed capital investment of at least USD 500,000, certified by the Ministry of Industry and Technology."
 
 disqualifiers:
   - "Incomplete or falsified documentation."
   - "Unclear source of funds."
-  - "Attempting direct application without authorized agents."
 
 riskNotes:
-  - "Indian citizenship ends automatically on acquiring Turkish citizenship. Read the section on this page before committing funds."
+  - "Indian citizenship ends automatically on acquiring Turkish citizenship. Read what this means for an Indian passport before committing funds."
   - "Unlike the property, deposit, bond, fund and pension routes, the regulation states no holding period for fixed capital investment. That is the regulation’s silence, not a guarantee — confirm the Ministry’s current practice before relying on it."
-  - "Our page previously showed a 60 month holding period. The regulation imposes none for this route."
 
 complianceNotes:
   - "Minimum USD 500,000 fixed capital investment under Article 20(2)(a). Certifying authority: the Ministry of Industry and Technology."
   - "The mandatory sale of foreign currency to the Central Bank applies to the property, deposit, debt instrument, fund and pension routes. It does not apply to fixed capital investment."
   - "Law 5901 Article 12 includes the foreign spouse, and the applicant’s and spouse’s children who are under 18 or dependent. Parents cannot be included."
-  - "The 6 month timeline shown is XIPHIAS’s own observed average. No Turkish government source publishes an overall processing time for this programme, so treat any figure quoted to you elsewhere with suspicion."
+  - "The 6 month timeline shown is XIPHIAS’s own observed average. No Turkish government source publishes an overall processing time for this programme."
 
 documentChecklist:
   - group: "Identity & Civil"
@@ -105,7 +73,6 @@ documentChecklist:
   - group: "Compliance"
     documents:
       - "Police clearance / Interpol certificate"
-      - "Medical certificates (adults)"
       - "Passport-size photos"
   - group: "Investment Proof"
     documents:
@@ -114,26 +81,27 @@ documentChecklist:
       - "Employment creation evidence if applicable"
 
 familyMatrix:
-  childrenUpTo: 18
-  parentsFromAge: 0
-  siblings: false
   spouse: true
+  childrenUpTo: 18
+  parentsFromAge: null
+  siblings: false
+  notes: "Your foreign spouse, and your and your spouse’s children who are under 18 or dependent (Law 5901, Article 12). Parents cannot be included."
 
 quickCheck:
   title: "Turkey Business Investment Pre-Screen"
   questions:
     - id: "capital"
-      label: "Capital for business investment + fees available?"
-      type: boolean
-      note: "Includes business investment, due diligence, passport, and legal fees"
+      label: "Capital for a USD 500,000 fixed capital investment available?"
+      type: "boolean"
+      note: "The Central Bank currency conversion rule does not apply to this route."
     - id: "clean"
-      label: "Clean background & KYC documents ready?"
-      type: boolean
-      note: "All adult applicants must pass thorough due diligence"
-    - id: "interview"
-      label: "Comfortable with a remote or in-person interview?"
-      type: boolean
-      note: "Interviews may be required for all adult applicants"
+      label: "Clean background and KYC documents ready?"
+      type: "boolean"
+      note: "All adult applicants must pass thorough due diligence."
+    - id: "india"
+      label: "If you are an Indian citizen, do you accept that Indian citizenship ends on acquisition?"
+      type: "boolean"
+      note: "Section 9(1) of the Citizenship Act 1955. It ends automatically and cannot be deferred."
 
 ctas:
     primaryHref: "/eligibility"
@@ -143,29 +111,17 @@ ctas:
 
 costEstimator:
   baseOptions:
-    - id: "vdsp130"
-      label: "VDSP donation – from USD 130,000"
-      amount: 130000
-  defaultBaseId: "vdsp130"
+    - id: "fixed500"
+      label: "Fixed capital investment (minimum)"
+      amount: 500000
+  defaultBaseId: "fixed500"
   adults: 2
   children: 0
-  addons:
-    - id: "dd-adult"
-      label: "Due diligence (per adult)"
-      amount: 5500
-      per: "adult"
-    - id: "proc-per-person"
-      label: "Gov. processing (per person)"
-      amount: 300
-      per: "person"
-    - id: "passport-per-person"
-      label: "Passport issuance (per person)"
-      amount: 300
-      per: "person"
+  addons: []
 
 seo:
   title: "Turkey Business Investment – Citizenship by Investment"
-  description: "Obtain Turkish citizenship by investing in a business. Fast-track processing, family-friendly, visa-free travel, and dual citizenship."
+  description: "Turkish citizenship through a USD 500,000 fixed capital investment, with no holding period stated. Family inclusion, timeline and the Indian citizenship rule."
   keywords:
     - "Turkey citizenship by investment"
     - "Turkey CBI program"
@@ -204,13 +160,11 @@ explicit that *OCI is not to be misconstrued as dual citizenship* and confers no
 As an OCI you cannot vote, cannot hold constitutional posts, do not have equality in public
 employment, and **cannot acquire agricultural land, farmhouses or plantation property in India**.
 
-This is a **replacement** of your Indian citizenship, not an addition to it. Any consultant who
-tells you otherwise is either mistaken or not telling you the truth. Turkey itself permits dual
-citizenship and requires no renunciation — the restriction is entirely on the Indian side.
+This is a **replacement** of your Indian citizenship, not an addition to it. Turkey itself permits
+dual citizenship and requires no renunciation — the restriction is entirely on the Indian side.
 
-For many families this trade is still worth it, particularly for the US E-2 route. But it is a
-decision to take with your eyes open, and we would rather you heard it from us on the first page
-than discovered it at the end.
+For many families this trade is still worth it, particularly for the US E-2 route. It is a decision
+to make with the full picture in front of you, before any funds move.
 
 ## Türkiye and the US E-2 visa
 
@@ -231,7 +185,7 @@ real goal is a US business, a Turkish passport is one of the few routes that ope
 
 ## Talk to a Turkey citizenship consultant in Bangalore
 
-XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Turkey we will always put the Indian citizenship consequence in front of you first — our **immigration consultants in Bangalore** would rather lose the file than have you find out later.
+XIPHIAS Immigration has advised Indian families on second citizenship since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the Indian citizenship consequence first, then the requirements, costs and timeline for Türkiye.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

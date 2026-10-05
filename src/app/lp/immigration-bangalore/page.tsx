@@ -25,7 +25,7 @@ export default function BangaloreLandingPage() {
       proof={[
         { value: "17 yrs", label: "In practice" },
         { value: "25,000+", label: "Clients advised" },
-        { value: "60+", label: "Offices globally" },
+        { value: "5", label: "Offices in India, the UAE, Australia and Canada" },
       ]}
       formHeading="Book a free consultation"
     />

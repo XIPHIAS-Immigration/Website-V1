@@ -21,7 +21,7 @@ export type GlobalSearchProps = {
 
 const popularSuggestions: RichUIItem[] = [
   {
-    title: "Canada Startup Visa",
+    title: "Canada Start-Up Visa (paused)",
     type: "Program",
     url: "/residency/canada/canada-start-up-visa",
   },

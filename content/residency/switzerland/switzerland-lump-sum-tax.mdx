@@ -8,8 +8,7 @@ countrySlug: switzerland
 programSlug: switzerland-lump-sum-tax
 tagline: "Obtain Swiss residency through the lump-sum tax route with family inclusion and secure European living."
 currency: CHF
-timelineMonths: "6 Months"
-minInvestment: 0
+timelineMonths: "6"
 tags: ["Switzerland residency", "lump-sum tax", "residency by investment"]
 
 heroImage: "/images/residency/switzerland/switzerland-lump-sum-tax.webp"
@@ -18,25 +17,14 @@ brochure: "/images/residency/switzerland/switzerland_rbi.pdf"
 
 # Program details
 routeType: "Lump-Sum Tax"
-lastUpdated: "2026-09-30"
-holdingPeriodMonths: 12
+lastUpdated: "2026-10-01"
 
 # Pricing / Investment details
 prices:
-  - label: "Minimum Annual Contribution"
-    amount: 250000
-    when: "Paid upon tax agreement with canton"
-    notes: "Amount may vary depending on canton and applicant profile."
-
-governmentFees:
-  - label: "Government Processing Fees"
-    amount: 0
-    when: "Paid during residence permit application"
-
-proofOfFunds:
-  - label: "Proof of Financial Means"
-    amount: 0
-    notes: "Applicants must show legal and sufficient income to support themselves without working in Switzerland."
+  - label: "Federal minimum lump-sum tax base (tax year 2025)"
+    amount: 434700
+    when: "Assessed annually under the cantonal tax agreement"
+    notes: "The minimum base on which tax is assessed, not the tax payable. Indexed annually; the canton's own minimum (for example CHF 600,000 in Schwyz) or seven times annual rent applies where higher."
 
 # Key benefits
 benefits: 
@@ -48,11 +36,13 @@ benefits:
 
 # Program requirements
 requirements:
-  - "Non-EU/EFTA citizen aged 18–55."
-  - "No criminal record and in good health."
-  - "Legal source of income and sufficient financial means."
+  - "Non-EU/EFTA nationality; not a Swiss citizen."
+  - "Generally aged 55 or over, with important ties to Switzerland."
+  - "Taxable in Switzerland for the first time, or after an absence of at least ten years."
+  - "A lump-sum tax agreement with the cantonal tax administration."
+  - "A formal undertaking not to engage in gainful activity in Switzerland or abroad, other than managing personal wealth."
+  - "No criminal record, a legal source of income and sufficient financial means."
   - "Own or rent residential accommodation in Switzerland."
-  - "Spend at least 6 months per year in Switzerland."
 
 # Disqualifiers
 disqualifiers:
@@ -62,19 +52,18 @@ disqualifiers:
 
 # Risks / compliance notes
 riskNotes:
-  - "There is no minimum investment for Swiss residency. The lump-sum tax route is a tax arrangement, not an investment programme, and no statute states an investment figure."
+  - "Switzerland sets no minimum investment for residence. The lump-sum route is a tax arrangement, not an investment programme; the relevant figure is the lump-sum tax base."
   - "Lump-sum taxation is cantonal, not federal. It has been abolished in Zurich (from 1 January 2010), Schaffhausen, Appenzell Ausserrhoden, Basel-Landschaft and Basel-Stadt. It remains available in Thurgau, St Gallen, Lucerne, Bern and others."
-  - "The federal minimum tax base is indexed and moves. For tax year 2025 it was CHF 434,700. Cantonal minima differ widely — Schwyz sets CHF 600,000. Any page quoting a single flat national figure is wrong."
-  - "The permit requires a formal undertaking not to engage in any gainful activity in Switzerland or abroad, other than managing your own wealth. Applicants are generally 55 or over."
+  - "The federal minimum tax base is indexed annually — CHF 434,700 for tax year 2025 — and cantonal minima differ: Canton Bern sets CHF 400,000 for 2025 and Schwyz CHF 600,000."
+  - "The permit requires a formal undertaking not to engage in any gainful activity in Switzerland or abroad, other than managing personal wealth. Applicants are generally 55 or over."
   - "Federal SEM approval is mandatory, because the permit is a derogation from the ordinary admission conditions. It is discretionary and can be refused."
-  - "Our pages previously showed CHF 250,000 as a minimum investment. There is no such requirement, and the figure has been removed."
 complianceNotes:
   - "Legal basis for the permit: Article 30(1)(b) of the Foreign Nationals and Integration Act together with Article 32 of the Admission, Residence and Gainful Employment Ordinance — cantonal fiscal interests."
   - "The lump-sum tax base is the highest of: the federal minimum, the cantonal minimum, or seven times annual rent or imputed rental value (three times the pension price for those in a hotel or similar)."
   - "Framework in force since 1 January 2016, under Article 14 of the Federal Direct Tax Act and Article 6 of the Tax Harmonisation Act."
   - "A parallel retiree route exists under Article 28 of the Act and Article 25 of the Ordinance, also for applicants 55 and over, also requiring SEM approval."
   - "Naturalisation requires ten years of residence, of which years between ages 8 and 18 count double with a minimum of six actual years, plus a C permit and two to five years in the commune and canton."
-  - "Switzerland has recognised dual nationality without restriction since 1 January 1992 — naturalised Swiss citizens do not give up their previous citizenship. India, however, does."
+  - "Switzerland has recognised dual nationality without restriction since 1 January 1992 and does not require naturalised citizens to give up their existing citizenship. India, however, ends Indian citizenship on the voluntary acquisition of another citizenship (Section 9(1), Citizenship Act 1955)."
 
 # Projects or investment options (if applicable)
 projectList: []
@@ -102,7 +91,7 @@ documentChecklist:
 # Family inclusion
 familyMatrix:
   childrenUpTo: 18
-  parentsFromAge: 0
+  parentsFromAge: null
   siblings: false
   spouse: true
 
@@ -111,14 +100,17 @@ quickCheck:
   title: "Lump-Sum Tax Residency Eligibility Check"
   questions:
     - id: "age"
-      label: "Are you between 18 and 55 years of age?"
-      type: boolean
+      label: "Are you a non-EU/EFTA national aged 55 or over?"
+      type: "boolean"
     - id: "funds"
-      label: "Can you demonstrate legal and sufficient income to support yourself in Switzerland?"
-      type: boolean
+      label: "Can you demonstrate legal and sufficient means to support yourself in Switzerland without working?"
+      type: "boolean"
+    - id: "nowork"
+      label: "Will you undertake not to work in Switzerland or abroad, other than managing personal wealth?"
+      type: "boolean"
     - id: "criminal"
-      label: "Do you have any criminal record?"
-      type: boolean
+      label: "Do you have a clean criminal record?"
+      type: "boolean"
 
 # CTAs
 ctas:
@@ -137,35 +129,24 @@ processSteps:
   - title: "Submit Residence Permit Application"
     description: "Application submitted in person with legal guidance to the cantonal authorities."
   - title: "Government Due Diligence & Issuance"
-    description: "Authorities review financial and background information, collect biometric data, and issue temporary residence permit. Renew annually until permanent residency is obtained."
+    description: "The canton reviews financial and background information and refers the file to the State Secretariat for Migration (SEM) for federal approval; biometric data is collected and a temporary residence permit issued, renewed annually until permanent residency is obtained."
 
 faq:
   - q: "Can I work in Switzerland with this residency?"
-    a: "No, employment is not permitted under the lump-sum tax route."
+    a: "No. The permit requires a formal undertaking not to engage in gainful activity in Switzerland or abroad, other than managing personal wealth."
+  - q: "Is there a minimum investment?"
+    a: "No. Switzerland sets no minimum investment for residence. The relevant figure is the lump-sum tax base: a federal minimum of CHF 434,700 for tax year 2025, indexed annually, with cantonal minima that differ — for example CHF 600,000 in Schwyz."
   - q: "How long until I can apply for permanent residency?"
     a: "Permanent residency (C Permit) is generally available after 10 years of continuous residence."
   - q: "Can my family accompany me?"
     a: "Yes, the spouse and children under 18 are included in the application."
-  - q: "Is there a minimum stay requirement in Switzerland?"
-    a: "Yes, applicants must spend at least 6 months per year in Switzerland."
   - q: "How long does the application process take?"
     a: "Typically 3–6 months, depending on canton and document preparation."
 
-# Cost estimator (optional)
-costEstimator:
-  baseOptions:
-    - id: "lumpSumTax"
-      label: "Lump-Sum Tax Annual Contribution"
-      amount: 250000
-  defaultBaseId: "lumpSumTax"
-  adults: 1
-  children: 0
-  addons: []
-
 # SEO metadata
 seo:
-  title: "Switzerland Lump-Sum Tax Residency – Residency by Investment"
-  description: "Secure Swiss residency through the lump-sum tax route. Include family, enjoy safe banking, Schengen access, and a high quality of life."
+  title: "Switzerland Lump-Sum Tax Residency – Cantonal Route"
+  description: "Swiss residence through cantonal lump-sum taxation: generally age 55+, no gainful activity, and a federal minimum tax base of CHF 434,700 for tax year 2025."
   keywords:
     - "Switzerland residency by investment"
     - "Swiss lump-sum tax residency"
@@ -179,12 +160,13 @@ seo:
 
 *Advising Indian families on residency abroad since 2009, from our Koramangala office in Bangalore.*
 
-## Switzerland has no investment threshold — this is a tax route
+## Switzerland sets no minimum investment for residence
 
-Our pages previously showed **CHF 250,000** as a minimum investment. **No such requirement exists.**
-Switzerland has no residency-by-investment programme. What people mean by "the Swiss route" is
-**lump-sum taxation** — an agreement with a canton to be taxed on deemed expenditure rather than actual
-income — and the residence permit that can follow from it.
+Switzerland has no residency-by-investment programme, and no statute sets an investment figure for
+residence. The established route for people who will not work in Switzerland is **lump-sum
+taxation** — an agreement with a canton to be taxed on deemed expenditure rather than actual
+income — and the residence permit that can follow from it. The relevant figure is the lump-sum tax
+base, not an investment.
 
 ## It is cantonal, and it has been abolished in five cantons
 
@@ -196,15 +178,16 @@ income — and the residence permit that can follow from it.
 The base is the **highest** of three things: the federal minimum, the canton's own minimum, or **seven
 times your annual rent or imputed rental value**.
 
-The federal minimum is **indexed** — for tax year 2025 it was **CHF 434,700**, not the CHF 400,000
-figure from the 2016 statute that still circulates. Cantonal minima vary a great deal: **Schwyz sets
-CHF 600,000**. Anyone quoting a single flat national figure has not read the cantonal tables.
+The federal minimum was set at CHF 400,000 when the current framework took effect in 2016 and is
+**indexed** annually: for tax year 2025 it was **CHF 434,700**. Cantonal minima differ — Canton Bern
+sets CHF 400,000 for 2025, and **Schwyz sets CHF 600,000**. XIPHIAS confirms the figures for the
+current tax year with the cantonal tax administration before any agreement is negotiated.
 
-## What the permit actually demands
+## What the permit requires
 - generally **age 55 or over**
 - important ties to Switzerland
 - a **formal undertaking not to engage in any gainful activity** in Switzerland or abroad, other than
-  managing your own wealth
+  managing personal wealth
 - a copy of the lump-sum tax agreement with the cantonal tax administration
 
 **Federal SEM approval is mandatory** — the permit is a derogation from the ordinary admission rules,
@@ -227,7 +210,7 @@ that step would cost you.
 
 ## Talk to an immigration consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families abroad since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. On Switzerland our **immigration consultants in Bangalore** will separate what the law requires from what a bank or an agent prefers.
+XIPHIAS Immigration has guided Indian families abroad since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**. Our **immigration consultants in Bangalore** will take you through the legal requirements, costs and timeline for Switzerland.
 
 - [Book a consultation](/contact)
 - [Immigration consultants in Bangalore](/immigration-consultants-in-bangalore)

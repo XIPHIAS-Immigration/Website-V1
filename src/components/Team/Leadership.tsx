@@ -11,7 +11,7 @@ export function Leadership({ people }: { people: Person[] }) {
     <section aria-labelledby="leadership-title" className="mt-12">
       <header className="text-center">
         <h2 id="leadership-title" className="text-2xl md:text-3xl font-semibold tracking-tight">Leadership</h2>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-300">Operators with skin in the game.</p>
+        <p className="mt-2 text-zinc-600 dark:text-zinc-300">Accountable for every client file.</p>
       </header>
       <ul className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {people.map((p) => (

@@ -270,7 +270,7 @@ export function buildDossierPages(dossier: Dossier, opts: DossierOpts): string[]
       grid(2, [
         card({ k: "Spouse / partner", v: fm.spouse ? "Eligible" : "Review with advisor" }),
         card({ k: "Children", v: fm.childrenUpTo ? `Up to age ${fm.childrenUpTo}` : "Review with advisor" }),
-        card({ k: "Parents", v: fm.parentsFromAge ? `From age ${fm.parentsFromAge}` : "Case dependent" }),
+        card({ k: "Parents", v: typeof fm.parentsFromAge === "number" ? (fm.parentsFromAge > 0 ? `From age ${fm.parentsFromAge}` : "Dependent parents") : "Case dependent" }),
         card({ k: "Siblings", v: fm.siblings ? "Possible" : "Not typically" }),
       ]);
     addSplit("Family", famContent, "Family inclusion");

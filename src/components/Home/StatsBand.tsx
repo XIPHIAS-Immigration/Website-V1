@@ -4,7 +4,7 @@ import { CharReveal, Counter, Reveal, Stagger, StaggerItem } from "@/components/
 
 const STATS = [
   { to: 17, suffix: "+", label: "Years of excellence" },
-  { to: 50, suffix: "+", label: "Countries covered" },
+  { to: 35, suffix: "+", label: "Countries covered" },
   { to: 10000, suffix: "+", label: "Families relocated" },
   { to: 98, suffix: "%", label: "Visa success rate" },
 ];

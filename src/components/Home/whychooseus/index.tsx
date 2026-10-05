@@ -21,15 +21,15 @@ import {
 const FEATURES = [
   {
     icon: Globe2,
-    title: "17+ Years, 25+ Jurisdictions",
+    title: "17+ Years, 35+ Jurisdictions",
     blurb:
       "Deep, up-to-date program knowledge across Europe, the Middle East, and Asia.",
   },
   {
     icon: Scale,
-    title: "In-house Legal & Compliance",
+    title: "Licensed & Compliance-First",
     blurb:
-      "Licensed attorneys, audited processes, and enterprise-grade documentation.",
+      "CICC-licensed RCIC (R516194), MARA 1680615, documented processes and enterprise-grade documentation.",
   },
   {
     icon: Users,
@@ -39,14 +39,14 @@ const FEATURES = [
   },
   {
     icon: Building2,
-    title: "Trusted by Fortune 500s",
+    title: "Built for Corporate Mobility",
     blurb:
       "Corporate policies, reporting, and SLAs tailored for HR & Mobility leaders.",
   },
 ];
 
 const HIGHLIGHTS = [
-  "92% success across programs",
+  "98% success across programs",
   "10K+ clients empowered",
   "ISO-style process discipline",
   "Transparent fees & timelines",

@@ -98,7 +98,7 @@ export default function Timeline() {
               Milestones That Shape Our Expertise
             </h2>
             <p className="mt-2 max-w-3xl text-sm text-zinc-700 dark:text-zinc-300">
-              A decade-plus of building trust through diligent work and measurable outcomes.
+              Since 2009, building trust through diligent work and measurable outcomes.
             </p>
           </header>
 

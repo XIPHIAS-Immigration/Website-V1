@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 export const metadata: Metadata = {
   title: 'Immigration Programs – Residency, Citizenship, Skilled & Corporate | XIPHIAS',
   description:
-    'Explore all XIPHIAS immigration programs: Residency by Investment, Citizenship by Investment, Golden Visa, Skilled Migration, Corporate Mobility and Work Permits across 50+ countries.',
+    'Explore all XIPHIAS immigration programs: Residency by Investment, Citizenship by Investment, Golden Visa, Skilled Migration, Corporate Mobility and Work Permits across 35+ countries.',
   alternates: { canonical: '/programs' },
   openGraph: {
     title: 'Immigration Programs – RBI, CBI, Golden Visa, Skilled & Corporate',
@@ -26,7 +26,7 @@ const PROGRAMS = [
     href: '/residency',
     description:
       'Secure legal residency in 20+ countries through qualifying investments in real estate, funds, government bonds or business ventures.',
-    stats: '20+ Countries · From USD 200K',
+    stats: '20+ Countries · From EUR 50K',
     badge: 'Most Popular',
     badgeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
     highlights: ['Portugal Golden Visa', 'UAE Golden Visa', 'Greece RBI', 'Singapore GIP', 'USA EB-5'],
@@ -37,7 +37,7 @@ const PROGRAMS = [
     href: '/citizenship',
     description:
       'Obtain a second passport through government-approved investment programs — real estate, national development funds or donation routes.',
-    stats: '11+ Countries · From USD 100K',
+    stats: '10 Countries · From USD 90K',
     badge: null,
     badgeColor: '',
     highlights: ['Caribbean Passports', 'Vanuatu CBI', 'Turkey CBI', 'Egypt CBI'],
@@ -59,7 +59,7 @@ const PROGRAMS = [
     href: '/skilled',
     description:
       'Points-based and employer-sponsored pathways for qualified professionals, specialists, and global talent seeking PR and citizenship.',
-    stats: '7 Countries · EOI & Sponsorship',
+    stats: '9 Countries · EOI & Sponsorship',
     badge: null,
     badgeColor: '',
     highlights: ['Australia Skilled 189/190', 'Canada Express Entry', 'UK Global Talent', 'USA EB-1/EB-2'],
@@ -70,7 +70,7 @@ const PROGRAMS = [
     href: '/corporate',
     description:
       'Business expansion, company formation, intra-company transfers and self-sponsorship routes for founders and enterprise leaders.',
-    stats: '7 Countries · ICT & Setup',
+    stats: '8 Countries · ICT & Setup',
     badge: null,
     badgeColor: '',
     highlights: ['UAE Company Setup', 'UK Self-Sponsorship', 'USA L-1', 'Portugal D2'],
@@ -81,7 +81,7 @@ const PROGRAMS = [
     href: '/work-permits',
     description:
       'Employment-based visa advisory for skilled professionals relocating with job offers, covering LMIA, sponsorship and nomad routes.',
-    stats: '8 Countries · Employer-based',
+    stats: '14 Countries · Employer-based',
     badge: 'Resume Review',
     badgeColor: 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300',
     highlights: ['Canada LMIA', 'Germany Opportunity Card', 'UAE Employment', 'Australia ENS'],
@@ -121,7 +121,7 @@ export default function ProgramsPage() {
               Find Your Path to <span className="text-secondary">Global Mobility</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
-              Six distinct program categories. 50+ countries. One trusted advisory partner.
+              Six distinct program categories. 35+ countries. One trusted advisory partner.
               Choose the pathway that fits your goals, timeline and investment capacity.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

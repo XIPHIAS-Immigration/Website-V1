@@ -31,7 +31,7 @@ heroPoster: "/images/skilled/australia/australia-858-talent-visa.png"
 brochure: "/images/skilled/australia/AUSTRALIA_skilled.pdf"
 
 routeType: talent
-lastUpdated: "2026-09-29"
+lastUpdated: "2026-10-01"
 jobOfferRequired: false
 jobOfferNote: "Nomination by an eligible Australian individual or organization is required, not a job offer."
 
@@ -63,17 +63,8 @@ sectors:
 
 prices:
   - label: "Visa application charge (primary applicant)"
-    amount: 4810
-    notes: "Official VAC for Global Talent Visa primary applicant."
-  - label: "Nomination form and supporting documents"
-    amount: 0
-    notes: "No government charge for nomination."
-  - label: "English test (if required)"
-    amount: 410
-    notes: "IELTS/PTE typical pricing."
-  - label: "Skills or qualification evidence (if applicable)"
-    amount: 600
-    notes: "For profession verification or evidence."
+    amount: 6235
+    notes: "Home Affairs VAC as displayed on 29 September 2026. Additional applicant charges apply."
 
 governmentFees:
   - label: "Subclass 858 — primary applicant visa application charge"
@@ -81,17 +72,14 @@ governmentFees:
     currency: AUD
     sourceLabel: "Home Affairs — National Innovation visa (subclass 858)"
     sourceUrl: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/national-innovation-visa-858"
-  - label: "Second instalment (where applicable)"
-    amount: 4890
-    currency: AUD
 
 benefits:
   - "Direct permanent residency for exceptional talent in key sectors."
   - "No age limit for applicants (if criteria met)."
-  - "Fast-tracked processing — often under 6 months."
+  - "Home Affairs decides 50% of National Innovation stream applications in 6 months and 90% within 7 months."
   - "Family members can be included in the same application."
   - "Access to Medicare, work rights, and education in Australia."
-  - "No job offer required — only nomination by recognized authority."
+  - "No job offer required — a Form 1000 nominator with a national reputation in your field is."
 
 requirements:
   - "An internationally recognised record of exceptional and outstanding achievement in a profession, a sport, the arts, or academia and research — and you must still be prominent in that field."
@@ -108,17 +96,17 @@ disqualifiers:
   - "Non-compliance with health or character standards."
 
 riskNotes:
-  - "The Form 1000 nominator is the real gate. Without someone nationally recognised in your own field willing to attest to your record, there is no application."
+  - "The Form 1000 nominator is the real gate. Without someone nationally recognised in your field willing to attest to your record, there is no application."
   - "You cannot apply unprompted. The Department must invite you, and once invited you have only 60 days to lodge."
   - "There is no age limit, but applicants under 18 or aged 55 and over must additionally be of exceptional benefit to the Australian community."
-  - "The old Global Talent Independent programme no longer exists. Any consultant still selling a 'Global Talent visa' is working from pre-2025 material."
+  - "The old Global Talent Independent programme no longer exists; the National Innovation visa replaced it on 6 December 2024."
 
 complianceNotes:
   - "Home Affairs published service standard for the National Innovation stream: 6 months for 50% of applications, 7 months for 90%. Legacy Distinguished Talent and Global Talent (Independent) applications lodged before 6 December 2024 run at 16 and 24 months. The headline timeline on this page is XIPHIAS's own observed average, which includes the nominator and invitation stages."
   - "This visa was renamed and restructured on 6 December 2024, when the Migration Amendment (National Innovation Visa) Regulations 2024 commenced. 'Global Talent visa' is no longer a valid name for it."
   - "There is no points test and no occupation list for this visa."
   - "Applications are processed in the order set by Ministerial Direction No. 120."
-  - "Home Affairs processes 50% of National Innovation stream applications in 6 months and 90% within 7 months. Legacy Distinguished Talent and Global Talent (Independent) applications lodged before the change are far slower — 16 and 24 months."
+  - "There is no government charge for the Form 1000 nomination."
   - "The Global Talent Employer Sponsored scheme still exists, but it is not a subclass 858 product. It is an employer agreement that feeds the Skills in Demand (subclass 482) visa."
 
 documentChecklist:
@@ -130,10 +118,9 @@ documentChecklist:
     documents:
       - "Portfolio of internationally recognized work or publications"
       - "Awards, patents, or citations"
-      - "Evidence of income or salary in the top global percentile of field"
   - group: "Nomination"
     documents:
-      - "Form 1000 — Nomination for Global Talent"
+      - "Form 1000 — nominator's attestation of your record"
       - "Letter of support from recognized nominator"
   - group: "English & Health"
     documents:
@@ -143,7 +130,7 @@ documentChecklist:
 familyMatrix:
   childrenUpTo: 23
   spouse: true
-  parentsFromAge: 0
+  parentsFromAge: null
   siblings: false
 
 quickCheck:
@@ -169,11 +156,11 @@ quickCheck:
 
 processSteps:
   - title: "Expression of Interest (EOI)"
-    description: "Submit your EOI through the Global Talent portal, outlining your achievements and sector alignment."
+    description: "Submit an expression of interest to Home Affairs outlining your record of achievement."
   - title: "Nomination approval"
     description: "Provide nomination from a qualified Australian individual or organization."
   - title: "Invitation and visa application"
-    description: "Upon invitation, apply for the Subclass 858 visa with supporting documents."
+    description: "Once invited, lodge the Subclass 858 application within 60 days, with supporting documents."
   - title: "Health and character checks"
     description: "Complete all required examinations and police verifications."
   - title: "Decision and PR grant"
@@ -185,7 +172,7 @@ faq:
   - q: "Is there a points test?"
     a: "No. There is no points test and no occupation list for this visa."
   - q: "Do I need a nominator?"
-    a: "Yes, and it is the hardest requirement. Someone with a national reputation in your own field — an Australian citizen, permanent resident, eligible New Zealand citizen, or an Australian organisation — must attest to your record on Form 1000."
+    a: "Yes, and it is the hardest requirement. Someone with a national reputation in your field — an Australian citizen, permanent resident, eligible New Zealand citizen, or an Australian organisation — must attest to your record on Form 1000."
   - q: "Can I just apply?"
     a: "No. You submit an expression of interest, and the Department must invite you. Once invited, you have 60 days to lodge the application."
   - q: "Is there an age limit?"
@@ -197,34 +184,14 @@ costEstimator:
   baseOptions:
     - id: "primary"
       label: "Primary applicant — VAC (from)"
-      amount: 4810
+      amount: 6235
   defaultBaseId: "primary"
   adults: 1
   children: 0
-  addons:
-    - id: "english-test"
-      label: "English test (IELTS/PTE typical)"
-      amount: 410
-      per: "application"
-    - id: "medical"
-      label: "Health exam (typical)"
-      amount: 350
-      per: "application"
 timelineLabel: "6 months (XIPHIAS average)"
 ---
 
 *Advising Indian applicants on Australian immigration since 2009, from our Koramangala office in Bangalore.*
-
-### Overview
-The **Global Talent Visa (Subclass 858)** provides a **direct pathway to Australian permanent residency** for **highly skilled professionals** with **international recognition** in fields such as **technology, science, engineering, research, and the arts**.  
-It allows global achievers to **live, work, and contribute** to Australia’s innovation sectors while including **eligible family members** in one PR application.
-
-### Why Choose Subclass 858
-- **Fast-track PR** for globally recognized professionals  
-- **No job offer or points test** required  
-- **Priority visa processing** under the Global Talent Program  
-- **Live, work, and study** anywhere in Australia  
-- **Pathway to Australian citizenship** for you and your family
 
 ### Overview
 The **National Innovation visa (subclass 858)** is a permanent residency route for people with an
@@ -235,11 +202,10 @@ age limit**.
 **This visa used to be called the Global Talent visa.** It was renamed and restructured on
 **6 December 2024**, when the Migration Amendment (National Innovation Visa) Regulations 2024
 commenced. The old Global Talent Independent programme no longer exists, and the old Home Affairs
-page now redirects to the National Innovation visa. If a consultant is still selling you a "Global
-Talent visa", they are working from pre-2025 material.
+page now redirects to the National Innovation visa.
 
 ### The two things that actually decide your case
-- **A Form 1000 nominator.** Someone with a **national reputation in your own field** must attest
+- **A Form 1000 nominator.** Someone with a **national reputation in your field** must attest
   to your record. They must be an Australian citizen, Australian permanent resident, eligible
   New Zealand citizen, or an Australian organisation. This is the real gate.
 - **An invitation.** You cannot apply unprompted. You submit an expression of interest, the
@@ -258,14 +224,20 @@ scheme — Established Business and Startup streams, up to 20 positions a year �
 employer sponsor workers under the **[Skills in Demand (subclass 482)](/skilled/australia/skills-in-demand-482)**
 visa, with a permanent residency pathway after two years and age-cap concessions.
 
+### Visa application charge
+The Home Affairs visa application charge for the primary applicant is **AUD 6,235** (as displayed
+on 29 September 2026). Additional charges apply for each family member included in the
+application, and a second instalment applies to applicants aged 18 or over without
+functional English.
+
 
 
 
 ## Talk to an Australia immigration consultant in Bangalore
 
-XIPHIAS Immigration has guided Indian families through Australian permanent residency since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022** — and what clients come back for is simple: we tell you when a programme does not fit, exactly as this page does.
+XIPHIAS Immigration has guided Indian families through Australian permanent residency since 2009, from our office in **Koramangala, Bangalore**. We were named **Best Immigration Consultant by The Times of India in 2022**.
 
-If you want a straight answer on whether this route suits your profile, our **immigration consultants in Bangalore** will give you one.
+Our **immigration consultants in Bangalore** will assess whether this route suits your profile and take you through the requirements, costs and timeline.
 
 - [Book a consultation](/contact)
 - [Australia immigration consultants in Bangalore](/australia-immigration-consultants-in-bangalore)

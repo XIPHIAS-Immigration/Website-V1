@@ -48,10 +48,10 @@ export default function Hero() {
             id="home-hero-title"
             className="mt-[clamp(1.25rem,3vh,2rem)] text-[clamp(2.5rem,calc(2rem+2.1vw),5rem)] font-bold leading-[1.12] tracking-normal drop-shadow-[0_3px_16px_rgba(0,0,0,0.55)]"
           >
-            Top Immigration Consultants in India
+            Immigration Consultants in India
           </h1>
           <p className="mx-auto mt-[clamp(1.5rem,3.5vh,2.25rem)] max-w-4xl text-[clamp(1rem,calc(0.85rem+0.3vw),1.45rem)] font-normal leading-[1.75] text-white/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
-            Explore skilled migration, residency, citizenship, investment and corporate mobility routes across 50+ countries—with a clear way to register or buy the exact report you need.
+            Explore skilled migration, residency, citizenship, investment and corporate mobility routes across 35+ countries—with a clear way to register or buy the exact report you need.
           </p>
 
           {/* Compact pill actions — nav-pill scale, not billboards. */}
