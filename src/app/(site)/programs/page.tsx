@@ -73,7 +73,7 @@ const PROGRAMS = [
     stats: '8 Countries · ICT & Setup',
     badge: null,
     badgeColor: '',
-    highlights: ['UAE Company Setup', 'UK Self-Sponsorship', 'USA L-1', 'Portugal D2'],
+    highlights: ['UAE Company Setup', 'Singapore Self-Employed EP', 'UK Self-Sponsorship', 'USA L-1', 'Portugal D2'],
   },
   {
     title: 'Work Permits',
