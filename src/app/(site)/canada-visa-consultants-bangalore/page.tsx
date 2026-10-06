@@ -309,7 +309,7 @@ export default function CanadaVisaConsultantsBangalorePage() {
         <div className="mx-auto grid max-w-screen-2xl gap-12 px-5 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-12">
           <div>
             <p className="type-caption uppercase text-primary">Start with the complete profile</p>
-            <h2 className="type-section-title mt-3 text-slate-950">Canada Immigration Consultants in Bangalore</h2>
+            <h2 className="type-section-title mt-3 text-slate-950">Top Canada Immigration Consultants in Bangalore</h2>
             <p className="type-body mt-5 text-slate-600">
               Canada offers multiple pathways for skilled professionals and families. Choosing the right one
               depends on your individual facts, not on a standard sales package.

@@ -40,7 +40,7 @@ import { JsonLd } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "XIPHIAS Immigration | Immigration Consultants in India",
+  title: "XIPHIAS Immigration | Best Immigration Consultants in India",
   description:
     "Explore Canada PR, Australia PR, Golden Visa, residency, citizenship & skilled immigration with XIPHIAS. Get expert guidance & check your eligibility today",
   alternates: { canonical: "/" },
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "XIPHIAS Immigration | Immigration Consultants in India",
+    title: "XIPHIAS Immigration | Best Immigration Consultants in India",
     description:
       "Explore Canada PR, Australia PR, Golden Visa, residency, citizenship & skilled immigration with XIPHIAS. Get expert guidance & check your eligibility today",
     url: "https://www.xiphiasimmigration.com",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "XIPHIAS Immigration | Immigration Consultants in India",
+    title: "XIPHIAS Immigration | Best Immigration Consultants in India",
     description:
       "Explore Canada PR, Australia PR, Golden Visa, residency, citizenship & skilled immigration with XIPHIAS. Get expert guidance & check your eligibility today",
     images: ["/xiphias-immigration.png"],
@@ -82,7 +82,7 @@ export default function Home() {
         "@type": "WebPage",
         "@id": "https://www.xiphiasimmigration.com/#webpage",
         url: "https://www.xiphiasimmigration.com",
-        name: "XIPHIAS Immigration | Immigration Consultants in India",
+        name: "XIPHIAS Immigration | Best Immigration Consultants in India",
         description:
           "Explore Canada PR, Australia PR, Golden Visa, residency, citizenship & skilled immigration with XIPHIAS. Get expert guidance & check your eligibility today",
         isPartOf: { "@id": "https://www.xiphiasimmigration.com/#website" },

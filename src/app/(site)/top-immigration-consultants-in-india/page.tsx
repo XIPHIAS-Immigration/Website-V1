@@ -477,7 +477,7 @@ export default function ImmigrationConsultantsIndiaLandingPage() {
           <div className="max-w-3xl">
             <p className="type-caption uppercase text-primary">Established immigration advisory</p>
             <h2 className="type-section-title mt-3 text-slate-950">
-              Why Clients Choose XIPHIAS Immigration
+              Why XIPHIAS Is Among the Top Immigration Consultants in India
             </h2>
             <p className="type-body mt-4 text-slate-600">
               A top immigration consultant in India needs experience and the ability to distinguish
