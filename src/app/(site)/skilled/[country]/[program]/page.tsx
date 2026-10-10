@@ -22,14 +22,17 @@ import { localBusinessSchemas } from "@/lib/seo/schema";
 // Using next/dynamic helps lower Total Blocking Time and improves
 // Lighthouse performance.
 import nextDynamic from "next/dynamic";
+import ProgrammeDecision from "@/components/Programme/ProgrammeDecision";
+import ProgrammeTabs from "@/components/Programme/ProgrammeTabs";
 
 const MediaHero = nextDynamic(() => import("@/components/Skilled/MediaHero"));
-const ProgramQuickNav = nextDynamic(() => import("@/components/Residency/ProgramQuickNav"));
 const ProcessTimeline = nextDynamic(() => import("@/components/Residency/ProcessTimeline"));
 const FAQAccordion = nextDynamic(() => import("@/components/Residency/FAQAccordion"));
 const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
 const SocialProof = nextDynamic(() => import("@/components/Residency/SocialProof"));
 const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
+// The "what do I do now?" bar: this route's fit for the visitor and one next step.
+const RouteNextStep = nextDynamic(() => import("@/components/Xia/RouteNextStep"));
 
 // Skilled-specific blocks
 const LanguageRequirements = nextDynamic(() => import("@/components/Skilled/LanguageRequirements"));
@@ -433,27 +436,6 @@ export default async function ProgramPage(
     const hasDeps = !!familyMatrix;
 
     // QuickNav: mirrors on-page order (no Prices / Investment, and NO Insights)
-    const sectionsForNav: { id: string; label: string }[] = [
-      { id: "quick-facts", label: "Quick facts" },
-      ...(hasPoints ? [{ id: "points", label: "Points grid" }] : []),
-      ...(hasLanguage ? [{ id: "language", label: "Language" }] : []),
-      ...(hasOccupations ? [{ id: "occupations", label: "Occupations" }] : []),
-      ...(overviewKey && sections[overviewKey] ? [{ id: "overview", label: "Overview" }] : []),
-      ...(compKey && sections[compKey] ? [{ id: "salary", label: "Salary overview" }] : []),
-      ...(hasGovFees ? [{ id: "gov-fees", label: "Government fees" }] : []),
-      ...(hasRequirements ? [{ id: "requirements", label: "Eligibility" }] : []),
-      ...(hasBenefits ? [{ id: "benefits", label: "Benefits" }] : []),
-      ...(hasDocs ? [{ id: "documents", label: "Documents" }] : []),
-      ...(hasDeps ? [{ id: "dependents", label: "Dependents" }] : []),
-      ...(hasProcess ? [{ id: "process", label: "Process" }] : []),
-      ...(comparisonKey && sections[comparisonKey] ? [{ id: "comparison", label: "Comparison" }] : []),
-      ...(whyCountryKey && sections[whyCountryKey]
-        ? [{ id: "why-country", label: `Why ${(meta as any).country ?? params.country}` }]
-        : []),
-      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
-      ...(hasFAQ ? [{ id: "faq", label: "FAQ" }] : []),
-      ...(hasRelated ? [{ id: "related", label: "Related" }] : []),
-    ];
 
     // JSON-LD (HowTo only; no AggregateOffer for skilled pages)
     const howToLdData =
@@ -518,45 +500,25 @@ export default async function ProgramPage(
               poster={poster}
               imageSrc={heroImage}
               actions={[
-                {
-                  href: `/skilled/eligibility-check`,
-                  label: "Check Eligibility",
-                  variant: "primary",
-                },
-                {
-                  href: brochure,
-                  label: "Download Brochure",
-                  variant: "primary",
-                  download: true,
-                },
-                {
-                  href: "/contact",
-                  label: "Book a Free Consultation",
-                  variant: "ghost",
-                },
+                { href: "#decide", label: "Get started — ₹4,999", variant: "primary" },
+                { href: brochure, label: "Download Brochure", variant: "ghost", download: true },
               ]}
             />
           </div>
           <Breadcrumb />
+          <RouteNextStep country={params.country} track="skilled" title={(meta as any).title ?? params.program} />
         </div>
 
-        {/* Quick Check — mobile near top, desktop in sidebar */}
-        {hasQuickCheck ? (
-          <section
-            id="quick-check-mobile"
-            className="sm:hidden scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 ring-1 ring-emerald-200/60 dark:ring-emerald-800/60 p-4"
-          >
-            <EligibilityQuickCheck config={quickCheck} />
-          </section>
-        ) : null}
+        {/* DECIDE NOW — the first screen: facts, fit and the one next step */}
+        <div id="decide" className="scroll-mt-28">
+          <ProgrammeDecision track="skilled" countrySlug={params.country} programSlug={params.program} meta={meta as unknown as Record<string, unknown>} brochure={brochure} />
+        </div>
 
-        {/* In-page Quick Nav */}
-        <ProgramQuickNav sections={sectionsForNav} />
-
-        {/* BODY */}
-        <div className="flex flex-col gap-8 pt-5 pb-16 lg:grid lg:grid-cols-12 lg:gap-8">
-          {/* MAIN */}
-          <div className="order-2 lg:order-1 lg:col-span-8 xl:col-span-8 space-y-10">
+        {/* EVERYTHING ELSE — one tab at a time, not a 12,000-pixel scroll */}
+        <ProgrammeTabs
+          tabs={[
+            { id: "overview", label: "Overview", content: (
+              <>
             {/* Quick facts (top on mobile too) */}
             <section id="quick-facts" className="scroll-mt-28">
               <SkilledFacts
@@ -566,6 +528,101 @@ export default async function ProgramPage(
                 jobOfferRequired={jobOffer.required}
               />
             </section>
+
+            {/* Overview (MDX) */}
+            {overviewKey && sections[overviewKey] ? (
+              <section id="overview" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Program overview</h2>
+                </header>
+                <Prose>{sections[overviewKey]}</Prose>
+              </section>
+            ) : null}
+
+            {/* Comparison */}
+            {comparisonKey && sections[comparisonKey] ? (
+              <section id="comparison" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Comparison</h2>
+                </header>
+                <Prose>{sections[comparisonKey]}</Prose>
+              </section>
+            ) : null}
+
+            {/* Why country */}
+            {whyCountryKey && sections[whyCountryKey] ? (
+              <section id="why-country" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">
+                    Why {(meta as any).country ?? params.country}
+                  </h2>
+                </header>
+                <Prose>{sections[whyCountryKey]}</Prose>
+              </section>
+            ) : null}
+
+            {/* Related programs */}
+            {hasRelated ? (
+              <section id="related" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Related programs</h2>
+                </header>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {relatedPrograms.map((r) => (
+                    <Link
+                      key={r.url}
+                      href={r.url}
+                      className="group rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 overflow-hidden hover:shadow-md bg-white/70 dark:bg-neutral-900/40"
+                    >
+                      <div
+                        className="h-32 w-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${r.heroImage ?? "/xiphias-immigration.png"})` }}
+                        aria-hidden="true"
+                      />
+                      <div className="p-4">
+                        <div className="text-sm opacity-70">{r.country}</div>
+                        <div className="font-semibold group-hover:underline">{r.title}</div>
+                        {typeof r.timelineMonths === "number" ? (
+                          <div className="text-xs mt-1 opacity-70">
+                            {formatTimelineLong(r.timelineMonths, r.timelineLabel)}
+                          </div>
+                        ) : null}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {/* Testimonials & Our Offer */}
+            <section id="testimonials" className="scroll-mt-28">
+              <TestimonialCarousel
+                items={
+                  (meta as any).testimonials ?? [
+                    { quote: "Seamless employer-sponsor coordination and PR plan.", author: "Tech Lead, Toronto" },
+                    { quote: "Crystal-clear on points and language strategy.", author: "Data Scientist, Sydney" },
+                  ]
+                }
+              />
+            </section>
+            <section id="our-offer" className="scroll-mt-28">
+              <Overoffer />
+            </section>
+
+            <div className="sm:hidden h-24" aria-hidden="true" />
+              </>
+            ) },
+            { id: "eligibility", label: "Eligibility", content: (
+              <>
+        {/* Quick Check — mobile near top, desktop in sidebar */}
+        {hasQuickCheck ? (
+          <section
+            id="quick-check-mobile"
+            className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 ring-1 ring-emerald-200/60 dark:ring-emerald-800/60 p-4"
+          >
+            <EligibilityQuickCheck config={quickCheck} />
+          </section>
+        ) : null}
 
             {/* Points grid — keep near top, right after Quick facts */}
             {hasPoints ? (
@@ -591,36 +648,6 @@ export default async function ProgramPage(
                   <h2 className="text-xl font-semibold">Occupation lists</h2>
                 </header>
                 <OccupationLists lists={occupations as any} />
-              </section>
-            ) : null}
-
-            {/* Overview (MDX) */}
-            {overviewKey && sections[overviewKey] ? (
-              <section id="overview" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Program overview</h2>
-                </header>
-                <Prose>{sections[overviewKey]}</Prose>
-              </section>
-            ) : null}
-
-            {/* Salary overview (NOT "Investment") */}
-            {compKey && sections[compKey] ? (
-              <section id="salary" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Salary overview</h2>
-                </header>
-                <Prose>{sections[compKey]}</Prose>
-              </section>
-            ) : null}
-
-            {/* Government fees (if provided) */}
-            {hasGovFees ? (
-              <section id="gov-fees" className="scroll-mt-28">
-                <GovernmentFees
-                  fees={governmentFees}
-                  defaultCurrency={(meta as any).currency || "AUD"}
-                />
               </section>
             ) : null}
 
@@ -667,53 +694,6 @@ export default async function ProgramPage(
               </div>
             )}
 
-            {/* Documents & Dependents */}
-            {hasDocs ? (
-              <section id="documents" className="scroll-mt-28">
-                <DocumentChecklist
-                  groups={documentChecklist}
-                  note="Documents vary by profile; we’ll tailor your list."
-                />
-              </section>
-            ) : null}
-            {hasDeps ? (
-              <section id="dependents" className="scroll-mt-28">
-                <FamilyMatrix {...familyMatrix!} />
-              </section>
-            ) : null}
-
-            {/* Process */}
-            {hasProcess ? (
-              <section id="process" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Application process</h2>
-                </header>
-                <ProcessTimeline steps={processSteps} />
-              </section>
-            ) : null}
-
-            {/* Comparison */}
-            {comparisonKey && sections[comparisonKey] ? (
-              <section id="comparison" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Comparison</h2>
-                </header>
-                <Prose>{sections[comparisonKey]}</Prose>
-              </section>
-            ) : null}
-
-            {/* Why country */}
-            {whyCountryKey && sections[whyCountryKey] ? (
-              <section id="why-country" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Why {(meta as any).country ?? params.country}
-                  </h2>
-                </header>
-                <Prose>{sections[whyCountryKey]}</Prose>
-              </section>
-            ) : null}
-
             {/* Not a fit */}
             {disqualifiers.length ? (
               <section
@@ -743,39 +723,67 @@ export default async function ProgramPage(
               </section>
             ) : null}
 
-            {/* Related programs */}
-            {hasRelated ? (
-              <section id="related" className="scroll-mt-28">
+              </>
+            ) },
+            { id: "costs", label: "Costs & fees", content: (
+              <>
+            {/* Salary overview (NOT "Investment") */}
+            {compKey && sections[compKey] ? (
+              <section id="salary" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Related programs</h2>
+                  <h2 className="text-xl font-semibold">Salary overview</h2>
                 </header>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {relatedPrograms.map((r) => (
-                    <Link
-                      key={r.url}
-                      href={r.url}
-                      className="group rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 overflow-hidden hover:shadow-md bg-white/70 dark:bg-neutral-900/40"
-                    >
-                      <div
-                        className="h-32 w-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${r.heroImage ?? "/xiphias-immigration.png"})` }}
-                        aria-hidden="true"
-                      />
-                      <div className="p-4">
-                        <div className="text-sm opacity-70">{r.country}</div>
-                        <div className="font-semibold group-hover:underline">{r.title}</div>
-                        {typeof r.timelineMonths === "number" ? (
-                          <div className="text-xs mt-1 opacity-70">
-                            {formatTimelineLong(r.timelineMonths, r.timelineLabel)}
-                          </div>
-                        ) : null}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                <Prose>{sections[compKey]}</Prose>
               </section>
             ) : null}
 
+            {/* Government fees (if provided) */}
+            {hasGovFees ? (
+              <section id="gov-fees" className="scroll-mt-28">
+                <GovernmentFees
+                  fees={governmentFees}
+                  defaultCurrency={(meta as any).currency || "AUD"}
+                />
+              </section>
+            ) : null}
+
+              </>
+            ) },
+            { id: "process", label: "Process", content: (
+              <>
+            {/* Process */}
+            {hasProcess ? (
+              <section id="process" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Application process</h2>
+                </header>
+                <ProcessTimeline steps={processSteps} />
+              </section>
+            ) : null}
+
+              </>
+            ) },
+            { id: "documents", label: "Documents & family", content: (
+              <>
+            {/* Documents & Dependents */}
+            {hasDocs ? (
+              <section id="documents" className="scroll-mt-28">
+                <DocumentChecklist
+                  groups={documentChecklist}
+                  note="Documents vary by profile; we’ll tailor your list."
+                />
+              </section>
+            ) : null}
+            {hasDeps ? (
+              <section id="dependents" className="scroll-mt-28">
+                <FamilyMatrix {...familyMatrix!} />
+              </section>
+            ) : null}
+
+              </>
+            ) },
+            { id: "faq", label: "FAQ", content: (
+              <>
             {/* FAQ */}
             {(meta as any).faq?.length ? (
               <section id="faq" className="scroll-mt-28">
@@ -786,53 +794,20 @@ export default async function ProgramPage(
               </section>
             ) : null}
 
-            {/* Testimonials & Our Offer */}
-            <section id="testimonials" className="scroll-mt-28">
-              <TestimonialCarousel
-                items={
-                  (meta as any).testimonials ?? [
-                    { quote: "Seamless employer-sponsor coordination and PR plan.", author: "Tech Lead, Toronto" },
-                    { quote: "Crystal-clear on points and language strategy.", author: "Data Scientist, Sydney" },
-                  ]
-                }
-              />
-            </section>
-            <section id="our-offer" className="scroll-mt-28">
-              <Overoffer />
-            </section>
-
-            <div className="sm:hidden h-24" aria-hidden="true" />
-          </div>
-
-          {/* SIDEBAR */}
-          <aside className="order-1 lg:order-2 lg:col-span-4 xl:col-span-4 space-y-6 self-start lg:sticky lg:top-24">
-            {hasQuickCheck ? (
-              <div className="hidden lg:block">
-                <EligibilityQuickCheck config={quickCheck} />
+              </>
+            ) },
+            { id: "contact", label: "Talk to us", content: (
+              <>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
+                <SocialProof />
               </div>
-            ) : null}
-
-            <div className="hidden lg:block rounded-2xl ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
-              <SocialProof />
-            </div>
-
-            <div className="hidden lg:block rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
-              <h3 className="text-base font-semibold">Brochure</h3>
-              <p className="text-sm opacity-80 mt-1">Full details, requirements, and timelines.</p>
-              <a
-                href={brochure}
-                download
-                className="mt-4 inline-flex rounded-xl ring-1 ring-neutral-300 dark:ring-neutral-700 px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
-              >
-                Download PDF
-              </a>
-            </div>
-
-            <div className="hidden lg:block">
               <ContactForm />
             </div>
-          </aside>
-        </div>
+              </>
+            ) },
+          ]}
+        />
       </main>
     );
   } catch (e) {

@@ -13,7 +13,8 @@ import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
 import GlobalSearch from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun, Sparkles } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
+import StartCta from '@/components/Xia/StartCta';
 
 export default function Header() {
   const pathname = usePathname();
@@ -300,18 +301,12 @@ export default function Header() {
                   <Sun className="h-5 w-5 hidden dark:inline" />
                 </button>
 
-                {/* XIA Intelligence — yellow CTA */}
-                <Link
-                  href="/xia-intelligence"
-                  className="type-small hidden h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-secondary px-3.5 font-bold text-primary transition-colors duration-150 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
-                >
-                  <Sparkles className="h-4 w-4 shrink-0" />
-                  XIA Intelligence
-                </Link>
+                {/* Find my route / My routes — the one yellow CTA */}
+                <StartCta className="type-small hidden h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-secondary px-4 font-bold text-primary transition-colors duration-150 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex" />
 
                 <Link
                   href="/contact"
-                  className="type-small hidden h-10 shrink-0 items-center justify-center rounded-lg bg-white px-3.5 font-bold text-primary shadow-sm transition-colors duration-150 hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
+                  className="type-small hidden h-10 shrink-0 items-center justify-center rounded-lg bg-secondary px-4 font-bold text-primary transition-colors duration-150 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:inline-flex"
                 >
                   Contact Us
                 </Link>
@@ -320,13 +315,13 @@ export default function Header() {
                 <div className="group relative hidden lg:inline-flex shrink-0">
                   <Link
                     href="/personal-booking"
-                    className="type-small inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 pl-2 pr-3.5 font-bold text-white transition-colors duration-150 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                    className="type-small inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-secondary pl-2 pr-4 font-bold text-primary transition-colors duration-150 hover:bg-[#f0cb3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/images/avtar/varun-singh-md-xiphias.jpg"
                       alt="Varun Singh"
-                      className="h-7 w-7 rounded-full object-cover object-top ring-2 ring-white/40 shrink-0"
+                      className="h-7 w-7 rounded-full object-cover object-top ring-2 ring-primary/15 shrink-0"
                     />
                     <span>Talk to Senior Advisor</span>
                   </Link>
@@ -438,6 +433,9 @@ export default function Header() {
               </div>
 
               <div className="mt-3 grid gap-2">
+                <div onClick={() => setDrawerOpen(false)}>
+                  <StartCta className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-secondary px-4 py-3 text-sm font-black text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" />
+                </div>
                 <Link
                   href="/contact"
                   onClick={() => setDrawerOpen(false)}

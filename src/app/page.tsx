@@ -22,8 +22,7 @@ const CitizenshipPreview = dynamic(
 // gateway, which asked a first-time visitor to choose between three assessments
 // before telling them what any of them were.
 const XiaBand = dynamic(() => import("@/components/Home/XiaBand"));
-// The mascot arrives over the hero on its own, the way the contact form used to
-// — but it offers XIA instead of five fields and a consent box.
+// The welcome card: one button, Get started, which opens XIA.
 const XiaGreeter = dynamic(() => import("@/components/Home/XiaGreeter"));
 const CorporatePreview = dynamic(
   () => import("@/components/Corporate/CorporatePreview"),

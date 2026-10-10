@@ -4,9 +4,10 @@
 // -----------------------------------------------------------------------------
 // XIA, full screen.
 //
-// Five questions, one at a time, each answerable by tapping a suggestion or by
-// typing. Then the programmes, with every gap named. Then the report, and the
-// advisor after it.
+// Three questions, one at a time, each answerable by tapping a suggestion or by
+// typing, then whatever the matched routes still need to know. Then the
+// programmes, with every gap named, pinned to the top of the screen. The advisor
+// card leads the closing only when it is earned (see lib/xia/script).
 //
 // Two things here are deliberate and were learned the hard way:
 //
@@ -27,219 +28,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import {
-  ArrowRight, Calculator, CalendarCheck, CheckCircle2, CornerDownLeft,
-  FileText, Globe, LayoutGrid, Scale, Sparkles, X,
-} from "lucide-react";
+import { ArrowRight, CalendarCheck, CheckCircle2, CornerDownLeft, FileText, Sparkles, X } from "lucide-react";
 
 import ConciergeOrb, { type OrbState } from "./ConciergeOrb";
 import { useOverlayScroll } from "./use-overlay-scroll";
 import { useXiaCase } from "./useXiaCase";
 import type { CaseMatch, XiaCase } from "@/lib/xia/case";
+import {
+  ADVISOR_LEAD, OPENERS, REGISTRATION_PRICE_LABEL, REPORT_PRICE_LABEL,
+  advisorReasonFor, refineFor, registrationHref, setField, toQuestion,
+  type AdvisorReason, type Chip, type Question, type WireAsk,
+} from "@/lib/xia/script";
 import { reportForMatch } from "@/lib/xia/report-for";
-
-/* -------------------------------------------------------------------------- */
-/*  The script                                                                 */
-/* -------------------------------------------------------------------------- */
-
-type Chip = {
-  label: string;
-  value: string;
-  emoji?: string;
-  /** Refinement chips carry their own patch, so they never go via the model. */
-  patch?: Partial<XiaCase>;
-};
-
-type Question = {
-  key: string;
-  /** Short label for the progress rail. */
-  rail: string;
-  ask: string;
-  chips: Chip[];
-  /** The case field a free-text answer to this question fills. */
-  field: keyof XiaCase;
-  /** Turn a chip value into the patch. Defaults to a plain string field. */
-  toPatch?: (value: string) => Partial<XiaCase>;
-};
-
-/** A computed key widens to a string index, so the cast has to go via unknown. */
-function setField(field: keyof XiaCase, value: string | number): Partial<XiaCase> {
-  return { [field]: value } as unknown as Partial<XiaCase>;
-}
-
-/**
- * The three questions that identify WHICH track someone is on. Everything after
- * these comes from the matched programmes' own rules — see `advance()`.
- *
- * It used to be a fixed five: job, country, goal, age, IELTS band. That asked a
- * Caribbean citizenship buyer for their IELTS score and never asked them how
- * much they could contribute. The rules always knew better; the script was not
- * listening to them.
- */
-const OPENERS: Question[] = [
-  {
-    key: "profile",
-    rail: "You",
-    ask: "First — what do you do for a living?",
-    field: "profile",
-    chips: [
-      { label: "Salaried professional", value: "professional", emoji: "\ud83d\udcbc" },
-      { label: "Founder / business owner", value: "entrepreneur", emoji: "\ud83d\ude80" },
-      { label: "Investor", value: "investor", emoji: "\ud83d\udcc8" },
-      { label: "Researcher or academic", value: "researcher", emoji: "\ud83d\udd2c" },
-      { label: "Doctor or nurse", value: "professional", emoji: "\ud83e\ude7a" },
-      { label: "Student or recent graduate", value: "student", emoji: "\ud83c\udf93" },
-      { label: "Remote worker / freelancer", value: "remote", emoji: "\ud83c\udf10" },
-    ],
-  },
-  {
-    key: "destination",
-    rail: "Where",
-    ask: "Where are you hoping to go? Pick one, or tell me you're open and I'll choose from what fits you.",
-    field: "destination",
-    chips: [
-      { label: "Canada", value: "canada", emoji: "\ud83c\udde8\ud83c\udde6" },
-      { label: "Australia", value: "australia", emoji: "\ud83c\udde6\ud83c\uddfa" },
-      { label: "United Kingdom", value: "united kingdom", emoji: "\ud83c\uddec\ud83c\udde7" },
-      { label: "United States", value: "united states", emoji: "\ud83c\uddfa\ud83c\uddf8" },
-      { label: "Portugal", value: "portugal", emoji: "\ud83c\uddf5\ud83c\uddf9" },
-      { label: "Greece", value: "greece", emoji: "\ud83c\uddec\ud83c\uddf7" },
-      { label: "UAE", value: "uae", emoji: "\ud83c\udde6\ud83c\uddea" },
-      { label: "I'm open — you pick", value: "", emoji: "\ud83c\udf0d" },
-    ],
-  },
-  {
-    key: "goal",
-    rail: "Goal",
-    ask: "And what do you want the move to actually achieve? This decides everything I ask you next.",
-    field: "goal",
-    chips: [
-      { label: "Permanent residence", value: "pr", emoji: "\ud83c\udfe0" },
-      { label: "Work abroad", value: "work-visa", emoji: "\ud83d\udcbc" },
-      { label: "A second passport", value: "citizenship", emoji: "\ud83d\udec2" },
-      { label: "Invest for residency", value: "investment", emoji: "\ud83d\udcb0" },
-      { label: "Start or move a business", value: "business-setup", emoji: "\ud83c\udfe2" },
-      { label: "Join or bring family", value: "family-migration", emoji: "\ud83d\udc6a" },
-      { label: "Study, then settle", value: "study", emoji: "\ud83d\udcda" },
-    ],
-  },
-];
-
-/* -------------------------------------------------------------------------- */
-/*  Questions that come back from the engine                                   */
-/* -------------------------------------------------------------------------- */
-
-/** What /api/xia/match returns. Data only — a function cannot cross the wire. */
-type WireAsk = {
-  field: string;
-  rail: string;
-  question: string;
-  chips: Array<{ label: string; value: string }>;
-};
-
-/**
- * Chip value to case patch, for the fields where the value is not just a string.
- * Mirrors the `toPatch` on the server-side Ask definitions; anything not listed
- * here is written to its field as plain text.
- */
-const ASK_PATCH: Record<string, (value: string) => Partial<XiaCase>> = {
-  age: (value) => ({ age: Number(value) }),
-  yearsExperience: (value) => ({ yearsExperience: Number(value) }),
-  timelineMonths: (value) => ({ timelineMonths: Number(value) }),
-  budgetUsd: (value) =>
-    Number(value) > 0 ? { budgetUsd: Number(value) } : { notes: "No fixed investment budget yet" },
-  previousRefusal: (value) =>
-    value === "discuss"
-      ? { notes: "Prefers to discuss refusal history with an advisor" }
-      : { previousRefusal: value === "yes" },
-  languageTest: (value) => {
-    if (value === "0") return { languageTest: "not-taken" };
-    if (value === "french") {
-      return { languageTest: "french", notes: "Tested in French — check the francophone bonus and category draws" };
-    }
-    const band = Number(value);
-    return {
-      languageTest: "english",
-      languageScores: { speaking: band, listening: band, reading: band, writing: band },
-    };
-  },
-};
-
-function toQuestion(ask: WireAsk): Question {
-  return {
-    key: `ask-${ask.field}`,
-    rail: ask.rail,
-    ask: ask.question,
-    field: ask.field as keyof XiaCase,
-    chips: ask.chips.map((chip) => ({ label: chip.label, value: chip.value })),
-    toPatch: ASK_PATCH[ask.field],
-  };
-}
-
-/**
- * Offered once the cards are up, to sharpen what is already on screen.
- *
- * These carry explicit patches rather than sentences. Sent as free text, the
- * extractor read "I can invest more than 250,000 US dollars" as a change of GOAL
- * to investment, which silently re-filtered a skilled-migration shortlist down to
- * nothing. A refinement adds a fact; it must never re-steer the search.
- *
- * Keyed by goal, because offering "I have a master's degree" to somebody buying
- * a Caribbean passport is the same mistake as asking them for an IELTS band.
- */
-const REFINE_BY_GOAL: Record<string, Chip[]> = {
-  pr: [
-    { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
-    { label: "10+ years' experience", value: "experience", patch: { yearsExperience: 12 } },
-    { label: "My partner is coming too", value: "partner", patch: { family: "partner" } },
-    { label: "I have a job offer there", value: "offer", patch: { notes: "Has a job offer in the destination country" } },
-  ],
-  "work-visa": [
-    { label: "I have a job offer there", value: "offer", patch: { notes: "Has a job offer in the destination country" } },
-    { label: "10+ years' experience", value: "experience", patch: { yearsExperience: 12 } },
-    { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
-    { label: "My partner is coming too", value: "partner", patch: { family: "partner" } },
-  ],
-  investment: [
-    { label: "I'd rather not relocate", value: "no-relocate", patch: { stayTolerance: "minimal" } },
-    { label: "Citizenship matters to me later", value: "cit-later", patch: { notes: "Wants a citizenship pathway from the residency" } },
-    { label: "My budget can stretch", value: "stretch", patch: { budgetUsd: 700_000 } },
-    { label: "Children under 18 coming", value: "kids", patch: { family: "children" } },
-  ],
-  citizenship: [
-    { label: "I need it within 6 months", value: "fast", patch: { timelineMonths: 6 } },
-    { label: "Adding parents too", value: "parents", patch: { family: "parents" } },
-    { label: "I've had a visa refused before", value: "refused", patch: { previousRefusal: true } },
-    { label: "My budget can stretch", value: "stretch", patch: { budgetUsd: 400_000 } },
-  ],
-  "business-setup": [
-    { label: "I have external funding", value: "funded", patch: { notes: "Business has external funding committed" } },
-    { label: "I'd relocate with the business", value: "relocate", patch: { stayTolerance: "relocate" } },
-    { label: "We already have clients there", value: "clients", patch: { notes: "Existing clients in the destination market" } },
-    { label: "The business trades already", value: "trading", patch: { businessStage: "2-5-years" } },
-  ],
-  "family-migration": [
-    { label: "We're already married", value: "married", patch: { family: "partner" } },
-    { label: "Not married yet", value: "unmarried", patch: { notes: "Relationship not yet registered as a marriage" } },
-    { label: "Children under 18 coming", value: "kids", patch: { family: "children" } },
-  ],
-  study: [
-    { label: "I studied in that country", value: "studied-there", patch: { notes: "Holds a qualification from the destination country" } },
-    { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
-    { label: "I have a job offer there", value: "offer", patch: { notes: "Has a job offer in the destination country" } },
-  ],
-};
-
-const REFINE_DEFAULT: Chip[] = [
-  { label: "I have a master's degree", value: "masters", patch: { education: "masters" } },
-  { label: "10+ years' experience", value: "experience", patch: { yearsExperience: 12 } },
-  { label: "My partner is coming too", value: "partner", patch: { family: "partner" } },
-  { label: "I can invest $250k+", value: "funds", patch: { budgetUsd: 250_000 } },
-];
-
-function refineFor(goal?: string): Chip[] {
-  return REFINE_BY_GOAL[goal ?? ""] ?? REFINE_DEFAULT;
-}
 
 /* -------------------------------------------------------------------------- */
 
@@ -254,7 +54,7 @@ function prefersReducedMotion() {
 
 /* -------------------------------------------------------------------------- */
 
-export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () => void }) {
+export default function XiaChat({ seed, resume = false, onClose }: { seed?: string; resume?: boolean; onClose: () => void }) {
   const { case: item, patchNow } = useXiaCase("hero");
   const [mounted, setMounted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -265,14 +65,14 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
    * once the engine says what the matched routes are waiting on.
    */
   const ladder = useRef<Question[]>([...OPENERS]);
-  /** Render mirror of the ladder, so the progress rail redraws when it grows. */
-  const [rail, setRail] = useState<Question[]>([...OPENERS]);
-  /** The engine is asked for follow-up questions exactly once. */
-  const askedEngine = useRef(false);
+  /** The progress rail: the three openers. */
+  const rail = OPENERS;
   const [chips, setChips] = useState<Chip[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  /** Set when the closing should lead with the advisor; null means the routes lead. */
+  const [advisor, setAdvisor] = useState<AdvisorReason | null>(null);
   /** Refinements already applied — an offer you have taken is not an offer. */
   const [usedRefine, setUsedRefine] = useState<string[]>([]);
   const [typing, setTyping] = useState<{ id: string; shown: number } | null>(null);
@@ -281,8 +81,8 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
   const chipsRef = useRef<HTMLUListElement | null>(null);
   const cardsRef = useRef<HTMLUListElement | null>(null);
   const started = useRef(false);
-  /** Questions already put to this visitor. A repeat reads as a broken bot. */
-  const asked = useRef<Set<number>>(new Set());
+  /** Questions already put to this visitor (ladder index or engine key). A repeat reads as a broken bot. */
+  const asked = useRef<Set<number | string>>(new Set());
   /** Set after `ask` is defined, so `advance` can call it without a cycle. */
   const askRef = useRef<(from: number) => void>(() => {});
   /** The last non-empty shortlist, so a refinement can never wipe the screen. */
@@ -292,6 +92,12 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
 
   const orbState: OrbState = busy ? "thinking" : done ? "resolved" : "listening";
   const visibleChips = chips.filter((chip) => !usedRefine.includes(chip.value));
+  /** While on the three openers: what the case already holds for this question, so the chip can be marked. */
+  const earlier: string | null = (() => {
+    if (index >= ladder.current.length) return null;
+    const value = item[ladder.current[index].field];
+    return typeof value === "string" && value ? value : null;
+  })();
 
   useEffect(() => setMounted(true), []);
 
@@ -333,7 +139,17 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
 
   /* --------------------------- scroll + page lock -------------------------- */
 
+  // Questions scroll to the bottom like any chat. The cards do not: they are the
+  // answer, so they pin to the top of the screen and everything after them —
+  // the refinement chips, the advisor — sits below, reached by scrolling down.
+  const pinCards = useRef(false);
   useEffect(() => {
+    if (pinCards.current) {
+      if (cardsRef.current && scrollRef.current) {
+        scrollRef.current.scrollTo({ top: Math.max(0, cardsRef.current.offsetTop - 12), behavior: "smooth" });
+      }
+      return;
+    }
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, chips, busy, typing]);
 
@@ -408,6 +224,17 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
       const response = await fetch("/api/xia/match?limit=4&closed=0", { credentials: "same-origin" });
       const data = await response.json();
       const matches: CaseMatch[] = data?.matches ?? [];
+      // The first thing the shortlisted routes are still waiting on, as chips
+      // that re-rank the cards. Each chip carries its own patch.
+      const asks = ((data?.questions ?? []) as WireAsk[]).map(toQuestion);
+      const nextAsk = asks.find((ask) => !asked.current.has(ask.key)) ?? null;
+      const askChips: Chip[] = nextAsk
+        ? nextAsk.chips.map((chip) => ({
+            label: chip.label,
+            value: `${nextAsk.key}:${chip.value}`,
+            patch: nextAsk.toPatch ? nextAsk.toPatch(chip.value) : setField(nextAsk.field, chip.value),
+          }))
+        : [];
       if (!matches.length && lastMatches.current.length) {
         // The extra detail ruled everything out under the current filters. The
         // earlier shortlist was honest on what we knew then, so it stays.
@@ -418,8 +245,11 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
         setDone(true);
         return;
       }
+      const reason = advisorReasonFor(item, matches);
+      setAdvisor(reason);
       if (matches.length) {
         lastMatches.current = matches;
+        pinCards.current = true;
         if (!resultsShown.current) {
           resultsShown.current = true;
           say({
@@ -432,7 +262,10 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
           say({ from: "xia", cards: matches });
           say({
             from: "xia",
-            text: "The full report sets out the filing order, the timing and the real costs, and lands in your inbox as a PDF. Tell me anything else about yourself and I will re-rank these on the spot.",
+            text:
+              reason && reason !== "nothing-clears"
+                ? ADVISOR_LEAD[reason]
+                : "Get started on a route and the assessment team takes it from there. Tell me anything else about yourself and I will re-rank these on the spot.",
           });
         } else {
           // Re-ranked, not restarted. Repeating the whole closing every time a
@@ -440,20 +273,16 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
           say({ from: "xia", text: "Re-ranked with that. Here is how it stands now." });
           say({ from: "xia", cards: matches });
         }
-        setChips(refineFor(item.goal));
-      } else if (item.goal === "family-migration") {
-        // Not a failure. Sponsorship rules are held by the destination's family
-        // stream, which this engine does not carry — saying "you do not clear
-        // the rules" would be a lie about a case that may be perfectly strong.
-        say({
-          from: "xia",
-          text: "Family sponsorship is decided by your relative's status and your relationship to them, not by a points table — so I will not pretend to score it. What you have told me is exactly what an advisor needs to answer it properly.",
-        });
+        if (nextAsk) {
+          asked.current.add(nextAsk.key);
+          say({ from: "xia", text: nextAsk.ask });
+        }
+        setChips([...askChips, ...refineFor(item.goal)]);
       } else {
-        say({
-          from: "xia",
-          text: "Nothing clears the published rules on what you have told me so far — which is worth knowing now rather than after a filing fee. That is exactly the case worth putting to a person.",
-        });
+        // No routes at all. A family case is not a failure — sponsorship rules
+        // are held by the destination's family stream, which this engine does
+        // not carry. Anything else is an honest "nothing clears".
+        say({ from: "xia", text: ADVISOR_LEAD[reason ?? "nothing-clears"] });
       }
       setDone(true);
     } catch {
@@ -469,30 +298,10 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
    * investment route asks capital, family and how much time you can spend there.
    * Nothing here is hard-coded per goal.
    */
+  // Three answers are enough for a first shortlist. Whatever the matched routes
+  // still want to know is offered as chips under the cards, not asked first —
+  // people want options, then they sharpen them.
   const advance = useCallback(async () => {
-    if (askedEngine.current) {
-      void showResults();
-      return;
-    }
-    askedEngine.current = true;
-
-    setBusy(true);
-    try {
-      const response = await fetch("/api/xia/match?limit=4&closed=0", { credentials: "same-origin" });
-      const data = await response.json();
-      const derived: Question[] = ((data?.questions ?? []) as WireAsk[]).map(toQuestion);
-      if (derived.length) {
-        const from = ladder.current.length;
-        ladder.current = [...ladder.current, ...derived];
-        setRail(ladder.current);
-        setBusy(false);
-        askRef.current(from);
-        return;
-      }
-    } catch {
-      /* fall through to the cards — a missing follow-up is not a dead end */
-    }
-    setBusy(false);
     void showResults();
   }, [showResults]);
 
@@ -547,6 +356,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
       if (!value || busy) return;
       setInput("");
       skipTyping();
+      pinCards.current = false;
       say({ from: "you", text: value });
       setChips([]);
       setBusy(true);
@@ -581,6 +391,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
     async (chip: Chip) => {
       if (busy) return;
       skipTyping();
+      pinCards.current = false;
 
       // After the cards are up, a suggestion applies its own patch and re-ranks.
       if (index >= ladder.current.length) {
@@ -624,10 +435,19 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
       text: `${hello} I check you against the published rules of every programme XIPHIAS works on and tell you plainly which you clear, which you are close to, and which are shut. A few quick questions \u2014 and only the ones your kind of route actually turns on.`,
     });
 
+    const answered = Boolean(item.goal && item.profile);
     if (seed) {
       void submit(seed);
+    } else if (resume && answered) {
+      // Came back for the options: straight to where it stands. Typing anything re-ranks.
+      setIndex(ladder.current.length);
+      say({ from: "xia", text: "Welcome back. Here is where it stands on what you told me — tell me anything new and I will re-rank it." });
+      window.setTimeout(() => void showResults(), 600);
     } else {
-      window.setTimeout(() => ask(0), 1000);
+      // Every front door asks first. Earlier answers are marked on the chips,
+      // so a returning visitor taps three times, or changes one.
+      if (answered) say({ from: "xia", text: "Your earlier answers are marked — tap to keep them, or pick something new." });
+      window.setTimeout(() => ask(0), answered ? 1400 : 1000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -638,7 +458,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
 
   const overlay = (
     <div className="xia-chat fixed inset-0 z-[99999] flex flex-col text-white" onClick={skipTyping}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-[#050f24]">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-primary">
         <span className="xia-aurora xia-aurora--gold" />
         <span className="xia-aurora xia-aurora--blue" />
         <span
@@ -665,7 +485,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
               <span
                 className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-500 ${
                   position < index
-                    ? "bg-[#e1b923] text-[#071a3a]"
+                    ? "bg-[#e1b923] text-primary"
                     : position === index
                       ? "bg-white/15 text-white ring-1 ring-[#e1b923]/60"
                       : "text-white/25"
@@ -713,12 +533,12 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
                 className={`xia-in flex ${message.from === "you" ? "justify-end" : "justify-start"}`}
               >
                 {message.from === "xia" ? (
-                  <p className="max-w-[92%] rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.06] px-4 py-3 text-[15px] leading-relaxed text-white/90 shadow-[0_8px_30px_rgba(3,16,40,0.35)]">
+                  <p className="max-w-[92%] rounded-2xl rounded-bl-sm border border-white/15 bg-white/[0.1] px-4 py-3 text-[15px] leading-relaxed text-white shadow-[0_8px_30px_rgba(3,16,40,0.25)]">
                     {typing?.id === message.id ? (message.text ?? "").slice(0, typing.shown) : message.text}
                     {typing?.id === message.id ? <span className="xia-caret" /> : null}
                   </p>
                 ) : (
-                  <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-gradient-to-br from-[#f0cb3b] to-[#d8ad1f] px-4 py-3 text-[15px] font-bold text-[#071a3a] shadow-[0_8px_26px_rgba(225,185,35,0.22)]">
+                  <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-gradient-to-br from-[#f0cb3b] to-[#d8ad1f] px-4 py-3 text-[15px] font-bold text-primary shadow-[0_8px_26px_rgba(225,185,35,0.22)]">
                     {message.text}
                   </p>
                 )}
@@ -737,12 +557,18 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
 
           {visibleChips.length && !typing ? (
             <ul ref={chipsRef} className="flex flex-wrap gap-2">
-              {visibleChips.map((chip) => (
+              {visibleChips.map((chip, position) => {
+                // Two labels can share a value ("Salaried professional" and "Doctor or nurse"); mark the first only.
+                const picked = earlier !== null && chip.value === earlier && visibleChips.findIndex((other) => other.value === earlier) === position;
+                return (
                 <li key={chip.label}>
                   <button
                     type="button"
                     onClick={() => void tapChip(chip)}
-                    className="group inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/[0.06] px-4 py-2.5 text-[14px] font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e1b923]/70 hover:bg-white/[0.13] hover:shadow-[0_10px_26px_rgba(3,16,40,0.45)]"
+                    aria-pressed={picked || undefined}
+                    className={`group inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-[14px] font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e1b923]/70 hover:bg-white/[0.13] hover:shadow-[0_10px_26px_rgba(3,16,40,0.45)] ${
+                      picked ? "border-[#e1b923]/80 bg-[#e1b923]/15 ring-2 ring-[#e1b923]/35" : "border-white/20 bg-white/[0.06]"
+                    }`}
                   >
                     {chip.emoji ? (
                       <span className="text-[15px] transition-transform duration-200 group-hover:scale-125">
@@ -752,16 +578,14 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
                     {chip.label}
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           ) : null}
 
           {/* Rendered once, pinned to the end — never appended per re-rank. */}
           {done && !busy ? (
-            <>
-              <AdvisorCard onNavigate={onClose} />
-              <ToolsCard onNavigate={onClose} />
-            </>
+            advisor ? <AdvisorCard onNavigate={onClose} /> : <QuietClose onNavigate={onClose} />
           ) : null}
         </div>
       </div>
@@ -785,7 +609,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
           <button
             type="submit"
             disabled={busy || !input.trim()}
-            className="group inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-[#e1b923] px-4 text-[14px] font-black text-[#071a3a] transition hover:bg-[#f0cb3b] disabled:opacity-40"
+            className="group inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-[#e1b923] px-4 text-[14px] font-black text-primary transition hover:bg-[#f0cb3b] disabled:opacity-40"
           >
             Send
             <CornerDownLeft
@@ -803,12 +627,12 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
         .xia-aurora { position: absolute; border-radius: 9999px; filter: blur(120px); will-change: transform; }
         .xia-aurora--gold {
           width: 46vw; height: 46vw; top: -14vw; right: -10vw;
-          background: rgba(225, 185, 35, 0.18);
+          background: rgba(225, 185, 35, 0.28);
           animation: xiaDriftA 22s ease-in-out infinite;
         }
         .xia-aurora--blue {
           width: 52vw; height: 52vw; bottom: -20vw; left: -14vw;
-          background: rgba(28, 87, 180, 0.42);
+          background: rgba(140, 190, 255, 0.35);
           animation: xiaDriftB 27s ease-in-out infinite;
         }
         @keyframes xiaDriftA {
@@ -863,6 +687,7 @@ export default function XiaChat({ seed, onClose }: { seed?: string; onClose: () 
  * as well as a false one.
  */
 function AdvisorCard({ onNavigate }: { onNavigate: () => void }) {
+  // The reason is already in the transcript above the card; here it is a title.
   return (
     <div className="xia-in relative overflow-hidden rounded-2xl border border-[#e1b923]/45 bg-gradient-to-br from-[#e1b923]/[0.14] via-[#e1b923]/[0.05] to-transparent p-5 sm:p-7">
       <span
@@ -903,7 +728,7 @@ function AdvisorCard({ onNavigate }: { onNavigate: () => void }) {
           <Link
             href="/personal-booking#schedule"
             onClick={onNavigate}
-            className="group inline-flex min-h-[3.5rem] flex-1 items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-6 text-[16px] font-black text-[#071a3a] shadow-[0_14px_34px_rgba(225,185,35,0.3)] transition hover:-translate-y-0.5 hover:bg-[#f0cb3b] hover:shadow-[0_18px_44px_rgba(225,185,35,0.45)]"
+            className="group inline-flex min-h-[3.5rem] flex-1 items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-6 text-[16px] font-black text-primary shadow-[0_14px_34px_rgba(225,185,35,0.3)] transition hover:-translate-y-0.5 hover:bg-[#f0cb3b] hover:shadow-[0_18px_44px_rgba(225,185,35,0.45)]"
           >
             <CalendarCheck className="size-[1.15em]" aria-hidden="true" />
             Book a consultation with Varun
@@ -933,72 +758,21 @@ function AdvisorCard({ onNavigate }: { onNavigate: () => void }) {
 
 /* -------------------------------------------------------------------------- */
 
-const TOOLS = [
-  {
-    href: "/xia-intelligence",
-    icon: LayoutGrid,
-    label: "Route Intelligence",
-    body: "The same rules engine, with every field open. Change one answer and watch the whole shortlist move.",
-  },
-  {
-    href: "/compare-programs",
-    icon: Scale,
-    label: "Compare programmes",
-    body: "Two or three routes side by side — cost, timeline, what each one actually demands.",
-  },
-  {
-    href: "/cost-estimator",
-    icon: Calculator,
-    label: "Cost estimator",
-    body: "Government fees, professional fees and the ones nobody mentions until you are committed.",
-  },
-  {
-    href: "/passport-index",
-    icon: Globe,
-    label: "Passport Power",
-    body: "What a passport is worth in practice: where it takes you, and where it still needs a visa.",
-  },
-];
-
 /**
- * The quieter of the two closings. Some people do not want to be handed to a
- * person — they want the controls. Offering only the consultation loses them.
+ * The closing when the routes are the answer. The advisor and the open tools
+ * are one line each — present, not pushed.
  */
-function ToolsCard({ onNavigate }: { onNavigate: () => void }) {
+function QuietClose({ onNavigate }: { onNavigate: () => void }) {
   return (
-    <div className="xia-in rounded-2xl border border-white/12 bg-white/[0.04] p-5 sm:p-6">
-      <p className="type-caption font-black uppercase tracking-[0.2em] text-white/45">Or drive it yourself</p>
-      <h3 className="mt-2 text-[19px] font-black leading-tight text-white sm:text-[21px]">
-        Rather explore it on your own?
-      </h3>
-      <p className="type-small mt-2 text-white/60">
-        Everything I just used is open to you, with nothing hidden behind a form.
-      </p>
-
-      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-        {TOOLS.map((tool) => (
-          <Link
-            key={tool.href}
-            href={tool.href}
-            onClick={onNavigate}
-            className="group flex items-start gap-3 rounded-xl border border-white/15 bg-white/[0.03] p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e1b923]/60 hover:bg-white/[0.09]"
-          >
-            <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#e1b923]/15 text-[#f0cb3b]">
-              <tool.icon className="size-4" aria-hidden="true" />
-            </span>
-            <span className="min-w-0">
-              <span className="flex items-center gap-1.5 text-[14px] font-black text-white">
-                {tool.label}
-                <ArrowRight
-                  className="size-3.5 text-white/40 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[#f0cb3b]"
-                  aria-hidden="true"
-                />
-              </span>
-              <span className="mt-0.5 block text-[12.5px] leading-snug text-white/55">{tool.body}</span>
-            </span>
-          </Link>
-        ))}
-      </div>
+    <div className="xia-in flex flex-col gap-2 border-t border-white/10 pt-4 text-[13.5px] text-white/55 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6">
+      <Link href="/personal-booking#schedule" onClick={onNavigate} className="inline-flex items-center gap-1.5 font-bold text-white/75 transition hover:text-[#f0cb3b]">
+        <CalendarCheck className="size-4" aria-hidden="true" />
+        Rather talk it through? Book a session with Varun Singh
+      </Link>
+      <Link href="/xia-intelligence" onClick={onNavigate} className="inline-flex items-center gap-1.5 font-bold text-white/60 transition hover:text-white">
+        Open every tool XIA used
+        <ArrowRight className="size-3.5" aria-hidden="true" />
+      </Link>
     </div>
   );
 }
@@ -1061,14 +835,23 @@ function MatchCard({ match, onNavigate }: { match: CaseMatch; onNavigate: () => 
         </ul>
       ) : null}
 
-      {/* Three real buttons. The old tertiary read as body text and got ignored. */}
-      <div className="relative mt-5 grid gap-2 sm:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)]">
+      {/* One next step, the report beside it, the page after. The old three equal
+          buttons left people reading instead of starting. */}
+      <div className="relative mt-5 grid gap-2 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <Link
+          href={registrationHref(match)}
+          onClick={onNavigate}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-4 text-[14px] font-black text-primary shadow-[0_10px_26px_rgba(225,185,35,0.28)] transition hover:-translate-y-0.5 hover:bg-[#f0cb3b] hover:shadow-[0_14px_32px_rgba(225,185,35,0.4)]"
+        >
+          Get started — {REGISTRATION_PRICE_LABEL}
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
         <Link
           href={`/get-report/${product}`}
           onClick={onNavigate}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-4 text-[14px] font-black text-[#071a3a] shadow-[0_10px_26px_rgba(225,185,35,0.28)] transition hover:-translate-y-0.5 hover:bg-[#f0cb3b] hover:shadow-[0_14px_32px_rgba(225,185,35,0.4)]"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e1b923]/40 px-4 text-[14px] font-bold text-[#f0cb3b] transition hover:-translate-y-0.5 hover:border-[#e1b923] hover:bg-[#e1b923]/10"
         >
-          <FileText className="size-4" aria-hidden="true" /> Email me the report
+          <FileText className="size-4" aria-hidden="true" /> {REPORT_PRICE_LABEL} report
         </Link>
         <Link
           href={match.href}
@@ -1080,13 +863,6 @@ function MatchCard({ match, onNavigate }: { match: CaseMatch; onNavigate: () => 
             className="size-4 transition-transform duration-200 group-hover/btn:translate-x-1"
             aria-hidden="true"
           />
-        </Link>
-        <Link
-          href="/personal-booking#schedule"
-          onClick={onNavigate}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e1b923]/40 px-4 text-[14px] font-bold text-[#f0cb3b] transition hover:-translate-y-0.5 hover:border-[#e1b923] hover:bg-[#e1b923]/10"
-        >
-          <CalendarCheck className="size-4" aria-hidden="true" /> Talk to Varun
         </Link>
       </div>
     </li>

@@ -240,7 +240,7 @@ export default function AdvisorConsultationCard({
       {/* ══════════════════════════════════════
            COL 3 — Booking panel
           ══════════════════════════════════════ */}
-      <div className="relative flex flex-col bg-[#1551a0] p-5 sm:p-6">
+      <div className="relative flex flex-col bg-primary p-5 sm:p-6">
         {/* Thin left border (desktop) */}
         <div className="absolute inset-y-0 left-0 hidden w-px bg-white/10 lg:block" />
 
@@ -280,7 +280,7 @@ export default function AdvisorConsultationCard({
           onClick={(e) => {
             if (onBookAction) { e.preventDefault(); onBookAction({ plan: "paid" }); }
           }}
-          className="group mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-4 py-3 text-[13px] font-black text-[#1551a0] shadow-[0_3px_18px_rgba(225,185,35,0.28)] transition-all hover:bg-[#f0cb3b] hover:shadow-[0_5px_26px_rgba(225,185,35,0.44)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e1b923] focus-visible:ring-offset-1 focus-visible:ring-offset-[#1551a0]"
+          className="group mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-4 py-3 text-[13px] font-black text-primary shadow-[0_3px_18px_rgba(225,185,35,0.28)] transition-all hover:bg-[#f0cb3b] hover:shadow-[0_5px_26px_rgba(225,185,35,0.44)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e1b923] focus-visible:ring-offset-1 focus-visible:ring-offset-primary"
           aria-label="Book paid consultation"
         >
           Book Consultation

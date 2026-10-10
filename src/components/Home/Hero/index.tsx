@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, FileText, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 import HeroXiaActions from "@/components/Home/HeroXiaActions";
 
@@ -17,9 +17,9 @@ const DESTINATIONS: { name: string; flag: string; href: string }[] = [
 ];
 
 const STEPS: [string, string][] = [
-  ["01", "Choose a report"],
-  ["02", "Enter your details"],
-  ["03", "Pay & download"],
+  ["01", "Tell us about you"],
+  ["02", "See your routes"],
+  ["03", "Get started"],
 ];
 
 export default function Hero() {
@@ -51,25 +51,13 @@ export default function Hero() {
             Top Immigration Consultants in India
           </h1>
           <p className="mx-auto mt-[clamp(1.5rem,3.5vh,2.25rem)] max-w-4xl text-[clamp(1rem,calc(0.85rem+0.3vw),1.45rem)] font-normal leading-[1.75] text-white/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
-            Explore skilled migration, residency, citizenship, investment and corporate mobility routes across 35+ countries—with a clear way to register or buy the exact report you need.
+            Tell us what you do, where you want to go and what the move should achieve. We check you against the published rules of every programme we work on and show your routes, strongest first.
           </p>
 
-          {/* Compact pill actions — nav-pill scale, not billboards. */}
+          {/* One front door. The old four equal pills asked a first-time visitor to
+              choose between registering, a report, a chat and a tool before they
+              knew which route was theirs. Ask XIA still floats on every page. */}
           <div className="mt-[clamp(2rem,5vh,3rem)] flex flex-wrap items-center justify-center gap-[clamp(0.75rem,1vw,1.25rem)]">
-            <Link
-              href="/registration"
-              className="inline-flex min-h-[clamp(3rem,calc(2.8rem+0.5vw),3.5rem)] items-center justify-center gap-2 rounded-full bg-[#d8ad1f] px-[clamp(1.5rem,2vw,2.5rem)] text-[clamp(0.95rem,calc(0.86rem+0.18vw),1.15rem)] font-black text-primary shadow-[0_12px_30px_rgba(216,173,31,0.25)] transition hover:bg-[#efc939]"
-            >
-              Register for full assessment — ₹4,999
-              <ArrowRight className="size-[1.15em]" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/reports"
-              className="inline-flex min-h-[clamp(3rem,calc(2.8rem+0.5vw),3.5rem)] items-center justify-center gap-2 rounded-full border border-white/35 bg-white/10 px-[clamp(1.5rem,2vw,2.5rem)] text-[clamp(0.95rem,calc(0.86rem+0.18vw),1.15rem)] font-black text-white backdrop-blur-sm transition hover:bg-white/15"
-            >
-              Choose a report — from ₹499
-              <FileText className="size-[1.15em]" aria-hidden="true" />
-            </Link>
             <HeroXiaActions />
           </div>
 

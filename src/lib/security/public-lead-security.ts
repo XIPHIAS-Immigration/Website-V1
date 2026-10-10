@@ -288,6 +288,24 @@ function filteredResponse() {
   );
 }
 
+/**
+ * Staff testing the site hit the per-contact and duplicate limits within a few
+ * tries and saw "Too many submissions" on a form that was working. Addresses on
+ * the firm's own domains skip those two limits. The origin check, the spam
+ * signals and the per-IP limit still apply to them.
+ */
+const STAFF_EMAIL_DOMAINS = new Set(
+  (process.env.LEAD_STAFF_EMAIL_DOMAINS || "xiphias.in,xiphiasimmigration.com,xiphiasimmigration.ae")
+    .split(",")
+    .map((domain) => domain.trim().toLowerCase())
+    .filter(Boolean),
+);
+
+function isStaffEmail(email: string): boolean {
+  const domain = email.split("@")[1] || "";
+  return Boolean(domain) && STAFF_EMAIL_DOMAINS.has(domain);
+}
+
 export async function protectPublicLead(
   req: Request,
   input: LeadSecurityInput,
@@ -335,8 +353,9 @@ export async function protectPublicLead(
     TEN_MINUTES,
     now,
   );
+  const staff = isStaffEmail(email);
   const contactHash = contact ? securityHash(contact) : "";
-  const contactAllowed = contactHash
+  const contactAllowed = contactHash && !staff
     ? claimRateLimit(`contact:${endpoint}:${contactHash}`, options.contactLimit ?? 4, ONE_HOUR, now)
     : true;
 
@@ -351,7 +370,7 @@ export async function protectPublicLead(
   }
 
   const fingerprint = securityHash(`${endpoint}|${contact}|${clean(input.name, 160)}|${message}`);
-  if (!claimFingerprint(fingerprint, options.duplicateWindowMs ?? 30 * 60 * 1000, now)) {
+  if (!staff && !claimFingerprint(fingerprint, options.duplicateWindowMs ?? 30 * 60 * 1000, now)) {
     auditSecurityEvent({ endpoint, outcome: "duplicate", ipHash, contactHash: contactHash || undefined });
     pruneState(getState(), now);
     persistState(getState());

@@ -70,7 +70,10 @@ export async function POST(req: NextRequest) {
       startedAt: body.startedAt,
       extra: [body.productType, body.track, body.country, body.program],
     },
-    { endpoint: "jiopay-checkout", ipLimit: 5, contactLimit: 3 },
+    // A payment can fail at the gateway and be retried, so a repeat from the same
+    // person is only treated as a duplicate within a few seconds (a double click),
+    // not for the default 30 minutes, and a few more attempts per hour are allowed.
+    { endpoint: "jiopay-checkout", ipLimit: 10, contactLimit: 6, duplicateWindowMs: 20_000 },
   );
   if (securityResponse) return securityResponse;
 

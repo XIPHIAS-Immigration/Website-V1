@@ -8,6 +8,7 @@ import {
 } from "@/lib/corporate-content";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
 import nextDynamic from "next/dynamic";
+import { notFound } from "next/navigation";
 
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
 const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
@@ -54,6 +55,7 @@ export async function generateMetadata(props: {
   params: Promise<{ country: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
+  if (!getCorporateCountrySlugs().includes(params.country)) return { title: "Not found", robots: { index: false, follow: false } };
   const meta = getCountryFrontmatter(params.country);
   const heroImage = (meta as any).heroImage as string | undefined;
   const title = (meta as any).seo?.title ?? meta.title;
@@ -97,6 +99,8 @@ export default async function CountryPage(props: {
   params: Promise<{ country: string }>;
 }) {
   const params = await props.params;
+  // A country with no corporate page is a 404, not a crash.
+  if (!getCorporateCountrySlugs().includes(params.country)) notFound();
   const { meta } = await loadCountryPage(params.country);
   const programs = getCorporatePrograms(params.country);
 

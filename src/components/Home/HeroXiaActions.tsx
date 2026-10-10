@@ -2,40 +2,24 @@
 
 // src/components/Home/HeroXiaActions.tsx
 // -----------------------------------------------------------------------------
-// The two XIA entries in the hero. A client island, so the rest of the hero
-// stays a server component and keeps its markup in the first HTML response —
-// which is what the page is ranked on.
-//
-// "Ask XIA" opens the assistant over the page. "Route Intelligence" goes to the
-// tool for people who would rather drive it themselves.
+// The hero's one button. A client island, so the rest of the hero stays a
+// server component and keeps its markup in the first HTML response.
+// It opens XIA over the page — the same assistant as the header and the dock.
 // -----------------------------------------------------------------------------
 
-import Link from "next/link";
-import { LayoutGrid, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { openXiaChat } from "@/components/Xia/xia-chat";
 
-const SHELL =
-  "inline-flex min-h-[clamp(3rem,calc(2.8rem+0.5vw),3.5rem)] items-center justify-center gap-2 rounded-full px-[clamp(1.25rem,1.7vw,2.25rem)] text-[clamp(0.95rem,calc(0.86rem+0.18vw),1.15rem)] font-black backdrop-blur-sm transition";
-
 export default function HeroXiaActions() {
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => openXiaChat()}
-        className={`${SHELL} border border-[#f0c83f]/55 bg-[#f0c83f]/10 text-[#f0c83f] hover:bg-[#f0c83f]/20`}
-      >
-        <Sparkles className="size-[1.15em]" aria-hidden="true" />
-        Ask XIA
-      </button>
-      <Link
-        href="/xia-intelligence"
-        className={`${SHELL} border border-white/35 bg-white/10 text-white hover:bg-white/15`}
-      >
-        <LayoutGrid className="size-[1.15em]" aria-hidden="true" />
-        Route Intelligence
-      </Link>
-    </>
+    <button
+      type="button"
+      onClick={() => openXiaChat()}
+      className="inline-flex min-h-[clamp(3.25rem,calc(3rem+0.6vw),3.9rem)] items-center justify-center gap-2 rounded-full bg-[#d8ad1f] px-[clamp(2rem,2.8vw,3.5rem)] text-[clamp(1rem,calc(0.9rem+0.22vw),1.25rem)] font-black text-primary shadow-[0_12px_30px_rgba(216,173,31,0.3)] transition hover:bg-[#efc939]"
+    >
+      Find my second home
+      <ArrowRight className="size-[1.15em]" aria-hidden="true" />
+    </button>
   );
 }

@@ -138,8 +138,11 @@ export function notOwnCountry(country: string): Requirement {
     label: "Not your country of citizenship",
     gap: `You already hold ${country} citizenship.`,
     hard: true,
+    // Only a stated nationality can close the route. When it is not known we assume
+    // the visitor is not already a citizen, rather than telling them "You already
+    // hold ... citizenship" on every card.
     test: (item) => {
-      if (!item.nationality) return "unknown";
+      if (!item.nationality) return "pass";
       return norm(item.nationality) === norm(country) ? "fail" : "pass";
     },
   };

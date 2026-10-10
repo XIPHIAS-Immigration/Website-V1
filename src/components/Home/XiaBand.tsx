@@ -222,15 +222,16 @@ export default function XiaBand() {
           ))}
         </ul>
 
-        <Link
+        <button
           data-rise
-          href="/xia-intelligence"
+          type="button"
+          onClick={() => openXiaChat()}
           className="group mt-8 inline-flex items-center gap-2 text-[14px] font-bold text-white/55 underline-offset-4 transition hover:text-white hover:underline"
         >
           <LayoutGrid className="size-4" aria-hidden="true" />
-          Prefer to browse? Open Route Intelligence
+          Prefer to tap? Find my second home
           <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
-        </Link>
+        </button>
       </div>
 
       <style jsx>{`

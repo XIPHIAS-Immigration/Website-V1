@@ -13,7 +13,8 @@ const XiaConciergeDock = dynamic(() => import("@/components/Xia/XiaConciergeDock
 const XiaChatHost = dynamic(() => import("@/components/Xia/XiaChatHost"), { ssr: false });
 // Only ever appears after XIA has been closed, and never on a XIA page.
 const XiaExitForm = dynamic(() => import("@/components/Xia/XiaExitForm"), { ssr: false });
-const QuickEnquiryPopup = dynamic(() => import("@/components/QuickEnquiryPopup"), { ssr: false });
+// QuickEnquiryPopup.tsx is left in place but no longer mounted: the Start page
+// and the header button are the way in, and a pop-up over them was noise.
 const GlobalBrochureGate = dynamic(
   () => import("@/components/GlobalBrochureGate/GlobalBrochureGate"),
   { ssr: false },
@@ -78,7 +79,6 @@ export default function DeferredClientWidgets({ gaId }: Props) {
 
   return (
     <>
-      <QuickEnquiryPopup />
       <CookieConsentManager />
       <XiaChatHost />
       <XiaExitForm />

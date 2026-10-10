@@ -39,12 +39,14 @@ function stripParam() {
 export default function XiaChatHost() {
   const [open, setOpen] = useState(false);
   const [seed, setSeed] = useState<string | undefined>();
+  const [resume, setResume] = useState(false);
   const pathname = usePathname();
   const openedAt = useRef<string | null>(null);
 
   const close = useCallback(() => {
     setOpen(false);
     setSeed(undefined);
+    setResume(false);
     stripParam();
     openedAt.current = null;
     // Dismissed without giving details — the contact form gets its one chance.
@@ -60,7 +62,10 @@ export default function XiaChatHost() {
       return;
     }
     if (hasParam() && !openedAt.current) {
+      // Arrived with the chat in the URL — Back from a programme page, or an
+      // old link. Someone who has answered is shown their routes, not question one.
       openedAt.current = pathname;
+      setResume(true);
       setOpen(true);
     }
   }, [pathname]);
@@ -69,6 +74,7 @@ export default function XiaChatHost() {
     const onOpen = (event: Event) => {
       const detail = (event as CustomEvent<XiaChatOpenDetail>).detail;
       setSeed(detail?.seed?.trim() || undefined);
+      setResume(Boolean(detail?.resume));
       openedAt.current = window.location.pathname;
       setOpen(true);
       if (!hasParam()) {
@@ -80,6 +86,7 @@ export default function XiaChatHost() {
 
     const onPop = () => {
       const wanted = hasParam();
+      if (wanted) setResume(true);
       setOpen(wanted);
       openedAt.current = wanted ? window.location.pathname : null;
     };
@@ -92,6 +99,12 @@ export default function XiaChatHost() {
     };
   }, []);
 
+  // The floating scroll-to-top button listens for this and hides while the
+  // assistant is up, as it did for the old chat widget.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("xiphias-chat-state", { detail: { open } }));
+  }, [open]);
+
   if (!open) return null;
-  return <XiaChat seed={seed} onClose={close} />;
+  return <XiaChat seed={seed} resume={resume} onClose={close} />;
 }

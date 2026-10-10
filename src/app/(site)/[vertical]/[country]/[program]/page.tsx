@@ -12,6 +12,7 @@ import type { Metadata } from "next";
 import { JsonLd, breadcrumbLd } from "@/lib/seo"; // ✅ use helper
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import nextDynamic from "next/dynamic";
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -19,6 +20,7 @@ import path from "node:path";
 export const runtime = "nodejs"; // ensure Node.js runtime on Vercel
 
 const VERTICALS3: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
+const RouteNextStep = nextDynamic(() => import("@/components/Xia/RouteNextStep"));
 
 /** Build params ONLY from folder names; ignore front-matter completely. */
 export async function generateStaticParams() {
@@ -162,6 +164,7 @@ export default async function ProgramPage({
   return (
     <main className="mx-auto max-w-6xl p-6 grid lg:grid-cols-[2fr_1fr] gap-8">
       <JsonLd data={breadcrumbJsonLd} />
+      <RouteNextStep country={doc.country} track={doc.vertical} title={doc.title} />
 
       <article className="space-y-6">
         <header className="space-y-3">

@@ -13,6 +13,8 @@ import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
 import { localBusinessSchemas } from "@/lib/seo/schema";
 import { Prose } from "@/components/ui/Prose";
 import nextDynamic from "next/dynamic";
+import ProgrammeDecision from "@/components/Programme/ProgrammeDecision";
+import ProgrammeTabs from "@/components/Programme/ProgrammeTabs";
 
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
 const QuickFacts = nextDynamic(() => import("@/components/Residency/QuickFacts"));
@@ -20,8 +22,9 @@ const ProcessTimeline = nextDynamic(() => import("@/components/Residency/Process
 const FAQAccordion = nextDynamic(() => import("@/components/Residency/FAQAccordion"));
 const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
 import { formatTimelineShort } from "@/lib/timeline";
-const ProgramQuickNav = nextDynamic(() => import("@/components/Residency/ProgramQuickNav"));
 const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
+// The "what do I do now?" bar: this route's fit for the visitor and one next step.
+const RouteNextStep = nextDynamic(() => import("@/components/Xia/RouteNextStep"));
 const EligibilityQuickCheck = nextDynamic(() => import("@/components/Residency/EligibilityQuickCheck"));
 const SocialProof = nextDynamic(() => import("@/components/Residency/SocialProof"));
 const GovernmentFees = nextDynamic(() => import("@/components/Citizenship/GovernmentFees"));
@@ -272,26 +275,6 @@ export default async function ProgramPage(props: {
     const hasFaqSection = Boolean((meta as any).faq?.length);
 
     /** Quick Nav — corporate */
-    const sectionsForNav: { id: string; label: string }[] = [
-      { id: "quick-facts", label: "Quick Facts" },
-      ...(hasCompanySection ? [{ id: "company", label: "Company" }] : []),
-      ...(hasOverviewSection ? [{ id: "overview", label: "Overview" }] : []),
-      ...(sponsorship?.thresholds?.length || sponsorship?.notes?.length
-        ? [{ id: "sponsorship", label: "Sponsorship" }]
-        : []),
-      ...(governmentFees?.length ? [{ id: "gov-fees", label: "Govt. Fees" }] : []),
-      ...(((meta as any).requirements?.length ?? 0) ? [{ id: "requirements", label: "Eligibility" }] : []),
-      ...(((meta as any).benefits?.length ?? 0) ? [{ id: "benefits", label: "Benefits" }] : []),
-      ...(postSetup?.items?.length ? [{ id: "post-setup", label: "Post-setup" }] : []),
-      ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
-      ...(comparisonKey ? [{ id: "comparison", label: "Comparison" }] : []),
-      ...(sections[whyKey] ? [{ id: "why-country", label: `Why ${meta.country}` }] : []),
-      ...(authorityNotes?.length ? [{ id: "authority-notes", label: "Authority notes" }] : []),
-      ...(hasFaqSection ? [{ id: "faq", label: "FAQ" }] : []),
-      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
-      ...(otherPrograms.length ? [{ id: "other-programs", label: "Other Programs" }] : []),
-      ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
-    ];
 
     /** JSON-LD */
     const howToLdData =
@@ -355,21 +338,25 @@ export default async function ProgramPage(props: {
               poster={poster}
               imageSrc={heroImage}
               actions={[
-                { href: "/contact", label: "Book a Free Consultation", variant: "primary" },
+                { href: "#decide", label: "Get started — ₹4,999", variant: "primary" },
                 { href: brochure, label: "Download Brochure", variant: "ghost", download: true },
               ]}
             />
           </div>
           <Breadcrumb />
+          <RouteNextStep country={params.country} track="corporate" title={meta.title} />
         </div>
 
-        {/* IN-PAGE QUICK NAV */}
-        <ProgramQuickNav sections={sectionsForNav} />
+        {/* DECIDE NOW — the first screen: facts, fit and the one next step */}
+        <div id="decide" className="scroll-mt-28">
+          <ProgrammeDecision track="corporate" countrySlug={params.country} programSlug={params.program} meta={meta as unknown as Record<string, unknown>} brochure={brochure} />
+        </div>
 
-        {/* BODY */}
-        <div className="flex flex-col gap-8 pt-5 pb-2 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-8 lg:px-8">
-          {/* MAIN */}
-          <div className="order-2 lg:order-1 lg:col-span-8 xl:col-span-8 space-y-10">
+        {/* EVERYTHING ELSE — one tab at a time, not a 12,000-pixel scroll */}
+        <ProgrammeTabs
+          tabs={[
+            { id: "overview", label: "Overview", content: (
+              <>
             {/* QUICK FACTS */}
             <section id="quick-facts" className="scroll-mt-28">
               <QuickFacts
@@ -380,16 +367,6 @@ export default async function ProgramPage(props: {
                 tags={(meta as any).tags}
               />
             </section>
-
-            {/* MOBILE QUICK CHECK */}
-            {quickCheck?.questions?.length ? (
-              <section
-                id="quick-check-mobile"
-                className="sm:hidden scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 ring-1 ring-emerald-200/60 dark:ring-emerald-800/60 p-4"
-              >
-                <EligibilityQuickCheck config={quickCheck} />
-              </section>
-            ) : null}
 
             {/* COMPANY SNAPSHOT */}
             {hasCompanySection && (
@@ -412,74 +389,6 @@ export default async function ProgramPage(props: {
                   <h2 className="text-xl font-semibold">Program overview</h2>
                 </header>
                 <Prose>{sections[overviewKey]}</Prose>
-              </section>
-            )}
-
-            {/* SPONSORSHIP / SALARY RULES */}
-            {(sponsorship?.thresholds?.length || sponsorship?.notes?.length) && (
-              <section id="sponsorship" className="scroll-mt-28">
-                <SponsorshipRules
-                  title={sponsorship?.title}
-                  thresholds={sponsorship?.thresholds}
-                  notes={sponsorship?.notes}
-                />
-              </section>
-            )}
-
-            {/* GOVERNMENT FEES */}
-            {governmentFees?.length ? (
-              <section id="gov-fees" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Government fees</h2>
-                </header>
-                <GovernmentFees fees={governmentFees} defaultCurrency={(meta as any).currency || "USD"} />
-              </section>
-            ) : null}
-
-            {/* ELIGIBILITY */}
-            {(meta as any).requirements?.length ? (
-              <section
-                id="requirements"
-                className="scroll-mt-28 rounded-2xl bg-sky-50 dark:bg-sky-950/30 ring-1 ring-sky-200/60 dark:ring-sky-900/50 p-6"
-              >
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Eligibility</h2>
-                </header>
-                <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                  {(meta as any).requirements.map((r: string) => <li key={r}>{r}</li>)}
-                </ul>
-              </section>
-            ) : null}
-
-            {/* BENEFITS */}
-            {(meta as any).benefits?.length ? (
-              <section
-                id="benefits"
-                className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-950/25 ring-1 ring-emerald-200/60 dark:ring-emerald-900/40 p-6"
-              >
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Key benefits</h2>
-                </header>
-                <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                  {(meta as any).benefits.map((b: string) => <li key={b}>{b}</li>)}
-                </ul>
-              </section>
-            ) : null}
-
-            {/* POST-SETUP CHECKLIST */}
-            {postSetup?.items?.length ? (
-              <section id="post-setup" className="scroll-mt-28">
-                <PostSetupChecklist title={postSetup?.title} items={postSetup.items} />
-              </section>
-            ) : null}
-
-            {/* PROCESS */}
-            {processSteps.length > 0 && (
-              <section id="process" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Application process</h2>
-                </header>
-                <ProcessTimeline steps={processSteps} />
               </section>
             )}
 
@@ -514,37 +423,6 @@ export default async function ProgramPage(props: {
                     badgeTone={(b.badgeTone as any) ?? "indigo"}
                   />
                 ))}
-              </section>
-            ) : null}
-
-            {/* NOT A FIT? */}
-            {disqualifiers.length ? (
-              <section
-                id="not-a-fit"
-                className="scroll-mt-28 rounded-2xl bg-amber-50 dark:bg-amber-950/20 ring-1 ring-amber-200/60 dark:ring-amber-900/40 p-6"
-              >
-                <header className="mb-2">
-                  <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-300">Who this program is NOT for</h2>
-                </header>
-                <ul className="list-disc pl-5 text-[15px] leading-7 text-amber-900/90 dark:text-amber-100/90">
-                  {disqualifiers.map((d) => <li key={d}>{d}</li>)}
-                </ul>
-                <p className="mt-3 text-[14px]">
-                  Not a match? Explore{" "}
-                  <Link href={`/corporate/${params.country}`} className="underline">
-                    other programs in {meta.country}
-                  </Link>.
-                </p>
-              </section>
-            ) : null}
-
-            {/* FAQ */}
-            {(meta as any).faq?.length ? (
-              <section id="faq" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
-                </header>
-                <FAQAccordion faqs={(meta as any).faq} />
               </section>
             ) : null}
 
@@ -672,39 +550,149 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
-            {/* spacer so mobile floating nav never hides last section */}
-            <div className="sm:hidden h-1" aria-hidden="true" />
-          </div>
-
-          {/* SIDEBAR (desktop) */}
-          <aside className="hidden lg:block order-1 lg:order-2 lg:col-span-4 xl:col-span-4 space-y-6 self-start lg:sticky lg:top-24">
+              </>
+            ) },
+            { id: "eligibility", label: "Eligibility", content: (
+              <>
+            {/* MOBILE QUICK CHECK */}
             {quickCheck?.questions?.length ? (
-              <div className="hidden lg:block">
+              <section
+                id="quick-check-mobile"
+                className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 ring-1 ring-emerald-200/60 dark:ring-emerald-800/60 p-4"
+              >
                 <EligibilityQuickCheck config={quickCheck} />
-              </div>
+              </section>
             ) : null}
 
-            <div className="hidden lg:block rounded-2xl ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
-              <SocialProof />
-            </div>
+            {/* SPONSORSHIP / SALARY RULES */}
+            {(sponsorship?.thresholds?.length || sponsorship?.notes?.length) && (
+              <section id="sponsorship" className="scroll-mt-28">
+                <SponsorshipRules
+                  title={sponsorship?.title}
+                  thresholds={sponsorship?.thresholds}
+                  notes={sponsorship?.notes}
+                />
+              </section>
+            )}
 
-            <div className="hidden lg:block rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
-              <h3 className="text-base font-semibold">Brochure</h3>
-              <p className="text-sm opacity-80 mt-1">Full details, requirements, and timelines.</p>
-              <a
-                href={brochure}
-                download
-                className="mt-4 inline-flex rounded-xl ring-1 ring-neutral-300 dark:ring-neutral-700 px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            {/* ELIGIBILITY */}
+            {(meta as any).requirements?.length ? (
+              <section
+                id="requirements"
+                className="scroll-mt-28 rounded-2xl bg-sky-50 dark:bg-sky-950/30 ring-1 ring-sky-200/60 dark:ring-sky-900/50 p-6"
               >
-                Download PDF
-              </a>
-            </div>
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Eligibility</h2>
+                </header>
+                <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
+                  {(meta as any).requirements.map((r: string) => <li key={r}>{r}</li>)}
+                </ul>
+              </section>
+            ) : null}
 
-            <div className="hidden lg:block">
+            {/* BENEFITS */}
+            {(meta as any).benefits?.length ? (
+              <section
+                id="benefits"
+                className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-950/25 ring-1 ring-emerald-200/60 dark:ring-emerald-900/40 p-6"
+              >
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Key benefits</h2>
+                </header>
+                <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
+                  {(meta as any).benefits.map((b: string) => <li key={b}>{b}</li>)}
+                </ul>
+              </section>
+            ) : null}
+
+            {/* NOT A FIT? */}
+            {disqualifiers.length ? (
+              <section
+                id="not-a-fit"
+                className="scroll-mt-28 rounded-2xl bg-amber-50 dark:bg-amber-950/20 ring-1 ring-amber-200/60 dark:ring-amber-900/40 p-6"
+              >
+                <header className="mb-2">
+                  <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-300">Who this program is NOT for</h2>
+                </header>
+                <ul className="list-disc pl-5 text-[15px] leading-7 text-amber-900/90 dark:text-amber-100/90">
+                  {disqualifiers.map((d) => <li key={d}>{d}</li>)}
+                </ul>
+                <p className="mt-3 text-[14px]">
+                  Not a match? Explore{" "}
+                  <Link href={`/corporate/${params.country}`} className="underline">
+                    other programs in {meta.country}
+                  </Link>.
+                </p>
+              </section>
+            ) : null}
+
+              </>
+            ) },
+            { id: "costs", label: "Costs & fees", content: (
+              <>
+            {/* GOVERNMENT FEES */}
+            {governmentFees?.length ? (
+              <section id="gov-fees" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Government fees</h2>
+                </header>
+                <GovernmentFees fees={governmentFees} defaultCurrency={(meta as any).currency || "USD"} />
+              </section>
+            ) : null}
+
+              </>
+            ) },
+            { id: "process", label: "Process", content: (
+              <>
+            {/* POST-SETUP CHECKLIST */}
+            {postSetup?.items?.length ? (
+              <section id="post-setup" className="scroll-mt-28">
+                <PostSetupChecklist title={postSetup?.title} items={postSetup.items} />
+              </section>
+            ) : null}
+
+            {/* PROCESS */}
+            {processSteps.length > 0 && (
+              <section id="process" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Application process</h2>
+                </header>
+                <ProcessTimeline steps={processSteps} />
+              </section>
+            )}
+
+              </>
+            ) },
+            { id: "documents", label: "Documents & family", content: (
+              <>
+              </>
+            ) },
+            { id: "faq", label: "FAQ", content: (
+              <>
+            {/* FAQ */}
+            {(meta as any).faq?.length ? (
+              <section id="faq" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
+                </header>
+                <FAQAccordion faqs={(meta as any).faq} />
+              </section>
+            ) : null}
+
+              </>
+            ) },
+            { id: "contact", label: "Talk to us", content: (
+              <>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
+                <SocialProof />
+              </div>
               <ContactForm />
             </div>
-          </aside>
-        </div>
+              </>
+            ) },
+          ]}
+        />
       </main>
     );
   } catch (e) {

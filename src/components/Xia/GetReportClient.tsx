@@ -55,13 +55,24 @@ export default function GetReportClient({
           },
         }),
       });
-      const data = await response.json();
-      if (!data?.ok || !data?.redirectUrl) {
-        setError(data?.error || "Checkout could not be opened. Please try again in a moment.");
+      const data = (await response.json().catch(() => ({}))) as {
+        ok?: boolean; checkoutUrl?: string; redirectUrl?: string; error?: string; filtered?: boolean;
+      };
+      // The checkout API returns the JioPay link as `checkoutUrl` (the same field every
+      // other checkout on the site reads). This page used to look for `redirectUrl`,
+      // so a successful checkout was reported as a failure.
+      const checkoutUrl = data.checkoutUrl || data.redirectUrl;
+      if (!response.ok || !data.ok || !checkoutUrl) {
+        setError(
+          data.error ||
+            (data.filtered
+              ? "Your payment was started a moment ago. Please wait a few seconds and press Pay again."
+              : "Checkout could not be opened. Please try again in a moment."),
+        );
         setBusy(false);
         return;
       }
-      window.location.href = data.redirectUrl as string;
+      window.location.href = checkoutUrl;
     } catch {
       setError("Something went wrong reaching the payment gateway.");
       setBusy(false);

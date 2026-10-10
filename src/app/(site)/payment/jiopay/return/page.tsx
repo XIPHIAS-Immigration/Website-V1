@@ -74,7 +74,7 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
     ? isCrmPayment
       ? "JioPay returned a successful response. Your payment is being recorded in CRM and the usual invoice or receipt confirmation will be sent to your registered email."
       : isRegistration
-        ? "JioPay returned a successful response. XIPHIAS is creating your India CRM client record, paid receipt and secure client access. The included Deep Analysis begins after you complete your CRM profile."
+        ? "You are registered. Your client record, receipt and secure client login are being created now. Here is what happens next."
         : isConsultation
           ? "Your verified payment is being matched to the consultation slot you selected. Confirmation and a calendar invitation will be sent to your email."
         : "JioPay returned a successful response. XIPHIAS will verify and record your purchase, prepare the personalised PDF, and email a secure copy to the address used at checkout."
@@ -87,7 +87,7 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
     <main className="min-h-screen bg-[#eef3f9] px-4 py-16 text-[#071a3a]">
       <section className="mx-auto max-w-3xl rounded-2xl border border-[#dbe7f3] bg-white p-8 shadow-[0_20px_60px_rgba(7,26,58,0.12)]">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[#071a3a] text-[#d8b650]">
+          <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-[#d8b650]">
             <Icon className="size-7" aria-hidden="true" />
           </div>
           <div>
@@ -118,6 +118,25 @@ export default async function JiopayReturnPage({ searchParams }: Props) {
             <p className="mt-2 text-lg font-semibold text-[#071a3a]">{formatConsultationDate(consultation.dateISO)}</p>
             <p className="mt-1 text-sm text-[#536277]">{formatConsultationTime(consultation.timeISO)} · {consultation.durationMinutes} minutes · {consultation.timezone}</p>
           </div>
+        ) : null}
+
+        {success && isRegistration ? (
+          <ol className="mt-6 grid gap-3 sm:grid-cols-2">
+            {[
+              ["Check your email", "Your receipt and your client login arrive at the address you used at checkout."],
+              ["We call you", "The assessment team contacts you on the number you gave to go through your profile."],
+              ["Complete your profile", "Add your education, work history and documents in the client area — only once."],
+              ["Your Deep Analysis", "The report sets out where you stand, what each route still needs, and the named next step."],
+            ].map(([title, copy], index) => (
+              <li key={title} className="flex gap-3 rounded-xl border border-[#dbe7f3] bg-[#f8fbff] p-4">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-black text-[#d8ad1f]">{index + 1}</span>
+                <div>
+                  <p className="text-sm font-black text-[#071a3a]">{title}</p>
+                  <p className="mt-1 text-[13px] leading-6 text-[#536277]">{copy}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         ) : null}
 
         {fulfillmentStatusUrl ? <OrderFulfillmentStatus statusUrl={fulfillmentStatusUrl} /> : null}

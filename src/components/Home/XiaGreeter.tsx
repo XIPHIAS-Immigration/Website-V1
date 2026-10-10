@@ -8,15 +8,15 @@
 // else.
 //
 // Same slot, same timing, different ask. The XIA mark settles into place, says
-// what XIA is worth, shows the licences behind it, and offers one button — and
-// the button opens XIA rather than a form.
+// what XIA is worth, shows the licences behind it, and offers one button —
+// Get started — which opens XIA on its three questions.
 //
-// It greets on every load of the homepage, by design. Escape, the backdrop and
-// "Maybe later" all close it; nothing is remembered between loads.
+// It greets on every load of the homepage, by design, unless XIA is already up
+// (the visitor arrived on ?xia=1 or tapped the hero first). Escape, the
+// backdrop and "Maybe later" all close it; nothing is remembered between loads.
 // -----------------------------------------------------------------------------
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { ArrowRight, CalendarCheck, Compass, ScanSearch, Sparkles } from "lucide-react";
 
 import ConciergeOrb from "@/components/Xia/ConciergeOrb";
@@ -71,8 +71,22 @@ export default function XiaGreeter() {
   }, []);
 
   useEffect(() => {
+    // Never over XIA itself.
+    if (new URLSearchParams(window.location.search).get("xia") === "1") return;
     const timer = window.setTimeout(() => setArmed(true), OPEN_DELAY_MS);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  // If the visitor opens XIA some other way first, stand down.
+  useEffect(() => {
+    const onChat = (event: Event) => {
+      if ((event as CustomEvent<{ open?: boolean }>).detail?.open) {
+        setArmed(false);
+        setOpen(false);
+      }
+    };
+    window.addEventListener("xiphias-chat-state", onChat);
+    return () => window.removeEventListener("xiphias-chat-state", onChat);
   }, []);
 
   useEffect(() => {
@@ -89,6 +103,7 @@ export default function XiaGreeter() {
     closeXiaChat();
   }, []);
 
+  // One way in: XIA, on its three questions.
   const start = useCallback(() => {
     setOpen(false);
     setArmed(false);
@@ -174,7 +189,7 @@ export default function XiaGreeter() {
     <div
       ref={sheetRef}
       data-lenis-prevent
-      className="xia-greeter fixed inset-0 z-[99998] flex items-center justify-center overflow-y-auto overscroll-contain bg-[#04102a]/80 p-4 backdrop-blur-[4px] sm:p-6"
+      className="xia-greeter fixed inset-0 z-[99998] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/70 p-4 backdrop-blur-[4px] sm:p-6"
       onClick={dismiss}
     >
       <div
@@ -240,30 +255,23 @@ export default function XiaGreeter() {
                 ))}
               </ul>
 
-              <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+              <div className="mt-6">
                 <button
                   ref={startRef}
                   type="button"
                   onClick={start}
-                  className="group inline-flex min-h-[3.5rem] flex-1 items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-7 text-[16px] font-black text-[#071a3a] shadow-[0_14px_34px_rgba(225,185,35,0.3)] transition hover:-translate-y-0.5 hover:bg-[#f0cb3b] hover:shadow-[0_18px_44px_rgba(225,185,35,0.45)]"
+                  className="group inline-flex min-h-[3.5rem] w-full items-center justify-center gap-2 rounded-xl bg-[#e1b923] px-7 text-[16px] font-black text-primary shadow-[0_14px_34px_rgba(225,185,35,0.3)] transition hover:-translate-y-0.5 hover:bg-[#f0cb3b] hover:shadow-[0_18px_44px_rgba(225,185,35,0.45)]"
                 >
                   <Sparkles
                     className="size-[1.15em] transition-transform duration-300 group-hover:rotate-90"
                     aria-hidden="true"
                   />
-                  Start with XIA
+                  Get started
                   <ArrowRight
                     className="size-[1.1em] transition-transform duration-200 group-hover:translate-x-1"
                     aria-hidden="true"
                   />
                 </button>
-                <Link
-                  href="/xia-intelligence"
-                  onClick={dismiss}
-                  className="inline-flex min-h-[3.5rem] items-center justify-center rounded-xl border border-white/25 px-5 text-[14.5px] font-bold text-white/85 transition hover:border-white/55 hover:bg-white/10 hover:text-white"
-                >
-                  Browse programmes
-                </Link>
               </div>
 
               <ul className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 border-t border-white/10 pt-4 sm:justify-start">
