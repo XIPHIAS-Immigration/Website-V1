@@ -149,7 +149,7 @@ export default function MediaHero({
                   const styles =
                     a.variant === "ghost"
                       ? "bg-white/20 text-white backdrop-blur ring-1 ring-inset ring-white/30 hover:bg-white/30"
-                      : "bg-gradient-to-r from-blue-500 via-purple-600 to-fuchsia-600 text-white shadow-lg";
+                      : "bg-[#e1b923] text-primary font-black shadow-[0_10px_26px_rgba(225,185,35,0.3)] hover:bg-[#f0cb3b]";
                   return (
                     <Link
                       key={a.label}

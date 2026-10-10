@@ -9,6 +9,8 @@ import {
 } from "@/lib/skilled-content";
 import { baseFromCategory } from "@/lib/section-helpers";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
+import CountryDecision from "@/components/Programme/CountryDecision";
+import RouteNextStep from "@/components/Xia/RouteNextStep";
 
 import nextDynamic from "next/dynamic";
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
@@ -171,7 +173,7 @@ export default async function CountryPage(props: {
     variant?: "primary" | "ghost";
     download?: boolean;
   }[] = [
-    { href: "/personal-booking", label: "Book Free Consultation", variant: "primary" },
+    { href: "#decide", label: "Get started — ₹4,999", variant: "primary" },
     {
       href: brochure,
       label: "Download Brochure",
@@ -209,6 +211,9 @@ export default async function CountryPage(props: {
         <Breadcrumb />
       </div>
 
+      {/* The one screen a visitor needs: the routes here, and what to do now. */}
+      <CountryDecision track="skilled" countrySlug={country} country={countryName} programs={programs} brochure={brochure} />
+
       <div className="mt-6 grid gap-8 md:grid-cols-12">
         <aside className="md:col-span-4 space-y-6">
           <SidebarStatsPanel
@@ -240,6 +245,7 @@ export default async function CountryPage(props: {
       </div>
 
       <RelatedCountriesSection related={related} />
+      <RouteNextStep country={countryName} track="skilled" title={(meta as any).title ?? countryName} />
     </main>
   );
 }

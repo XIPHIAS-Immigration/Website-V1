@@ -7,6 +7,8 @@ import {
   getResidencyCountries,
 } from "@/lib/residency-content";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
+import CountryDecision from "@/components/Programme/CountryDecision";
+import RouteNextStep from "@/components/Xia/RouteNextStep";
 // Dynamically import heavy UI sections.  Splitting these into separate
 // chunks reduces initial JS payload and improves Lighthouse performance.
 import nextDynamic from "next/dynamic";
@@ -131,11 +133,7 @@ export default async function CountryPage(props: {
     variant?: "primary" | "ghost";
     download?: boolean;
   }[] = [
-    {
-      href: "/personal-booking",
-      label: "Book Consultation",
-      variant: "primary",
-    },
+{ href: "#decide", label: "Get started — ₹4,999", variant: "primary" },
     {
       href: brochure,
       label: "Download Brochure",
@@ -207,6 +205,9 @@ export default async function CountryPage(props: {
         <Breadcrumb />
       </div>
 
+      {/* The one screen a visitor needs: the routes here, and what to do now. */}
+      <CountryDecision track="residency" countrySlug={params.country} country={meta.country} programs={programs} brochure={brochure} />
+
       {/* LAYOUT */}
       <div className="mt-6 grid gap-8 md:grid-cols-12">
         {/* Sidebar */}
@@ -238,6 +239,7 @@ export default async function CountryPage(props: {
       </div>
 
       <RelatedCountriesSection related={related} />
+      <RouteNextStep country={meta.country} track="residency" title={meta.title} />
     </main>
   );
 }

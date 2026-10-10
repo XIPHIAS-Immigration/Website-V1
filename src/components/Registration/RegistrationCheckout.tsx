@@ -50,21 +50,29 @@ function titleCase(value: string) {
 
 export default function RegistrationCheckout({ priceInr }: { priceInr: number }) {
   return (
-    <Suspense fallback={<CheckoutForm priceInr={priceInr} route={null} />}>
+    <Suspense fallback={<CheckoutForm priceInr={priceInr} route={null} place={null} />}>
       <RoutedCheckout priceInr={priceInr} />
     </Suspense>
   );
 }
 
+const TRACKS: RegistrationForm["track"][] = ["skilled", "residency", "citizenship", "corporate"];
+
+/** A country page's "Get started": the country and category, with the route still open. */
+type Place = { country: string; track: RegistrationForm["track"] | null };
+
 function RoutedCheckout({ priceInr }: { priceInr: number }) {
   const params = useSearchParams();
   const route = programmeRuleById.get(params.get("route") ?? "") ?? null;
-  return <CheckoutForm priceInr={priceInr} route={route} />;
+  const country = (params.get("country") ?? "").trim().slice(0, 60);
+  const trackParam = params.get("track") ?? "";
+  const place: Place | null = !route && country ? { country, track: (TRACKS as string[]).includes(trackParam) ? (trackParam as RegistrationForm["track"]) : null } : null;
+  return <CheckoutForm priceInr={priceInr} route={route} place={place} />;
 }
 
-function CheckoutForm({ priceInr, route }: { priceInr: number; route: ProgrammeRule | null }) {
+function CheckoutForm({ priceInr, route, place }: { priceInr: number; route: ProgrammeRule | null; place: Place | null }) {
   const [form, setForm] = useState<RegistrationForm>({
-    name: "", email: "", phone: "", country: "", goal: "", track: route?.track ?? "skilled", consent: false, company: "",
+    name: "", email: "", phone: "", country: "", goal: "", track: route?.track ?? place?.track ?? "skilled", consent: false, company: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -82,11 +90,11 @@ function CheckoutForm({ priceInr, route }: { priceInr: number; route: ProgrammeR
       name: current.name || snap.name || "",
       email: current.email || snap.email || "",
       phone: current.phone || snap.phone || "",
-      country: current.country || route?.country || destination,
+      country: current.country || route?.country || place?.country || destination,
       goal: current.goal || goalLabel,
-      track: route?.track ?? current.track,
+      track: route?.track ?? place?.track ?? current.track,
     }));
-  }, [route]);
+  }, [route, place]);
 
   const submit = async () => {
     setError("");
@@ -119,8 +127,8 @@ function CheckoutForm({ priceInr, route }: { priceInr: number; route: ProgrammeR
           productName: "XIPHIAS Full Assessment Registration and Deep Analysis",
           track: form.track,
           country: form.country,
-          program: route ? `${route.title} (${route.country})` : form.goal || "Full immigration assessment",
-          page: route ? `/registration?route=${route.id}` : "/registration",
+          program: route ? `${route.title} (${route.country})` : place ? `${place.country} ${place.track ?? ""} routes`.trim() : form.goal || "Full immigration assessment",
+          page: route ? `/registration?route=${route.id}` : place ? `/registration?country=${encodeURIComponent(place.country)}` : "/registration",
           answers: {
             goal: form.goal,
             targetCountry: form.country,
@@ -156,9 +164,15 @@ function CheckoutForm({ priceInr, route }: { priceInr: number; route: ProgrammeR
       {route ? (
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-[#d8ad1f]/50 bg-[#fff9e8] px-4 py-3">
           <span className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a6a0a]">Getting started on</span>
-          <span className="text-[15px] font-black text-[#071a3a]">{route.title}</span>
-          <span className="text-[13px] font-bold text-[#071a3a]/60">{route.country}</span>
-          <Link href="/start" className="ml-auto text-[12.5px] font-bold text-[#0b4ea2] underline-offset-4 hover:underline">Change route</Link>
+          <span className="text-[15px] font-black text-primary">{route.title}</span>
+          <span className="text-[13px] font-bold text-primary/60">{route.country}</span>
+          <Link href="/?xia=1" className="ml-auto text-[12.5px] font-bold text-primary underline-offset-4 hover:underline">Change route</Link>
+        </div>
+      ) : place ? (
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-[#d8ad1f]/50 bg-[#fff9e8] px-4 py-3">
+          <span className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a6a0a]">Getting started in</span>
+          <span className="text-[15px] font-black text-primary">{place.country}</span>
+          <span className="text-[13px] font-bold text-primary/60">The assessment team picks the route with you</span>
         </div>
       ) : null}
       <p className="mt-2 text-sm leading-6 text-slate-500">Only checkout essentials are required now. Your full profile and documents are completed securely after payment.</p>
@@ -173,7 +187,7 @@ function CheckoutForm({ priceInr, route }: { priceInr: number; route: ProgrammeR
       </div>
       <label className="mt-6 flex cursor-pointer items-start gap-3 text-xs leading-6 text-slate-600"><input type="checkbox" checked={form.consent} onChange={(event) => update("consent", event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#d8ad1f]" /><span>I agree to the <Link href="/privacy-policy" className="font-bold text-[#0b4ea2] underline">privacy policy</Link> and to XIPHIAS processing these details for payment, assessment onboarding, report preparation and relevant support.</span></label>
       {error ? <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700" role="alert">{error}</p> : null}
-      <button type="button" onClick={submit} disabled={submitting} className="mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#d8ad1f] px-6 text-base font-black text-[#071a3a] transition hover:bg-[#efc939] disabled:cursor-wait disabled:opacity-70">
+      <button type="button" onClick={submit} disabled={submitting} className="mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#d8ad1f] px-6 text-base font-black text-primary transition hover:bg-[#efc939] disabled:cursor-wait disabled:opacity-70">
         {submitting ? <LoaderCircle className="size-5 animate-spin" /> : <CreditCard className="size-5" />}
         {submitting ? "Starting secure checkout..." : `Register and pay ₹${priceInr.toLocaleString("en-IN")}`}
       </button>
